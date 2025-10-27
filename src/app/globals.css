@@ -68,8 +68,15 @@ button:focus-visible {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(180deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+  }
 }
 
 .hero-pulse {
@@ -77,12 +84,15 @@ button:focus-visible {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { 
-    opacity: 0.1; 
+
+  0%,
+  100% {
+    opacity: 0.1;
     transform: scale(1);
   }
-  50% { 
-    opacity: 0.3; 
+
+  50% {
+    opacity: 0.3;
     transform: scale(1.1);
   }
 }
@@ -95,7 +105,7 @@ button:focus-visible {
     max-width: 100vw;
     overflow-x: hidden;
   }
-  
+
   .hero-text {
     max-width: 100%;
     word-break: break-word;

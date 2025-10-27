@@ -31,7 +31,7 @@ export function PhotographySection({ heading, description, images }: Photography
   return (
     <Section id="photography" className="relative overflow-hidden">
       <SectionBackground variant="photography" />
-      
+
       <Container>
         <div className="space-y-12 md:space-y-16">
           {/* Header */}
@@ -59,7 +59,7 @@ export function PhotographySection({ heading, description, images }: Photography
                   category={images[0].category}
                   location={images[0].location}
                   priority={true}
-                  sizes="(max-width: 1280px) 100vw, 1280px"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 1200px"
                   aspectRatio="auto"
                   width={1200}
                   height={800}

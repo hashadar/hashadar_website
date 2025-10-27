@@ -65,6 +65,7 @@ export function PortfolioGrid() {
                 location={image.location}
                 aspectRatio="2/3"
                 showOverlay={true}
+                priority={index < 6}
                 onClick={() => openLightbox(index)}
               />
             </motion.div>

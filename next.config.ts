@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     qualities: [75, 95],
     minimumCacheTTL: 60,
   },
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: true,
 };
 
 export default nextConfig;

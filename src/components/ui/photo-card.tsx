@@ -59,6 +59,7 @@ export function PhotoCard({
           sizes={sizes}
           quality={90}
           priority={priority}
+          loading={priority ? "eager" : "lazy"}
         />
         
         {/* Overlay */}
@@ -118,6 +119,7 @@ export function PhotoCard({
         sizes={sizes}
         quality={90}
         priority={priority}
+        loading={priority ? "eager" : "lazy"}
       />
       
       {/* Overlay */}
