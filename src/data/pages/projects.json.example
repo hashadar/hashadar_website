@@ -1,0 +1,23 @@
+{
+  "heading": "Projects",
+  "description": "A showcase of my recent work and side projects",
+  "projects": [
+    {
+      "title": "AI Assistant Platform",
+      "description": "Built a custom AI assistant for enterprise clients",
+      "technologies": ["Python", "OpenAI", "FastAPI", "React"],
+      "image": "/img/projects/ai-platform.jpg",
+      "link": "https://github.com/yourusername/project",
+      "featured": true
+    },
+    {
+      "title": "Data Visualization Dashboard",
+      "description": "Interactive dashboard for business intelligence",
+      "technologies": ["TypeScript", "D3.js", "Next.js"],
+      "image": "/img/projects/dashboard.jpg",
+      "link": "https://example.com",
+      "featured": false
+    }
+  ]
+}
+

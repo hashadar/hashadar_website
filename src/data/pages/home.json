@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "name": "hasha dar",
+    "title": "I am an AI & Data Consultant"
+  },
+  "about": {
+    "heading": "about",
+    "content": "I'm a Consulting Senior Analyst at Deloitte working in the AI & Data department. My work involves helping our clients implement AI solutions and manage their data effectively. I hold a mechanical engineering degree from UCL, graduating in 2023. In my free time, I develop apps and do photography. I primarily shoot portraiture and a bit of travel! I also enjoy theatre, where I worked as a production manager and contributed to sound and lighting design."
+  },
+  "photography": {
+    "heading": "photography",
+    "images": [
+      {
+        "src": "/img/mangrove_beach.jpg",
+        "alt": "mangrove beach",
+        "title": "Mangrove Beach"
+      },
+      {
+        "src": "/img/rak_beach.jpg",
+        "alt": "rak beach",
+        "title": "Rocks and Waves"
+      },
+      {
+        "src": "/img/sand_mountains.jpg",
+        "alt": "sand mountains",
+        "title": "Sand Sculptures"
+      }
+    ]
+  },
+  "experience": {
+    "heading": "experience",
+    "companies": [
+      {
+        "name": "Deloitte LLP",
+        "location": "London, United Kingdom",
+        "roles": [
+          {
+            "role": "Senior Analyst",
+            "period": "Jun 2025 - Present",
+            "description": "Technology and Transformation | AI and Data."
+          },
+          {
+            "role": "Analyst",
+            "period": "Sep 2024 - May 2025",
+            "description": "Technology and Transformation | AI and Data."
+          }
+        ]
+      },
+      {
+        "name": "ALTEN Ltd",
+        "location": "London, United Kingdom",
+        "roles": [
+          {
+            "role": "Graduate Business Manager",
+            "period": "Jan 2024 - Jul 2024",
+            "description": "Business Development, Account Management, Project Management."
+          }
+        ]
+      }
+    ]
+  }
+}
+

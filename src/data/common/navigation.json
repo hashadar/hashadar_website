@@ -1,0 +1,21 @@
+{
+  "links": [
+    {
+      "label": "Home",
+      "href": "#hero"
+    },
+    {
+      "label": "About",
+      "href": "#about"
+    },
+    {
+      "label": "Photography",
+      "href": "#photography"
+    },
+    {
+      "label": "Experience",
+      "href": "#experience"
+    }
+  ]
+}
+
