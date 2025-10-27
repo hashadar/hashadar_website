@@ -1,10 +1,12 @@
 import homeData from './pages/home.json';
+import portfolioData from './pages/portfolio.json';
 import footerData from './common/footer.json';
 import navigationData from './common/navigation.json';
 import siteData from './common/site.json';
 
 import type {
   HomePageData,
+  PortfolioPageData,
   FooterData,
   NavigationData,
   SiteData,
@@ -12,6 +14,7 @@ import type {
 
 // Page data exports
 export const home = homeData as HomePageData;
+export const portfolio = portfolioData as PortfolioPageData;
 
 // Common data exports
 export const footer = footerData as FooterData;
@@ -24,6 +27,8 @@ export function getPageData(route: string) {
     case '/':
     case '/home':
       return home;
+    case '/portfolio':
+      return portfolio;
     default:
       return null;
   }

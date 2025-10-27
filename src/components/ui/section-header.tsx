@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Heading } from "./typography/heading";
 import { ReactNode } from "react";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface SectionHeaderProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ export function SectionHeader({
   animated = true,
   delay = 0,
 }: SectionHeaderProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const alignmentClasses = {
     left: "",
     center: "text-center",
@@ -37,7 +39,7 @@ export function SectionHeader({
     <div className={`relative w-full ${alignmentClasses[align]}`}>
       {/* Left vertical accent line */}
       {showLeftAccent && (
-        <div className="absolute -left-4 top-0 w-1 h-16 bg-[var(--primary)] transform -skew-y-12 hidden sm:block" />
+        <div className="absolute -left-4 top-0 w-1 h-full bg-[var(--primary)] transform -skew-y-12 hidden sm:block" />
       )}
       
       {/* Right bottom horizontal accent line */}
@@ -64,9 +66,9 @@ export function SectionHeader({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
+      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.8, delay, ease: "easeOut" }}
       viewport={{ once: true }}
     >
       {content}

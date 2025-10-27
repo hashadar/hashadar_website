@@ -2,6 +2,7 @@
 
 import { SectionHeader, Heading, Text, Container, Section, SectionBackground } from "@/components/ui";
 import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface Role {
   role: string;
@@ -21,6 +22,8 @@ interface ExperienceSectionProps {
 }
 
 export function ExperienceSection({ heading, companies }: ExperienceSectionProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  
   return (
     <Section id="experience" className="relative overflow-hidden">
       <SectionBackground variant="about-experience" />
@@ -36,9 +39,9 @@ export function ExperienceSection({ heading, companies }: ExperienceSectionProps
             {companies.map((company, companyIndex) => (
               <motion.div
                 key={company.name}
-                initial={{ opacity: 0, x: -50 }}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: companyIndex * 0.3, ease: "easeOut" }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.8, delay: companyIndex * 0.3, ease: "easeOut" }}
                 viewport={{ once: true }}
                 className="relative"
               >
@@ -68,9 +71,9 @@ export function ExperienceSection({ heading, companies }: ExperienceSectionProps
                       {company.roles.map((role, roleIndex) => (
                         <motion.div
                           key={`${company.name}-${role.role}`}
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
                           whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ 
+                          transition={prefersReducedMotion ? { duration: 0 } : { 
                             duration: 0.6, 
                             delay: (companyIndex * 0.3) + (roleIndex * 0.15), 
                             ease: "easeOut" 

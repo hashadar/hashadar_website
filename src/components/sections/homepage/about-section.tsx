@@ -2,6 +2,7 @@
 
 import { SectionHeader, Text, Container, Section, SectionBackground } from "@/components/ui";
 import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface AboutSectionProps {
   heading: string;
@@ -9,6 +10,8 @@ interface AboutSectionProps {
 }
 
 export function AboutSection({ heading, content }: AboutSectionProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  
   return (
     <Section id="about" className="relative overflow-hidden">
       <SectionBackground variant="about-experience" />
@@ -22,9 +25,9 @@ export function AboutSection({ heading, content }: AboutSectionProps) {
 
           {/* Content - Simplified single column */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.8, delay: 0.2, ease: "easeOut" }}
             viewport={{ once: true }}
             className="relative max-w-4xl mx-auto"
           >

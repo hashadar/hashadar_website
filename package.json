@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/zalando-sans-expanded": "^5.2.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",
     "next": "16.0.0",

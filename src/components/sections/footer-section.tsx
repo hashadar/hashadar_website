@@ -10,6 +10,7 @@ import {
   LinkedInIcon,
   GitHubIcon 
 } from "@/components/ui/footer";
+import { navigation } from "@/data";
 
 interface FooterSectionProps {
   heading: string;
@@ -49,10 +50,11 @@ export function FooterSection({ heading, description, email, social, copyright }
             {/* Navigation links */}
             <FooterColumn title="Navigation" delay={0.2}>
               <nav className="space-y-3 relative z-10">
-                <NavLink href="#hero">Home</NavLink>
-                <NavLink href="#about">About</NavLink>
-                <NavLink href="#photography">Photography</NavLink>
-                <NavLink href="#experience">Experience</NavLink>
+                {navigation.links.map((link) => (
+                  <NavLink key={link.href} href={link.href}>
+                    {link.label}
+                  </NavLink>
+                ))}
               </nav>
             </FooterColumn>
 

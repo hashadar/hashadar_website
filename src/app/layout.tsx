@@ -1,13 +1,38 @@
 import type { Metadata } from "next";
 import { Michroma } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/data";
 import { StructuredData } from "@/components/seo/structured-data";
+import { ThemeScript } from "@/components/theme-script";
 
 const michroma = Michroma({
   variable: "--font-display",
   subsets: ["latin"],
   weight: "400",
+  display: "swap",
+});
+
+const zalandoSans = localFont({
+  src: [
+    {
+      path: "../../node_modules/@fontsource/zalando-sans-expanded/files/zalando-sans-expanded-latin-400-normal.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource/zalando-sans-expanded/files/zalando-sans-expanded-latin-500-normal.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource/zalando-sans-expanded/files/zalando-sans-expanded-latin-600-normal.woff2",
+      weight: "600",
+      style: "normal",
+    },
+  ],
+  variable: "--font-body",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -67,9 +92,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <ThemeScript />
         <StructuredData />
       </head>
-      <body className={`${michroma.variable} antialiased`}>
+      <body className={`${michroma.variable} ${zalandoSans.variable} antialiased`}>
         {children}
       </body>
     </html>

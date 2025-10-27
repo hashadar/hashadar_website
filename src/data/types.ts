@@ -14,10 +14,12 @@ export interface PhotoItem {
   alt: string;
   title: string;
   category?: string;
+  location?: string;
 }
 
 export interface PhotographySection {
   heading: string;
+  description?: string;
   images: PhotoItem[];
 }
 
@@ -43,6 +45,12 @@ export interface HomePageData {
   about: AboutSection;
   photography: PhotographySection;
   experience: ExperienceSection;
+}
+
+export interface PortfolioPageData {
+  heading: string;
+  description: string;
+  images: PhotoItem[];
 }
 
 // Common/shared types

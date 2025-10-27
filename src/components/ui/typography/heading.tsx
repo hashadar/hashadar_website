@@ -11,11 +11,11 @@ interface HeadingProps {
 
 // Fluid typography that scales based on viewport width with proper min/max constraints
 const sizeStyles = {
-  hero: { fontSize: 'clamp(3.5rem, 12vw, 16rem)', lineHeight: '0.7', letterSpacing: '-0.05em' },
-  xl: { fontSize: 'clamp(3rem, 8vw, 8rem)', lineHeight: '0.8', letterSpacing: '-0.03em' },
-  lg: { fontSize: 'clamp(2rem, 5vw, 5rem)', lineHeight: '0.85', letterSpacing: '-0.02em' },
-  md: { fontSize: 'clamp(1.5rem, 3vw, 3rem)', lineHeight: '0.9', letterSpacing: '-0.01em' },
-  sm: { fontSize: 'clamp(1rem, 1.5vw, 1.5rem)', lineHeight: '1.1', letterSpacing: '0.02em' },
+  hero: { fontSize: 'clamp(56px, 12vw, 256px)', lineHeight: '0.7', letterSpacing: '-0.8px' },
+  xl: { fontSize: 'clamp(48px, 8vw, 128px)', lineHeight: '0.8', letterSpacing: '-0.48px' },
+  lg: { fontSize: 'clamp(32px, 5vw, 80px)', lineHeight: '0.85', letterSpacing: '-0.32px' },
+  md: { fontSize: 'clamp(24px, 3vw, 48px)', lineHeight: '0.9', letterSpacing: '-0.16px' },
+  sm: { fontSize: 'clamp(16px, 1.5vw, 24px)', lineHeight: '1.1', letterSpacing: '0.32px' },
 };
 
 const sizeClasses = {

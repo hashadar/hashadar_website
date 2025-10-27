@@ -2,19 +2,19 @@
   "links": [
     {
       "label": "Home",
-      "href": "#hero"
+      "href": "/"
     },
     {
       "label": "About",
-      "href": "#about"
+      "href": "/about"
     },
     {
-      "label": "Photography",
-      "href": "#photography"
+      "label": "Portfolio",
+      "href": "/portfolio"
     },
     {
       "label": "Experience",
-      "href": "#experience"
+      "href": "/experience"
     }
   ]
 }
