@@ -32,6 +32,10 @@ export function Lightbox({
   const currentImage = images[currentIndex];
   const hasMultipleImages = images.length > 1;
 
+  // Preload adjacent images for faster navigation
+  const nextIndex = (currentIndex + 1) % images.length;
+  const prevIndex = (currentIndex - 1 + images.length) % images.length;
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -162,7 +166,7 @@ export function Lightbox({
             className="relative max-w-7xl mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Image */}
+            {/* Current Image */}
             <div className="relative">
               <Image
                 src={currentImage.src}
@@ -172,8 +176,33 @@ export function Lightbox({
                 className="max-w-full max-h-[75vh] w-auto h-auto object-contain"
                 quality={95}
                 priority
+                loading="eager"
               />
             </div>
+
+            {/* Preload adjacent images for faster navigation */}
+            {hasMultipleImages && (
+              <>
+                <div className="hidden">
+                  <Image
+                    src={images[nextIndex]?.src}
+                    alt={images[nextIndex]?.alt || ""}
+                    width={1600}
+                    height={1200}
+                    priority
+                    loading="eager"
+                  />
+                  <Image
+                    src={images[prevIndex]?.src}
+                    alt={images[prevIndex]?.alt || ""}
+                    width={1600}
+                    height={1200}
+                    priority
+                    loading="eager"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Image caption */}
             {(currentImage.title || currentImage.category || currentImage.location) && (
