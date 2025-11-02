@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface AboutSectionProps {
   heading: string;
-  content: string;
+  content: string | string[];
 }
 
 export function AboutSection({ heading, content }: AboutSectionProps) {
@@ -44,7 +44,7 @@ export function AboutSection({ heading, content }: AboutSectionProps) {
             {/* Content with padding */}
             <div className="p-8 md:p-16 lg:p-20 relative z-10">
               <Text size="lg" className="leading-relaxed text-[var(--foreground)]">
-                {content}
+                {Array.isArray(content) ? content.join(" ") : content}
               </Text>
             </div>
             
