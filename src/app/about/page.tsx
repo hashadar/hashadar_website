@@ -1,7 +1,16 @@
 import { Metadata } from "next";
-import { Header, SkipToContent, Container, Section, SectionHeader } from "@/components/ui";
+import { Header, SkipToContent } from "@/components/ui";
 import dynamic from "next/dynamic";
-import { site, footer } from "@/data";
+import { site, footer, about, cv } from "@/data";
+import { AboutHeroSection } from "@/components/sections/about/about-hero-section";
+
+const AboutProfessionalSection = dynamic(() => import("@/components/sections/about/about-professional-section").then(mod => ({ default: mod.AboutProfessionalSection })), {
+  loading: () => <div className="min-h-[400px]" />,
+});
+
+const ExperienceListing = dynamic(() => import("@/components/sections/shared/experience-listing").then(mod => ({ default: mod.ExperienceListing })), {
+  loading: () => <div className="min-h-[400px]" />,
+});
 
 const FooterSection = dynamic(() => import("@/components/sections/footer-section").then(mod => ({ default: mod.FooterSection })), {
   loading: () => <div className="min-h-[400px]" />,
@@ -23,30 +32,11 @@ export default function AboutPage() {
     <>
       <SkipToContent />
       <Header />
-      <main id="main-content" className="bg-[var(--background)] min-h-screen pt-20">
-        <Section className="py-20">
-          <Container>
-            <SectionHeader animated={false}>
-              About
-            </SectionHeader>
-            
-            <div className="mt-16 max-w-2xl mx-auto text-center">
-              <div className="relative p-12 border-2 border-[var(--primary)] border-dashed rounded-lg">
-                <div className="absolute top-0 left-0 w-12 h-12 border-l-2 border-t-2 border-[var(--primary)]" />
-                <div className="absolute top-0 right-0 w-12 h-12 border-r-2 border-t-2 border-[var(--primary)]" />
-                <div className="absolute bottom-0 left-0 w-12 h-12 border-l-2 border-b-2 border-[var(--primary)]" />
-                <div className="absolute bottom-0 right-0 w-12 h-12 border-r-2 border-b-2 border-[var(--primary)]" />
-                
-                <h2 className="font-display text-2xl font-bold text-[var(--foreground)] mb-4">
-                  Under Development
-                </h2>
-                <p className="text-[var(--foreground)]/70">
-                  This section is currently being built. Check back soon for more information about my background and experience.
-                </p>
-              </div>
-            </div>
-          </Container>
-        </Section>
+      <main id="main-content" className="bg-[var(--background)]">
+        <AboutHeroSection {...about.hero} />
+        <AboutProfessionalSection {...about.professional} />
+        <ExperienceListing {...cv.experience} variant="about-experience" />
+        <ExperienceListing {...cv.education} variant="about-experience" />
         <FooterSection {...footer.contact} />
       </main>
     </>

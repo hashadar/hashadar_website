@@ -53,6 +53,17 @@ export interface PortfolioPageData {
   images: PhotoItem[];
 }
 
+export interface AboutPageData {
+  hero: HeroSection;
+  professional: AboutSection;
+  education: AboutSection;
+}
+
+export interface CVData {
+  experience: ExperienceSection;
+  education: ExperienceSection;
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;

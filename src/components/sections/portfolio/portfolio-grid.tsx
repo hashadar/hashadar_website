@@ -4,7 +4,7 @@ import { SectionHeader, Container, Section, PhotoCard, Lightbox } from "@/compon
 import { portfolio } from "@/data";
 import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function PortfolioGrid() {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -29,6 +29,16 @@ export function PortfolioGrid() {
       (prev) => (prev - 1 + portfolio.images.length) % portfolio.images.length
     );
   };
+
+  // Preload all lightbox images after component mounts for instant navigation
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      portfolio.images.forEach((image) => {
+        const img = new window.Image();
+        img.src = image.src;
+      });
+    }
+  }, []);
 
   return (
     <Section className="py-20">
@@ -65,8 +75,15 @@ export function PortfolioGrid() {
                 location={image.location}
                 aspectRatio="2/3"
                 showOverlay={true}
-                priority={index < 6}
+                priority={index < 9}
                 onClick={() => openLightbox(index)}
+                onMouseEnter={() => {
+                  // Preload lightbox image on hover for instant opening
+                  if (typeof window !== 'undefined') {
+                    const img = new window.Image();
+                    img.src = image.src;
+                  }
+                }}
               />
             </motion.div>
           ))}
