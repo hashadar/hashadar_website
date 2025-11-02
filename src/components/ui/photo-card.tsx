@@ -17,6 +17,7 @@ interface PhotoCardProps {
   width?: number;
   height?: number;
   onClick?: () => void;
+  onMouseEnter?: () => void;
 }
 
 export function PhotoCard({
@@ -33,15 +34,21 @@ export function PhotoCard({
   width,
   height,
   onClick,
+  onMouseEnter,
 }: PhotoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    onMouseEnter?.();
+  };
 
   // For auto aspect ratio with width/height, use different layout
   if (aspectRatio === "auto" && width && height) {
     return (
       <div
         className={`group relative overflow-hidden bg-[var(--muted)] cursor-pointer ${className}`}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
         onClick={onClick}
         style={{
@@ -57,9 +64,11 @@ export function PhotoCard({
           height={height}
           className="w-full h-auto transition-transform duration-700 group-hover:scale-110"
           sizes={sizes}
-          quality={90}
+          quality={85}
           priority={priority}
           loading={priority ? "eager" : "lazy"}
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
         />
         
         {/* Overlay */}
@@ -102,7 +111,7 @@ export function PhotoCard({
   return (
     <div
       className={`group relative aspect-[2/3] overflow-hidden bg-[var(--muted)] cursor-pointer ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       style={{
@@ -117,9 +126,11 @@ export function PhotoCard({
         fill
         className="object-cover transition-transform duration-700 group-hover:scale-110"
         sizes={sizes}
-        quality={90}
+        quality={85}
         priority={priority}
         loading={priority ? "eager" : "lazy"}
+        placeholder="blur"
+        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
       />
       
       {/* Overlay */}
