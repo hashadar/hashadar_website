@@ -10,7 +10,7 @@ interface TextProps {
 }
 
 const sizeClasses = {
-  lg: "text-2xl leading-relaxed",
+  lg: "text-base md:text-2xl leading-relaxed",
   base: "text-lg leading-relaxed",
   sm: "text-base leading-normal",
   xs: "text-sm leading-normal",
