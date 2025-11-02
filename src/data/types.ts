@@ -6,7 +6,7 @@ export interface HeroSection {
 
 export interface AboutSection {
   heading: string;
-  content: string;
+  content: string | string[];
 }
 
 export interface PhotoItem {

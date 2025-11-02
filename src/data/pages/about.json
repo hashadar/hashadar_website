@@ -5,7 +5,12 @@
   },
   "professional": {
     "heading": "professional background",
-    "content": "I'm a Consulting Senior Analyst at Deloitte, working in the AI & Data department where I help clients navigate the complexities of artificial intelligence and data management. My work involves designing and implementing AI solutions that transform how organisations operate, from streamlining data pipelines to developing intelligent systems that drive decision-making. I specialise in translating technical capabilities into business value, working closely with clients to understand their challenges and deliver solutions that make a real impact. My role spans the full project lifecycle, from initial discovery and strategy through to implementation and optimisation. I work with cutting-edge AI technologies and data platforms, constantly learning and adapting to the rapidly evolving landscape of machine learning, data engineering, and intelligent automation."
+    "content": [
+      "I'm a Consulting Senior Analyst at Deloitte in the AI & Data department, designing and implementing AI solutions that transform how organisations operate—from streamlining data pipelines to developing intelligent decision-making systems.",
+      "I specialise in translating technical capabilities into business value. This means building systems that address real business needs and drive measurable outcomes.",
+      "My role spans the full project lifecycle, from initial discovery and strategy through to implementation and optimisation.",
+      "I work with cutting-edge AI technologies and data platforms, constantly adapting to the evolving landscape of machine learning, data engineering, and intelligent automation."
+    ]
   },
   "education": {
     "heading": "education",

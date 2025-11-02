@@ -6,11 +6,12 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface AboutProfessionalSectionProps {
   heading: string;
-  content: string;
+  content: string | string[];
 }
 
 export function AboutProfessionalSection({ heading, content }: AboutProfessionalSectionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const contentArray = Array.isArray(content) ? content : [content];
 
   return (
     <Section className="relative overflow-hidden">
@@ -38,9 +39,17 @@ export function AboutProfessionalSection({ heading, content }: AboutProfessional
             <div className="absolute bottom-0 right-0 w-32 h-px bg-[var(--primary)] transform skew-x-12 opacity-30" />
             
             <div className="p-8 md:p-16 lg:p-20 relative z-10">
-              <Text size="lg" className="leading-relaxed text-[var(--foreground)]">
-                {content}
-              </Text>
+              <div className="space-y-6">
+                {contentArray.map((paragraph, index) => (
+                  <Text 
+                    key={index}
+                    size="lg" 
+                    className="leading-relaxed text-[var(--foreground)]"
+                  >
+                    {paragraph}
+                  </Text>
+                ))}
+              </div>
             </div>
             
             <div className="absolute top-6 right-6 w-8 h-8 border-2 border-[var(--primary)] transform rotate-45 opacity-30" />
