@@ -1,6 +1,7 @@
 import homeData from './pages/home.json';
 import portfolioData from './pages/portfolio.json';
 import aboutData from './pages/about.json';
+import cvData from './pages/cv.json';
 import footerData from './common/footer.json';
 import navigationData from './common/navigation.json';
 import siteData from './common/site.json';
@@ -9,6 +10,7 @@ import type {
   HomePageData,
   PortfolioPageData,
   AboutPageData,
+  CVData,
   FooterData,
   NavigationData,
   SiteData,
@@ -18,6 +20,7 @@ import type {
 export const home = homeData as HomePageData;
 export const portfolio = portfolioData as PortfolioPageData;
 export const about = aboutData as AboutPageData;
+export const cv = cvData as CVData;
 
 // Common data exports
 export const footer = footerData as FooterData;

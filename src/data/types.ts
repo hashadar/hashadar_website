@@ -59,6 +59,11 @@ export interface AboutPageData {
   education: AboutSection;
 }
 
+export interface CVData {
+  experience: ExperienceSection;
+  education: ExperienceSection;
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;

@@ -1,0 +1,51 @@
+{
+  "experience": {
+    "heading": "experience",
+    "companies": [
+      {
+        "name": "Deloitte LLP",
+        "location": "London, United Kingdom",
+        "roles": [
+          {
+            "role": "Senior Analyst",
+            "period": "Jun 2025 - Present",
+            "description": "Technology and Transformation | AI and Data."
+          },
+          {
+            "role": "Analyst",
+            "period": "Sep 2024 - May 2025",
+            "description": "Technology and Transformation | AI and Data."
+          }
+        ]
+      },
+      {
+        "name": "ALTEN Ltd",
+        "location": "London, United Kingdom",
+        "roles": [
+          {
+            "role": "Graduate Business Manager",
+            "period": "Jan 2024 - Jul 2024",
+            "description": "Business Development, Account Management, Project Management."
+          }
+        ]
+      }
+    ]
+  },
+  "education": {
+    "heading": "education",
+    "companies": [
+      {
+        "name": "UCL",
+        "location": "London, United Kingdom",
+        "roles": [
+          {
+            "role": "Mechanical Engineering (MEng)",
+            "period": "Sep 2019 - Jul 2023",
+            "description": "Third Year Individual Project: Designing a lap-time simulator for the Shell Eco-marathon. Fourth Year Group Project (lead): Autonomous Drone Sensor Data Processing and Control."
+          }
+        ]
+      }
+    ]
+  }
+}
+
