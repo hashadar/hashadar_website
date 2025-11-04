@@ -35,7 +35,7 @@ export function AboutHeroSection({ name, title }: AboutHeroSectionProps) {
             className="relative"
           >
             <div className="absolute left-1/2 -translate-x-1/2 -top-4 w-16 h-px bg-[var(--primary)] transform -skew-x-12 opacity-40" />
-            <Heading size="sm" as="h2" className="text-[var(--primary)] tracking-[0.2em] uppercase relative">
+            <Heading size="sm" as="h2" className="text-[var(--primary)] tracking-[0.25em] capitalize relative">
               {title}
             </Heading>
             <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-12 h-px bg-[var(--primary)] transform skew-x-12 opacity-30" />
