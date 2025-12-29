@@ -64,6 +64,20 @@ export interface CVData {
   education: ExperienceSection;
 }
 
+export interface BlogPageData {
+  heading: string;
+  description: string;
+  emptyState: string;
+  filterLabel: string;
+  sortLabel: string;
+  sortOptions: {
+    latest: string;
+    oldest: string;
+    title: string;
+  };
+  allCategories: string;
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;
@@ -103,5 +117,22 @@ export interface SiteData {
   metadata: SiteMetadata;
   brandName: string;
   locale: string;
+}
+
+export interface BlogPostFrontmatter {
+  title: string;
+  date: string;
+  excerpt: string;
+  category: string;
+  tags: string[];
+  image: string;
+  author: string;
+  aiGeneratedContent?: boolean;
+}
+
+export interface BlogPost {
+  slug: string;
+  frontmatter: BlogPostFrontmatter;
+  content: string;
 }
 

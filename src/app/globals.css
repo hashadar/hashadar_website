@@ -119,3 +119,327 @@ button:focus-visible {
     font-size: 40px !important;
   }
 }
+
+/* Blog content styles */
+.blog-content {
+  color: var(--foreground);
+  line-height: 1.75;
+  font-size: 1.125rem;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.2;
+}
+
+.blog-content h1 {
+  font-size: 2.25rem;
+}
+
+.blog-content h2 {
+  font-size: 1.875rem;
+}
+
+.blog-content h3 {
+  font-size: 1.5rem;
+}
+
+.blog-content h4 {
+  font-size: 1.25rem;
+}
+
+.blog-content p {
+  color: var(--foreground);
+  opacity: 0.9;
+  margin-bottom: 1.5em;
+}
+
+.blog-content a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.blog-content a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.blog-content strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.blog-content code {
+  color: var(--foreground);
+  background: var(--muted);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.blog-content pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1.5em;
+}
+
+.blog-content pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--foreground);
+}
+
+.blog-content blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1.5rem;
+  margin: 1.5em 0;
+  color: var(--foreground);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.blog-content ul,
+.blog-content ol {
+  color: var(--foreground);
+  opacity: 0.9;
+  margin-bottom: 1.5em;
+  padding-left: 1.5rem;
+}
+
+/* Unordered lists - square for level 1, dash for level 2+ */
+.blog-content ul {
+  list-style-type: square;
+}
+
+.blog-content ul ul {
+  list-style-type: none;
+  padding-left: 1.5rem;
+}
+
+.blog-content ul ul li::before {
+  content: "– ";
+  margin-left: -1.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Ordered lists - decimal (1., 2., 3.) for level 1, lower-alpha (a., b., c.) for level 2+ */
+.blog-content ol {
+  list-style-type: decimal;
+}
+
+.blog-content ol ol {
+  list-style-type: lower-alpha;
+}
+
+.blog-content li {
+  margin-bottom: 0.5em;
+}
+
+.blog-content img {
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  margin: 2em 0;
+  max-width: 100%;
+  height: auto;
+}
+
+.blog-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+}
+
+/* Tables */
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  display: table;
+  table-layout: auto;
+}
+
+/* Table wrapper for horizontal scrolling on mobile */
+@media (max-width: 768px) {
+  .blog-content {
+    overflow-x: auto;
+  }
+  
+  .blog-content table {
+    min-width: 100%;
+  }
+}
+
+.blog-content table thead {
+  background: var(--muted);
+}
+
+.blog-content table th,
+.blog-content table td {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  text-align: left; /* Default alignment */
+}
+
+/* Table alignment - respect align attribute from remark-gfm */
+/* Center alignment */
+.blog-content table th[align="center"],
+.blog-content table td[align="center"],
+.blog-content table th[style*="text-align:center"],
+.blog-content table td[style*="text-align:center"],
+.blog-content table th[style*="text-align: center"],
+.blog-content table td[style*="text-align: center"] {
+  text-align: center !important;
+}
+
+/* Right alignment */
+.blog-content table th[align="right"],
+.blog-content table td[align="right"],
+.blog-content table th[style*="text-align:right"],
+.blog-content table td[style*="text-align:right"],
+.blog-content table th[style*="text-align: right"],
+.blog-content table td[style*="text-align: right"] {
+  text-align: right !important;
+}
+
+/* Left alignment (explicit, though it's the default) */
+.blog-content table th[align="left"],
+.blog-content table td[align="left"],
+.blog-content table th[style*="text-align:left"],
+.blog-content table td[style*="text-align:left"],
+.blog-content table th[style*="text-align: left"],
+.blog-content table td[style*="text-align: left"] {
+  text-align: left !important;
+}
+
+.blog-content table th {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.blog-content table td {
+  color: var(--foreground);
+  opacity: 0.9;
+}
+
+.blog-content table tbody tr:nth-child(even) {
+  background: var(--muted);
+  opacity: 0.5;
+}
+
+.blog-content table tbody tr:hover {
+  background: var(--muted);
+  opacity: 0.8;
+}
+
+/* Task lists */
+.blog-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--primary);
+}
+
+/* Remove list markers from task list items */
+.blog-content li[data-task-list-item],
+.blog-content li:has(input[type="checkbox"]) {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* Ensure task list items still have proper spacing */
+.blog-content li:has(input[type="checkbox"]) {
+  margin-left: 0;
+}
+
+/* Definition lists */
+.blog-content dl {
+  margin: 1.5em 0;
+}
+
+.blog-content dt {
+  font-weight: 600;
+  color: var(--foreground);
+  margin-top: 1em;
+}
+
+.blog-content dd {
+  margin-left: 1.5rem;
+  color: var(--foreground);
+  opacity: 0.9;
+  margin-bottom: 0.5em;
+}
+
+/* Strikethrough */
+.blog-content del {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Nested lists spacing */
+.blog-content ul ul,
+.blog-content ol ol,
+.blog-content ul ol,
+.blog-content ol ul {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Line clamp utility */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Math rendering with KaTeX */
+.blog-content .katex {
+  font-size: 1.1em;
+}
+
+.blog-content .katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* HTML elements in blog content */
+.blog-content div,
+.blog-content span {
+  color: var(--foreground);
+}
+
+.blog-content div[style] {
+  /* Allow custom styling from HTML */
+}
+
+/* Ensure HTML tables are styled */
+.blog-content table[style] {
+  /* Allow custom styling from HTML tables */
+}
