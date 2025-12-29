@@ -1,0 +1,14 @@
+{
+  "heading": "Blog",
+  "description": "Thoughts, insights, and updates on technology, photography, and more.",
+  "emptyState": "No blog posts yet. Check back soon!",
+  "filterLabel": "Filter by category",
+  "sortLabel": "Sort by",
+  "sortOptions": {
+    "latest": "Latest",
+    "oldest": "Oldest",
+    "title": "Title (A-Z)"
+  },
+  "allCategories": "All Categories"
+}
+

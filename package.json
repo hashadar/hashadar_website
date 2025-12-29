@@ -11,11 +11,24 @@
   "dependencies": {
     "@fontsource/zalando-sans-expanded": "^5.2.1",
     "clsx": "^2.1.1",
+    "date-fns": "^3.0.0",
     "framer-motion": "^12.23.24",
+    "gray-matter": "^4.0.3",
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "tailwind-merge": "^3.3.1"
+    "hast-util-to-html": "^9.0.1",
+    "katex": "^0.16.11",
+    "rehype-katex": "^7.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.0",
+    "remark-html": "^16.0.1",
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.1",
+    "tailwind-merge": "^3.3.1",
+    "unified": "^11.0.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

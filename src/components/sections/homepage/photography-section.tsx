@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionHeader, Text, Container, Section, SectionBackground, PhotoCard, Lightbox } from "@/components/ui";
+import { SectionHeader, Text, Container, Section, SectionBackground, PhotoCard, Lightbox, Button } from "@/components/ui";
 import { useState } from "react";
 
 interface PhotoItem {
@@ -70,9 +70,11 @@ export function PhotographySection({ heading, description, images }: Photography
             </div>
           )}
 
-          {/* Bottom accent */}
-          <div className="flex justify-center pt-8">
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent" />
+          {/* Button */}
+          <div className="flex justify-center pt-8 relative z-10">
+            <Button href="/portfolio" variant="primary" size="md">
+              View Full Portfolio
+            </Button>
           </div>
         </div>
       </Container>

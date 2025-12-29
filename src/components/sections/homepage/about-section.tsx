@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionHeader, Text, Container, Section, SectionBackground } from "@/components/ui";
+import { SectionHeader, Text, Container, Section, SectionBackground, Button } from "@/components/ui";
 import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
@@ -32,14 +32,14 @@ export function AboutSection({ heading, content }: AboutSectionProps) {
             className="relative max-w-4xl mx-auto"
           >
             {/* Angular border effect */}
-            <div className="absolute inset-0 border-2 border-[var(--primary)] opacity-20 transform -rotate-1" 
+            <div className="absolute inset-0 border-2 border-[var(--primary)] opacity-20 transform -rotate-1 pointer-events-none" 
                  style={{
                    clipPath: 'polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))'
                  }} />
             
             {/* Accent lines */}
-            <div className="absolute top-0 left-0 w-20 h-px bg-[var(--primary)] transform -skew-x-12 opacity-50" />
-            <div className="absolute bottom-0 right-0 w-32 h-px bg-[var(--primary)] transform skew-x-12 opacity-30" />
+            <div className="absolute top-0 left-0 w-20 h-px bg-[var(--primary)] transform -skew-x-12 opacity-50 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-32 h-px bg-[var(--primary)] transform skew-x-12 opacity-30 pointer-events-none" />
             
             {/* Content with padding */}
             <div className="p-8 md:p-16 lg:p-20 relative z-10">
@@ -49,8 +49,21 @@ export function AboutSection({ heading, content }: AboutSectionProps) {
             </div>
             
             {/* Corner accents */}
-            <div className="absolute top-6 right-6 w-8 h-8 border-2 border-[var(--primary)] transform rotate-45 opacity-30" />
-            <div className="absolute bottom-6 left-6 w-6 h-6 bg-[var(--primary)] transform -rotate-12 opacity-10" />
+            <div className="absolute top-6 right-6 w-8 h-8 border-2 border-[var(--primary)] transform rotate-45 opacity-30 pointer-events-none" />
+            <div className="absolute bottom-6 left-6 w-6 h-6 bg-[var(--primary)] transform -rotate-12 opacity-10 pointer-events-none" />
+          </motion.div>
+
+          {/* Button */}
+          <motion.div
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.4, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="flex justify-center relative z-10"
+          >
+            <Button href="/about" variant="primary" size="md">
+              Learn More About Me
+            </Button>
           </motion.div>
         </div>
       </Container>

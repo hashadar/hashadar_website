@@ -1,12 +1,14 @@
 import { cn } from "@/lib/utils";
 import { ButtonHTMLAttributes, ReactNode } from "react";
+import Link from "next/link";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   children: ReactNode;
   variant?: "primary" | "ghost" | "outline";
   size?: "sm" | "md" | "lg";
   className?: string;
   asChild?: boolean;
+  href?: string;
 }
 
 const variantClasses = {
@@ -27,10 +29,11 @@ export function Button({
   size = "md",
   className,
   asChild,
+  href,
   ...props
 }: ButtonProps) {
   const buttonClasses = cn(
-    "font-body font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 inline-flex items-center justify-center",
+    "font-body font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 inline-flex items-center justify-center relative z-10",
     variantClasses[variant],
     sizeClasses[size],
     className
@@ -38,6 +41,14 @@ export function Button({
 
   if (asChild) {
     return <span className={buttonClasses}>{children}</span>;
+  }
+
+  if (href) {
+    return (
+      <Link href={href} className={buttonClasses} style={{ textDecoration: 'none' }}>
+        {children}
+      </Link>
+    );
   }
 
   return (

@@ -11,6 +11,10 @@
     {
       "label": "Portfolio",
       "href": "/portfolio"
+    },
+    {
+      "label": "Blog",
+      "href": "/blog"
     }
   ]
 }

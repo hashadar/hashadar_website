@@ -18,6 +18,7 @@ export { Section } from "./layout/section";
 // Content
 export { Card } from "./card";
 export { PhotoCard } from "./photo-card";
+export { BlogCard } from "./blog-card";
 export { Lightbox } from "./lightbox";
 
 // Footer

@@ -13,7 +13,7 @@ export function AboutHeroSection({ name, title }: AboutHeroSectionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   return (
-    <Section className="relative overflow-hidden pt-32 pb-20">
+    <Section className="relative overflow-hidden pt-28 md:pt-36 pb-20">
       <SectionBackground variant="about-experience" />
       
       <Container>
