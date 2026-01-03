@@ -1,0 +1,211 @@
+const fs = require('fs');
+const path = require('path');
+
+// Configuration from environment variables
+const BLOG_REPO_PATH = process.env.BLOG_REPO_PATH || path.join(process.cwd(), 'temp-blog-repo');
+const BLOGS_FOLDER_NAME = process.env.BLOGS_FOLDER_NAME || 'Blogs';
+const OUTPUT_DIR = path.join(process.cwd(), 'public', 'blog');
+
+// Ensure output directory exists
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+}
+
+const blogsSourcePath = path.join(BLOG_REPO_PATH, BLOGS_FOLDER_NAME);
+
+/**
+ * Recursively find all markdown files in a directory
+ */
+function findMarkdownFiles(dir, fileList = []) {
+  if (!fs.existsSync(dir)) {
+    return fileList;
+  }
+
+  const files = fs.readdirSync(dir);
+
+  files.forEach((file) => {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+
+    if (stat.isDirectory()) {
+      findMarkdownFiles(filePath, fileList);
+    } else if (file.endsWith('.md')) {
+      fileList.push(filePath);
+    }
+  });
+
+  return fileList;
+}
+
+/**
+ * Generate a URL-safe slug from a file path
+ * Uses flatten strategy: filename as slug, with path prefix if in subdirectory
+ */
+function generateSlug(filePath, blogsBasePath) {
+  // Get relative path from Blogs/ folder
+  const relativePath = path.relative(blogsBasePath, filePath);
+  const relativeDir = path.dirname(relativePath);
+  const fileName = path.basename(filePath, '.md');
+
+  // Make filename URL-safe
+  const safeFileName = makeUrlSafe(fileName);
+
+  // If file is directly in Blogs/, use filename as slug
+  if (relativeDir === '.') {
+    return safeFileName;
+  }
+
+  // Otherwise, use path prefix + filename
+  // Convert path separators to hyphens and make URL-safe
+  const pathParts = relativeDir.split(path.sep);
+  const pathPrefix = pathParts
+    .map((part) => makeUrlSafe(part))
+    .filter((part) => part.length > 0)
+    .join('-');
+
+  return pathPrefix ? `${pathPrefix}-${safeFileName}` : safeFileName;
+}
+
+/**
+ * Make a string URL-safe
+ */
+function makeUrlSafe(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/**
+ * Main sync function
+ */
+function syncBlogs() {
+  console.log('Starting blog sync...');
+  console.log(`Blog repo path: ${BLOG_REPO_PATH}`);
+  console.log(`Blogs folder: ${BLOGS_FOLDER_NAME}`);
+  console.log(`Output directory: ${OUTPUT_DIR}`);
+
+  // Check if blog repo exists
+  if (!fs.existsSync(BLOG_REPO_PATH)) {
+    console.error(`Error: Blog repository not found at ${BLOG_REPO_PATH}`);
+    process.exit(1);
+  }
+
+  // Check if Blogs folder exists
+  if (!fs.existsSync(blogsSourcePath)) {
+    console.warn(`Warning: Blogs folder not found at ${blogsSourcePath}`);
+    console.log('Continuing with empty blog directory...');
+    // Clear output directory if source doesn't exist
+    if (fs.existsSync(OUTPUT_DIR)) {
+      const files = fs.readdirSync(OUTPUT_DIR);
+      files.forEach((file) => {
+        if (file.endsWith('.md')) {
+          fs.unlinkSync(path.join(OUTPUT_DIR, file));
+        }
+      });
+    }
+    return;
+  }
+
+  // Find all markdown files
+  const markdownFiles = findMarkdownFiles(blogsSourcePath);
+  console.log(`Found ${markdownFiles.length} markdown file(s)`);
+
+  if (markdownFiles.length === 0) {
+    console.log('No markdown files found. Clearing output directory...');
+    // Clear output directory
+    if (fs.existsSync(OUTPUT_DIR)) {
+      const files = fs.readdirSync(OUTPUT_DIR);
+      files.forEach((file) => {
+        if (file.endsWith('.md')) {
+          fs.unlinkSync(path.join(OUTPUT_DIR, file));
+        }
+      });
+    }
+    return;
+  }
+
+  // Track slugs and files for conflict detection and cleanup
+  const slugToSourcePath = new Map();
+  const processedFiles = new Set();
+  const errors = [];
+
+  // First pass: collect all files and detect conflicts
+  markdownFiles.forEach((filePath) => {
+    try {
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      // Basic frontmatter validation (check if it starts with ---)
+      if (!content.trim().startsWith('---')) {
+        errors.push(`Invalid frontmatter in ${filePath}: Missing frontmatter delimiter`);
+        return;
+      }
+
+      // Generate slug (already URL-safe)
+      let slug = generateSlug(filePath, blogsSourcePath);
+
+      // Check for conflicts and resolve by adding numeric suffix if needed
+      let originalSlug = slug;
+      let conflictCounter = 1;
+      while (slugToSourcePath.has(slug)) {
+        slug = `${originalSlug}-${conflictCounter}`;
+        conflictCounter++;
+      }
+
+      slugToSourcePath.set(slug, filePath);
+    } catch (error) {
+      errors.push(`Error reading ${filePath}: ${error.message}`);
+    }
+  });
+
+  // Second pass: copy files to output directory
+  let successCount = 0;
+  slugToSourcePath.forEach((sourcePath, slug) => {
+    try {
+      const outputPath = path.join(OUTPUT_DIR, `${slug}.md`);
+      fs.copyFileSync(sourcePath, outputPath);
+      processedFiles.add(`${slug}.md`);
+      successCount++;
+    } catch (error) {
+      errors.push(`Error copying ${sourcePath} to ${slug}.md: ${error.message}`);
+    }
+  });
+
+  // Third pass: cleanup orphaned files (files in output not in source)
+  if (fs.existsSync(OUTPUT_DIR)) {
+    const outputFiles = fs.readdirSync(OUTPUT_DIR).filter((file) => file.endsWith('.md'));
+    outputFiles.forEach((file) => {
+      if (!processedFiles.has(file)) {
+        try {
+          fs.unlinkSync(path.join(OUTPUT_DIR, file));
+          console.log(`Removed orphaned file: ${file}`);
+        } catch (error) {
+          errors.push(`Error removing orphaned file ${file}: ${error.message}`);
+        }
+      }
+    });
+  }
+
+  // Summary
+  console.log('\n=== Sync Summary ===');
+  console.log(`Successfully synced: ${successCount} file(s)`);
+  console.log(`Errors: ${errors.length}`);
+
+  if (errors.length > 0) {
+    console.log('\nErrors:');
+    errors.forEach((error) => console.error(`  - ${error}`));
+    process.exit(1);
+  }
+
+  console.log('Blog sync completed successfully!');
+}
+
+// Run sync
+try {
+  syncBlogs();
+} catch (error) {
+  console.error('Fatal error during blog sync:', error);
+  process.exit(1);
+}
+
