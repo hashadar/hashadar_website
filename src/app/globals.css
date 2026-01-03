@@ -112,6 +112,44 @@ button:focus-visible {
     overflow-wrap: break-word;
     padding-top: 8px;
   }
+
+  /* Fix h1 accent on mobile - use pseudo-element with same 3px width as desktop */
+  .blog-content h1 {
+    margin-left: 0;
+    padding-left: 1.5rem;
+    border-left: none;
+    position: relative;
+  }
+
+  .blog-content h1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Fix h1 accent on tablet - use pseudo-element with same 3px width as desktop */
+  .blog-content h1 {
+    margin-left: 0;
+    padding-left: 1.5rem;
+    border-left: none;
+    position: relative;
+  }
+
+  .blog-content h1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary);
+  }
 }
 
 @media (max-width: 375px) {
