@@ -1,0 +1,38 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Setup SSH for private repo access
+        - mkdir -p ~/.ssh
+        - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        - chmod 600 ~/.ssh/id_rsa
+        - ssh-keyscan github.com >> ~/.ssh/known_hosts
+        
+        # Clone blog repository
+        - |
+          if [ -d "temp-blog-repo" ]; then
+            cd temp-blog-repo
+            git pull origin ${BLOG_REPO_BRANCH:-main}
+            cd ..
+          else
+            git clone --depth 1 -b ${BLOG_REPO_BRANCH:-main} $BLOG_REPO_URL temp-blog-repo
+          fi
+        
+        # Run blog sync script
+        - node scripts/sync-blogs.js
+        
+        # Install dependencies
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - temp-blog-repo/**/*
+
