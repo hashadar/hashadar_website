@@ -25,7 +25,7 @@ export function Header() {
       <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
         <Link 
           href="/" 
-          className="font-display font-bold text-xl text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+          className="font-body font-bold text-xl text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
         >
           hasha dar
         </Link>

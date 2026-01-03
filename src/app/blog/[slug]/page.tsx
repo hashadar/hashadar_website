@@ -1,10 +1,9 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { format } from "date-fns";
 import "katex/dist/katex.min.css";
-import { Header, SkipToContent, Container, Section } from "@/components/ui";
+import { Header, SkipToContent, Container, Section, Breadcrumb } from "@/components/ui";
 import { FooterSection } from "@/components/sections/footer-section";
 import { getBlogPostBySlug, getAllBlogSlugs } from "@/lib/blog";
 import { site, footer } from "@/data";
@@ -72,29 +71,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <main id="main-content" className="bg-[var(--background)] min-h-screen pt-20">
         <Section className="py-12">
           <Container>
-            {/* Back link */}
-            <Link
-              href="/blog"
-              className="inline-flex items-center text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors mb-8"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to Blog
-            </Link>
+            <div className="max-w-5xl mx-auto">
+              {/* Breadcrumb */}
+              <Breadcrumb
+                items={[
+                  { label: "Home", href: "/" },
+                  { label: "Blog", href: "/blog" },
+                  { label: post.frontmatter.title },
+                ]}
+                className="mb-8"
+              />
 
-            {/* Article */}
-            <article className="max-w-4xl mx-auto">
+              {/* Article */}
+              <article className="w-full">
               {/* Header */}
               <header className="mb-8">
                 {/* Category */}
@@ -105,7 +94,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
 
                 {/* Title */}
-                <h1 className="text-[var(--foreground)] font-display font-bold text-4xl md:text-5xl mb-6">
+                <h1 className="text-[var(--foreground)] font-body font-bold text-4xl md:text-5xl mb-6">
                   {post.frontmatter.title}
                 </h1>
 
@@ -173,7 +162,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 className="blog-content mb-12"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
-            </article>
+              </article>
+            </div>
           </Container>
         </Section>
         <FooterSection {...footer.contact} />

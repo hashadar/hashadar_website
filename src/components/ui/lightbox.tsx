@@ -213,7 +213,7 @@ export function Lightbox({
             {(currentImage.title || currentImage.category || currentImage.location) && (
               <div className="mt-4 text-center">
                 {currentImage.title && (
-                  <h3 className="text-white font-display font-bold text-xl mb-2">
+                  <h3 className="text-white font-body font-bold text-xl mb-2">
                     {currentImage.title}
                   </h3>
                 )}

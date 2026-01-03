@@ -36,7 +36,7 @@ export function Heading({
   return (
     <Component 
       className={cn(
-        "font-display font-bold text-[var(--foreground)] break-words",
+        "font-body font-bold text-[var(--foreground)] break-words",
         sizeClasses[size],
         className
       )}

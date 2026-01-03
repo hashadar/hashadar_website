@@ -7,12 +7,35 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
+import rehypeSlug from 'rehype-slug';
 import rehypeKatex from 'rehype-katex';
 import { toHtml } from 'hast-util-to-html';
 import type { Root } from 'hast';
 import type { BlogPost } from '@/data/types';
 
 const blogDirectory = path.join(process.cwd(), 'public', 'blog');
+
+// Helper function to process markdown content to HTML
+function processMarkdown(content: string): string {
+  // Create processor with all plugins
+  const processor = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeSlug)
+    .use(rehypeKatex);
+  
+  // Parse content to markdown AST
+  const mdTree = processor.parse(content);
+  
+  // Transform through all plugins to get HAST
+  const hastTree = processor.runSync(mdTree) as Root;
+  
+  // Convert to HTML
+  return toHtml(hastTree, { allowDangerousHtml: true });
+}
 
 export function getAllBlogPosts(): BlogPost[] {
   // Check if blog directory exists
@@ -36,21 +59,8 @@ export function getAllBlogPosts(): BlogPost[] {
     // Parse frontmatter and content
     const { data, content } = matter(fileContents);
 
-    // Process markdown content to HTML with GFM, math, and HTML support
-    const processor = unified()
-      .use(remarkParse)
-      .use(remarkGfm)
-      .use(remarkMath)
-      .use(remarkRehype, { allowDangerousHtml: true })
-      .use(rehypeRaw)
-      .use(rehypeKatex);
-    
-    // Set custom compiler
-    processor.compiler = (tree: any) => {
-      return toHtml(tree as Root, { allowDangerousHtml: true });
-    };
-    
-    const contentHtml = processor.processSync(content).toString();
+    // Process markdown content to HTML
+    const contentHtml = processMarkdown(content);
 
     // Combine the data with the slug and content
     return {
@@ -87,21 +97,8 @@ export function getBlogPostBySlug(slug: string): BlogPost | null {
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
 
-  // Process markdown content to HTML with GFM, math, and HTML support
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkMath)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeRaw)
-    .use(rehypeKatex);
-  
-  // Set custom compiler
-  processor.compiler = (tree: any) => {
-    return toHtml(tree as Root, { allowDangerousHtml: true });
-  };
-  
-  const contentHtml = processor.processSync(content).toString();
+  // Process markdown content to HTML
+  const contentHtml = processMarkdown(content);
 
   return {
     slug,

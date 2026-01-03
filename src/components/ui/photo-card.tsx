@@ -80,7 +80,7 @@ export function PhotoCard({
         {(title || category || location) && showOverlay && (
           <div className="absolute inset-x-0 bottom-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
             {title && (
-              <h3 className="text-white font-display font-bold text-xl mb-2">
+              <h3 className="text-white font-body font-bold text-xl mb-2">
                 {title}
               </h3>
             )}
@@ -142,7 +142,7 @@ export function PhotoCard({
       {(title || category || location) && showOverlay && (
         <div className="absolute inset-x-0 bottom-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
           {title && (
-            <h3 className="text-white font-display font-bold text-xl mb-2">
+            <h3 className="text-white font-body font-bold text-xl mb-2">
               {title}
             </h3>
           )}

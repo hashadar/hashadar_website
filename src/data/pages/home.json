@@ -4,11 +4,11 @@
     "title": "AI & Data Consultant"
   },
   "about": {
-    "heading": "about",
+    "heading": "About",
     "content": "I'm a Consulting Senior Analyst at Deloitte, in the AI & Data department. My work involves helping our clients implement AI solutions and manage their data effectively. I hold a mechanical engineering degree from UCL, graduating in 2023. In my free time, I develop apps and do photography. I primarily shoot a mixture of portraiture, travel and event. I also enjoy theatre, where I worked as a production manager and contributed to sound and lighting design."
   },
   "photography": {
-    "heading": "photography",
+    "heading": "Photography",
     "description": "From the sun to the smallest speck, the heart is a mirror to the heart. The parrot is confronted by a mirror from all six directions. ~ Mirza Ghalib",
     "images": [
       {
@@ -21,7 +21,7 @@
     ]
   },
   "experience": {
-    "heading": "experience",
+    "heading": "Experience",
     "companies": [
       {
         "name": "Deloitte LLP",
@@ -51,6 +51,10 @@
         ]
       }
     ]
+  },
+  "blog": {
+    "heading": "Blog",
+    "description": "My thoughts in one place."
   }
 }
 

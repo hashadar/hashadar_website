@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-import { Michroma } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/data";
 import { StructuredData } from "@/components/seo/structured-data";
 import { ThemeScript } from "@/components/theme-script";
-
-const michroma = Michroma({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-});
 
 const zalandoSans = localFont({
   src: [
@@ -86,7 +78,7 @@ export default function RootLayout({
         <ThemeScript />
         <StructuredData />
       </head>
-      <body className={`${michroma.variable} ${zalandoSans.variable} antialiased`}>
+      <body className={`${zalandoSans.variable} antialiased`}>
         {children}
       </body>
     </html>

@@ -134,7 +134,7 @@ button:focus-visible {
 .blog-content h5,
 .blog-content h6 {
   color: var(--foreground);
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   margin-top: 2em;
   margin-bottom: 1em;
@@ -143,6 +143,9 @@ button:focus-visible {
 
 .blog-content h1 {
   font-size: 2.25rem;
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  margin-left: -1.25rem;
 }
 
 .blog-content h2 {

@@ -10,6 +10,7 @@ export { SkipToContent } from "./skip-to-content";
 
 // Navigation
 export { Header } from "./navigation/header";
+export { Breadcrumb } from "./breadcrumb";
 
 // Layout
 export { Container } from "./layout/container";

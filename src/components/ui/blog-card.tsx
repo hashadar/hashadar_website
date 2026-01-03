@@ -83,7 +83,7 @@ export function BlogCard({
           </div>
 
           {/* Title */}
-          <h3 className="text-[var(--foreground)] font-display font-bold text-xl mb-3 line-clamp-3 group-hover:text-[var(--primary)] transition-colors duration-300">
+          <h3 className="text-[var(--foreground)] font-body font-bold text-xl mb-3 line-clamp-3 group-hover:text-[var(--primary)] transition-colors duration-300">
             {title}
           </h3>
 
