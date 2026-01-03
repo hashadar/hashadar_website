@@ -242,10 +242,13 @@ button:focus-visible {
 /* Ordered lists - decimal (1., 2., 3.) for level 1, lower-alpha (a., b., c.) for level 2+ */
 .blog-content ol {
   list-style-type: decimal;
+  list-style-position: outside;
+  padding-left: 2rem;
 }
 
 .blog-content ol ol {
   list-style-type: lower-alpha;
+  padding-left: 2rem;
 }
 
 .blog-content li {
