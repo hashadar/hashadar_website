@@ -40,11 +40,17 @@ export interface ExperienceSection {
   companies: Company[];
 }
 
+export interface BlogSection {
+  heading: string;
+  description?: string;
+}
+
 export interface HomePageData {
   hero: HeroSection;
   about: AboutSection;
   photography: PhotographySection;
   experience: ExperienceSection;
+  blog: BlogSection;
 }
 
 export interface PortfolioPageData {
