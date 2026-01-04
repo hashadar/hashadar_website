@@ -9,14 +9,23 @@ frontend:
         - chmod 600 ~/.ssh/id_rsa
         - ssh-keyscan github.com >> ~/.ssh/known_hosts
         
-        # Clone blog repository
+        # Clone blog repository (use default branch if BLOG_REPO_BRANCH not set)
         - |
           if [ -d "temp-blog-repo" ]; then
             cd temp-blog-repo
-            git pull origin ${BLOG_REPO_BRANCH:-main}
+            git fetch origin
+            if [ -n "$BLOG_REPO_BRANCH" ]; then
+              git checkout -B $BLOG_REPO_BRANCH origin/$BLOG_REPO_BRANCH || git pull origin $BLOG_REPO_BRANCH
+            else
+              git pull
+            fi
             cd ..
           else
-            git clone --depth 1 -b ${BLOG_REPO_BRANCH:-main} $BLOG_REPO_URL temp-blog-repo
+            if [ -n "$BLOG_REPO_BRANCH" ]; then
+              git clone --depth 1 -b $BLOG_REPO_BRANCH $BLOG_REPO_URL temp-blog-repo
+            else
+              git clone --depth 1 $BLOG_REPO_URL temp-blog-repo
+            fi
           fi
         
         # Run blog sync script
