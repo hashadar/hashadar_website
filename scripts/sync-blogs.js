@@ -85,16 +85,44 @@ function syncBlogs() {
   console.log(`Blog repo path: ${BLOG_REPO_PATH}`);
   console.log(`Blogs folder: ${BLOGS_FOLDER_NAME}`);
   console.log(`Output directory: ${OUTPUT_DIR}`);
+  console.log(`Full blogs source path: ${blogsSourcePath}`);
 
   // Check if blog repo exists
   if (!fs.existsSync(BLOG_REPO_PATH)) {
     console.error(`Error: Blog repository not found at ${BLOG_REPO_PATH}`);
+    console.error(`Current working directory: ${process.cwd()}`);
     process.exit(1);
   }
 
-  // Check if Blogs folder exists
+  // List directory contents for debugging
+  try {
+    const repoContents = fs.readdirSync(BLOG_REPO_PATH);
+    console.log(`Repository contents: ${repoContents.join(', ')}`);
+  } catch (err) {
+    console.warn(`Could not read repo directory: ${err.message}`);
+  }
+
+  // Check if Blogs folder exists (try case variations)
   if (!fs.existsSync(blogsSourcePath)) {
     console.warn(`Warning: Blogs folder not found at ${blogsSourcePath}`);
+    
+    // Try case-insensitive search
+    try {
+      const repoContents = fs.readdirSync(BLOG_REPO_PATH);
+      const blogsFolder = repoContents.find(item => {
+        const itemPath = path.join(BLOG_REPO_PATH, item);
+        return fs.statSync(itemPath).isDirectory() && 
+               item.toLowerCase() === BLOGS_FOLDER_NAME.toLowerCase();
+      });
+      
+      if (blogsFolder) {
+        console.warn(`Found folder with different case: ${blogsFolder}`);
+        console.warn(`Please set BLOGS_FOLDER_NAME environment variable to: ${blogsFolder}`);
+      }
+    } catch (err) {
+      // Ignore
+    }
+    
     console.log('Continuing with empty blog directory...');
     // Clear output directory if source doesn't exist
     if (fs.existsSync(OUTPUT_DIR)) {
@@ -191,6 +219,13 @@ function syncBlogs() {
   console.log('\n=== Sync Summary ===');
   console.log(`Successfully synced: ${successCount} file(s)`);
   console.log(`Errors: ${errors.length}`);
+  
+  if (successCount > 0) {
+    console.log('\nSynced files:');
+    slugToSourcePath.forEach((sourcePath, slug) => {
+      console.log(`  - ${slug}.md (from ${path.relative(BLOG_REPO_PATH, sourcePath)})`);
+    });
+  }
 
   if (errors.length > 0) {
     console.log('\nErrors:');
@@ -199,6 +234,12 @@ function syncBlogs() {
   }
 
   console.log('Blog sync completed successfully!');
+  
+  // Verify output directory
+  if (fs.existsSync(OUTPUT_DIR)) {
+    const outputFiles = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith('.md'));
+    console.log(`Output directory contains ${outputFiles.length} .md file(s)`);
+  }
 }
 
 // Run sync
