@@ -3,7 +3,7 @@ const path = require('path');
 
 // Configuration from environment variables
 const BLOG_REPO_PATH = process.env.BLOG_REPO_PATH || path.join(process.cwd(), 'temp-blog-repo');
-const BLOGS_FOLDER_NAME = process.env.BLOGS_FOLDER_NAME || 'Blogs';
+const BLOGS_FOLDER_NAME = process.env.BLOGS_FOLDER_NAME || 'Blog';
 const OUTPUT_DIR = path.join(process.cwd(), 'public', 'blog');
 
 // Ensure output directory exists
