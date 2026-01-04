@@ -5,10 +5,15 @@ const path = require('path');
 const BLOG_REPO_PATH = process.env.BLOG_REPO_PATH || path.join(process.cwd(), 'temp-blog-repo');
 const BLOGS_FOLDER_NAME = process.env.BLOGS_FOLDER_NAME || 'Blog';
 const OUTPUT_DIR = path.join(process.cwd(), 'public', 'blog');
+const IMAGES_SOURCE_DIR = path.join(BLOG_REPO_PATH, 'Images');
+const IMAGES_OUTPUT_DIR = path.join(process.cwd(), 'public', 'img');
 
-// Ensure output directory exists
+// Ensure output directories exist
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+}
+if (!fs.existsSync(IMAGES_OUTPUT_DIR)) {
+  fs.mkdirSync(IMAGES_OUTPUT_DIR, { recursive: true });
 }
 
 const blogsSourcePath = path.join(BLOG_REPO_PATH, BLOGS_FOLDER_NAME);
@@ -42,7 +47,7 @@ function findMarkdownFiles(dir, fileList = []) {
  * Uses flatten strategy: filename as slug, with path prefix if in subdirectory
  */
 function generateSlug(filePath, blogsBasePath) {
-  // Get relative path from Blogs/ folder
+  // Get relative path from Blog/ folder
   const relativePath = path.relative(blogsBasePath, filePath);
   const relativeDir = path.dirname(relativePath);
   const fileName = path.basename(filePath, '.md');
@@ -50,7 +55,7 @@ function generateSlug(filePath, blogsBasePath) {
   // Make filename URL-safe
   const safeFileName = makeUrlSafe(fileName);
 
-  // If file is directly in Blogs/, use filename as slug
+  // If file is directly in Blog/, use filename as slug
   if (relativeDir === '.') {
     return safeFileName;
   }
@@ -75,6 +80,66 @@ function makeUrlSafe(str) {
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+/**
+ * Sync images from Obsidian repo Images/ folder to public/img/
+ */
+function syncImages() {
+  if (!fs.existsSync(IMAGES_SOURCE_DIR)) {
+    console.log('Images source directory not found, skipping image sync...');
+    return { synced: 0, errors: [] };
+  }
+
+  const errors = [];
+  let syncedCount = 0;
+  const processedImages = new Set();
+
+  try {
+    // Get all files from source img directory
+    const imageFiles = fs.readdirSync(IMAGES_SOURCE_DIR).filter((file) => {
+      const filePath = path.join(IMAGES_SOURCE_DIR, file);
+      return fs.statSync(filePath).isFile();
+    });
+
+    console.log(`Found ${imageFiles.length} image file(s) to sync`);
+
+    // Copy each image file
+    imageFiles.forEach((file) => {
+      try {
+        const sourcePath = path.join(IMAGES_SOURCE_DIR, file);
+        const outputPath = path.join(IMAGES_OUTPUT_DIR, file);
+        fs.copyFileSync(sourcePath, outputPath);
+        processedImages.add(file);
+        syncedCount++;
+      } catch (error) {
+        errors.push(`Error copying image ${file}: ${error.message}`);
+      }
+    });
+
+    // Cleanup orphaned images (images in output not in source)
+    if (fs.existsSync(IMAGES_OUTPUT_DIR)) {
+      const outputImages = fs.readdirSync(IMAGES_OUTPUT_DIR).filter((file) => {
+        const filePath = path.join(IMAGES_OUTPUT_DIR, file);
+        return fs.statSync(filePath).isFile();
+      });
+
+      outputImages.forEach((file) => {
+        if (!processedImages.has(file)) {
+          try {
+            fs.unlinkSync(path.join(IMAGES_OUTPUT_DIR, file));
+            console.log(`Removed orphaned image: ${file}`);
+          } catch (error) {
+            errors.push(`Error removing orphaned image ${file}: ${error.message}`);
+          }
+        }
+      });
+    }
+  } catch (error) {
+    errors.push(`Error syncing images: ${error.message}`);
+  }
+
+  return { synced: syncedCount, errors };
 }
 
 /**
@@ -215,13 +280,22 @@ function syncBlogs() {
     });
   }
 
+  // Sync images from Obsidian repo
+  console.log('\n=== Syncing Images ===');
+  const imageSyncResult = syncImages();
+  console.log(`Successfully synced: ${imageSyncResult.synced} image(s)`);
+  if (imageSyncResult.errors.length > 0) {
+    errors.push(...imageSyncResult.errors);
+  }
+
   // Summary
   console.log('\n=== Sync Summary ===');
-  console.log(`Successfully synced: ${successCount} file(s)`);
-  console.log(`Errors: ${errors.length}`);
+  console.log(`Successfully synced: ${successCount} blog post(s)`);
+  console.log(`Successfully synced: ${imageSyncResult.synced} image(s)`);
+  console.log(`Total errors: ${errors.length}`);
   
   if (successCount > 0) {
-    console.log('\nSynced files:');
+    console.log('\nSynced blog posts:');
     slugToSourcePath.forEach((sourcePath, slug) => {
       console.log(`  - ${slug}.md (from ${path.relative(BLOG_REPO_PATH, sourcePath)})`);
     });
