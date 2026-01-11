@@ -117,24 +117,8 @@ function syncImages() {
       }
     });
 
-    // Cleanup orphaned images (images in output not in source)
-    if (fs.existsSync(IMAGES_OUTPUT_DIR)) {
-      const outputImages = fs.readdirSync(IMAGES_OUTPUT_DIR).filter((file) => {
-        const filePath = path.join(IMAGES_OUTPUT_DIR, file);
-        return fs.statSync(filePath).isFile();
-      });
-
-      outputImages.forEach((file) => {
-        if (!processedImages.has(file)) {
-          try {
-            fs.unlinkSync(path.join(IMAGES_OUTPUT_DIR, file));
-            console.log(`Removed orphaned image: ${file}`);
-          } catch (error) {
-            errors.push(`Error removing orphaned image ${file}: ${error.message}`);
-          }
-        }
-      });
-    }
+    // Note: We don't cleanup "orphaned" images because portfolio images 
+    // (committed to git) share the same directory and should not be deleted
   } catch (error) {
     errors.push(`Error syncing images: ${error.message}`);
   }
