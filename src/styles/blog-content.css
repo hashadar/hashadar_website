@@ -1,0 +1,287 @@
+/* Blog Content Styles
+ * Converted to use Tailwind @apply for consistency with the rest of the codebase
+ * Styles raw HTML elements from markdown content
+ */
+
+/* Base container */
+.blog-content {
+  @apply text-[var(--foreground)] leading-relaxed text-sm md:text-lg;
+}
+
+/* Typography - Headings */
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+  @apply text-[var(--foreground)] font-bold mt-8 mb-4 leading-tight;
+  font-family: var(--font-body);
+}
+
+.blog-content h1 {
+  @apply text-3xl md:text-4xl lg:text-5xl;
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  margin-left: -1.25rem;
+}
+
+/* Mobile/Tablet h1 accent - consolidated from duplicate styles */
+@media (max-width: 1024px) {
+  .blog-content h1 {
+    margin-left: 0;
+    padding-left: 1.5rem;
+    border-left: none;
+    position: relative;
+  }
+
+  .blog-content h1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary);
+  }
+}
+
+.blog-content h2 {
+  @apply text-2xl md:text-3xl;
+}
+
+.blog-content h3 {
+  @apply text-xl md:text-2xl;
+}
+
+.blog-content h4 {
+  @apply text-lg md:text-xl;
+}
+
+/* Paragraphs */
+.blog-content p {
+  @apply text-[var(--foreground)] mb-6;
+}
+
+/* Links */
+.blog-content a {
+  @apply text-[var(--primary)] no-underline transition-opacity duration-200;
+}
+
+.blog-content a:hover {
+  @apply underline;
+  opacity: 0.8;
+}
+
+/* Strong/Bold */
+.blog-content strong {
+  @apply text-[var(--foreground)] font-semibold;
+}
+
+/* Inline Code */
+.blog-content code {
+  @apply text-[var(--foreground)] bg-[var(--muted)] px-1.5 py-0.5 rounded text-sm;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Code Blocks */
+.blog-content pre {
+  @apply bg-[var(--muted)] border border-[var(--border)] rounded-lg p-4 overflow-x-auto mb-6;
+}
+
+.blog-content pre code {
+  @apply bg-transparent p-0 text-[var(--foreground)];
+}
+
+/* Blockquotes */
+.blog-content blockquote {
+  @apply border-l-4 border-[var(--primary)] pl-6 my-6 text-[var(--foreground)] italic;
+  opacity: 0.8;
+}
+
+/* Lists - Base */
+.blog-content ul,
+.blog-content ol {
+  @apply text-[var(--foreground)] mb-6 pl-6;
+}
+
+/* Unordered lists - square for level 1, dash for level 2+ */
+.blog-content ul {
+  list-style-type: square;
+}
+
+.blog-content ul ul {
+  list-style-type: none;
+  padding-left: 1.5rem;
+}
+
+.blog-content ul ul li::before {
+  content: "– ";
+  margin-left: -1.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Ordered lists - decimal (1., 2., 3.) for level 1, lower-alpha (a., b., c.) for level 2+ */
+.blog-content ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  padding-left: 2rem;
+}
+
+.blog-content ol ol {
+  list-style-type: lower-alpha;
+  padding-left: 2rem;
+}
+
+.blog-content li {
+  @apply mb-2;
+}
+
+/* Nested lists spacing */
+.blog-content ul ul,
+.blog-content ol ol,
+.blog-content ul ol,
+.blog-content ol ul {
+  @apply my-2;
+}
+
+/* Images */
+.blog-content img {
+  @apply rounded-lg border border-[var(--border)] my-8 max-w-full h-auto;
+}
+
+/* Horizontal Rules */
+.blog-content hr {
+  @apply border-0 border-t border-[var(--border)] my-8;
+}
+
+/* Tables */
+.blog-content table {
+  @apply w-full border-collapse my-6;
+  display: table;
+  table-layout: auto;
+}
+
+/* Table wrapper for horizontal scrolling on mobile */
+@media (max-width: 768px) {
+  .blog-content {
+    overflow-x: auto;
+  }
+  
+  .blog-content table {
+    min-width: 100%;
+  }
+}
+
+.blog-content table thead {
+  @apply bg-[var(--muted)];
+}
+
+.blog-content table th,
+.blog-content table td {
+  @apply p-3 border border-[var(--border)];
+  text-align: left; /* Default alignment */
+}
+
+/* Table alignment - respect align attribute from remark-gfm */
+/* Center alignment */
+.blog-content table th[align="center"],
+.blog-content table td[align="center"],
+.blog-content table th[style*="text-align:center"],
+.blog-content table td[style*="text-align:center"],
+.blog-content table th[style*="text-align: center"],
+.blog-content table td[style*="text-align: center"] {
+  text-align: center !important;
+}
+
+/* Right alignment */
+.blog-content table th[align="right"],
+.blog-content table td[align="right"],
+.blog-content table th[style*="text-align:right"],
+.blog-content table td[style*="text-align:right"],
+.blog-content table th[style*="text-align: right"],
+.blog-content table td[style*="text-align: right"] {
+  text-align: right !important;
+}
+
+/* Left alignment (explicit, though it's the default) */
+.blog-content table th[align="left"],
+.blog-content table td[align="left"],
+.blog-content table th[style*="text-align:left"],
+.blog-content table td[style*="text-align:left"],
+.blog-content table th[style*="text-align: left"],
+.blog-content table td[style*="text-align: left"] {
+  text-align: left !important;
+}
+
+.blog-content table th {
+  @apply font-semibold text-[var(--foreground)];
+}
+
+.blog-content table td {
+  @apply text-[var(--foreground)];
+  opacity: 0.9;
+}
+
+.blog-content table tbody tr:nth-child(even) {
+  @apply bg-[var(--muted)];
+  opacity: 0.5;
+}
+
+.blog-content table tbody tr:hover {
+  @apply bg-[var(--muted)];
+  opacity: 0.8;
+}
+
+/* Task lists */
+.blog-content input[type="checkbox"] {
+  @apply mr-2;
+  accent-color: var(--primary);
+}
+
+/* Remove list markers from task list items */
+.blog-content li[data-task-list-item],
+.blog-content li:has(input[type="checkbox"]) {
+  @apply list-none pl-0;
+}
+
+/* Ensure task list items still have proper spacing */
+.blog-content li:has(input[type="checkbox"]) {
+  margin-left: 0;
+}
+
+/* Definition lists */
+.blog-content dl {
+  @apply my-6;
+}
+
+.blog-content dt {
+  @apply font-semibold text-[var(--foreground)] mt-4;
+}
+
+.blog-content dd {
+  @apply ml-6 text-[var(--foreground)] mb-2;
+  opacity: 0.9;
+}
+
+/* Strikethrough */
+.blog-content del {
+  @apply line-through;
+  opacity: 0.7;
+}
+
+/* Math rendering with KaTeX */
+.blog-content .katex {
+  font-size: 1.1em;
+}
+
+.blog-content .katex-display {
+  @apply my-6 overflow-x-auto;
+  overflow-y: hidden;
+}
+
+/* HTML elements in blog content */
+.blog-content div,
+.blog-content span {
+  @apply text-[var(--foreground)];
+}

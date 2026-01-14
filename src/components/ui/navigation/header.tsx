@@ -52,9 +52,14 @@ export function Header() {
             ))}
           </div>
           
-          {/* Mobile Menu Button */}
+          {/* Theme Toggle - appears first on mobile, after nav on desktop */}
+          <div className="order-1 md:order-none">
+            <ThemeToggle />
+          </div>
+          
+          {/* Mobile Menu Button - appears second on mobile */}
           <button
-            className="md:hidden p-2 text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+            className="md:hidden order-2 p-2 text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
             aria-expanded={mobileMenuOpen}
@@ -67,8 +72,6 @@ export function Header() {
               )}
             </svg>
           </button>
-          
-          <ThemeToggle />
         </div>
       </nav>
       
