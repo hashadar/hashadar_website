@@ -2,7 +2,6 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/styles/**/*.css",
@@ -16,7 +15,12 @@ const config: Config = {
     },
   },
   plugins: [
-    function({ addUtilities }: any) {
+    function(api: unknown) {
+      if (!api || typeof api !== "object" || !("addUtilities" in api)) return;
+      const { addUtilities } = api as {
+        addUtilities: (utilities: Record<string, unknown>) => void;
+      };
+
       const newUtilities = {
         '.geometric-pattern': {
           position: 'absolute',

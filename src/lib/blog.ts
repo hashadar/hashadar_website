@@ -6,7 +6,6 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
-import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeKatex from 'rehype-katex';
 import { toHtml } from 'hast-util-to-html';
@@ -22,8 +21,7 @@ function processMarkdown(content: string): string {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMath)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeRaw)
+    .use(remarkRehype)
     .use(rehypeSlug)
     .use(rehypeKatex);
   
@@ -34,7 +32,7 @@ function processMarkdown(content: string): string {
   const hastTree = processor.runSync(mdTree) as Root;
   
   // Convert to HTML
-  return toHtml(hastTree, { allowDangerousHtml: true });
+  return toHtml(hastTree);
 }
 
 export function getAllBlogPosts(): BlogPost[] {

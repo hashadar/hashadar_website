@@ -1,4 +1,4 @@
-import { site } from "@/data";
+import { footer, site } from "@/data";
 
 export function StructuredData() {
   const personSchema = {
@@ -6,27 +6,17 @@ export function StructuredData() {
     "@type": "Person",
     name: site.metadata.author,
     url: site.metadata.siteUrl,
-    sameAs: [
-      // Social profiles will be added from footer data
-      "https://linkedin.com/in/hdar",
-      "https://github.com/hashadar",
-    ],
-    jobTitle: "AI & Data Consultant",
+    sameAs: [footer.contact.social.linkedin, footer.contact.social.github],
+    jobTitle: site.person.jobTitle,
     worksFor: {
       "@type": "Organization",
-      name: "Deloitte LLP",
+      name: site.person.worksFor,
     },
     alumniOf: {
       "@type": "EducationalOrganization",
-      name: "University College London",
+      name: site.person.alumniOf,
     },
-    knowsAbout: [
-      "Artificial Intelligence",
-      "Data Management",
-      "Data Consulting",
-      "Photography",
-      "Software Development",
-    ],
+    knowsAbout: site.person.knowsAbout,
   };
 
   const websiteSchema = {
@@ -50,7 +40,7 @@ export function StructuredData() {
       name: site.metadata.author,
       description: site.metadata.description,
     },
-    dateCreated: "2025-01-01",
+    dateCreated: site.person.profileDateCreated,
     dateModified: new Date().toISOString(),
   };
 

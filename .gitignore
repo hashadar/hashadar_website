@@ -43,6 +43,7 @@ next-env.d.ts
 # misc
 .kiro
 .vscode
+.cursor
 
 # blog sync
 /temp-blog-repo

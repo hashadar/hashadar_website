@@ -3,14 +3,14 @@ import { Header, SkipToContent } from "@/components/ui";
 import { BlogGrid } from "@/components/sections/blog/blog-grid";
 import { FooterSection } from "@/components/sections/footer-section";
 import { getAllBlogPosts } from "@/lib/blog";
-import { site, footer } from "@/data";
+import { site, footer, blog } from "@/data";
 
 export const metadata: Metadata = {
   title: `Blog - ${site.metadata.author}`,
-  description: "Read my latest thoughts, insights, and updates on technology, photography, and more.",
+  description: blog.description,
   openGraph: {
     title: `Blog - ${site.metadata.author}`,
-    description: "Read my latest thoughts, insights, and updates on technology, photography, and more.",
+    description: blog.description,
     url: `${site.metadata.siteUrl}/blog`,
     type: "website",
   },

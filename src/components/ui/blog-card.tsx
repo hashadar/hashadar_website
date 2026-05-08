@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { useState } from "react";
+import { BLOG_FALLBACK_IMAGE } from "@/lib/blog-constants";
 
 interface BlogCardProps {
   slug: string;
@@ -16,8 +17,6 @@ interface BlogCardProps {
   priority?: boolean;
   className?: string;
 }
-
-const FALLBACK_IMAGE = "/img/mangrove_beach.webp";
 
 export function BlogCard({
   slug,
@@ -37,8 +36,7 @@ export function BlogCard({
   
   // Determine which image to use - check for empty string, null, undefined, or whitespace
   const hasImage = image && image.trim() !== '';
-  const imageSrc = (!hasImage || imageError) ? FALLBACK_IMAGE : image;
-  const isPlaceholder = imageSrc === FALLBACK_IMAGE;
+  const imageSrc = (!hasImage || imageError) ? BLOG_FALLBACK_IMAGE : image;
 
   return (
     <Link

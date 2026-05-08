@@ -7,6 +7,19 @@
     "socialHandle": "@hashadar"
   },
   "brandName": "hasha dar",
-  "locale": "en_GB"
+  "locale": "en_GB",
+  "person": {
+    "jobTitle": "AI & Data Consultant",
+    "worksFor": "Deloitte LLP",
+    "alumniOf": "University College London",
+    "knowsAbout": [
+      "Artificial Intelligence",
+      "Data Management",
+      "Data Consulting",
+      "Photography",
+      "Software Development"
+    ],
+    "profileDateCreated": "2025-01-01"
+  }
 }
 

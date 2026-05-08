@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { navigation } from "@/data";
-import { ThemeToggle } from "../theme-toggle";
+import { navigation, site } from "@/data";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 
 export function Header() {
@@ -27,7 +27,7 @@ export function Header() {
           href="/" 
           className="font-body font-bold text-xl text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
         >
-          hasha dar
+          {site.brandName}
         </Link>
         
         <div className="flex items-center gap-4">

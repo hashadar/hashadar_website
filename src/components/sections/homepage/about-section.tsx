@@ -7,9 +7,13 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 interface AboutSectionProps {
   heading: string;
   content: string | string[];
+  cta?: {
+    label: string;
+    href: string;
+  };
 }
 
-export function AboutSection({ heading, content }: AboutSectionProps) {
+export function AboutSection({ heading, content, cta }: AboutSectionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   
   return (
@@ -61,9 +65,11 @@ export function AboutSection({ heading, content }: AboutSectionProps) {
             viewport={{ once: true }}
             className="flex justify-center relative z-10"
           >
-            <Button href="/about" variant="primary" size="md">
-              Learn More About Me
-            </Button>
+            {cta && (
+              <Button href={cta.href} variant="primary" size="md">
+                {cta.label}
+              </Button>
+            )}
           </motion.div>
         </div>
       </Container>

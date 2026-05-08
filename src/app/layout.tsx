@@ -1,31 +1,8 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/data";
 import { StructuredData } from "@/components/seo/structured-data";
 import { ThemeScript } from "@/components/theme-script";
-
-const zalandoSans = localFont({
-  src: [
-    {
-      path: "../../node_modules/@fontsource/zalando-sans-expanded/files/zalando-sans-expanded-latin-400-normal.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../node_modules/@fontsource/zalando-sans-expanded/files/zalando-sans-expanded-latin-500-normal.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../node_modules/@fontsource/zalando-sans-expanded/files/zalando-sans-expanded-latin-600-normal.woff2",
-      weight: "600",
-      style: "normal",
-    },
-  ],
-  variable: "--font-body",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: site.metadata.title,
@@ -78,7 +55,7 @@ export default function RootLayout({
         <ThemeScript />
         <StructuredData />
       </head>
-      <body className={`${zalandoSans.variable} antialiased`}>
+      <body className="antialiased">
         {children}
       </body>
     </html>

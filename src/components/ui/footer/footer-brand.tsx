@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heading } from "../typography/heading";
-import { Text } from "../typography/text";
+import { Heading } from "@/components/ui/typography/heading";
+import { Text } from "@/components/ui/typography/text";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface FooterBrandProps {

@@ -6,6 +6,7 @@ import "katex/dist/katex.min.css";
 import { Header, SkipToContent, Container, Section, Breadcrumb } from "@/components/ui";
 import { FooterSection } from "@/components/sections/footer-section";
 import { getBlogPostBySlug, getAllBlogSlugs } from "@/lib/blog";
+import { BLOG_FALLBACK_IMAGE } from "@/lib/blog-constants";
 import { site, footer } from "@/data";
 
 interface BlogPostPageProps {
@@ -140,10 +141,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   )}
                 </div>
 
-                {/* Featured Image - don't show if empty or placeholder */}
+                {/* Featured Image - don't show if empty or fallback */}
                 {post.frontmatter.image && 
                  post.frontmatter.image.trim() !== '' && 
-                 post.frontmatter.image !== '/img/mangrove_beach.webp' && (
+                 post.frontmatter.image !== BLOG_FALLBACK_IMAGE && (
                   <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-8 bg-[var(--muted)]">
                     <Image
                       src={post.frontmatter.image}

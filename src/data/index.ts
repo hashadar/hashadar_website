@@ -36,6 +36,8 @@ export function getPageData(route: string) {
     case '/':
     case '/home':
       return home;
+    case '/blog':
+      return blog;
     case '/portfolio':
       return portfolio;
     case '/about':

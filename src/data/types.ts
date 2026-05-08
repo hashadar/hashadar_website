@@ -7,6 +7,10 @@ export interface HeroSection {
 export interface AboutSection {
   heading: string;
   content: string | string[];
+  cta?: {
+    label: string;
+    href: string;
+  };
 }
 
 export interface PhotoItem {
@@ -43,6 +47,11 @@ export interface ExperienceSection {
 export interface BlogSection {
   heading: string;
   description?: string;
+  cta?: {
+    label: string;
+    href: string;
+  };
+  emptyState?: string;
 }
 
 export interface HomePageData {
@@ -93,6 +102,8 @@ export interface SocialLinks {
 export interface ContactInfo {
   heading: string;
   description: string;
+  navigationTitle: string;
+  socialTitle: string;
   email: string;
   social: SocialLinks;
   copyright: string;
@@ -123,6 +134,13 @@ export interface SiteData {
   metadata: SiteMetadata;
   brandName: string;
   locale: string;
+  person: {
+    jobTitle: string;
+    worksFor: string;
+    alumniOf: string;
+    knowsAbout: string[];
+    profileDateCreated: string;
+  };
 }
 
 export interface BlogPostFrontmatter {

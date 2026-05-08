@@ -2,6 +2,8 @@
   "contact": {
     "heading": "Get in Touch",
     "description": "Turning zeros and ones into insights, pixels into stories, and moments into memories",
+    "navigationTitle": "Navigation",
+    "socialTitle": "Connect",
     "email": "hello@hashadar.com",
     "social": {
       "github": "https://github.com/hashadar",

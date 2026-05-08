@@ -5,7 +5,11 @@
   },
   "about": {
     "heading": "About",
-    "content": "I'm a Consulting Senior Analyst at Deloitte, in the AI & Data department. My work involves helping our clients implement AI solutions and manage their data effectively. I hold a mechanical engineering degree from UCL, graduating in 2023. In my free time, I develop apps and do photography. I primarily shoot a mixture of portraiture, travel and event. I also enjoy theatre, where I worked as a production manager and contributed to sound and lighting design."
+    "content": "I'm a Consulting Senior Analyst at Deloitte, in the AI & Data department. My work involves helping our clients implement AI solutions and manage their data effectively. I hold a mechanical engineering degree from UCL, graduating in 2023. In my free time, I develop apps and do photography. I primarily shoot a mixture of portraiture, travel and event. I also enjoy theatre, where I worked as a production manager and contributed to sound and lighting design.",
+    "cta": {
+      "label": "Learn more about me",
+      "href": "/about"
+    }
   },
   "photography": {
     "heading": "Photography",
@@ -54,7 +58,12 @@
   },
   "blog": {
     "heading": "Blog",
-    "description": "My thoughts in one place."
+    "description": "My thoughts in one place.",
+    "cta": {
+      "label": "View all posts",
+      "href": "/blog"
+    },
+    "emptyState": "No blog posts yet. Check back soon!"
   }
 }
 

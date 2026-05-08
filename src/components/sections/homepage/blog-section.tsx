@@ -8,11 +8,23 @@ import type { BlogPost } from "@/data/types";
 interface BlogSectionProps {
   heading: string;
   description?: string;
+  cta?: {
+    label: string;
+    href: string;
+  };
+  emptyState?: string;
   posts: BlogPost[];
   maxPosts?: number;
 }
 
-export function BlogSection({ heading, description, posts: allPosts, maxPosts = 3 }: BlogSectionProps) {
+export function BlogSection({
+  heading,
+  description,
+  cta,
+  emptyState,
+  posts: allPosts,
+  maxPosts = 3,
+}: BlogSectionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const posts = allPosts.slice(0, maxPosts);
 
@@ -67,13 +79,13 @@ export function BlogSection({ heading, description, posts: allPosts, maxPosts = 
           ) : (
             <div className="text-center py-12">
               <Text className="text-[var(--foreground)]/60">
-                No blog posts yet. Check back soon!
+                {emptyState ?? "No blog posts yet. Check back soon!"}
               </Text>
             </div>
           )}
 
           {/* Button */}
-          {allPosts.length > 0 && (
+          {allPosts.length > 0 && cta && (
             <motion.div
               initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -81,8 +93,8 @@ export function BlogSection({ heading, description, posts: allPosts, maxPosts = 
               viewport={{ once: true }}
               className="flex justify-center pt-8 relative z-10"
             >
-              <Button href="/blog" variant="primary" size="md">
-                View All Posts
+              <Button href={cta.href} variant="primary" size="md">
+                {cta.label}
               </Button>
             </motion.div>
           )}
