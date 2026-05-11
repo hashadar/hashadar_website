@@ -46,6 +46,21 @@
         ]
       }
     ]
+  },
+  "certifications": {
+    "heading": "certifications",
+    "items": [
+      {
+        "name": "AWS Certified Cloud Practitioner",
+        "issuer": "Amazon Web Services",
+        "issued": "Issued Feb 2026"
+      },
+      {
+        "name": "Databricks Certified Data Analyst Associate",
+        "issuer": "Databricks",
+        "issued": "Issued Jul 2025"
+      }
+    ]
   }
 }
 

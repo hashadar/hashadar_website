@@ -44,6 +44,18 @@ export interface ExperienceSection {
   companies: Company[];
 }
 
+export interface CertificationItem {
+  name: string;
+  issuer: string;
+  issued: string;
+  credentialUrl?: string;
+}
+
+export interface CertificationsSection {
+  heading: string;
+  items: CertificationItem[];
+}
+
 export interface BlogSection {
   heading: string;
   description?: string;
@@ -77,6 +89,7 @@ export interface AboutPageData {
 export interface CVData {
   experience: ExperienceSection;
   education: ExperienceSection;
+  certifications: CertificationsSection;
 }
 
 export interface BlogPageData {
