@@ -12,6 +12,10 @@ const ExperienceListing = dynamic(() => import("@/components/sections/shared/exp
   loading: () => <div className="min-h-[400px]" />,
 });
 
+const CertificationsListing = dynamic(() => import("@/components/sections/shared/certifications-listing").then(mod => ({ default: mod.CertificationsListing })), {
+  loading: () => <div className="min-h-[400px]" />,
+});
+
 const FooterSection = dynamic(() => import("@/components/sections/footer-section").then(mod => ({ default: mod.FooterSection })), {
   loading: () => <div className="min-h-[400px]" />,
 });
@@ -37,6 +41,7 @@ export default function AboutPage() {
         <AboutProfessionalSection {...about.professional} />
         <ExperienceListing {...cv.experience} variant="about-experience" />
         <ExperienceListing {...cv.education} variant="about-experience" />
+        <CertificationsListing {...cv.certifications} />
         <FooterSection {...footer.contact} />
       </main>
     </>
