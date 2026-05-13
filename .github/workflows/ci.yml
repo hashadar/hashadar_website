@@ -1,0 +1,26 @@
+# CI only: lint, typecheck, tests, build. Deploy stays on AWS Amplify (amplify.yml).
+# Pin Node to match Amplify where possible; see docs/CI-AND-DEPLOYMENT.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build

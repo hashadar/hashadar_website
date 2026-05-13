@@ -1,39 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
-import remarkRehype from 'remark-rehype';
-import rehypeSlug from 'rehype-slug';
-import rehypeKatex from 'rehype-katex';
-import { toHtml } from 'hast-util-to-html';
-import type { Root } from 'hast';
 import type { BlogPost } from '@/data/types';
+import { processMarkdown } from '@/lib/blog-markdown';
 
 const blogDirectory = path.join(process.cwd(), 'public', 'blog');
-
-// Helper function to process markdown content to HTML
-function processMarkdown(content: string): string {
-  // Create processor with all plugins
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkMath)
-    .use(remarkRehype)
-    .use(rehypeSlug)
-    .use(rehypeKatex);
-  
-  // Parse content to markdown AST
-  const mdTree = processor.parse(content);
-  
-  // Transform through all plugins to get HAST
-  const hastTree = processor.runSync(mdTree) as Root;
-  
-  // Convert to HTML
-  return toHtml(hastTree);
-}
 
 export function getAllBlogPosts(): BlogPost[] {
   // Check if blog directory exists
