@@ -9,6 +9,21 @@
 
 There is **no accidental double-deploy** from GitHub Actions: Actions do not push artefacts or run Amplify CLI deploy in the baseline setup.
 
+## Node.js versions
+
+| Place | How it is set |
+|--------|----------------|
+| **Local / CI** | Repository root **`.nvmrc`** (`22`). GitHub Actions uses `actions/setup-node` with `node-version-file: '.nvmrc'`. |
+| **`package.json`** | `"engines": { "node": ">=22" }` — run `npm ci` on Node 22 or newer. |
+| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of `preBuild` so `node scripts/sync-blogs.js`, `npm ci`, and `npm run build` all use Node 22. |
+
+**Check in the AWS Amplify console**
+
+1. **Build image:** Prefer **Amazon Linux 2023** (AL2023). AL2 does not ship modern Node by default; migrate to AL2023 or a custom image per [AWS guidance](https://docs.aws.amazon.com/amplify/latest/userguide/troubleshooting-general.html).
+2. **Live package updates:** If you set Node there, remember that **`nvm use` in `amplify.yml` overrides** live package updates for the shell that runs your commands.
+
+If `nvm use 22` fails on the build image (version not installed), add a line before it: `nvm install 22` (then keep `nvm use 22`).
+
 ## Amplify environment variables (names only)
 
 These are configured in the Amplify console, not committed:
