@@ -1,5 +1,5 @@
 # CI only: lint, typecheck, tests, build. Deploy stays on AWS Amplify (amplify.yml).
-# Pin Node to match Amplify where possible; see docs/CI-AND-DEPLOYMENT.md.
+# Pin app Node via .nvmrc (kept in sync with Amplify amplify.yml); see docs/CI-AND-DEPLOYMENT.md.
 name: CI
 
 on:
@@ -11,12 +11,13 @@ jobs:
   quality:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # v5+ uses Node 24 for the action runtime (avoids runner deprecation of Node 20 for actions).
+      - uses: actions/checkout@v5
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+      - name: Use Node.js (same as .nvmrc / Amplify)
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: npm
 
       - run: npm ci

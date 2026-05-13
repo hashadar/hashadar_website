@@ -3,6 +3,9 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Pin Node 22+ for SSR (Amplify AL2023 supports 20/22/24; default on AL2023 is 22).
+        # Use Amazon Linux 2023 build image in the Amplify console if you still see older Node.
+        - nvm use 22
         # Setup SSH for private repo access
         - mkdir -p ~/.ssh
         - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
