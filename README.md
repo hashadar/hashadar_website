@@ -27,3 +27,7 @@ npm start
 ```
 
 Optimised for deployment on AWS Amplify.
+
+## CI and deployment
+
+Pull requests and pushes to `main` run **GitHub Actions** (lint, typecheck, tests, production build). **Deployment** is **AWS Amplify** autobuild only (`amplify.yml` at the repo root); Actions do not deploy. Environment variable names used on Amplify and branch protection expectations are in **[docs/CI-AND-DEPLOYMENT.md](docs/CI-AND-DEPLOYMENT.md)**.

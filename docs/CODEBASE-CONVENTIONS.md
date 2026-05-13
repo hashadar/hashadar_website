@@ -62,7 +62,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ### 4.3 Blog
 
-- **Source of truth:** Markdown in `public/blog/*.md` (synced via `scripts/sync-blogs.js`). Reading and parsing is in `src/lib/blog.ts`.
+- **Source of truth:** Markdown in `public/blog/*.md` (synced via `scripts/sync-blogs.js`). Directory reads and frontmatter assembly are in `src/lib/blog.ts`; **markdown string → HTML** for tests and reuse is in `src/lib/blog-markdown.ts` (`processMarkdown`).
 - **Types:** Use `BlogPost` and `BlogPostFrontmatter` from `@/data/types`. Frontmatter keys: prefer a single canonical key per field; document if both kebab-case and camelCase are supported for legacy reasons.
 
 ---
@@ -116,6 +116,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ## 8. Scripts and tooling
 
+- **Testing:** Vitest with Testing Library; colocate `*.test.ts` / `*.test.tsx` next to the module under test under `src/`. Global test setup: `src/test/setup.ts` (jest-dom matchers).
 - **New scripts:** Prefer TypeScript and ESM. If a script must stay JavaScript, document why and keep it in `scripts/`. Use `process.cwd()` and `path.join` for paths; avoid hardcoded absolute paths.
 - **ESLint:** Use the project’s ESLint config. Do not disable rules without a short comment explaining the exception.
 - **British English:** Use British English in user-facing copy and in comments (e.g. “colour”, “behaviour”, “optimise”). Code and APIs follow existing naming (e.g. Tailwind’s `currentColor` stays as-is).
