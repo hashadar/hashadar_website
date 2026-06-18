@@ -44,6 +44,8 @@ next-env.d.ts
 .kiro
 .vscode
 .cursor
+.agents
+skills-lock.json
 
 # blog sync
 /temp-blog-repo
