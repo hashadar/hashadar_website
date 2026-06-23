@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { format } from "date-fns";
 import { useState } from "react";
-import { BLOG_FALLBACK_IMAGE } from "@/lib/blog-constants";
+import {
+  formatBlogCardDate,
+  resolveBlogPostImage,
+} from "@/lib/blog-presentation";
 
 interface BlogCardProps {
   slug: string;
@@ -32,11 +34,8 @@ export function BlogCard({
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const formattedDate = format(new Date(date), "MMM d, yyyy");
-  
-  // Determine which image to use - check for empty string, null, undefined, or whitespace
-  const hasImage = image && image.trim() !== '';
-  const imageSrc = (!hasImage || imageError) ? BLOG_FALLBACK_IMAGE : image;
+  const formattedDate = formatBlogCardDate(date);
+  const imageSrc = resolveBlogPostImage(image, { imageLoadFailed: imageError });
 
   return (
     <Link

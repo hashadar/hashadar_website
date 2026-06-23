@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { Header, SkipToContent } from "@/components/ui";
 import { HeroSection } from "@/components/sections/homepage/hero-section";
 import { home, footer, careerProfile, getHomeExperienceView } from "@/data";
-import { getAllBlogPosts } from "@/lib/blog";
+import { getRecentBlogPosts } from "@/lib/blog";
 
 // Lazy load below-the-fold sections for better performance
 const AboutSection = dynamic(() => import("@/components/sections/homepage/about-section").then(mod => ({ default: mod.AboutSection })), {
@@ -26,7 +26,7 @@ const FooterSection = dynamic(() => import("@/components/sections/footer-section
 });
 
 export default function Home() {
-  const blogPosts = getAllBlogPosts();
+  const blogPosts = getRecentBlogPosts(3);
 
   return (
     <>

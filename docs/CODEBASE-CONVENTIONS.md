@@ -64,6 +64,20 @@ This document defines how to work in this codebase so that new and changed code 
 
 - **Source of truth:** Markdown in `public/blog/*.md` (synced via `scripts/sync-blogs.js`). Directory reads and frontmatter assembly are in `src/lib/blog.ts`; **markdown string → HTML** for tests and reuse is in `src/lib/blog-markdown.ts` (`processMarkdown`).
 - **Types:** Use `BlogPost` and `BlogPostFrontmatter` from `@/data/types`. Frontmatter keys: prefer a single canonical key per field; document if both kebab-case and camelCase are supported for legacy reasons.
+- **Sitemap:** `src/lib/sitemap.ts` (`buildSitemap`) derives blog URLs and `lastModified` dates from `getAllBlogPosts` so sitemap entries stay consistent with the reader module. `getAllBlogSlugs` remains available for static generation (`generateStaticParams`).
+
+#### `sync-blogs` contract
+
+Obsidian → private Git repo → Amplify build → `node scripts/sync-blogs.js` → `public/blog` and `public/img`. The script behaviour is defined in `scripts/sync-blogs.js`; this section documents the contract only.
+
+| Aspect | Detail |
+|--------|--------|
+| **Inputs** | Private blog repo path (`BLOG_REPO_PATH`, default `temp-blog-repo` locally). Markdown under `{BLOG_REPO_PATH}/{BLOGS_FOLDER_NAME}/` (default folder name `Blog`), searched recursively. Images from `{BLOG_REPO_PATH}/Images/`. |
+| **Outputs** | One `.md` file per post in `public/blog/{slug}.md`. Image files copied flat into `public/img/` (portfolio images may also live there; orphaned blog images are not deleted). |
+| **Slug rules** | URL-safe lowercase slug from the filename. Posts directly under `Blog/` use the filename (without `.md`). Posts in subfolders use `{folder-path}-{filename}` with path segments joined by hyphens. Duplicate slugs get a numeric suffix (`-1`, `-2`, …). |
+| **Validation** | Each source file must start with YAML frontmatter (`---`). Invalid or unreadable files are reported; the script exits non-zero on errors after sync. |
+| **Cleanup** | Orphaned `.md` files in `public/blog` (no longer present in the source repo) are removed. Image cleanup is skipped so committed portfolio assets in `public/img` are preserved. |
+| **When it runs** | Amplify `preBuild` (see `amplify.yml` and `docs/CI-AND-DEPLOYMENT.md`). Locally, run `node scripts/sync-blogs.js` when you need real posts; CI does not clone the private repo. |
 
 ---
 
@@ -126,7 +140,7 @@ This document defines how to work in this codebase so that new and changed code 
 ## 9. SEO and metadata
 
 - **Structured data:** Prefer data from `src/data` and shared types. Avoid hardcoding person, organisation, or profile details in `structured-data.tsx`; move them to `site` or a dedicated JSON and type so they stay in sync with the rest of the site.
-- **Sitemap:** When adding new public routes (including listing and detail pages like blog), add them to `src/app/sitemap.ts` with an appropriate `changeFrequency` and `priority`.
+- **Sitemap:** When adding new public routes (including listing and detail pages like blog), add them to `src/lib/sitemap.ts` (via `buildSitemap`) with an appropriate `changeFrequency` and `priority`. Blog post entries use dates from the reader module.
 - **Robots:** Keep `src/app/robots.ts` in sync with the intended indexing policy.
 
 ---

@@ -1,12 +1,15 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { format } from "date-fns";
 import "katex/dist/katex.min.css";
-import { Header, SkipToContent, Container, Section, Breadcrumb } from "@/components/ui";
+import { Header, SkipToContent, Container, Section, Breadcrumb, Heading, Text } from "@/components/ui";
 import { FooterSection } from "@/components/sections/footer-section";
 import { getBlogPostBySlug, getAllBlogSlugs } from "@/lib/blog";
-import { BLOG_FALLBACK_IMAGE } from "@/lib/blog-constants";
+import {
+  formatBlogArticleDate,
+  hasBlogPostHeroImage,
+  resolveBlogPostImage,
+} from "@/lib/blog-presentation";
 import { site, footer } from "@/data";
 
 interface BlogPostPageProps {
@@ -40,14 +43,12 @@ export async function generateMetadata({
       description: post.frontmatter.excerpt,
       url: `${site.metadata.siteUrl}/blog/${slug}`,
       type: "article",
-      images: post.frontmatter.image
-        ? [
-            {
-              url: post.frontmatter.image,
-              alt: post.frontmatter.title,
-            },
-          ]
-        : [],
+      images: [
+        {
+          url: resolveBlogPostImage(post.frontmatter.image),
+          alt: post.frontmatter.title,
+        },
+      ],
       publishedTime: post.frontmatter.date,
       authors: [post.frontmatter.author],
       tags: post.frontmatter.tags,
@@ -63,7 +64,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
-  const formattedDate = format(new Date(post.frontmatter.date), "MMMM d, yyyy");
+  const formattedDate = formatBlogArticleDate(post.frontmatter.date);
 
   return (
     <>
@@ -95,16 +96,22 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
 
                 {/* Title */}
-                <h1 className="text-[var(--foreground)] font-body font-bold text-4xl md:text-5xl mb-6">
+                <Heading as="h1" size="lg" className="mb-6">
                   {post.frontmatter.title}
-                </h1>
+                </Heading>
 
                 {/* Meta info */}
                 <div className="mb-8">
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--foreground)]/60 mb-3">
-                    <span>{post.frontmatter.author}</span>
-                    <span>•</span>
-                    <time dateTime={post.frontmatter.date}>{formattedDate}</time>
+                  <div className="flex flex-wrap items-center gap-4 mb-3">
+                    <Text as="span" size="xs" variant="muted">
+                      {post.frontmatter.author}
+                    </Text>
+                    <Text as="span" size="xs" variant="muted">
+                      •
+                    </Text>
+                    <Text as="span" size="xs" variant="muted">
+                      <time dateTime={post.frontmatter.date}>{formattedDate}</time>
+                    </Text>
                     {post.frontmatter.aiGeneratedContent && (
                       <>
                         <span>•</span>
@@ -141,10 +148,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   )}
                 </div>
 
-                {/* Featured Image - don't show if empty or fallback */}
-                {post.frontmatter.image && 
-                 post.frontmatter.image.trim() !== '' && 
-                 post.frontmatter.image !== BLOG_FALLBACK_IMAGE && (
+                {/* Featured Image */}
+                {hasBlogPostHeroImage(post.frontmatter.image) && (
                   <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-8 bg-[var(--muted)]">
                     <Image
                       src={post.frontmatter.image}
