@@ -145,8 +145,9 @@ This document defines how to work in this codebase so that new and changed code 
 
 ## 11. Reference
 
-- **Technical debt and current exceptions:** See `docs/TECHNICAL-DEBT-AND-FINDINGS.md`. When fixing items there, align with this document and update the debt doc.
+- **Architecture and technical debt:** Tracked as GitHub issues [#16](https://github.com/hashadar/hashadar_website/issues/16)–[#20](https://github.com/hashadar/hashadar_website/issues/20). When implementing those changes, align with this document and close or update the relevant issue.
 - **Data structure and adding pages:** See `src/data/README.md`.
+- **Agent workflow (issues, triage):** See `docs/agents/` and `AGENTS.md`.
 
 ---
 

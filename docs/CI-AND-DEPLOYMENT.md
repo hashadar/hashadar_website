@@ -34,9 +34,17 @@ These are configured in the Amplify console, not committed:
 | `BLOG_REPO_URL` | Git URL of the blog content repository |
 | `BLOG_REPO_BRANCH` | Optional branch to check out when cloning the blog repo |
 
-## CI vs blog content (WP-D1)
+## CI vs blog content
 
-GitHub Actions **does not** clone the private blog repo. `getAllBlogPosts()` returns an empty list when `public/blog` is missing, so `next build` in CI can succeed **without** validating real blog markdown. Blog correctness is covered by the **Amplify** build (with secrets) plus manual checks. Optional parity (fixtures or clone in Actions) is described in `docs/SOW-CI-VS-CD.md` (WP-D2 / WP-D3).
+GitHub Actions **does not** clone the private blog repo. `getAllBlogPosts()` returns an empty list when `public/blog` is missing, so `next build` in CI can succeed **without** validating real blog markdown.
+
+| Environment | Blog validation |
+|-------------|-----------------|
+| **GitHub Actions** | Build passes with an empty blog directory; `processMarkdown` is tested in isolation via Vitest. |
+| **Amplify** | Clones the private blog repo (secrets above), runs `sync-blogs`, then builds with real posts. |
+| **Local** | Run `node scripts/sync-blogs.js` when you need real posts; otherwise the site builds without them. |
+
+Blog correctness in production therefore depends on the **Amplify** build plus manual checks. In-repo fixture tests for the full read-and-normalise path are tracked in [#16](https://github.com/hashadar/hashadar_website/issues/16).
 
 ## Branch protection (repository owner)
 
@@ -47,8 +55,8 @@ After CI is merged and green on `main`:
 
 AI agents cannot apply this in the UI; use the checklist above.
 
-## Related docs
+## Related
 
 - `amplify.yml` — Amplify build phases
-- `docs/SOW-CI-VS-CD.md` — full scope and verification checklist
-- `docs/ARCHITECTURE-ONE-PAGER.md` — CI beside Amplify overview
+- `.github/workflows/ci.yml` — GitHub Actions quality checks
+- [#16](https://github.com/hashadar/hashadar_website/issues/16) — deepen blog reader and CI fixture coverage
