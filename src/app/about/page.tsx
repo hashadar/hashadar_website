@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Header, SkipToContent } from "@/components/ui";
 import dynamic from "next/dynamic";
-import { site, footer, about, cv } from "@/data";
+import { site, footer, about, careerProfile, getAboutCareerViews } from "@/data";
 import { AboutHeroSection } from "@/components/sections/about/about-hero-section";
 
 const AboutProfessionalSection = dynamic(() => import("@/components/sections/about/about-professional-section").then(mod => ({ default: mod.AboutProfessionalSection })), {
@@ -9,6 +9,10 @@ const AboutProfessionalSection = dynamic(() => import("@/components/sections/abo
 });
 
 const ExperienceListing = dynamic(() => import("@/components/sections/shared/experience-listing").then(mod => ({ default: mod.ExperienceListing })), {
+  loading: () => <div className="min-h-[400px]" />,
+});
+
+const EducationListing = dynamic(() => import("@/components/sections/shared/education-listing").then(mod => ({ default: mod.EducationListing })), {
   loading: () => <div className="min-h-[400px]" />,
 });
 
@@ -32,6 +36,8 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const careerViews = getAboutCareerViews(careerProfile);
+
   return (
     <>
       <SkipToContent />
@@ -39,9 +45,9 @@ export default function AboutPage() {
       <main id="main-content" className="bg-[var(--background)]">
         <AboutHeroSection {...about.hero} />
         <AboutProfessionalSection {...about.professional} />
-        <ExperienceListing {...cv.experience} variant="about-experience" />
-        <ExperienceListing {...cv.education} variant="about-experience" />
-        <CertificationsListing {...cv.certifications} />
+        <ExperienceListing {...careerViews.experience} variant="about-experience" />
+        <EducationListing {...careerViews.education} />
+        <CertificationsListing {...careerViews.certifications} />
         <FooterSection {...footer.contact} />
       </main>
     </>

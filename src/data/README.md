@@ -6,8 +6,17 @@ This directory contains all content data for the website, organized for scalabil
 
 ```
 src/data/
-├── pages/           # Page-specific content
-│   └── home.json    # Homepage content (hero, about, photography, experience)
+├── pages/           # Page-specific content (shell copy and layout labels)
+│   ├── home.json
+│   ├── about.json
+│   ├── blog.json
+│   └── portfolio.json
+├── profile/         # Canonical career content (experience, education, certifications)
+│   ├── career-profile.json
+│   ├── experience-slices.ts
+│   ├── education-slices.ts
+│   ├── certifications-slices.ts
+│   └── about-career-slices.ts
 ├── common/          # Shared content across pages
 │   ├── footer.json      # Footer contact info and social links
 │   ├── navigation.json  # Navigation menu items
@@ -16,6 +25,25 @@ src/data/
 ├── index.ts         # Data exports and helper functions
 └── README.md        # This file
 ```
+
+## Career profile
+
+Structured career content (experience, education, certifications) lives in `profile/career-profile.json`. Page-specific views are composed via slice helpers:
+
+```typescript
+import { careerProfile, getHomeExperienceView, getAboutCareerViews } from "@/data";
+
+// Home page experience teaser
+<ExperienceListing {...getHomeExperienceView(careerProfile)} />
+
+// About page career sections (experience, education, certifications)
+const careerViews = getAboutCareerViews(careerProfile);
+<ExperienceListing {...careerViews.experience} />
+<EducationListing {...careerViews.education} />
+<CertificationsListing {...careerViews.certifications} />
+```
+
+Page JSON under `pages/` holds shell content only (headings, hero copy, CTAs). It does not duplicate career structured data.
 
 ## Usage
 

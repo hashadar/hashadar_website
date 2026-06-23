@@ -44,6 +44,36 @@ export interface ExperienceSection {
   companies: Company[];
 }
 
+export interface CareerProfileExperience {
+  companies: Company[];
+}
+
+export interface CareerProfileCertifications {
+  items: CertificationItem[];
+}
+
+export interface EducationEntry {
+  institution: string;
+  qualification: string;
+  period: string;
+  description: string;
+}
+
+export interface CareerProfileEducation {
+  entries: EducationEntry[];
+}
+
+export interface EducationSection {
+  heading: string;
+  entries: EducationEntry[];
+}
+
+export interface CareerProfile {
+  experience: CareerProfileExperience;
+  certifications: CareerProfileCertifications;
+  education: CareerProfileEducation;
+}
+
 export interface CertificationItem {
   name: string;
   issuer: string;
@@ -70,7 +100,6 @@ export interface HomePageData {
   hero: HeroSection;
   about: AboutSection;
   photography: PhotographySection;
-  experience: ExperienceSection;
   blog: BlogSection;
 }
 
@@ -83,13 +112,6 @@ export interface PortfolioPageData {
 export interface AboutPageData {
   hero: HeroSection;
   professional: AboutSection;
-  education: AboutSection;
-}
-
-export interface CVData {
-  experience: ExperienceSection;
-  education: ExperienceSection;
-  certifications: CertificationsSection;
 }
 
 export interface BlogPageData {
