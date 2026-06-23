@@ -2,17 +2,17 @@ import homeData from './pages/home.json';
 import portfolioData from './pages/portfolio.json';
 import aboutData from './pages/about.json';
 import blogData from './pages/blog.json';
-import cvData from './pages/cv.json';
 import footerData from './common/footer.json';
 import navigationData from './common/navigation.json';
 import siteData from './common/site.json';
+import careerProfileData from './profile/career-profile.json';
 
 import type {
   HomePageData,
   PortfolioPageData,
   AboutPageData,
   BlogPageData,
-  CVData,
+  CareerProfile,
   FooterData,
   NavigationData,
   SiteData,
@@ -23,7 +23,13 @@ export const home = homeData as HomePageData;
 export const portfolio = portfolioData as PortfolioPageData;
 export const about = aboutData as AboutPageData;
 export const blog = blogData as BlogPageData;
-export const cv = cvData as CVData;
+export const careerProfile = careerProfileData as CareerProfile;
+
+export { getHomeExperienceView, getAboutExperienceView } from './profile/experience-slices';
+export { getAboutCertificationsView } from './profile/certifications-slices';
+export { getAboutEducationView } from './profile/education-slices';
+export { getAboutCareerViews } from './profile/about-career-slices';
+export type { AboutCareerViews } from './profile/about-career-slices';
 
 // Common data exports
 export const footer = footerData as FooterData;

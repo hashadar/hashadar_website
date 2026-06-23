@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import { Header, SkipToContent } from "@/components/ui";
 import { HeroSection } from "@/components/sections/homepage/hero-section";
-import { home, footer } from "@/data";
+import { home, footer, careerProfile, getHomeExperienceView } from "@/data";
 import { getAllBlogPosts } from "@/lib/blog";
 
 // Lazy load below-the-fold sections for better performance
@@ -13,7 +13,7 @@ const PhotographySection = dynamic(() => import("@/components/sections/homepage/
   loading: () => <div className="min-h-screen" />,
 });
 
-const ExperienceSection = dynamic(() => import("@/components/sections/homepage/experience-section").then(mod => ({ default: mod.ExperienceSection })), {
+const ExperienceListing = dynamic(() => import("@/components/sections/shared/experience-listing").then(mod => ({ default: mod.ExperienceListing })), {
   loading: () => <div className="min-h-screen" />,
 });
 
@@ -37,7 +37,7 @@ export default function Home() {
         <AboutSection {...home.about} />
         <PhotographySection {...home.photography} />
         <BlogSection {...home.blog} posts={blogPosts} />
-        <ExperienceSection {...home.experience} />
+        <ExperienceListing {...getHomeExperienceView(careerProfile)} id="experience" />
         <FooterSection {...footer.contact} />
       </main>
     </>
