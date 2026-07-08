@@ -48,6 +48,11 @@
   "certifications": {
     "items": [
       {
+        "name": "Bloomberg Finance Fundamentals",
+        "issuer": "Bloomberg",
+        "issued": "Issued Jun 2026"
+      },
+      {
         "name": "AWS Certified Cloud Practitioner",
         "issuer": "Amazon Web Services",
         "issued": "Issued Feb 2026"
