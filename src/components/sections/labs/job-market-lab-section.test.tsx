@@ -10,6 +10,17 @@ afterEach(() => {
   cleanup();
 });
 
+function renderLab(
+  publication: PublishedJobMarketResult,
+  auth = createMemorySiteAuth(),
+) {
+  return render(
+    <SiteAuthProvider auth={auth}>
+      <JobMarketLabSection publication={publication} />
+    </SiteAuthProvider>,
+  );
+}
+
 const published: PublishedJobMarketResult = {
   status: 'published',
   snapshot: {
@@ -38,14 +49,6 @@ const published: PublishedJobMarketResult = {
   },
 };
 
-function renderLab(publication: PublishedJobMarketResult) {
-  return render(
-    <SiteAuthProvider auth={createMemorySiteAuth({ status: 'unauthenticated' })}>
-      <JobMarketLabSection publication={publication} />
-    </SiteAuthProvider>,
-  );
-}
-
 describe('JobMarketLabSection', () => {
   it('renders corpus freshness and aggregate visuals from a published snapshot', () => {
     renderLab(published);
@@ -68,6 +71,9 @@ describe('JobMarketLabSection', () => {
     expect(screen.getByText('Theme 2')).toBeInTheDocument();
 
     expect(screen.getByText(jobMarketLab.corpusNote)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: jobMarketLab.admin.heading }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText(jobMarketLab.corpusAdmin.heading)).not.toBeInTheDocument();
   });
 

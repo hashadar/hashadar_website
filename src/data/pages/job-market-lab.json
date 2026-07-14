@@ -11,6 +11,14 @@
   "seniorityLabel": "Seniority",
   "roleFamilyLabel": "Role family",
   "clustersHeading": "Requirement themes",
+  "admin": {
+    "heading": "Corpus recompute",
+    "description": "Start an analysis run against the active corpus. Only one run may be queued or in progress at a time.",
+    "startButtonLabel": "Start recompute",
+    "startingLabel": "Starting…",
+    "startedMessage": "Recompute started. Run id: {runId}. Status: queued.",
+    "rejectedHeading": "Could not start recompute"
+  },
   "corpusAdmin": {
     "heading": "Corpus management",
     "description": "Soft-archive active job descriptions to exclude them from the next recompute, or restore archived ones. Objects in storage are not deleted.",
