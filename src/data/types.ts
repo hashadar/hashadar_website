@@ -128,6 +128,25 @@ export interface BlogPageData {
   allCategories: string;
 }
 
+export interface LabIndexItem {
+  title: string;
+  description: string;
+  href: string;
+}
+
+export interface LabsPageData {
+  heading: string;
+  description: string;
+  labs: LabIndexItem[];
+}
+
+export interface JobMarketLabPageData {
+  heading: string;
+  description: string;
+  emptyState: string;
+  corpusNote: string;
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;

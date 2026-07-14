@@ -117,6 +117,26 @@ export function assertValidPortfolioPage(data: unknown): void {
   );
 }
 
+export function assertValidLabsPage(data: unknown): void {
+  const page = requireRecord(data, 'labs');
+  requireString(page, 'heading', 'labs');
+  requireString(page, 'description', 'labs');
+  requireArray(page.labs, 'labs.labs').forEach((lab, index) => {
+    const item = requireRecord(lab, `labs.labs[${index}]`);
+    requireString(item, 'title', `labs.labs[${index}]`);
+    requireString(item, 'description', `labs.labs[${index}]`);
+    requireString(item, 'href', `labs.labs[${index}]`);
+  });
+}
+
+export function assertValidJobMarketLabPage(data: unknown): void {
+  const page = requireRecord(data, 'jobMarketLab');
+  requireString(page, 'heading', 'jobMarketLab');
+  requireString(page, 'description', 'jobMarketLab');
+  requireString(page, 'emptyState', 'jobMarketLab');
+  requireString(page, 'corpusNote', 'jobMarketLab');
+}
+
 export function assertValidFooter(data: unknown): void {
   const footer = requireRecord(data, 'footer');
   const contact = requireRecord(footer.contact, 'footer.contact');

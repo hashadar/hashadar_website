@@ -5,6 +5,8 @@ import {
   getCommonData,
   getPageData,
   home,
+  labs,
+  jobMarketLab,
   portfolio,
   footer,
   navigation,
@@ -18,6 +20,8 @@ describe('getPageData', () => {
     expect(getPageData('/about')).toBe(about);
     expect(getPageData('/blog')).toBe(blog);
     expect(getPageData('/portfolio')).toBe(portfolio);
+    expect(getPageData('/labs')).toBe(labs);
+    expect(getPageData('/labs/job-market')).toBe(jobMarketLab);
   });
 
   it('returns null for unknown routes', () => {
@@ -29,5 +33,9 @@ describe('getPageData', () => {
 describe('getCommonData', () => {
   it('returns footer, navigation, and site together', () => {
     expect(getCommonData()).toEqual({ footer, navigation, site });
+  });
+
+  it('includes a Labs navigation link to the Labs index', () => {
+    expect(navigation.links).toContainEqual({ label: 'Labs', href: '/labs' });
   });
 });
