@@ -1,3 +1,12 @@
+import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/data';
+import { configureSiteAmplify } from './configure-site-amplify';
+import {
+  fetchPublishedSnapshotViaQuery,
+  publishedQueryFromClient,
+  type AmplifyPublishedSnapshotClient,
+} from './fetch-published-job-market-snapshot';
+import { readAmplifyOutputs } from './read-amplify-outputs';
 import { defaultStartJobMarketRecompute } from './start-job-market-recompute-client';
 
 export type SkillFrequency = {
@@ -75,8 +84,25 @@ function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
 }
 
 async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
-  // Wiring to Amplify getPublishedJobMarketSnapshot lands with sandbox/outputs.
-  return null;
+  try {
+    const outputs = readAmplifyOutputs();
+    if (!outputs) {
+      return null;
+    }
+
+    configureSiteAmplify(outputs, (config, options) => {
+      Amplify.configure(config, options);
+    });
+
+    // Guest-safe auth: default data mode is userPool; allow.guest needs identityPool.
+    const client = generateClient({
+      authMode: 'identityPool',
+    }) as AmplifyPublishedSnapshotClient;
+
+    return fetchPublishedSnapshotViaQuery(publishedQueryFromClient(client));
+  } catch {
+    return null;
+  }
 }
 
 async function defaultStartRecompute(): Promise<StartJobMarketRecomputeResult> {
