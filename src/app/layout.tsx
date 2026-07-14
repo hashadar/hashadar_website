@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { site } from "@/data";
+import { AmplifyProvider } from "@/components/amplify-provider";
 import { StructuredData } from "@/components/seo/structured-data";
 import { ThemeScript } from "@/components/theme-script";
+import { readAmplifyOutputs } from "@/lib/read-amplify-outputs";
 
 export const metadata: Metadata = {
   title: site.metadata.title,
@@ -49,6 +51,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const amplifyOutputs = readAmplifyOutputs();
+
   return (
     <html lang="en" className="scroll-smooth">
       <head>
@@ -56,7 +60,7 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className="antialiased">
-        {children}
+        <AmplifyProvider outputs={amplifyOutputs}>{children}</AmplifyProvider>
       </body>
     </html>
   );

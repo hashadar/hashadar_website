@@ -26,7 +26,7 @@ npm run build
 npm start
 ```
 
-Optimised for deployment on AWS Amplify.
+Optimised for deployment on AWS Amplify Gen 2 (backend in `amplify/`, Hosting via `amplify.yml`). Public marketing pages run without `amplify_outputs.json`; use `npm run sandbox` locally when you need a live backend. See **[docs/CI-AND-DEPLOYMENT.md](docs/CI-AND-DEPLOYMENT.md)**.
 
 ## CI and deployment
 
