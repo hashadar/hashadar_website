@@ -85,8 +85,8 @@ describe('JobMarketLabCorpusAdmin', () => {
     ]);
     renderAdmin(ownerAuth(), corpus);
 
-    expect(await screen.findByText(jobMarketLab.corpusAdmin.heading)).toBeInTheDocument();
-    expect(screen.getByText('Risk modeller')).toBeInTheDocument();
+    expect(await screen.findByText('Risk modeller')).toBeInTheDocument();
+    expect(screen.getByText(jobMarketLab.corpusAdmin.heading)).toBeInTheDocument();
     expect(screen.getByText('jd-1')).toBeInTheDocument();
     expect(screen.getByText(jobMarketLab.corpusAdmin.statusActiveLabel)).toBeInTheDocument();
     expect(screen.queryByText(/secret JD body|markdown|# Role/i)).not.toBeInTheDocument();

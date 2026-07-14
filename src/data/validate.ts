@@ -163,6 +163,22 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(corpusAdmin, 'errorLabel', 'jobMarketLab.corpusAdmin');
 }
 
+export function assertValidLoginPage(data: unknown): void {
+  const page = requireRecord(data, 'login');
+  requireString(page, 'heading', 'login');
+  requireString(page, 'description', 'login');
+  requireString(page, 'emailLabel', 'login');
+  requireString(page, 'passwordLabel', 'login');
+  requireString(page, 'submitLabel', 'login');
+  requireString(page, 'signOutLabel', 'login');
+  requireString(page, 'signedInHeading', 'login');
+  requireString(page, 'signedInDescription', 'login');
+  const errors = requireRecord(page.errors, 'login.errors');
+  requireString(errors, 'generic', 'login.errors');
+  requireString(errors, 'notConfigured', 'login.errors');
+  requireString(errors, 'required', 'login.errors');
+}
+
 export function assertValidFooter(data: unknown): void {
   const footer = requireRecord(data, 'footer');
   const contact = requireRecord(footer.contact, 'footer.contact');
