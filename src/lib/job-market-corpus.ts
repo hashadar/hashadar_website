@@ -1,3 +1,9 @@
+import type {
+  CompensationPeriod,
+  JobDescriptionRoleFamily,
+  JobDescriptionSeniority,
+} from './job-market-employers';
+
 export type JobDescriptionStatus = 'active' | 'archived';
 
 export type JobDescriptionCorpusRecord = {
@@ -5,11 +11,16 @@ export type JobDescriptionCorpusRecord = {
   collectedAt: string;
   status: JobDescriptionStatus;
   title?: string;
-  seniority?: string;
-  roleFamily?: string;
+  seniority?: JobDescriptionSeniority;
+  roleFamily?: JobDescriptionRoleFamily;
   source?: string;
   s3Key?: string;
   contentHash?: string;
+  employerId?: string;
+  compensationCurrency?: string;
+  compensationMin?: number;
+  compensationMax?: number;
+  compensationPeriod?: CompensationPeriod;
 };
 
 export const DEFAULT_MAX_AGE_MONTHS = 18;

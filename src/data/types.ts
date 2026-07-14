@@ -204,6 +204,45 @@ export interface JobMarketLabHitlQueueCopy {
   actionErrorHeading: string;
 }
 
+export interface JobMarketLabEmployerAdminCopy {
+  heading: string;
+  description: string;
+  nameLabel: string;
+  sizeTierLabel: string;
+  prestigeTierLabel: string;
+  createButtonLabel: string;
+  creatingLabel: string;
+  saveButtonLabel: string;
+  savingLabel: string;
+  emptyList: string;
+  loadingLabel: string;
+  errorLabel: string;
+  createdMessage: string;
+  savedMessage: string;
+  rejectedHeading: string;
+}
+
+export interface JobMarketLabMetadataAdminCopy {
+  heading: string;
+  description: string;
+  employerLabel: string;
+  noEmployerOption: string;
+  seniorityLabel: string;
+  roleFamilyLabel: string;
+  compensationCurrencyLabel: string;
+  compensationMinLabel: string;
+  compensationMaxLabel: string;
+  compensationPeriodLabel: string;
+  unsetOption: string;
+  saveButtonLabel: string;
+  savingLabel: string;
+  savedMessage: string;
+  rejectedHeading: string;
+  loadingLabel: string;
+  errorLabel: string;
+  emptyList: string;
+}
+
 export interface JobMarketLabConsoleCopy {
   heading: string;
   description: string;
@@ -251,6 +290,8 @@ export interface JobMarketLabPageData {
   corpusAdmin: JobMarketLabCorpusAdminData;
   upload: JobMarketLabUploadCopy;
   hitlQueue: JobMarketLabHitlQueueCopy;
+  employerAdmin: JobMarketLabEmployerAdminCopy;
+  metadataAdmin: JobMarketLabMetadataAdminCopy;
   console: JobMarketLabConsoleCopy;
 }
 

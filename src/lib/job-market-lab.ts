@@ -95,7 +95,7 @@ export {
 
 function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
   const technologies = snapshot.technologies ?? snapshot.skills ?? [];
-  return {
+  const sanitised: JobMarketSnapshot = {
     documentCount: snapshot.documentCount,
     publishedAt: snapshot.publishedAt,
     technologies,
@@ -105,6 +105,8 @@ function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
     clusters: snapshot.clusters ?? [],
     projection: snapshot.projection ?? [],
   };
+
+  return sanitised;
 }
 
 async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
@@ -199,3 +201,32 @@ export {
   createDefaultAmplifyThemeLabelOverrideDeps,
   type AmplifyThemeLabelOverrideModelClient,
 } from './job-market-theme-labels-amplify';
+
+export {
+  createEmployer,
+  updateEmployer,
+  listEmployers,
+  updateJobDescriptionStructuredFields,
+  EMPLOYER_SIZE_TIERS,
+  EMPLOYER_PRESTIGE_TIERS,
+  JOB_DESCRIPTION_SENIORITIES,
+  JOB_DESCRIPTION_ROLE_FAMILIES,
+  COMPENSATION_PERIODS,
+  type EmployerRecord,
+  type EmployerSizeTier,
+  type EmployerPrestigeTier,
+  type JobDescriptionSeniority,
+  type JobDescriptionRoleFamily,
+  type CompensationPeriod,
+  type JobDescriptionStructuredFieldsPatch,
+  type UpdateJobDescriptionStructuredFieldsDeps,
+} from './job-market-employers';
+
+export {
+  createAmplifyEmployerDeps,
+  createDefaultAmplifyEmployerDeps,
+  createAmplifyMetadataDeps,
+  createDefaultAmplifyMetadataDeps,
+  type AmplifyEmployerDeps,
+} from './job-market-employers-amplify';
+

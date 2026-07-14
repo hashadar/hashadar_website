@@ -9,6 +9,29 @@ const schema = a
     JobDescriptionStatus: a.enum(['active', 'archived']),
     ScrapeCandidateStatus: a.enum(['pending', 'accepted', 'rejected']),
     AnalysisRunStatus: a.enum(['queued', 'running', 'succeeded', 'failed']),
+    EmployerSizeTier: a.enum(['startup', 'scaleup', 'enterprise', 'big4', 'other']),
+    EmployerPrestigeTier: a.enum(['low', 'mid', 'high', 'elite']),
+    JobDescriptionSeniority: a.enum(['junior', 'mid', 'senior', 'lead', 'principal']),
+    JobDescriptionRoleFamily: a.enum([
+      'data-science',
+      'analytics',
+      'engineering',
+      'ml-ops',
+      'product',
+      'other',
+    ]),
+    CompensationPeriod: a.enum(['year', 'month', 'day', 'hour']),
+
+    Employer: a
+      .model({
+        name: a.string().required(),
+        sizeTier: a.ref('EmployerSizeTier').required(),
+        prestigeTier: a.ref('EmployerPrestigeTier').required(),
+        jobDescriptions: a.hasMany('JobDescription', 'employerId'),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      ]),
 
     JobDescription: a
       .model({
@@ -17,9 +40,15 @@ const schema = a
         collectedAt: a.datetime().required(),
         status: a.ref('JobDescriptionStatus').required(),
         title: a.string(),
-        seniority: a.string(),
-        roleFamily: a.string(),
+        seniority: a.ref('JobDescriptionSeniority'),
+        roleFamily: a.ref('JobDescriptionRoleFamily'),
         source: a.string(),
+        employerId: a.id(),
+        employer: a.belongsTo('Employer', 'employerId'),
+        compensationCurrency: a.string(),
+        compensationMin: a.float(),
+        compensationMax: a.float(),
+        compensationPeriod: a.ref('CompensationPeriod'),
       })
       .authorization((allow) => [
         allow.authenticated().to(['read', 'create', 'update', 'delete']),

@@ -61,6 +61,42 @@ describe('getPublishedJobMarketSnapshot', () => {
     });
   });
 
+  it('does not expose compensation, prestige, or employer registry fields', async () => {
+    const result = await getPublishedJobMarketSnapshot({
+      fetchPublished: async () =>
+        ({
+          documentCount: 1,
+          publishedAt: '2026-07-01T00:00:00.000Z',
+          skills: [],
+          seniority: [],
+          roleFamily: [],
+          clusters: [],
+          projection: [],
+          compensationMin: 120000,
+          compensationMax: 150000,
+          compensationCurrency: 'GBP',
+          compensationPeriod: 'year',
+          prestigeTier: 'elite',
+          sizeTier: 'enterprise',
+          employers: [{ id: 'emp-1', name: 'Secret Bank' }],
+        }) as never,
+    });
+
+    expect(result).toEqual({
+      status: 'published',
+      snapshot: {
+        documentCount: 1,
+        publishedAt: '2026-07-01T00:00:00.000Z',
+        technologies: [],
+        skills: [],
+        seniority: [],
+        roleFamily: [],
+        clusters: [],
+        projection: [],
+      },
+    });
+  });
+
   it('does not expose raw job description or employer identity fields', async () => {
     const result = await getPublishedJobMarketSnapshot({
       fetchPublished: async () =>
