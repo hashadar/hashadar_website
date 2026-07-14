@@ -41,6 +41,21 @@
     "rejectedHeading": "Could not upload job description",
     "noFileSelected": "Choose a markdown file to upload."
   },
+  "hitlQueue": {
+    "heading": "Scrape candidate queue",
+    "description": "Review scraped job descriptions before they enter the live corpus. Accept promotes a candidate into raw/ for ingest; reject discards it without publishing.",
+    "emptyList": "No pending scrape candidates.",
+    "loadingLabel": "Loading scrape candidates…",
+    "errorLabel": "The scrape candidate queue is temporarily unavailable.",
+    "untitledLabel": "Untitled candidate",
+    "acceptLabel": "Accept into corpus",
+    "rejectLabel": "Reject",
+    "acceptingLabel": "Accepting…",
+    "rejectingLabel": "Rejecting…",
+    "acceptedMessage": "Accepted into {s3Key}. Ingest will update corpus metadata shortly.",
+    "rejectedMessage": "Candidate rejected and will not enter the corpus.",
+    "actionErrorHeading": "Could not update scrape candidate"
+  },
   "console": {
     "heading": "Job market owner console",
     "description": "Manage the private corpus, start recomputes, and review analysis run history. Guests cannot access this console.",

@@ -5,6 +5,7 @@ import { Container, Section, SectionHeader, Text } from '@/components/ui';
 import { JobMarketLabAdminSection } from '@/components/sections/labs/job-market-lab-admin-section';
 import { JobMarketLabCorpusAdmin } from '@/components/sections/labs/job-market-lab-corpus-admin';
 import { JobMarketLabCvPanel } from '@/components/sections/labs/job-market-lab-cv-panel';
+import { JobMarketLabHitlQueuePanel } from '@/components/sections/labs/job-market-lab-hitl-queue-panel';
 import { JobMarketLabRunsPanel } from '@/components/sections/labs/job-market-lab-runs-panel';
 import { JobMarketLabUploadPanel } from '@/components/sections/labs/job-market-lab-upload-panel';
 import { jobMarketLab } from '@/data';
@@ -72,6 +73,7 @@ export function JobMarketLabConsoleSection({
         <JobMarketLabAdminSection startRecompute={startRecompute} />
         <JobMarketLabCvPanel canonicalCv={canonicalCv} />
         <JobMarketLabUploadPanel />
+        <JobMarketLabHitlQueuePanel />
         <JobMarketLabCorpusAdmin corpus={corpus} />
         <JobMarketLabRunsPanel analysisRuns={analysisRuns} />
       </Container>

@@ -7,6 +7,7 @@ import { jobMarketPublication } from '../functions/job-market-publication/resour
 const schema = a
   .schema({
     JobDescriptionStatus: a.enum(['active', 'archived']),
+    ScrapeCandidateStatus: a.enum(['pending', 'accepted', 'rejected']),
     AnalysisRunStatus: a.enum(['queued', 'running', 'succeeded', 'failed']),
 
     JobDescription: a
@@ -22,6 +23,20 @@ const schema = a
       })
       .authorization((allow) => [
         allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      ]),
+
+    ScrapeCandidate: a
+      .model({
+        fileName: a.string().required(),
+        body: a.string().required(),
+        status: a.ref('ScrapeCandidateStatus').required(),
+        title: a.string(),
+        source: a.string(),
+        collectedAt: a.datetime(),
+        candidateS3Key: a.string(),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
     AnalysisRun: a
