@@ -12,6 +12,7 @@ import { JobMarketLabMetadataAdmin } from '@/components/sections/labs/job-market
 import { JobMarketLabPayPrestigeAnalyticsPanel } from '@/components/sections/labs/job-market-lab-pay-prestige-analytics-panel';
 import { JobMarketLabRunsPanel } from '@/components/sections/labs/job-market-lab-runs-panel';
 import { JobMarketLabThemeLabelsPanel } from '@/components/sections/labs/job-market-lab-theme-labels-panel';
+import { JobMarketLabPulseFiltersPanel } from '@/components/sections/labs/job-market-lab-pulse-filters-panel';
 import { JobMarketLabUploadPanel } from '@/components/sections/labs/job-market-lab-upload-panel';
 import { jobMarketLab } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
@@ -85,6 +86,7 @@ export function JobMarketLabConsoleSection({
         <JobMarketLabPayPrestigeAnalyticsPanel />
         <JobMarketLabCorpusAdmin corpus={corpus} />
         <JobMarketLabThemeLabelsPanel />
+        <JobMarketLabPulseFiltersPanel />
         <JobMarketLabRunsPanel analysisRuns={analysisRuns} />
       </Container>
     </Section>

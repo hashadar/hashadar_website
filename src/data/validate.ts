@@ -143,6 +143,16 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(page, 'seniorityLabel', 'jobMarketLab');
   requireString(page, 'roleFamilyLabel', 'jobMarketLab');
   requireString(page, 'clustersHeading', 'jobMarketLab');
+  requireString(page, 'pulseFiltersTimeLabel', 'jobMarketLab');
+  const pulseFilterTimeOptions = requireRecord(
+    page.pulseFilterTimeOptions,
+    'jobMarketLab.pulseFilterTimeOptions',
+  );
+  requireString(pulseFilterTimeOptions, 'all', 'jobMarketLab.pulseFilterTimeOptions');
+  requireString(pulseFilterTimeOptions, '3m', 'jobMarketLab.pulseFilterTimeOptions');
+  requireString(pulseFilterTimeOptions, '6m', 'jobMarketLab.pulseFilterTimeOptions');
+  requireString(pulseFilterTimeOptions, '12m', 'jobMarketLab.pulseFilterTimeOptions');
+  requireString(pulseFilterTimeOptions, '18m', 'jobMarketLab.pulseFilterTimeOptions');
   const admin = requireRecord(page.admin, 'jobMarketLab.admin');
   requireString(admin, 'heading', 'jobMarketLab.admin');
   requireString(admin, 'description', 'jobMarketLab.admin');
@@ -353,6 +363,25 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(consoleCopy, 'themeLabelSavingLabel', 'jobMarketLab.console');
   requireString(consoleCopy, 'themeLabelSavedMessage', 'jobMarketLab.console');
   requireString(consoleCopy, 'themeLabelSizeLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersHeading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersDescription', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersLoading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersEmpty', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersError', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersTimeLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersAllOption', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersDocumentCountLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersTechnologiesLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'pulseFiltersThemesLabel', 'jobMarketLab.console');
+  const consolePulseFilterTimeOptions = requireRecord(
+    consoleCopy.pulseFilterTimeOptions,
+    'jobMarketLab.console.pulseFilterTimeOptions',
+  );
+  requireString(consolePulseFilterTimeOptions, 'all', 'jobMarketLab.console.pulseFilterTimeOptions');
+  requireString(consolePulseFilterTimeOptions, '3m', 'jobMarketLab.console.pulseFilterTimeOptions');
+  requireString(consolePulseFilterTimeOptions, '6m', 'jobMarketLab.console.pulseFilterTimeOptions');
+  requireString(consolePulseFilterTimeOptions, '12m', 'jobMarketLab.console.pulseFilterTimeOptions');
+  requireString(consolePulseFilterTimeOptions, '18m', 'jobMarketLab.console.pulseFilterTimeOptions');
 }
 
 export function assertValidLoginPage(data: unknown): void {

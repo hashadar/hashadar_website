@@ -270,6 +270,14 @@ export interface JobMarketLabMetadataAdminCopy {
   emptyList: string;
 }
 
+export interface JobMarketPulseFilterTimeOptions {
+  all: string;
+  '3m': string;
+  '6m': string;
+  '12m': string;
+  '18m': string;
+}
+
 export interface JobMarketLabConsoleCopy {
   heading: string;
   description: string;
@@ -299,6 +307,17 @@ export interface JobMarketLabConsoleCopy {
   themeLabelSavingLabel: string;
   themeLabelSavedMessage: string;
   themeLabelSizeLabel: string;
+  pulseFiltersHeading: string;
+  pulseFiltersDescription: string;
+  pulseFiltersLoading: string;
+  pulseFiltersEmpty: string;
+  pulseFiltersError: string;
+  pulseFiltersTimeLabel: string;
+  pulseFiltersAllOption: string;
+  pulseFiltersDocumentCountLabel: string;
+  pulseFiltersTechnologiesLabel: string;
+  pulseFiltersThemesLabel: string;
+  pulseFilterTimeOptions: JobMarketPulseFilterTimeOptions;
 }
 
 export interface JobMarketLabPayPrestigeAnalyticsCopy {
@@ -340,6 +359,8 @@ export interface JobMarketLabPageData {
   seniorityLabel: string;
   roleFamilyLabel: string;
   clustersHeading: string;
+  pulseFiltersTimeLabel: string;
+  pulseFilterTimeOptions: JobMarketPulseFilterTimeOptions;
   admin: JobMarketLabAdminCopy;
   corpusAdmin: JobMarketLabCorpusAdminData;
   upload: JobMarketLabUploadCopy;
