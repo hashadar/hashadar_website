@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Amplify sandbox / pipeline-deploy artefacts (gitignored)
+    ".amplify/**",
     // Legacy scripts (tracked separately as tech debt)
     "scripts/**",
   ]),

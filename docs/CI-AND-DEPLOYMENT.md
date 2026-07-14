@@ -11,7 +11,9 @@ There is **no accidental double-deploy** from GitHub Actions: Actions do not pus
 
 ## Amplify Gen 2 backend
 
-Backend definitions live in `amplify/` (auth, data, storage, functions placeholders for the job market lab). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the existing frontend `preBuild` (blog sync) and `build`.
+Backend definitions live in `amplify/` (auth, data, storage, and the job-market ingest function for the lab). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the existing frontend `preBuild` (blog sync) and `build`.
+
+Script-first JD ingest: with sandbox/Hosting outputs present, `npm run ingest:jd -- path/to/file.md` uploads markdown to the `raw/` prefix; the ingest Lambda upserts `JobDescription` metadata and does not start recompute.
 
 | Environment | Outputs file |
 |-------------|----------------|
