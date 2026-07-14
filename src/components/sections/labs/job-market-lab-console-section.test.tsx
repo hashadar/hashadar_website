@@ -115,6 +115,9 @@ describe('JobMarketLabConsoleSection', () => {
       screen.getByRole('heading', { name: jobMarketLab.metadataAdmin.heading }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('heading', { name: jobMarketLab.payPrestigeAnalytics.heading }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('heading', { name: jobMarketLab.corpusAdmin.heading }),
     ).toBeInTheDocument();
     expect(

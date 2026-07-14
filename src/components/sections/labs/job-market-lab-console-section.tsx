@@ -8,6 +8,7 @@ import { JobMarketLabCvPanel } from '@/components/sections/labs/job-market-lab-c
 import { JobMarketLabEmployerAdmin } from '@/components/sections/labs/job-market-lab-employer-admin';
 import { JobMarketLabHitlQueuePanel } from '@/components/sections/labs/job-market-lab-hitl-queue-panel';
 import { JobMarketLabMetadataAdmin } from '@/components/sections/labs/job-market-lab-metadata-admin';
+import { JobMarketLabPayPrestigeAnalyticsPanel } from '@/components/sections/labs/job-market-lab-pay-prestige-analytics-panel';
 import { JobMarketLabRunsPanel } from '@/components/sections/labs/job-market-lab-runs-panel';
 import { JobMarketLabThemeLabelsPanel } from '@/components/sections/labs/job-market-lab-theme-labels-panel';
 import { JobMarketLabUploadPanel } from '@/components/sections/labs/job-market-lab-upload-panel';
@@ -79,6 +80,7 @@ export function JobMarketLabConsoleSection({
         <JobMarketLabHitlQueuePanel />
         <JobMarketLabEmployerAdmin />
         <JobMarketLabMetadataAdmin corpus={corpus} />
+        <JobMarketLabPayPrestigeAnalyticsPanel />
         <JobMarketLabCorpusAdmin corpus={corpus} />
         <JobMarketLabThemeLabelsPanel />
         <JobMarketLabRunsPanel analysisRuns={analysisRuns} />

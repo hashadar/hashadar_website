@@ -221,6 +221,75 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(metadataAdmin, 'loadingLabel', 'jobMarketLab.metadataAdmin');
   requireString(metadataAdmin, 'errorLabel', 'jobMarketLab.metadataAdmin');
   requireString(metadataAdmin, 'emptyList', 'jobMarketLab.metadataAdmin');
+  const payPrestigeAnalytics = requireRecord(
+    page.payPrestigeAnalytics,
+    'jobMarketLab.payPrestigeAnalytics',
+  );
+  requireString(payPrestigeAnalytics, 'heading', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'description', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'loadingLabel', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'errorLabel', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(
+    payPrestigeAnalytics,
+    'activeDocumentsLabel',
+    'jobMarketLab.payPrestigeAnalytics',
+  );
+  requireString(
+    payPrestigeAnalytics,
+    'missingDataHeading',
+    'jobMarketLab.payPrestigeAnalytics',
+  );
+  requireString(payPrestigeAnalytics, 'prestigeHeading', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'sizeHeading', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(
+    payPrestigeAnalytics,
+    'compensationHeading',
+    'jobMarketLab.payPrestigeAnalytics',
+  );
+  requireString(payPrestigeAnalytics, 'compensationEmpty', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'presentLabel', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'missingLabel', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'medianMinLabel', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(payPrestigeAnalytics, 'medianMaxLabel', 'jobMarketLab.payPrestigeAnalytics');
+  requireString(
+    payPrestigeAnalytics,
+    'documentCountLabel',
+    'jobMarketLab.payPrestigeAnalytics',
+  );
+  const missingFieldLabels = requireRecord(
+    payPrestigeAnalytics.missingFieldLabels,
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'employerLink',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'compensationCurrency',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'compensationMin',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'compensationMax',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'compensationPeriod',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'completeCompensation',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
   const consoleCopy = requireRecord(page.console, 'jobMarketLab.console');
   requireString(consoleCopy, 'heading', 'jobMarketLab.console');
   requireString(consoleCopy, 'description', 'jobMarketLab.console');
