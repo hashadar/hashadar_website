@@ -64,7 +64,21 @@ describe('getPublishedJobMarketSnapshot', () => {
 });
 
 describe('startJobMarketRecompute', () => {
-  it('returns the orchestrator result through the lab facade', async () => {
+  it('returns started with runId when the injected start succeeds', async () => {
+    const result = await startJobMarketRecompute({
+      startRecompute: async () => ({
+        status: 'started',
+        runId: 'run-123',
+      }),
+    });
+
+    expect(result).toEqual({
+      status: 'started',
+      runId: 'run-123',
+    });
+  });
+
+  it('returns rejected with reason when a run is already in progress', async () => {
     const result = await startJobMarketRecompute({
       startRecompute: async () => ({
         status: 'rejected',
@@ -75,6 +89,15 @@ describe('startJobMarketRecompute', () => {
     expect(result).toEqual({
       status: 'rejected',
       reason: 'An analysis run is already in progress',
+    });
+  });
+
+  it('rejects clearly from the default Amplify path when outputs are absent', async () => {
+    const result = await startJobMarketRecompute();
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Recompute client is not configured',
     });
   });
 });

@@ -10,5 +10,13 @@
   "taxonomyHeading": "Seniority and role family",
   "seniorityLabel": "Seniority",
   "roleFamilyLabel": "Role family",
-  "clustersHeading": "Requirement themes"
+  "clustersHeading": "Requirement themes",
+  "admin": {
+    "heading": "Corpus recompute",
+    "description": "Start an analysis run against the active corpus. Only one run may be queued or in progress at a time.",
+    "startButtonLabel": "Start recompute",
+    "startingLabel": "Starting…",
+    "startedMessage": "Recompute started. Run id: {runId}. Status: queued.",
+    "rejectedHeading": "Could not start recompute"
+  }
 }

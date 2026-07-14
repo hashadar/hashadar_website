@@ -1,3 +1,15 @@
+import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/data';
+import { configureSiteAmplify } from './configure-site-amplify';
+import { readAmplifyOutputs } from './read-amplify-outputs';
+import {
+  RECOMPUTE_CLIENT_NOT_CONFIGURED_REASON,
+  RECOMPUTE_FAILED_REASON,
+  startJobMarketRecomputeViaMutation,
+  startMutationFromClient,
+  type AmplifyStartRecomputeClient,
+} from './start-job-market-recompute-client';
+
 export type SkillFrequency = {
   name: string;
   count: number;
@@ -78,10 +90,31 @@ async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
 }
 
 async function defaultStartRecompute(): Promise<StartJobMarketRecomputeResult> {
-  return {
-    status: 'rejected',
-    reason: 'Recompute client is not configured',
-  };
+  try {
+    const outputs = readAmplifyOutputs();
+    if (!outputs) {
+      return {
+        status: 'rejected',
+        reason: RECOMPUTE_CLIENT_NOT_CONFIGURED_REASON,
+      };
+    }
+
+    configureSiteAmplify(outputs, (config, options) => {
+      Amplify.configure(config, options);
+    });
+
+    // Authenticated mutation: userPool (not identityPool / guest).
+    const client = generateClient({
+      authMode: 'userPool',
+    }) as AmplifyStartRecomputeClient;
+
+    return startJobMarketRecomputeViaMutation(startMutationFromClient(client));
+  } catch {
+    return {
+      status: 'rejected',
+      reason: RECOMPUTE_FAILED_REASON,
+    };
+  }
 }
 
 export async function getPublishedJobMarketSnapshot(

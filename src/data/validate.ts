@@ -143,6 +143,13 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(page, 'seniorityLabel', 'jobMarketLab');
   requireString(page, 'roleFamilyLabel', 'jobMarketLab');
   requireString(page, 'clustersHeading', 'jobMarketLab');
+  const admin = requireRecord(page.admin, 'jobMarketLab.admin');
+  requireString(admin, 'heading', 'jobMarketLab.admin');
+  requireString(admin, 'description', 'jobMarketLab.admin');
+  requireString(admin, 'startButtonLabel', 'jobMarketLab.admin');
+  requireString(admin, 'startingLabel', 'jobMarketLab.admin');
+  requireString(admin, 'startedMessage', 'jobMarketLab.admin');
+  requireString(admin, 'rejectedHeading', 'jobMarketLab.admin');
 }
 
 export function assertValidLoginPage(data: unknown): void {
