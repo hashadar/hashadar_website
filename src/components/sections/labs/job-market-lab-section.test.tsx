@@ -30,6 +30,10 @@ const published: PublishedJobMarketResult = {
       { name: 'python', count: 9 },
       { name: 'sql', count: 7 },
     ],
+    technologies: [
+      { name: 'python', count: 9 },
+      { name: 'sql', count: 7 },
+    ],
     seniority: [
       { name: 'senior', count: 8 },
       { name: 'mid', count: 4 },

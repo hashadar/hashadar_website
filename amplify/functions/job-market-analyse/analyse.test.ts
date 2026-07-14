@@ -6,6 +6,7 @@ import {
   MAX_SKILLS,
   type AnalyzableDocument,
 } from './analyse';
+import { matchTechnologiesInDocuments } from './technology-ontology';
 
 const docs: AnalyzableDocument[] = [
   {
@@ -32,6 +33,51 @@ const docs: AnalyzableDocument[] = [
     roleFamily: 'data-science',
   },
 ];
+
+describe('matchTechnologiesInDocuments', () => {
+  it('matches canonical technology names and aliases once per document', () => {
+    const documents = [
+      { markdown: 'We need Python, SQL, and teamwork.' },
+      { markdown: 'Looking for py, Snowflake, and k8s experience.' },
+      { markdown: 'We need Python, SQL, and teamwork.' },
+    ];
+
+    expect(matchTechnologiesInDocuments(documents)).toEqual([
+      { name: 'python', count: 2 },
+      { name: 'sql', count: 2 },
+      { name: 'kubernetes', count: 1 },
+      { name: 'snowflake', count: 1 },
+    ]);
+  });
+});
+
+describe('analyseCorpus technologies pulse', () => {
+  it('publishes curated technologies instead of bag-of-words tokens', async () => {
+    const result = await analyseCorpus(docs, {
+      embed: async () => ({
+        vector: [0.1, 0.2, 0.3, 0.4],
+        inputTokens: 4,
+        estimatedCostUsd: 0.0001,
+      }),
+      getCachedEmbedding: async () => null,
+      putCachedEmbedding: async () => undefined,
+      now: new Date('2026-07-14T12:00:00.000Z'),
+    });
+
+    expect(result.snapshot.technologies).toEqual([
+      { name: 'python', count: 3 },
+      { name: 'sql', count: 2 },
+      { name: 'tableau', count: 1 },
+    ]);
+    expect(result.snapshot.skills).toEqual(result.snapshot.technologies);
+    expect(result.snapshot.technologies.map((item) => item.name)).not.toContain(
+      'teamwork',
+    );
+    expect(result.snapshot.technologies.map((item) => item.name)).not.toContain(
+      'communication',
+    );
+  });
+});
 
 describe('analyseCorpus', () => {
   it('publishes a snapshot within caps and accounts for embedding cache hits', async () => {

@@ -34,6 +34,7 @@ export type ProjectionPoint = {
 export type JobMarketSnapshot = {
   documentCount: number;
   publishedAt: string;
+  technologies?: SkillFrequency[];
   skills: SkillFrequency[];
   seniority: TaxonomyBucket[];
   roleFamily: TaxonomyBucket[];
@@ -93,10 +94,12 @@ export {
 } from './job-market-analysis-runs-amplify';
 
 function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
+  const technologies = snapshot.technologies ?? snapshot.skills ?? [];
   return {
     documentCount: snapshot.documentCount,
     publishedAt: snapshot.publishedAt,
-    skills: snapshot.skills ?? [],
+    technologies,
+    skills: technologies,
     seniority: snapshot.seniority ?? [],
     roleFamily: snapshot.roleFamily ?? [],
     clusters: snapshot.clusters ?? [],

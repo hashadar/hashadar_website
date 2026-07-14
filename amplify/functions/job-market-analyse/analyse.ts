@@ -1,3 +1,8 @@
+import {
+  matchTechnologiesInDocuments,
+  type TechnologyFrequency,
+} from './technology-ontology';
+
 export const MAX_SKILLS = 40;
 export const MAX_PROJECTION_POINTS = 200;
 export const MAX_CLUSTER_K = 12;
@@ -11,10 +16,7 @@ export type AnalyzableDocument = {
   title?: string;
 };
 
-export type SkillFrequency = {
-  name: string;
-  count: number;
-};
+export type SkillFrequency = TechnologyFrequency;
 
 export type TaxonomyBucket = {
   name: string;
@@ -36,6 +38,7 @@ export type ProjectionPoint = {
 export type CorpusSnapshotPayload = {
   documentCount: number;
   publishedAt: string;
+  technologies: SkillFrequency[];
   skills: SkillFrequency[];
   seniority: TaxonomyBucket[];
   roleFamily: TaxonomyBucket[];
@@ -76,61 +79,6 @@ export type AnalyseCorpusResult = {
   snapshot: CorpusSnapshotPayload;
   metrics: AnalysisMetrics;
 };
-
-const STOPWORDS = new Set([
-  'a',
-  'an',
-  'and',
-  'are',
-  'as',
-  'at',
-  'be',
-  'by',
-  'for',
-  'from',
-  'in',
-  'is',
-  'it',
-  'of',
-  'on',
-  'or',
-  'the',
-  'to',
-  'we',
-  'with',
-  'you',
-  'your',
-  'need',
-  'looking',
-  'role',
-  'skills',
-]);
-
-export function extractSkillFrequencies(
-  documents: AnalyzableDocument[],
-  maxSkills: number = MAX_SKILLS,
-): SkillFrequency[] {
-  const counts = new Map<string, number>();
-
-  for (const document of documents) {
-    const tokens = document.markdown
-      .toLowerCase()
-      .match(/[a-z][a-z0-9+.#-]{1,}/g) ?? [];
-    const seen = new Set<string>();
-    for (const token of tokens) {
-      if (STOPWORDS.has(token) || seen.has(token)) {
-        continue;
-      }
-      seen.add(token);
-      counts.set(token, (counts.get(token) ?? 0) + 1);
-    }
-  }
-
-  return [...counts.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-    .slice(0, maxSkills);
-}
 
 function taxonomyBreakdown(
   documents: AnalyzableDocument[],
@@ -275,11 +223,16 @@ export async function analyseCorpus(
     clusterId: assignments[index] ?? 0,
   }));
 
+  const technologies = matchTechnologiesInDocuments(documents, {
+    maxTechnologies: maxSkills,
+  });
+
   return {
     snapshot: {
       documentCount: documents.length,
       publishedAt: now.toISOString(),
-      skills: extractSkillFrequencies(documents, maxSkills),
+      technologies,
+      skills: technologies,
       seniority: taxonomyBreakdown(documents, 'seniority'),
       roleFamily: taxonomyBreakdown(documents, 'roleFamily'),
       clusters,

@@ -17,6 +17,7 @@ describe('getPublishedJobMarketSnapshot', () => {
     const snapshot = {
       documentCount: 3,
       publishedAt: '2026-07-01T00:00:00.000Z',
+      technologies: [{ name: 'python', count: 3 }],
       skills: [{ name: 'python', count: 3 }],
       seniority: [{ name: 'senior', count: 2 }],
       roleFamily: [{ name: 'data-science', count: 2 }],
@@ -29,6 +30,34 @@ describe('getPublishedJobMarketSnapshot', () => {
     });
 
     expect(result).toEqual({ status: 'published', snapshot });
+  });
+
+  it('maps legacy skills-only snapshots onto the technologies pulse', async () => {
+    const result = await getPublishedJobMarketSnapshot({
+      fetchPublished: async () => ({
+        documentCount: 2,
+        publishedAt: '2026-07-01T00:00:00.000Z',
+        skills: [{ name: 'sql', count: 2 }],
+        seniority: [],
+        roleFamily: [],
+        clusters: [],
+        projection: [],
+      }),
+    });
+
+    expect(result).toEqual({
+      status: 'published',
+      snapshot: {
+        documentCount: 2,
+        publishedAt: '2026-07-01T00:00:00.000Z',
+        technologies: [{ name: 'sql', count: 2 }],
+        skills: [{ name: 'sql', count: 2 }],
+        seniority: [],
+        roleFamily: [],
+        clusters: [],
+        projection: [],
+      },
+    });
   });
 
   it('does not expose raw job description or employer identity fields', async () => {
@@ -53,6 +82,7 @@ describe('getPublishedJobMarketSnapshot', () => {
       snapshot: {
         documentCount: 1,
         publishedAt: '2026-07-01T00:00:00.000Z',
+        technologies: [],
         skills: [],
         seniority: [],
         roleFamily: [],
