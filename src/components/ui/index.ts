@@ -2,6 +2,8 @@
 export { Heading } from "./typography/heading";
 export { Text } from "./typography/text";
 export { SectionHeader } from "./section-header";
+export { MotionReveal } from "./motion-reveal";
+export type { MotionRevealVariant, MotionRevealDistance, MotionRevealProps } from "./motion-reveal";
 
 // Interactive
 export { Button } from "./button";

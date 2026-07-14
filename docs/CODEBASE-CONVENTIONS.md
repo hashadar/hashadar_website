@@ -99,15 +99,16 @@ Obsidian → private Git repo → Amplify build → `node scripts/sync-blogs.js`
 ### 5.3 Client vs server
 
 - **`"use client"`:** Add only when the component or a child uses hooks, browser APIs, or event handlers. Keep server components as the default for pages and static sections.
-- **Hooks:** Keep in `src/hooks/`. For `prefers-reduced-motion`, use `usePrefersReducedMotion()` from `@/hooks/use-prefers-reduced-motion` and gate all motion (Framer Motion) on it to avoid animating when the user prefers reduced motion.
+- **Hooks:** Keep in `src/hooks/`. Prefer `MotionReveal` for section reveals; use `usePrefersReducedMotion()` from `@/hooks/use-prefers-reduced-motion` only for bespoke motion (e.g. hero springs) that the primitive cannot express.
 
 ---
 
 ## 6. Motion and accessibility
 
-- **Framer Motion:** Use for scroll and viewport-based animations. Always branch on `usePrefersReducedMotion()`: when true, use zero duration or no transform (e.g. `opacity: 1`, `y: 0`) so no motion is applied.
-- **Pattern:** `initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}`, `transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, ease: "easeOut" }}`, and similar. Do not animate when the user prefers reduced motion.
-- **Focus:** Rely on the global focus-visible styles in `globals.css` for keyboard navigation; do not remove outline without an explicit, visible replacement.
+- **`MotionReveal`:** Prefer `@/components/ui` `MotionReveal` for standard reveals. Pass `variant` (`fade-up` | `fade` | `slide-in` | `none`), optional `delay`, `distance` (`sm` | `md` | `lg`), and `inView` (default true). The primitive owns `usePrefersReducedMotion` and skips spatial animation when reduced motion is preferred.
+- **Special cases:** Home hero springs, parallax, and infinite pulses may keep a local hook — do not recreate reduced-motion ternaries for ordinary fade/slide reveals.
+- **Backgrounds / hovers:** Decorative background loops and micro-interactions may stay outside `MotionReveal`; still respect reduced motion where practical.
+
 
 ---
 
@@ -115,12 +116,12 @@ Obsidian → private Git repo → Amplify build → `node scripts/sync-blogs.js`
 
 ### 7.1 Pages and layout
 
-- **Metadata:** Export `metadata` or use `generateMetadata` for every route. Use `site` from `@/data` for base title, description, and URLs.
-- **Layout:** Root layout provides font, theme script, and SEO (e.g. structured data). Each page that needs header/footer includes `<Header />` and `<FooterSection />` explicitly (no shared layout wrapper for them in the current structure).
+- **Metadata:** Export `metadata` or use `generateMetadata` for every route. Use `site` from `@/data` for base title, description, and URLs. Prefer page JSON fields (e.g. `portfolio.heading` / `portfolio.description`) when they exist so SEO matches on-page copy.
+- **Layout:** Root layout provides font, theme script, and SEO (e.g. structured data). Public routes wrap body content in `SitePage` (`@/components/layout/site-page`), which owns skip link, header, `main#main-content`, and the self-loaded footer. Pass `mainClassName` for route-specific spacing (e.g. `min-h-screen pt-20` on content pages). Authenticated layouts (e.g. future `/finance`) should be separate siblings, not copies of the public shell. See `docs/adr/0001-site-page-shell.md`.
 
 ### 7.2 Dynamic imports
 
-- Use `next/dynamic` when a section is below the fold or heavy and not needed for first paint. Prefer a consistent strategy per route type (e.g. home vs content pages) so the codebase does not mix ad-hoc decisions. Document in this file or in code comments if the strategy is “dynamic for all below-fold sections on home only”.
+- Use `next/dynamic` when a section is below the fold or heavy and not needed for first paint. **Footer:** always rendered statically via `SitePage` (no per-route lazy footer). **Home / About:** lazy-load below-the-fold sections only; keep hero eager.
 
 ### 7.3 Images
 

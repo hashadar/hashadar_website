@@ -1,9 +1,8 @@
 import { Metadata } from "next";
-import { Header, SkipToContent } from "@/components/ui";
+import { SitePage } from "@/components/layout/site-page";
 import { BlogGrid } from "@/components/sections/blog/blog-grid";
-import { FooterSection } from "@/components/sections/footer-section";
 import { getAllBlogPosts } from "@/lib/blog";
-import { site, footer, blog } from "@/data";
+import { site, blog } from "@/data";
 
 export const metadata: Metadata = {
   title: `Blog - ${site.metadata.author}`,
@@ -20,14 +19,8 @@ export default function BlogPage() {
   const posts = getAllBlogPosts();
 
   return (
-    <>
-      <SkipToContent />
-      <Header />
-      <main id="main-content" className="bg-[var(--background)] min-h-screen pt-20">
-        <BlogGrid posts={posts} />
-        <FooterSection {...footer.contact} />
-      </main>
-    </>
+    <SitePage mainClassName="min-h-screen pt-20">
+      <BlogGrid posts={posts} />
+    </SitePage>
   );
 }
-

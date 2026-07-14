@@ -17,8 +17,27 @@ import type {
   NavigationData,
   SiteData,
 } from './types';
+import {
+  assertValidAboutPage,
+  assertValidBlogPage,
+  assertValidCareerProfile,
+  assertValidFooter,
+  assertValidHomePage,
+  assertValidNavigation,
+  assertValidPortfolioPage,
+  assertValidSite,
+  validateDataFile,
+} from './validate';
 
-// Page data exports
+validateDataFile('pages/home.json', homeData, assertValidHomePage);
+validateDataFile('pages/portfolio.json', portfolioData, assertValidPortfolioPage);
+validateDataFile('pages/about.json', aboutData, assertValidAboutPage);
+validateDataFile('pages/blog.json', blogData, assertValidBlogPage);
+validateDataFile('common/footer.json', footerData, assertValidFooter);
+validateDataFile('common/navigation.json', navigationData, assertValidNavigation);
+validateDataFile('common/site.json', siteData, assertValidSite);
+validateDataFile('profile/career-profile.json', careerProfileData, assertValidCareerProfile);
+
 export const home = homeData as HomePageData;
 export const portfolio = portfolioData as PortfolioPageData;
 export const about = aboutData as AboutPageData;
@@ -31,12 +50,16 @@ export { getAboutEducationView } from './profile/education-slices';
 export { getAboutCareerViews } from './profile/about-career-slices';
 export type { AboutCareerViews } from './profile/about-career-slices';
 
-// Common data exports
 export const footer = footerData as FooterData;
 export const navigation = navigationData as NavigationData;
 export const site = siteData as SiteData;
 
-// Helper function to get page data by route
+export function getPageData(route: '/'): HomePageData;
+export function getPageData(route: '/home'): HomePageData;
+export function getPageData(route: '/about'): AboutPageData;
+export function getPageData(route: '/blog'): BlogPageData;
+export function getPageData(route: '/portfolio'): PortfolioPageData;
+export function getPageData(route: string): HomePageData | AboutPageData | BlogPageData | PortfolioPageData | null;
 export function getPageData(route: string) {
   switch (route) {
     case '/':
@@ -53,7 +76,6 @@ export function getPageData(route: string) {
   }
 }
 
-// Helper function to get all common data at once
 export function getCommonData() {
   return {
     footer,
@@ -62,6 +84,4 @@ export function getCommonData() {
   };
 }
 
-// Export all types
 export type * from './types';
-

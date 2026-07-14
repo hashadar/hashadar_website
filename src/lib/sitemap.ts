@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next';
-import { site } from '@/data';
+import { getCommonData } from '@/data';
 import { getAllBlogPosts } from '@/lib/blog';
 
 export function buildSitemap(blogDirectory?: string): MetadataRoute.Sitemap {
+  const { site } = getCommonData();
   const baseUrl = site.metadata.siteUrl;
   const blogPosts = getAllBlogPosts(blogDirectory);
   const lastModified = new Date();

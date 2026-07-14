@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { SectionHeader, Container, Section, BlogCard } from "@/components/ui";
-import { motion } from "framer-motion";
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { SectionHeader, Container, Section, BlogCard, MotionReveal } from "@/components/ui";
 import { blog } from "@/data";
 import type { BlogPost } from "@/data/types";
 
@@ -14,7 +12,6 @@ interface BlogGridProps {
 type SortOption = "latest" | "oldest" | "title";
 
 export function BlogGrid({ posts }: BlogGridProps) {
-  const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortOption, setSortOption] = useState<SortOption>("latest");
 
@@ -132,15 +129,12 @@ export function BlogGrid({ posts }: BlogGridProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedPosts.map((post, index) => (
-              <motion.div
+              <MotionReveal
                 key={post.slug}
-                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={prefersReducedMotion ? { duration: 0 } : { 
-                  duration: 0.5, 
-                  delay: index * 0.05,
-                  ease: "easeOut" 
-                }}
+                variant="fade-up"
+                distance="sm"
+                delay={index * 0.05}
+                inView={false}
               >
                 <BlogCard
                   slug={post.slug}
@@ -152,7 +146,7 @@ export function BlogGrid({ posts }: BlogGridProps) {
                   image={post.frontmatter.image}
                   priority={index < 6}
                 />
-              </motion.div>
+              </MotionReveal>
             ))}
           </div>
         )}

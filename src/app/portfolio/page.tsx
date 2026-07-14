@@ -1,15 +1,16 @@
 import { Metadata } from "next";
-import { Header, SkipToContent } from "@/components/ui";
+import { SitePage } from "@/components/layout/site-page";
 import { PortfolioGrid } from "@/components/sections/portfolio/portfolio-grid";
-import { FooterSection } from "@/components/sections/footer-section";
-import { site, footer } from "@/data";
+import { getPageData, site } from "@/data";
+
+const portfolio = getPageData("/portfolio");
 
 export const metadata: Metadata = {
-  title: `Photography Portfolio - ${site.metadata.author}`,
-  description: "Explore my photography portfolio featuring portraiture and travel photography.",
+  title: `${portfolio.heading} - ${site.metadata.author}`,
+  description: portfolio.description,
   openGraph: {
-    title: `Photography Portfolio - ${site.metadata.author}`,
-    description: "Explore my photography portfolio featuring portraiture and travel photography.",
+    title: `${portfolio.heading} - ${site.metadata.author}`,
+    description: portfolio.description,
     url: `${site.metadata.siteUrl}/portfolio`,
     type: "website",
   },
@@ -17,14 +18,8 @@ export const metadata: Metadata = {
 
 export default function PortfolioPage() {
   return (
-    <>
-      <SkipToContent />
-      <Header />
-      <main id="main-content" className="bg-[var(--background)] min-h-screen pt-20">
-        <PortfolioGrid />
-        <FooterSection {...footer.contact} />
-      </main>
-    </>
+    <SitePage mainClassName="min-h-screen pt-20">
+      <PortfolioGrid />
+    </SitePage>
   );
 }
-

@@ -1,13 +1,17 @@
 "use client";
 
-import { Heading, Text, Container, Section, SectionBackground, SectionHeader } from "@/components/ui";
-import { motion } from "framer-motion";
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import {
+  Heading,
+  Text,
+  Container,
+  Section,
+  SectionBackground,
+  SectionHeader,
+  MotionReveal,
+} from "@/components/ui";
 import type { EducationSection } from "@/data/types";
 
 export function EducationListing({ heading, entries }: EducationSection) {
-  const prefersReducedMotion = usePrefersReducedMotion();
-
   return (
     <Section id="education" className="relative overflow-hidden">
       <SectionBackground variant="about-experience" />
@@ -20,16 +24,10 @@ export function EducationListing({ heading, entries }: EducationSection) {
 
           <div className="max-w-4xl mx-auto space-y-12">
             {entries.map((entry, index) => (
-              <motion.div
+              <MotionReveal
                 key={`${entry.institution}-${entry.qualification}`}
-                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={
-                  prefersReducedMotion
-                    ? { duration: 0 }
-                    : { duration: 0.8, delay: index * 0.2, ease: "easeOut" }
-                }
-                viewport={{ once: true }}
+                variant="slide-in"
+                delay={index * 0.2}
                 className="relative"
               >
                 <div className="relative group">
@@ -57,7 +55,7 @@ export function EducationListing({ heading, entries }: EducationSection) {
                     <div className="w-12 h-px bg-gradient-to-r from-[var(--primary)] to-transparent opacity-20" />
                   </div>
                 </div>
-              </motion.div>
+              </MotionReveal>
             ))}
           </div>
         </div>
