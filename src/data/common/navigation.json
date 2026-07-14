@@ -13,6 +13,10 @@
       "href": "/portfolio"
     },
     {
+      "label": "Labs",
+      "href": "/labs"
+    },
+    {
       "label": "Blog",
       "href": "/blog"
     }

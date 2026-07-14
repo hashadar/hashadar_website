@@ -1,0 +1,6 @@
+{
+  "heading": "Job market signal lab",
+  "description": "High-level aggregates from a private financial-services job-description corpus. This is a portfolio demonstration, not live job-board coverage or career advice.",
+  "emptyState": "No published snapshot is available yet. Check back after the next corpus recompute.",
+  "corpusNote": "Figures shown here are aggregates only. Raw job descriptions and employer identity are never published."
+}

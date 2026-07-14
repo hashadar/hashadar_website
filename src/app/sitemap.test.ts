@@ -36,6 +36,27 @@ describe('sitemap', () => {
     });
   });
 
+  it('includes Labs index and job-market lab routes', () => {
+    const entries = sitemap();
+    const labsEntry = entries.find((entry) => entry.url === `${site.metadata.siteUrl}/labs`);
+    const jobMarketEntry = entries.find(
+      (entry) => entry.url === `${site.metadata.siteUrl}/labs/job-market`,
+    );
+
+    expect(labsEntry).toEqual({
+      url: `${site.metadata.siteUrl}/labs`,
+      lastModified: expect.any(Date),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    });
+    expect(jobMarketEntry).toEqual({
+      url: `${site.metadata.siteUrl}/labs/job-market`,
+      lastModified: expect.any(Date),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    });
+  });
+
   it('includes blog post URLs with lastModified dates from the reader module', () => {
     const posts = getAllBlogPosts(fixturesDir);
     const entries = buildSitemap(fixturesDir);
