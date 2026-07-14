@@ -61,6 +61,12 @@ describe('getPublishedJobMarketSnapshot', () => {
       },
     });
   });
+
+  it('returns empty from the default Amplify path when outputs are absent', async () => {
+    const result = await getPublishedJobMarketSnapshot();
+
+    expect(result).toEqual({ status: 'empty' });
+  });
 });
 
 describe('startJobMarketRecompute', () => {
