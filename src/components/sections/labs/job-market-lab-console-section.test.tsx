@@ -83,6 +83,9 @@ describe('JobMarketLabConsoleSection', () => {
       screen.getByRole('heading', { name: jobMarketLab.admin.heading }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('heading', { name: jobMarketLab.upload.heading }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('heading', { name: jobMarketLab.corpusAdmin.heading }),
     ).toBeInTheDocument();
     expect(

@@ -5,6 +5,7 @@ import { Container, Section, SectionHeader, Text } from '@/components/ui';
 import { JobMarketLabAdminSection } from '@/components/sections/labs/job-market-lab-admin-section';
 import { JobMarketLabCorpusAdmin } from '@/components/sections/labs/job-market-lab-corpus-admin';
 import { JobMarketLabRunsPanel } from '@/components/sections/labs/job-market-lab-runs-panel';
+import { JobMarketLabUploadPanel } from '@/components/sections/labs/job-market-lab-upload-panel';
 import { jobMarketLab } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
@@ -65,6 +66,7 @@ export function JobMarketLabConsoleSection({
         </div>
 
         <JobMarketLabAdminSection startRecompute={startRecompute} />
+        <JobMarketLabUploadPanel />
         <JobMarketLabCorpusAdmin corpus={corpus} />
         <JobMarketLabRunsPanel analysisRuns={analysisRuns} />
       </Container>

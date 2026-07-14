@@ -161,6 +161,15 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(corpusAdmin, 'loadingLabel', 'jobMarketLab.corpusAdmin');
   requireString(corpusAdmin, 'untitledLabel', 'jobMarketLab.corpusAdmin');
   requireString(corpusAdmin, 'errorLabel', 'jobMarketLab.corpusAdmin');
+  const upload = requireRecord(page.upload, 'jobMarketLab.upload');
+  requireString(upload, 'heading', 'jobMarketLab.upload');
+  requireString(upload, 'description', 'jobMarketLab.upload');
+  requireString(upload, 'fileLabel', 'jobMarketLab.upload');
+  requireString(upload, 'uploadButtonLabel', 'jobMarketLab.upload');
+  requireString(upload, 'uploadingLabel', 'jobMarketLab.upload');
+  requireString(upload, 'uploadedMessage', 'jobMarketLab.upload');
+  requireString(upload, 'rejectedHeading', 'jobMarketLab.upload');
+  requireString(upload, 'noFileSelected', 'jobMarketLab.upload');
   const consoleCopy = requireRecord(page.console, 'jobMarketLab.console');
   requireString(consoleCopy, 'heading', 'jobMarketLab.console');
   requireString(consoleCopy, 'description', 'jobMarketLab.console');

@@ -152,3 +152,12 @@ export async function startJobMarketRecompute(
   const start = deps.startRecompute ?? defaultStartRecompute;
   return start();
 }
+
+export {
+  uploadJobDescription,
+  type UploadJobDescriptionResult,
+  type UploadJobDescriptionDeps,
+  type PutRawObject,
+} from './upload-job-description';
+
+export { validateJobDescriptionMarkdown } from './validate-job-description-markdown';
