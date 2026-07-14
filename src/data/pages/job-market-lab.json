@@ -134,5 +134,30 @@
     "loadingLabel": "Loading job descriptionsÔÇª",
     "errorLabel": "Metadata editing is temporarily unavailable.",
     "emptyList": "No job descriptions to edit."
+  },
+  "payPrestigeAnalytics": {
+    "heading": "Compensation and prestige analytics",
+    "description": "Owner-only aggregates from structured metadata. Missing-data rates show how much of the active corpus still lacks employer links or compensation fields.",
+    "loadingLabel": "Loading analytics…",
+    "errorLabel": "Pay and prestige analytics are temporarily unavailable.",
+    "activeDocumentsLabel": "Active documents in analytics scope",
+    "missingDataHeading": "Missing-data rates",
+    "prestigeHeading": "Prestige tier breakdown",
+    "sizeHeading": "Size tier breakdown",
+    "compensationHeading": "Compensation by currency",
+    "compensationEmpty": "No structured compensation recorded on active documents.",
+    "presentLabel": "Present",
+    "missingLabel": "Missing",
+    "medianMinLabel": "Median minimum",
+    "medianMaxLabel": "Median maximum",
+    "documentCountLabel": "Documents",
+    "missingFieldLabels": {
+      "employerLink": "Employer linked",
+      "compensationCurrency": "Currency",
+      "compensationMin": "Minimum",
+      "compensationMax": "Maximum",
+      "compensationPeriod": "Period",
+      "completeCompensation": "Complete compensation record"
+    }
   }
 }

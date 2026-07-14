@@ -80,6 +80,11 @@ describe('JobMarketLabSection', () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByText(jobMarketLab.corpusAdmin.heading)).not.toBeInTheDocument();
     expect(
+      screen.queryByRole('heading', {
+        name: jobMarketLab.payPrestigeAnalytics.heading,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
       screen.queryByRole('link', { name: jobMarketLab.console.openConsoleLabel }),
     ).not.toBeInTheDocument();
   });
@@ -101,6 +106,11 @@ describe('JobMarketLabSection', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.corpusAdmin.heading }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', {
+        name: jobMarketLab.payPrestigeAnalytics.heading,
+      }),
     ).not.toBeInTheDocument();
   });
 

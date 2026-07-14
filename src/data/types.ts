@@ -273,6 +273,32 @@ export interface JobMarketLabConsoleCopy {
   themeLabelSizeLabel: string;
 }
 
+export interface JobMarketLabPayPrestigeAnalyticsCopy {
+  heading: string;
+  description: string;
+  loadingLabel: string;
+  errorLabel: string;
+  activeDocumentsLabel: string;
+  missingDataHeading: string;
+  prestigeHeading: string;
+  sizeHeading: string;
+  compensationHeading: string;
+  compensationEmpty: string;
+  presentLabel: string;
+  missingLabel: string;
+  medianMinLabel: string;
+  medianMaxLabel: string;
+  documentCountLabel: string;
+  missingFieldLabels: {
+    employerLink: string;
+    compensationCurrency: string;
+    compensationMin: string;
+    compensationMax: string;
+    compensationPeriod: string;
+    completeCompensation: string;
+  };
+}
+
 export interface JobMarketLabPageData {
   heading: string;
   description: string;
@@ -292,6 +318,7 @@ export interface JobMarketLabPageData {
   hitlQueue: JobMarketLabHitlQueueCopy;
   employerAdmin: JobMarketLabEmployerAdminCopy;
   metadataAdmin: JobMarketLabMetadataAdminCopy;
+  payPrestigeAnalytics: JobMarketLabPayPrestigeAnalyticsCopy;
   console: JobMarketLabConsoleCopy;
 }
 

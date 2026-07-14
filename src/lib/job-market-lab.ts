@@ -230,3 +230,18 @@ export {
   type AmplifyEmployerDeps,
 } from './job-market-employers-amplify';
 
+export {
+  getOwnerPayPrestigeAnalytics,
+  type OwnerPayPrestigeAnalytics,
+  type GetOwnerPayPrestigeAnalyticsDeps,
+  type MissingDataRate,
+  type TierBucket,
+  type CompensationCurrencySummary,
+} from './job-market-pay-prestige-analytics';
+
+export {
+  createAmplifyPayPrestigeAnalyticsDeps,
+  createDefaultAmplifyPayPrestigeAnalyticsDeps,
+  type AmplifyPayPrestigeAnalyticsDeps,
+} from './job-market-pay-prestige-analytics-amplify';
+
