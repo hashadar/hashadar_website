@@ -1,6 +1,6 @@
 # Content Data Structure
 
-This directory contains all content data for the website, organized for scalability and maintainability.
+This directory contains all content data for the website, organised for scalability and maintainability.
 
 ## Directory Structure
 
@@ -18,136 +18,69 @@ src/data/
 │   ├── certifications-slices.ts
 │   └── about-career-slices.ts
 ├── common/          # Shared content across pages
-│   ├── footer.json      # Footer contact info and social links
-│   ├── navigation.json  # Navigation menu items
-│   └── site.json        # Site metadata and branding
+│   ├── footer.json
+│   ├── navigation.json
+│   └── site.json
 ├── types.ts         # TypeScript type definitions
-├── index.ts         # Data exports and helper functions
+├── validate.ts      # Runtime shape checks at the data boundary
+├── index.ts         # Validated exports and helpers
 └── README.md        # This file
 ```
 
+## Public API
+
+Prefer these entry points when wiring routes, layout, sitemap, and metadata:
+
+```typescript
+import {
+  getPageData,
+  getCommonData,
+  careerProfile,
+  getHomeExperienceView,
+  getAboutCareerViews,
+} from "@/data";
+
+const home = getPageData("/");
+const about = getPageData("/about");
+const { footer, navigation, site } = getCommonData();
+```
+
+Named exports (`home`, `about`, `portfolio`, `blog`, `footer`, `navigation`, `site`, `careerProfile`) remain available and are the same validated objects returned by the helpers.
+
+`SitePage` / `FooterSection` load common data via `getCommonData()` — routes should not prop-drill footer contact fields.
+
+There is no `cv` export; career structured content lives in `careerProfile`.
+
 ## Career profile
 
-Structured career content (experience, education, certifications) lives in `profile/career-profile.json`. Page-specific views are composed via slice helpers:
+Structured career content lives in `profile/career-profile.json`. Page-specific views are composed via slice helpers:
 
 ```typescript
 import { careerProfile, getHomeExperienceView, getAboutCareerViews } from "@/data";
 
-// Home page experience teaser
 <ExperienceListing {...getHomeExperienceView(careerProfile)} />
 
-// About page career sections (experience, education, certifications)
 const careerViews = getAboutCareerViews(careerProfile);
-<ExperienceListing {...careerViews.experience} />
-<EducationListing {...careerViews.education} />
-<CertificationsListing {...careerViews.certifications} />
 ```
 
-Page JSON under `pages/` holds shell content only (headings, hero copy, CTAs). It does not duplicate career structured data.
+Page JSON under `pages/` holds shell content only. It does not duplicate career structured data.
 
-## Usage
+## Validation
 
-### Import data in your components:
-
-```typescript
-// Import specific data
-import { home, footer, navigation, site } from "@/data";
-
-// Use in a component
-<HeroSection {...home.hero} />
-<FooterSection {...footer.contact} />
-```
-
-### Using helper functions:
-
-```typescript
-import { getPageData, getCommonData } from "@/data";
-
-// Get page data by route
-const pageData = getPageData('/');
-
-// Get all common data at once
-const { footer, navigation, site } = getCommonData();
-```
+JSON files are validated when `@/data` is imported (and covered by `src/data/validate.test.ts`). Invalid shapes throw with the file path in the message so content edits fail fast in `npm test` / `npm run build`.
 
 ## Adding New Pages
 
-1. **Create a new page data file** in `src/data/pages/`:
-   ```json
-   // src/data/pages/blog.json
-   {
-     "title": "My Blog",
-     "posts": [...]
-   }
-   ```
-
-2. **Define types** in `src/data/types.ts`:
-   ```typescript
-   export interface BlogPageData {
-     title: string;
-     posts: Post[];
-   }
-   ```
-
-3. **Export in** `src/data/index.ts`:
-   ```typescript
-   import blogData from './pages/blog.json';
-   export const blog = blogData as BlogPageData;
-   ```
-
-4. **Update the helper** in `src/data/index.ts`:
-   ```typescript
-   export function getPageData(route: string) {
-     switch (route) {
-       case '/': return home;
-       case '/blog': return blog;
-       default: return null;
-     }
-   }
-   ```
+1. Create `src/data/pages/<page>.json`
+2. Add types in `src/data/types.ts`
+3. Add an assert in `validate.ts` and call `validateDataFile` from `index.ts`
+4. Export the named constant and extend `getPageData`
+5. Add the route to `src/app/sitemap.ts` / `src/lib/sitemap.ts`
+6. Wrap the page in `SitePage`
 
 ## Adding New Common Content
 
-For content shared across multiple pages (like headers, footers, etc.):
-
 1. Create a JSON file in `src/data/common/`
-2. Define its TypeScript type in `src/data/types.ts`
-3. Import and export it in `src/data/index.ts`
-
-## Future Enhancements
-
-### Multi-language Support
-
-When ready for internationalization, restructure as:
-
-```
-src/data/
-├── locales/
-│   ├── en/
-│   │   ├── pages/
-│   │   └── common/
-│   └── fr/
-│       ├── pages/
-│       └── common/
-└── ...
-```
-
-### Content Management System (CMS)
-
-The current structure is compatible with:
-- Contentful
-- Sanity
-- Strapi
-- Any headless CMS
-
-Simply replace JSON imports with API calls in `src/data/index.ts`.
-
-## Benefits of This Structure
-
-- **Separation of Concerns**: Page content vs. shared content
-- **Type Safety**: Full TypeScript support
-- **Scalability**: Easy to add new pages
-- **Maintainability**: Clear organization
-- **DRY**: Shared content defined once
-- **Future-proof**: Ready for i18n and CMS integration
-
+2. Define its type in `src/data/types.ts`
+3. Validate and export it in `index.ts`
+4. Include it in `getCommonData()` when it is shared chrome (footer / nav / site)

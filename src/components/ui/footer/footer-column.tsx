@@ -1,9 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Heading } from "@/components/ui/typography/heading";
+import { MotionReveal } from "@/components/ui/motion-reveal";
 import { ReactNode } from "react";
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface FooterColumnProps {
   title: string;
@@ -12,16 +11,8 @@ interface FooterColumnProps {
 }
 
 export function FooterColumn({ title, children, delay = 0 }: FooterColumnProps) {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  
   return (
-    <motion.div
-      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.8, delay, ease: "easeOut" }}
-      viewport={{ once: true }}
-      className="space-y-6"
-    >
+    <MotionReveal variant="fade-up" distance="lg" delay={delay} className="space-y-6">
       <div className="relative">
         <div className="absolute -left-4 top-0 w-1 h-full bg-[var(--primary)] transform -skew-y-12" />
         <Heading size="md" className="relative">
@@ -30,7 +21,6 @@ export function FooterColumn({ title, children, delay = 0 }: FooterColumnProps) 
         </Heading>
       </div>
       {children}
-    </motion.div>
+    </MotionReveal>
   );
 }
-

@@ -2,15 +2,15 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import "katex/dist/katex.min.css";
-import { Header, SkipToContent, Container, Section, Breadcrumb, Heading, Text } from "@/components/ui";
-import { FooterSection } from "@/components/sections/footer-section";
+import { Container, Section, Breadcrumb, Heading, Text } from "@/components/ui";
+import { SitePage } from "@/components/layout/site-page";
 import { getBlogPostBySlug, getAllBlogSlugs } from "@/lib/blog";
 import {
   formatBlogArticleDate,
   hasBlogPostHeroImage,
   resolveBlogPostImage,
 } from "@/lib/blog-presentation";
-import { site, footer } from "@/data";
+import { site } from "@/data";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -67,40 +67,31 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const formattedDate = formatBlogArticleDate(post.frontmatter.date);
 
   return (
-    <>
-      <SkipToContent />
-      <Header />
-      <main id="main-content" className="bg-[var(--background)] min-h-screen pt-20">
-        <Section className="py-12">
-          <Container>
-            <div className="max-w-5xl mx-auto">
-              {/* Breadcrumb */}
-              <Breadcrumb
-                items={[
-                  { label: "Home", href: "/" },
-                  { label: "Blog", href: "/blog" },
-                  { label: post.frontmatter.title },
-                ]}
-                className="mb-8"
-              />
+    <SitePage mainClassName="min-h-screen pt-20">
+      <Section className="py-12">
+        <Container>
+          <div className="max-w-5xl mx-auto">
+            <Breadcrumb
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Blog", href: "/blog" },
+                { label: post.frontmatter.title },
+              ]}
+              className="mb-8"
+            />
 
-              {/* Article */}
-              <article className="w-full">
-              {/* Header */}
+            <article className="w-full">
               <header className="mb-8">
-                {/* Category */}
                 <div className="mb-4">
                   <span className="text-[var(--primary)] font-medium text-sm uppercase tracking-wide">
                     {post.frontmatter.category}
                   </span>
                 </div>
 
-                {/* Title */}
                 <Heading as="h1" size="lg" className="mb-6">
                   {post.frontmatter.title}
                 </Heading>
 
-                {/* Meta info */}
                 <div className="mb-8">
                   <div className="flex flex-wrap items-center gap-4 mb-3">
                     <Text as="span" size="xs" variant="muted">
@@ -148,7 +139,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   )}
                 </div>
 
-                {/* Featured Image */}
                 {hasBlogPostHeroImage(post.frontmatter.image) && (
                   <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-8 bg-[var(--muted)]">
                     <Image
@@ -163,18 +153,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 )}
               </header>
 
-              {/* Content */}
               <div
                 className="blog-content mb-12"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
-              </article>
-            </div>
-          </Container>
-        </Section>
-        <FooterSection {...footer.contact} />
-      </main>
-    </>
+            </article>
+          </div>
+        </Container>
+      </Section>
+    </SitePage>
   );
 }
 

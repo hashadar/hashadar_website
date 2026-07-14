@@ -1,11 +1,10 @@
 import dynamic from "next/dynamic";
-import { Header, SkipToContent } from "@/components/ui";
+import { SitePage } from "@/components/layout/site-page";
 import { HeroSection } from "@/components/sections/homepage/hero-section";
-import { home, footer, careerProfile, getHomeExperienceView } from "@/data";
+import { home, careerProfile, getHomeExperienceView } from "@/data";
 import { getRecentBlogPosts } from "@/lib/blog";
 
-// Lazy load below-the-fold sections for better performance
-const AboutSection = dynamic(() => import("@/components/sections/homepage/about-section").then(mod => ({ default: mod.AboutSection })), {
+const AboutSection = dynamic(() => import("@/components/sections/shared/prose-section").then(mod => ({ default: mod.ProseSection })), {
   loading: () => <div className="min-h-screen" />,
 });
 
@@ -21,25 +20,16 @@ const BlogSection = dynamic(() => import("@/components/sections/homepage/blog-se
   loading: () => <div className="min-h-[600px]" />,
 });
 
-const FooterSection = dynamic(() => import("@/components/sections/footer-section").then(mod => ({ default: mod.FooterSection })), {
-  loading: () => <div className="min-h-[400px]" />,
-});
-
 export default function Home() {
   const blogPosts = getRecentBlogPosts(3);
 
   return (
-    <>
-      <SkipToContent />
-      <Header />
-      <main id="main-content" className="bg-[var(--background)]">
-        <HeroSection {...home.hero} />
-        <AboutSection {...home.about} />
-        <PhotographySection {...home.photography} />
-        <BlogSection {...home.blog} posts={blogPosts} />
-        <ExperienceListing {...getHomeExperienceView(careerProfile)} id="experience" />
-        <FooterSection {...footer.contact} />
-      </main>
-    </>
+    <SitePage>
+      <HeroSection {...home.hero} />
+      <AboutSection id="about" {...home.about} />
+      <PhotographySection {...home.photography} />
+      <BlogSection {...home.blog} posts={blogPosts} />
+      <ExperienceListing {...getHomeExperienceView(careerProfile)} id="experience" />
+    </SitePage>
   );
 }

@@ -1,10 +1,10 @@
 import { Metadata } from "next";
-import { Header, SkipToContent } from "@/components/ui";
 import dynamic from "next/dynamic";
-import { site, footer, about, careerProfile, getAboutCareerViews } from "@/data";
+import { SitePage } from "@/components/layout/site-page";
+import { site, about, careerProfile, getAboutCareerViews } from "@/data";
 import { AboutHeroSection } from "@/components/sections/about/about-hero-section";
 
-const AboutProfessionalSection = dynamic(() => import("@/components/sections/about/about-professional-section").then(mod => ({ default: mod.AboutProfessionalSection })), {
+const AboutProfessionalSection = dynamic(() => import("@/components/sections/shared/prose-section").then(mod => ({ default: mod.ProseSection })), {
   loading: () => <div className="min-h-[400px]" />,
 });
 
@@ -17,10 +17,6 @@ const EducationListing = dynamic(() => import("@/components/sections/shared/educ
 });
 
 const CertificationsListing = dynamic(() => import("@/components/sections/shared/certifications-listing").then(mod => ({ default: mod.CertificationsListing })), {
-  loading: () => <div className="min-h-[400px]" />,
-});
-
-const FooterSection = dynamic(() => import("@/components/sections/footer-section").then(mod => ({ default: mod.FooterSection })), {
   loading: () => <div className="min-h-[400px]" />,
 });
 
@@ -39,18 +35,12 @@ export default function AboutPage() {
   const careerViews = getAboutCareerViews(careerProfile);
 
   return (
-    <>
-      <SkipToContent />
-      <Header />
-      <main id="main-content" className="bg-[var(--background)]">
-        <AboutHeroSection {...about.hero} />
-        <AboutProfessionalSection {...about.professional} />
-        <ExperienceListing {...careerViews.experience} variant="about-experience" />
-        <EducationListing {...careerViews.education} />
-        <CertificationsListing {...careerViews.certifications} />
-        <FooterSection {...footer.contact} />
-      </main>
-    </>
+    <SitePage>
+      <AboutHeroSection {...about.hero} />
+      <AboutProfessionalSection {...about.professional} />
+      <ExperienceListing {...careerViews.experience} variant="about-experience" />
+      <EducationListing {...careerViews.education} />
+      <CertificationsListing {...careerViews.certifications} />
+    </SitePage>
   );
 }
-

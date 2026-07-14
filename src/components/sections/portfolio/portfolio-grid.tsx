@@ -1,13 +1,10 @@
 "use client";
 
-import { SectionHeader, Container, Section, PhotoCard, Lightbox } from "@/components/ui";
+import { SectionHeader, Container, Section, PhotoCard, Lightbox, MotionReveal } from "@/components/ui";
 import { portfolio } from "@/data";
-import { motion } from "framer-motion";
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useState, useEffect } from "react";
 
 export function PortfolioGrid() {
-  const prefersReducedMotion = usePrefersReducedMotion();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -57,15 +54,12 @@ export function PortfolioGrid() {
         {/* 3-Column Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {portfolio.images.map((image, index) => (
-            <motion.div
+            <MotionReveal
               key={index}
-              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { 
-                duration: 0.5, 
-                delay: index * 0.1,
-                ease: "easeOut" 
-              }}
+              variant="fade-up"
+              distance="sm"
+              delay={index * 0.1}
+              inView={false}
             >
               <PhotoCard
                 src={image.src}
@@ -78,14 +72,13 @@ export function PortfolioGrid() {
                 priority={index < 9}
                 onClick={() => openLightbox(index)}
                 onMouseEnter={() => {
-                  // Preload lightbox image on hover for instant opening
                   if (typeof window !== 'undefined') {
                     const img = new window.Image();
                     img.src = image.src;
                   }
                 }}
               />
-            </motion.div>
+            </MotionReveal>
           ))}
         </div>
       </Container>
