@@ -1,0 +1,15 @@
+{
+  "heading": "Owner sign in",
+  "description": "Sign in with the email and password for your invited owner account. Self-registration is not available.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "submitLabel": "Sign in",
+  "signOutLabel": "Sign out",
+  "signedInHeading": "Signed in",
+  "signedInDescription": "You are signed in as {email}.",
+  "errors": {
+    "generic": "Sign-in failed. Check your email and password, then try again.",
+    "notConfigured": "Sign-in is unavailable because authentication is not configured.",
+    "required": "Enter your email and password to continue."
+  }
+}

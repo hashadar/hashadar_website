@@ -117,6 +117,68 @@ export function assertValidPortfolioPage(data: unknown): void {
   );
 }
 
+export function assertValidLabsPage(data: unknown): void {
+  const page = requireRecord(data, 'labs');
+  requireString(page, 'heading', 'labs');
+  requireString(page, 'description', 'labs');
+  requireArray(page.labs, 'labs.labs').forEach((lab, index) => {
+    const item = requireRecord(lab, `labs.labs[${index}]`);
+    requireString(item, 'title', `labs.labs[${index}]`);
+    requireString(item, 'description', `labs.labs[${index}]`);
+    requireString(item, 'href', `labs.labs[${index}]`);
+  });
+}
+
+export function assertValidJobMarketLabPage(data: unknown): void {
+  const page = requireRecord(data, 'jobMarketLab');
+  requireString(page, 'heading', 'jobMarketLab');
+  requireString(page, 'description', 'jobMarketLab');
+  requireString(page, 'emptyState', 'jobMarketLab');
+  requireString(page, 'corpusNote', 'jobMarketLab');
+  requireString(page, 'metricsHeading', 'jobMarketLab');
+  requireString(page, 'documentCountLabel', 'jobMarketLab');
+  requireString(page, 'publishedAtLabel', 'jobMarketLab');
+  requireString(page, 'skillsHeading', 'jobMarketLab');
+  requireString(page, 'taxonomyHeading', 'jobMarketLab');
+  requireString(page, 'seniorityLabel', 'jobMarketLab');
+  requireString(page, 'roleFamilyLabel', 'jobMarketLab');
+  requireString(page, 'clustersHeading', 'jobMarketLab');
+  const admin = requireRecord(page.admin, 'jobMarketLab.admin');
+  requireString(admin, 'heading', 'jobMarketLab.admin');
+  requireString(admin, 'description', 'jobMarketLab.admin');
+  requireString(admin, 'startButtonLabel', 'jobMarketLab.admin');
+  requireString(admin, 'startingLabel', 'jobMarketLab.admin');
+  requireString(admin, 'startedMessage', 'jobMarketLab.admin');
+  requireString(admin, 'rejectedHeading', 'jobMarketLab.admin');
+  const corpusAdmin = requireRecord(page.corpusAdmin, 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'heading', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'description', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'archiveLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'restoreLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'statusActiveLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'statusArchivedLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'emptyList', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'loadingLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'untitledLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'errorLabel', 'jobMarketLab.corpusAdmin');
+}
+
+export function assertValidLoginPage(data: unknown): void {
+  const page = requireRecord(data, 'login');
+  requireString(page, 'heading', 'login');
+  requireString(page, 'description', 'login');
+  requireString(page, 'emailLabel', 'login');
+  requireString(page, 'passwordLabel', 'login');
+  requireString(page, 'submitLabel', 'login');
+  requireString(page, 'signOutLabel', 'login');
+  requireString(page, 'signedInHeading', 'login');
+  requireString(page, 'signedInDescription', 'login');
+  const errors = requireRecord(page.errors, 'login.errors');
+  requireString(errors, 'generic', 'login.errors');
+  requireString(errors, 'notConfigured', 'login.errors');
+  requireString(errors, 'required', 'login.errors');
+}
+
 export function assertValidFooter(data: unknown): void {
   const footer = requireRecord(data, 'footer');
   const contact = requireRecord(footer.contact, 'footer.contact');
@@ -129,6 +191,9 @@ export function assertValidFooter(data: unknown): void {
   const social = requireRecord(contact.social, 'footer.contact.social');
   requireString(social, 'github', 'footer.contact.social');
   requireString(social, 'linkedin', 'footer.contact.social');
+  const ownerSignIn = requireRecord(contact.ownerSignIn, 'footer.contact.ownerSignIn');
+  requireString(ownerSignIn, 'label', 'footer.contact.ownerSignIn');
+  requireString(ownerSignIn, 'href', 'footer.contact.ownerSignIn');
 }
 
 export function assertValidNavigation(data: unknown): void {

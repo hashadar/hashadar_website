@@ -128,6 +128,75 @@ export interface BlogPageData {
   allCategories: string;
 }
 
+export interface LabIndexItem {
+  title: string;
+  description: string;
+  href: string;
+}
+
+export interface LabsPageData {
+  heading: string;
+  description: string;
+  labs: LabIndexItem[];
+}
+
+export interface JobMarketLabAdminCopy {
+  heading: string;
+  description: string;
+  startButtonLabel: string;
+  startingLabel: string;
+  startedMessage: string;
+  rejectedHeading: string;
+}
+
+export interface JobMarketLabCorpusAdminData {
+  heading: string;
+  description: string;
+  archiveLabel: string;
+  restoreLabel: string;
+  statusActiveLabel: string;
+  statusArchivedLabel: string;
+  emptyList: string;
+  loadingLabel: string;
+  untitledLabel: string;
+  errorLabel: string;
+}
+
+export interface JobMarketLabPageData {
+  heading: string;
+  description: string;
+  emptyState: string;
+  corpusNote: string;
+  metricsHeading: string;
+  documentCountLabel: string;
+  publishedAtLabel: string;
+  skillsHeading: string;
+  taxonomyHeading: string;
+  seniorityLabel: string;
+  roleFamilyLabel: string;
+  clustersHeading: string;
+  admin: JobMarketLabAdminCopy;
+  corpusAdmin: JobMarketLabCorpusAdminData;
+}
+
+export interface LoginPageErrors {
+  generic: string;
+  notConfigured: string;
+  required: string;
+}
+
+export interface LoginPageData {
+  heading: string;
+  description: string;
+  emailLabel: string;
+  passwordLabel: string;
+  submitLabel: string;
+  signOutLabel: string;
+  signedInHeading: string;
+  signedInDescription: string;
+  errors: LoginPageErrors;
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;
@@ -142,6 +211,7 @@ export interface ContactInfo {
   email: string;
   social: SocialLinks;
   copyright: string;
+  ownerSignIn: NavLink;
 }
 
 export interface FooterData {

@@ -1,0 +1,34 @@
+{
+  "heading": "Job market signal lab",
+  "description": "High-level aggregates from a private financial-services job-description corpus. This is a portfolio demonstration, not live job-board coverage or career advice.",
+  "emptyState": "No published snapshot is available yet. Check back after the next corpus recompute.",
+  "corpusNote": "Figures shown here are aggregates only. Raw job descriptions and employer identity are never published.",
+  "metricsHeading": "Corpus freshness",
+  "documentCountLabel": "Active documents in latest snapshot",
+  "publishedAtLabel": "Last published",
+  "skillsHeading": "Skill and tool frequencies",
+  "taxonomyHeading": "Seniority and role family",
+  "seniorityLabel": "Seniority",
+  "roleFamilyLabel": "Role family",
+  "clustersHeading": "Requirement themes",
+  "admin": {
+    "heading": "Corpus recompute",
+    "description": "Start an analysis run against the active corpus. Only one run may be queued or in progress at a time.",
+    "startButtonLabel": "Start recompute",
+    "startingLabel": "Starting…",
+    "startedMessage": "Recompute started. Run id: {runId}. Status: queued.",
+    "rejectedHeading": "Could not start recompute"
+  },
+  "corpusAdmin": {
+    "heading": "Corpus management",
+    "description": "Soft-archive active job descriptions to exclude them from the next recompute, or restore archived ones. Objects in storage are not deleted.",
+    "archiveLabel": "Archive",
+    "restoreLabel": "Restore",
+    "statusActiveLabel": "Active",
+    "statusArchivedLabel": "Archived",
+    "emptyList": "No job descriptions found.",
+    "loadingLabel": "Loading corpus…",
+    "untitledLabel": "Untitled document",
+    "errorLabel": "Corpus management is temporarily unavailable."
+  }
+}

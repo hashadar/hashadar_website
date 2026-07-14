@@ -10,12 +10,16 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "sandbox": "npx ampx sandbox"
+    "sandbox": "npx ampx sandbox",
+    "ingest:jd": "node scripts/ingest-job-description.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1086.0",
+    "@aws-sdk/client-lambda": "^3.1086.0",
+    "@aws-sdk/client-s3": "^3.1086.0",
     "@fontsource/zalando-sans-expanded": "^5.2.1",
     "aws-amplify": "^6.18.0",
     "clsx": "^2.1.1",
@@ -46,6 +50,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/aws-lambda": "^8.10.162",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

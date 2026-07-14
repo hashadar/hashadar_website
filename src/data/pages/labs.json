@@ -1,0 +1,11 @@
+{
+  "heading": "Labs",
+  "description": "Interactive technical demos that show how I approach AI, data science, machine learning, and AWS full-stack work.",
+  "labs": [
+    {
+      "title": "Job market signal lab",
+      "description": "Aggregate labour-market signals from a private job-description corpus.",
+      "href": "/labs/job-market"
+    }
+  ]
+}

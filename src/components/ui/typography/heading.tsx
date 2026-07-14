@@ -7,6 +7,7 @@ interface HeadingProps {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   className?: string;
   style?: CSSProperties;
+  id?: string;
 }
 
 // Fluid typography that scales based on viewport width with proper min/max constraints
@@ -26,23 +27,25 @@ const sizeClasses = {
   sm: "",
 };
 
-export function Heading({ 
-  children, 
-  size = "lg", 
-  as: Component = "h1", 
+export function Heading({
+  children,
+  size = 'lg',
+  as: Component = 'h1',
   className,
-  style
+  style,
+  id,
 }: HeadingProps) {
   return (
-    <Component 
+    <Component
+      id={id}
       className={cn(
-        "font-body font-bold text-[var(--foreground)] break-words",
+        'font-body font-bold text-[var(--foreground)] break-words',
         sizeClasses[size],
-        className
+        className,
       )}
       style={{
         ...sizeStyles[size],
-        ...style
+        ...style,
       }}
     >
       {children}
