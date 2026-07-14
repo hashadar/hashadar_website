@@ -8,4 +8,6 @@ export const jobMarketRecompute = defineFunction({
   name: 'job-market-recompute',
   entry: './handler.ts',
   timeoutSeconds: 60,
+  // Data mutation handler + Amplify Data client — must live in the data stack.
+  resourceGroupName: 'data',
 });

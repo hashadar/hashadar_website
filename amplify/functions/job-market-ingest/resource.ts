@@ -7,4 +7,6 @@ import { defineFunction } from '@aws-amplify/backend';
 export const jobMarketIngest = defineFunction({
   name: 'job-market-ingest',
   entry: './handler.ts',
+  // Shares the data stack: ingest writes JobDescription rows via the data API.
+  resourceGroupName: 'data',
 });

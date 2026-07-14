@@ -32,7 +32,6 @@ backend.storage.resources.bucket.addEventNotification(
   { prefix: 'raw/' },
 );
 
-const bucketName = backend.storage.resources.bucket.bucketName;
 const analyseFunctionName = backend.jobMarketAnalyse.resources.lambda.functionName;
 
 backend.jobMarketRecompute.addEnvironment(
@@ -40,16 +39,9 @@ backend.jobMarketRecompute.addEnvironment(
   analyseFunctionName,
 );
 backend.jobMarketRecompute.addEnvironment('MAX_ACTIVE_DOCS', '150');
-backend.jobMarketAnalyse.addEnvironment('JOB_MARKET_BUCKET_NAME', bucketName);
 
 backend.jobMarketAnalyse.resources.lambda.grantInvoke(
   backend.jobMarketRecompute.resources.lambda,
-);
-backend.storage.resources.bucket.grantRead(
-  backend.jobMarketAnalyse.resources.lambda,
-);
-backend.storage.resources.bucket.grantWrite(
-  backend.jobMarketAnalyse.resources.lambda,
 );
 
 backend.jobMarketAnalyse.resources.lambda.addToRolePolicy(
