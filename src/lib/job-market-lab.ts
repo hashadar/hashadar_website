@@ -164,3 +164,24 @@ export {
 } from './upload-job-description';
 
 export { validateJobDescriptionMarkdown } from './validate-job-description-markdown';
+
+export {
+  acceptScrapeCandidate,
+  enqueueScrapeCandidate,
+  listPendingScrapeCandidates,
+  listScrapeCandidates,
+  rejectScrapeCandidate,
+  type AcceptScrapeCandidateResult,
+  type EnqueueScrapeCandidateResult,
+  type RejectScrapeCandidateResult,
+  type ScrapeCandidateRecord,
+  type ScrapeCandidateStatus,
+} from './scrape-candidates';
+
+export {
+  createAmplifyScrapeCandidateDeps,
+  createDefaultAmplifyScrapeCandidateDeps,
+  type AmplifyScrapeCandidateModelClient,
+} from './scrape-candidates-amplify';
+
+export { createDefaultPutCandidateObject } from './scrape-candidates-client';

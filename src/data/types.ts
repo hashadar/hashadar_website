@@ -188,6 +188,22 @@ export interface JobMarketLabCvCopy {
   errorLabel: string;
 }
 
+export interface JobMarketLabHitlQueueCopy {
+  heading: string;
+  description: string;
+  emptyList: string;
+  loadingLabel: string;
+  errorLabel: string;
+  untitledLabel: string;
+  acceptLabel: string;
+  rejectLabel: string;
+  acceptingLabel: string;
+  rejectingLabel: string;
+  acceptedMessage: string;
+  rejectedMessage: string;
+  actionErrorHeading: string;
+}
+
 export interface JobMarketLabConsoleCopy {
   heading: string;
   description: string;
@@ -224,6 +240,7 @@ export interface JobMarketLabPageData {
   admin: JobMarketLabAdminCopy;
   corpusAdmin: JobMarketLabCorpusAdminData;
   upload: JobMarketLabUploadCopy;
+  hitlQueue: JobMarketLabHitlQueueCopy;
   console: JobMarketLabConsoleCopy;
 }
 
