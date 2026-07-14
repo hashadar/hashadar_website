@@ -149,6 +149,19 @@ export interface JobMarketLabAdminCopy {
   rejectedHeading: string;
 }
 
+export interface JobMarketLabCorpusAdminData {
+  heading: string;
+  description: string;
+  archiveLabel: string;
+  restoreLabel: string;
+  statusActiveLabel: string;
+  statusArchivedLabel: string;
+  emptyList: string;
+  loadingLabel: string;
+  untitledLabel: string;
+  errorLabel: string;
+}
+
 export interface JobMarketLabPageData {
   heading: string;
   description: string;
@@ -163,24 +176,7 @@ export interface JobMarketLabPageData {
   roleFamilyLabel: string;
   clustersHeading: string;
   admin: JobMarketLabAdminCopy;
-}
-
-export interface LoginPageErrors {
-  generic: string;
-  notConfigured: string;
-  required: string;
-}
-
-export interface LoginPageData {
-  heading: string;
-  description: string;
-  emailLabel: string;
-  passwordLabel: string;
-  submitLabel: string;
-  signOutLabel: string;
-  signedInHeading: string;
-  signedInDescription: string;
-  errors: LoginPageErrors;
+  corpusAdmin: JobMarketLabCorpusAdminData;
 }
 
 export interface LoginPageErrors {

@@ -74,6 +74,7 @@ describe('JobMarketLabSection', () => {
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.admin.heading }),
     ).not.toBeInTheDocument();
+    expect(screen.queryByText(jobMarketLab.corpusAdmin.heading)).not.toBeInTheDocument();
   });
 
   it('still shows the empty state when nothing is published', () => {

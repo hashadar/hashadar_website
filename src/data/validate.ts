@@ -150,22 +150,17 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(admin, 'startingLabel', 'jobMarketLab.admin');
   requireString(admin, 'startedMessage', 'jobMarketLab.admin');
   requireString(admin, 'rejectedHeading', 'jobMarketLab.admin');
-}
-
-export function assertValidLoginPage(data: unknown): void {
-  const page = requireRecord(data, 'login');
-  requireString(page, 'heading', 'login');
-  requireString(page, 'description', 'login');
-  requireString(page, 'emailLabel', 'login');
-  requireString(page, 'passwordLabel', 'login');
-  requireString(page, 'submitLabel', 'login');
-  requireString(page, 'signOutLabel', 'login');
-  requireString(page, 'signedInHeading', 'login');
-  requireString(page, 'signedInDescription', 'login');
-  const errors = requireRecord(page.errors, 'login.errors');
-  requireString(errors, 'generic', 'login.errors');
-  requireString(errors, 'notConfigured', 'login.errors');
-  requireString(errors, 'required', 'login.errors');
+  const corpusAdmin = requireRecord(page.corpusAdmin, 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'heading', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'description', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'archiveLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'restoreLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'statusActiveLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'statusArchivedLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'emptyList', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'loadingLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'untitledLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'errorLabel', 'jobMarketLab.corpusAdmin');
 }
 
 export function assertValidLoginPage(data: unknown): void {

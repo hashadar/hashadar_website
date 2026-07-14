@@ -18,5 +18,17 @@
     "startingLabel": "Starting…",
     "startedMessage": "Recompute started. Run id: {runId}. Status: queued.",
     "rejectedHeading": "Could not start recompute"
+  },
+  "corpusAdmin": {
+    "heading": "Corpus management",
+    "description": "Soft-archive active job descriptions to exclude them from the next recompute, or restore archived ones. Objects in storage are not deleted.",
+    "archiveLabel": "Archive",
+    "restoreLabel": "Restore",
+    "statusActiveLabel": "Active",
+    "statusArchivedLabel": "Archived",
+    "emptyList": "No job descriptions found.",
+    "loadingLabel": "Loading corpus…",
+    "untitledLabel": "Untitled document",
+    "errorLabel": "Corpus management is temporarily unavailable."
   }
 }
