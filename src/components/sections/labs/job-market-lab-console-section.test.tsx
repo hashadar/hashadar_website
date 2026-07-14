@@ -112,6 +112,9 @@ describe('JobMarketLabConsoleSection', () => {
       screen.getByRole('heading', { name: jobMarketLab.corpusAdmin.heading }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('heading', { name: jobMarketLab.console.themeLabelsHeading }),
+    ).toBeInTheDocument();
+    expect(
       await screen.findByRole('heading', { name: jobMarketLab.console.runsHeading }),
     ).toBeInTheDocument();
     expect(await screen.findByText('run-fail')).toBeInTheDocument();

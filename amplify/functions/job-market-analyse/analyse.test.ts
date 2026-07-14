@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   analyseCorpus,
+  buildClusterLabel,
+  deriveClusterKey,
   MAX_CLUSTER_K,
   MAX_PROJECTION_POINTS,
   MAX_SKILLS,
+  resolveClusterLabel,
   type AnalyzableDocument,
 } from './analyse';
 import { matchTechnologiesInDocuments } from './technology-ontology';
@@ -34,6 +37,53 @@ const docs: AnalyzableDocument[] = [
   },
 ];
 
+describe('buildClusterLabel', () => {
+  it('joins the top two matched technologies in cluster documents', () => {
+    const documents = [
+      { markdown: 'Python, SQL, and dbt experience required.' },
+      { markdown: 'Strong Python and SQL background.' },
+    ];
+
+    expect(buildClusterLabel(0, documents)).toBe('python, sql');
+  });
+
+  it('falls back to a requirement theme label when no technologies match', () => {
+    expect(buildClusterLabel(2, [{ markdown: 'Excellent communication and teamwork.' }])).toBe(
+      'Requirement theme 3',
+    );
+  });
+});
+
+describe('deriveClusterKey', () => {
+  it('builds a stable key from the top matched technologies', () => {
+    const documents = [{ markdown: 'Python, SQL, and teamwork.' }];
+
+    expect(deriveClusterKey(documents)).toBe('python|sql');
+  });
+
+  it('returns an empty key when no technologies match', () => {
+    expect(deriveClusterKey([{ markdown: 'Communication and stakeholder management.' }])).toBe('');
+  });
+});
+
+describe('resolveClusterLabel', () => {
+  it('prefers an owner override keyed by cluster id', () => {
+    const documents = [{ markdown: 'Python and SQL required.' }];
+
+    expect(
+      resolveClusterLabel(1, documents, {
+        '1': 'Data platform hiring signal',
+      }),
+    ).toBe('Data platform hiring signal');
+  });
+
+  it('falls back to the deterministic technology label', () => {
+    const documents = [{ markdown: 'Python and SQL required.' }];
+
+    expect(resolveClusterLabel(0, documents, {})).toBe('python, sql');
+  });
+});
+
 describe('matchTechnologiesInDocuments', () => {
   it('matches canonical technology names and aliases once per document', () => {
     const documents = [
@@ -47,6 +97,76 @@ describe('matchTechnologiesInDocuments', () => {
       { name: 'sql', count: 2 },
       { name: 'kubernetes', count: 1 },
       { name: 'snowflake', count: 1 },
+    ]);
+  });
+});
+
+describe('analyseCorpus cluster labels', () => {
+  it('publishes deterministic technology labels instead of Theme N placeholders', async () => {
+    const clusterDocs: AnalyzableDocument[] = [
+      {
+        id: 'jd-a',
+        contentHash: 'hash-a',
+        markdown: 'Python, SQL, and modelling experience.',
+      },
+      {
+        id: 'jd-b',
+        contentHash: 'hash-b',
+        markdown: 'Tableau, communication, and stakeholder management.',
+      },
+    ];
+
+    const result = await analyseCorpus(clusterDocs, {
+      embed: async () => ({
+        vector: [0.9, 0.1, 0.2, 0.3],
+        inputTokens: 4,
+        estimatedCostUsd: 0.0001,
+      }),
+      getCachedEmbedding: async () => null,
+      putCachedEmbedding: async () => undefined,
+      cluster: () => ({ assignments: [0, 1], centroids: [[0.9], [0.1]] }),
+      now: new Date('2026-07-14T12:00:00.000Z'),
+    });
+
+    expect(result.snapshot.clusters).toEqual([
+      { id: 0, size: 1, label: 'python, sql' },
+      { id: 1, size: 1, label: 'tableau' },
+    ]);
+    expect(result.snapshot.clusters.map((cluster) => cluster.label)).not.toContain('Theme 1');
+  });
+
+  it('applies owner theme label overrides when publishing clusters', async () => {
+    const clusterDocs: AnalyzableDocument[] = [
+      {
+        id: 'jd-a',
+        contentHash: 'hash-a',
+        markdown: 'Python, SQL, and modelling experience.',
+      },
+      {
+        id: 'jd-b',
+        contentHash: 'hash-b',
+        markdown: 'Tableau, communication, and stakeholder management.',
+      },
+    ];
+
+    const result = await analyseCorpus(clusterDocs, {
+      embed: async () => ({
+        vector: [0.9, 0.1, 0.2, 0.3],
+        inputTokens: 4,
+        estimatedCostUsd: 0.0001,
+      }),
+      getCachedEmbedding: async () => null,
+      putCachedEmbedding: async () => undefined,
+      cluster: () => ({ assignments: [0, 1], centroids: [[0.9], [0.1]] }),
+      themeLabelOverrides: {
+        '1': 'Visual analytics demand',
+      },
+      now: new Date('2026-07-14T12:00:00.000Z'),
+    });
+
+    expect(result.snapshot.clusters).toEqual([
+      { id: 0, size: 1, label: 'python, sql' },
+      { id: 1, size: 1, label: 'Visual analytics demand' },
     ]);
   });
 });

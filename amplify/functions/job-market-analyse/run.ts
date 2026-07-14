@@ -28,6 +28,7 @@ export type ExecuteAnalysisRunDeps = {
   embed: AnalyseCorpusDeps['embed'];
   getCachedEmbedding: AnalyseCorpusDeps['getCachedEmbedding'];
   putCachedEmbedding: AnalyseCorpusDeps['putCachedEmbedding'];
+  listThemeLabelOverrides?: () => Promise<Record<string, string>>;
   saveSnapshot: (snapshot: StoredCorpusSnapshot) => Promise<StoredCorpusSnapshot>;
   updateRun: (run: AnalysisRunRecord) => Promise<AnalysisRunRecord>;
   updatePublication: (publication: LabPublicationPointer) => Promise<void>;
@@ -85,6 +86,9 @@ export async function executeAnalysisRun(
       embed: deps.embed,
       getCachedEmbedding: deps.getCachedEmbedding,
       putCachedEmbedding: deps.putCachedEmbedding,
+      themeLabelOverrides: deps.listThemeLabelOverrides
+        ? await deps.listThemeLabelOverrides()
+        : undefined,
       now,
     });
 

@@ -222,6 +222,16 @@ export interface JobMarketLabConsoleCopy {
   runStatusFailed: string;
   failureReasonLabel: string;
   cv: JobMarketLabCvCopy;
+  themeLabelsHeading: string;
+  themeLabelsDescription: string;
+  themeLabelsEmpty: string;
+  themeLabelsLoading: string;
+  themeLabelsError: string;
+  themeLabelInputLabel: string;
+  themeLabelSaveLabel: string;
+  themeLabelSavingLabel: string;
+  themeLabelSavedMessage: string;
+  themeLabelSizeLabel: string;
 }
 
 export interface JobMarketLabPageData {

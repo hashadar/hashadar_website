@@ -80,6 +80,15 @@ const schema = a
         allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
+    ThemeLabelOverride: a
+      .model({
+        clusterKey: a.string().required(),
+        label: a.string().required(),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      ]),
+
     startJobMarketRecompute: a
       .mutation()
       .returns(

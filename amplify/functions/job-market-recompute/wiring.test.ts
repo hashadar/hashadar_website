@@ -35,5 +35,6 @@ describe('job market recompute wiring', () => {
     expect(dataTs).toMatch(/AnalysisRun/);
     expect(dataTs).toMatch(/CorpusSnapshot/);
     expect(dataTs).toMatch(/LabPublication/);
+    expect(dataTs).toMatch(/ThemeLabelOverride/);
   });
 });

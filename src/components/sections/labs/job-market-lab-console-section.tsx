@@ -7,6 +7,7 @@ import { JobMarketLabCorpusAdmin } from '@/components/sections/labs/job-market-l
 import { JobMarketLabCvPanel } from '@/components/sections/labs/job-market-lab-cv-panel';
 import { JobMarketLabHitlQueuePanel } from '@/components/sections/labs/job-market-lab-hitl-queue-panel';
 import { JobMarketLabRunsPanel } from '@/components/sections/labs/job-market-lab-runs-panel';
+import { JobMarketLabThemeLabelsPanel } from '@/components/sections/labs/job-market-lab-theme-labels-panel';
 import { JobMarketLabUploadPanel } from '@/components/sections/labs/job-market-lab-upload-panel';
 import { jobMarketLab } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
@@ -75,6 +76,7 @@ export function JobMarketLabConsoleSection({
         <JobMarketLabUploadPanel />
         <JobMarketLabHitlQueuePanel />
         <JobMarketLabCorpusAdmin corpus={corpus} />
+        <JobMarketLabThemeLabelsPanel />
         <JobMarketLabRunsPanel analysisRuns={analysisRuns} />
       </Container>
     </Section>

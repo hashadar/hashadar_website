@@ -185,3 +185,17 @@ export {
 } from './scrape-candidates-amplify';
 
 export { createDefaultPutCandidateObject } from './scrape-candidates-client';
+
+export {
+  listThemeLabelOverrides,
+  setThemeLabelOverride,
+  type ThemeLabelOverrideRecord,
+  type ListThemeLabelOverridesDeps,
+  type SetThemeLabelOverrideDeps,
+} from './job-market-theme-labels';
+
+export {
+  createAmplifyThemeLabelOverrideDeps,
+  createDefaultAmplifyThemeLabelOverrideDeps,
+  type AmplifyThemeLabelOverrideModelClient,
+} from './job-market-theme-labels-amplify';
