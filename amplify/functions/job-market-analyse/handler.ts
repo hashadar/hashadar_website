@@ -43,7 +43,21 @@ async function listJobDescriptions(): Promise<JobDescriptionCorpusRecord[]> {
     seniority: record.seniority ?? undefined,
     roleFamily: record.roleFamily ?? undefined,
     source: record.source ?? undefined,
+    employerId: record.employerId ?? undefined,
   }));
+}
+
+async function getEmployerTiers(
+  employerId: string,
+): Promise<{ sizeTier?: string; prestigeTier?: string } | null> {
+  const { data, errors } = await client.models.Employer.get({ id: employerId });
+  if (errors?.length || !data) {
+    return null;
+  }
+  return {
+    sizeTier: data.sizeTier ?? undefined,
+    prestigeTier: data.prestigeTier ?? undefined,
+  };
 }
 
 async function saveJobDescription(
@@ -232,6 +246,7 @@ export const handler: Handler<AnalyseEvent> = async (event) => {
     updatePublication,
     getPublication,
     listThemeLabelOverrides,
+    getEmployerTiers,
   });
 
   if (result.status === 'failed') {

@@ -8,6 +8,7 @@ import {
 } from './fetch-published-job-market-snapshot';
 import { readAmplifyOutputs } from './read-amplify-outputs';
 import { defaultStartJobMarketRecompute } from './start-job-market-recompute-client';
+import type { JobMarketPublicCorpusMeta } from './job-market-pulse-filters';
 
 export type SkillFrequency = {
   name: string;
@@ -40,6 +41,7 @@ export type JobMarketSnapshot = {
   roleFamily: TaxonomyBucket[];
   clusters: ClusterSummary[];
   projection: ProjectionPoint[];
+  corpusMeta?: JobMarketPublicCorpusMeta;
 };
 
 export type PublishedJobMarketResult =
@@ -93,7 +95,43 @@ export {
   type AmplifyAnalysisRunModelClient,
 } from './job-market-analysis-runs-amplify';
 
-function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
+function sanitisePublicCorpusMeta(value: unknown): JobMarketPublicCorpusMeta | undefined {
+  if (typeof value !== 'object' || value == null || !('documents' in value)) {
+    return undefined;
+  }
+
+  const record = value as { documents?: unknown };
+  if (!Array.isArray(record.documents)) {
+    return undefined;
+  }
+
+  const documents = record.documents
+    .map((item) => {
+      if (typeof item !== 'object' || item == null) {
+        return null;
+      }
+      const doc = item as Record<string, unknown>;
+      if (typeof doc.id !== 'string' || typeof doc.collectedAt !== 'string') {
+        return null;
+      }
+      if (typeof doc.clusterId !== 'number' || !Array.isArray(doc.technologies)) {
+        return null;
+      }
+      return {
+        id: doc.id,
+        collectedAt: doc.collectedAt,
+        technologies: doc.technologies.filter((tech): tech is string => typeof tech === 'string'),
+        clusterId: doc.clusterId,
+        projectionX: typeof doc.projectionX === 'number' ? doc.projectionX : undefined,
+        projectionY: typeof doc.projectionY === 'number' ? doc.projectionY : undefined,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item != null);
+
+  return documents.length > 0 ? { documents } : undefined;
+}
+
+function sanitiseSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
   const technologies = snapshot.technologies ?? snapshot.skills ?? [];
   const sanitised: JobMarketSnapshot = {
     documentCount: snapshot.documentCount,
@@ -105,6 +143,11 @@ function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
     clusters: snapshot.clusters ?? [],
     projection: snapshot.projection ?? [],
   };
+
+  const corpusMeta = sanitisePublicCorpusMeta(snapshot.corpusMeta);
+  if (corpusMeta) {
+    sanitised.corpusMeta = corpusMeta;
+  }
 
   return sanitised;
 }
@@ -147,7 +190,7 @@ export async function getPublishedJobMarketSnapshot(
 
   return {
     status: 'published',
-    snapshot: sanitizeSnapshot(snapshot),
+    snapshot: sanitiseSnapshot(snapshot),
   };
 }
 
@@ -268,4 +311,27 @@ export {
   createDefaultAmplifyPayPrestigeAnalyticsDeps,
   type AmplifyPayPrestigeAnalyticsDeps,
 } from './job-market-pay-prestige-analytics-amplify';
+
+export {
+  filterJobMarketPulse,
+  sanitiseFilterSelection,
+  toPublicCorpusMeta,
+  OWNER_PULSE_FILTER_DIMENSIONS,
+  PUBLIC_PULSE_FILTER_DIMENSIONS,
+  type FilteredJobMarketPulse,
+  type FilterJobMarketPulseOptions,
+  type JobMarketCorpusMeta,
+  type JobMarketDocumentPulseMeta,
+  type JobMarketPublicCorpusMeta,
+  type JobMarketPulseFilterSelection,
+  type JobMarketPulseInput,
+  type JobMarketPulseTimeWindow,
+} from './job-market-pulse-filters';
+
+export {
+  fetchOwnerJobMarketPulseSource,
+  type FetchOwnerJobMarketPulseSource,
+  type FetchOwnerJobMarketPulseSourceDeps,
+  type OwnerJobMarketPulseSource,
+} from './fetch-owner-job-market-pulse';
 

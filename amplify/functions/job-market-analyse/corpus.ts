@@ -12,6 +12,7 @@ export type JobDescriptionCorpusRecord = {
   source?: string;
   s3Key?: string;
   contentHash?: string;
+  employerId?: string;
 };
 
 export const DEFAULT_MAX_AGE_MONTHS = 18;

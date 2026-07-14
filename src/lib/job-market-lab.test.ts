@@ -97,6 +97,63 @@ describe('getPublishedJobMarketSnapshot', () => {
     });
   });
 
+  it('keeps public-safe corpusMeta but strips employer tiers from guest snapshots', async () => {
+    const result = await getPublishedJobMarketSnapshot({
+      fetchPublished: async () =>
+        ({
+          documentCount: 1,
+          publishedAt: '2026-07-01T00:00:00.000Z',
+          skills: [{ name: 'python', count: 1 }],
+          seniority: [],
+          roleFamily: [],
+          clusters: [],
+          projection: [],
+          corpusMeta: {
+            documents: [
+              {
+                id: 'jd-1',
+                collectedAt: '2026-06-01T00:00:00.000Z',
+                seniority: 'senior',
+                roleFamily: 'data-science',
+                employerSizeTier: 'enterprise',
+                employerPrestigeTier: 'elite',
+                technologies: ['python'],
+                clusterId: 0,
+                projectionX: 0.1,
+                projectionY: 0.2,
+              },
+            ],
+          },
+        }) as never,
+    });
+
+    expect(result).toEqual({
+      status: 'published',
+      snapshot: {
+        documentCount: 1,
+        publishedAt: '2026-07-01T00:00:00.000Z',
+        technologies: [{ name: 'python', count: 1 }],
+        skills: [{ name: 'python', count: 1 }],
+        seniority: [],
+        roleFamily: [],
+        clusters: [],
+        projection: [],
+        corpusMeta: {
+          documents: [
+            {
+              id: 'jd-1',
+              collectedAt: '2026-06-01T00:00:00.000Z',
+              technologies: ['python'],
+              clusterId: 0,
+              projectionX: 0.1,
+              projectionY: 0.2,
+            },
+          ],
+        },
+      },
+    });
+  });
+
   it('does not expose raw job description or employer identity fields', async () => {
     const result = await getPublishedJobMarketSnapshot({
       fetchPublished: async () =>

@@ -15,6 +15,7 @@ const docs: AnalyzableDocument[] = [
   {
     id: 'jd-1',
     contentHash: 'hash-1',
+    collectedAt: '2026-06-01T00:00:00.000Z',
     markdown:
       'We need Python, SQL, and teamwork. Senior data scientist role with modelling.',
     seniority: 'senior',
@@ -23,6 +24,7 @@ const docs: AnalyzableDocument[] = [
   {
     id: 'jd-2',
     contentHash: 'hash-2',
+    collectedAt: '2026-05-01T00:00:00.000Z',
     markdown: 'Looking for Python, Tableau, and communication skills.',
     seniority: 'mid',
     roleFamily: 'analytics',
@@ -30,6 +32,7 @@ const docs: AnalyzableDocument[] = [
   {
     id: 'jd-3',
     contentHash: 'hash-1',
+    collectedAt: '2026-04-01T00:00:00.000Z',
     markdown:
       'We need Python, SQL, and teamwork. Senior data scientist role with modelling.',
     seniority: 'senior',
@@ -107,11 +110,13 @@ describe('analyseCorpus cluster labels', () => {
       {
         id: 'jd-a',
         contentHash: 'hash-a',
+        collectedAt: '2026-06-01T00:00:00.000Z',
         markdown: 'Python, SQL, and modelling experience.',
       },
       {
         id: 'jd-b',
         contentHash: 'hash-b',
+        collectedAt: '2026-05-01T00:00:00.000Z',
         markdown: 'Tableau, communication, and stakeholder management.',
       },
     ];
@@ -135,16 +140,55 @@ describe('analyseCorpus cluster labels', () => {
     expect(result.snapshot.clusters.map((cluster) => cluster.label)).not.toContain('Theme 1');
   });
 
+  it('publishes per-document corpusMeta for downstream pulse filters', async () => {
+    const clusterDocs: AnalyzableDocument[] = [
+      {
+        id: 'jd-a',
+        contentHash: 'hash-a',
+        collectedAt: '2026-06-01T00:00:00.000Z',
+        markdown: 'Python, SQL, and modelling experience.',
+        seniority: 'senior',
+        roleFamily: 'data-science',
+        employerSizeTier: 'enterprise',
+        employerPrestigeTier: 'elite',
+      },
+    ];
+
+    const result = await analyseCorpus(clusterDocs, {
+      embed: async () => ({
+        vector: [0.9, 0.1, 0.2, 0.3],
+        inputTokens: 4,
+        estimatedCostUsd: 0.0001,
+      }),
+      getCachedEmbedding: async () => null,
+      putCachedEmbedding: async () => undefined,
+      now: new Date('2026-07-14T12:00:00.000Z'),
+    });
+
+    expect(result.snapshot.corpusMeta?.documents[0]).toMatchObject({
+      id: 'jd-a',
+      collectedAt: '2026-06-01T00:00:00.000Z',
+      seniority: 'senior',
+      roleFamily: 'data-science',
+      employerSizeTier: 'enterprise',
+      employerPrestigeTier: 'elite',
+      technologies: ['python', 'sql'],
+      clusterId: 0,
+    });
+  });
+
   it('applies owner theme label overrides when publishing clusters', async () => {
     const clusterDocs: AnalyzableDocument[] = [
       {
         id: 'jd-a',
         contentHash: 'hash-a',
+        collectedAt: '2026-06-01T00:00:00.000Z',
         markdown: 'Python, SQL, and modelling experience.',
       },
       {
         id: 'jd-b',
         contentHash: 'hash-b',
+        collectedAt: '2026-05-01T00:00:00.000Z',
         markdown: 'Tableau, communication, and stakeholder management.',
       },
     ];
