@@ -1,16 +1,24 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { jobMarketIngest } from '../functions/job-market-ingest/resource';
 
-/**
- * Data schema placeholder for the job market lab.
- * Models (JobDescription, AnalysisRun, CorpusSnapshot, LabPublication) land in later slices.
- */
-const schema = a.schema({
-  LabScaffold: a
-    .model({
-      label: a.string(),
-    })
-    .authorization((allow) => [allow.authenticated()]),
-});
+const schema = a
+  .schema({
+    JobDescription: a
+      .model({
+        s3Key: a.string().required(),
+        contentHash: a.string().required(),
+        collectedAt: a.datetime().required(),
+        status: a.enum(['active', 'archived']).required(),
+        title: a.string(),
+        seniority: a.string(),
+        roleFamily: a.string(),
+        source: a.string(),
+      })
+      .authorization((allow) => [
+        allow.authenticated.to(['read', 'create', 'update', 'delete']),
+      ]),
+  })
+  .authorization((allow) => [allow.resource(jobMarketIngest)]);
 
 export type Schema = ClientSchema<typeof schema>;
 
