@@ -6,6 +6,9 @@ import { getPublishedJobMarketSnapshot } from '@/lib/job-market-lab';
 
 const jobMarketLab = getPageData('/labs/job-market');
 
+/** Live Amplify published-snapshot fetch must not run at static build time. */
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: `${jobMarketLab.heading} - ${site.metadata.author}`,
   description: jobMarketLab.description,
