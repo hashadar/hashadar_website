@@ -140,6 +140,19 @@ export interface LabsPageData {
   labs: LabIndexItem[];
 }
 
+export interface JobMarketLabCorpusAdminData {
+  heading: string;
+  description: string;
+  archiveLabel: string;
+  restoreLabel: string;
+  statusActiveLabel: string;
+  statusArchivedLabel: string;
+  emptyList: string;
+  loadingLabel: string;
+  untitledLabel: string;
+  errorLabel: string;
+}
+
 export interface JobMarketLabPageData {
   heading: string;
   description: string;
@@ -153,6 +166,7 @@ export interface JobMarketLabPageData {
   seniorityLabel: string;
   roleFamilyLabel: string;
   clustersHeading: string;
+  corpusAdmin: JobMarketLabCorpusAdminData;
 }
 
 export interface LoginPageErrors {

@@ -60,6 +60,12 @@ export {
   type JobDescriptionStatus,
 } from './job-market-corpus';
 
+export {
+  createAmplifyCorpusDeps,
+  createDefaultAmplifyCorpusDeps,
+  type AmplifyCorpusDeps,
+} from './job-market-corpus-amplify';
+
 function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
   return {
     documentCount: snapshot.documentCount,

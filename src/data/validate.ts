@@ -143,6 +143,17 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(page, 'seniorityLabel', 'jobMarketLab');
   requireString(page, 'roleFamilyLabel', 'jobMarketLab');
   requireString(page, 'clustersHeading', 'jobMarketLab');
+  const corpusAdmin = requireRecord(page.corpusAdmin, 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'heading', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'description', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'archiveLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'restoreLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'statusActiveLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'statusArchivedLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'emptyList', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'loadingLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'untitledLabel', 'jobMarketLab.corpusAdmin');
+  requireString(corpusAdmin, 'errorLabel', 'jobMarketLab.corpusAdmin');
 }
 
 export function assertValidLoginPage(data: unknown): void {

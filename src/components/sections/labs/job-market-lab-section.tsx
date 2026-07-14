@@ -1,6 +1,7 @@
 'use client';
 
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
+import { JobMarketLabCorpusAdmin } from '@/components/sections/labs/job-market-lab-corpus-admin';
 import { jobMarketLab } from '@/data';
 import type {
   JobMarketSnapshot,
@@ -8,11 +9,13 @@ import type {
   SkillFrequency,
   TaxonomyBucket,
 } from '@/lib/job-market-lab';
+import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { cn } from '@/lib/utils';
 
 interface JobMarketLabSectionProps {
   publication: PublishedJobMarketResult;
+  corpus?: AmplifyCorpusDeps;
 }
 
 function formatPublishedAt(iso: string): string {
@@ -198,7 +201,7 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
   );
 }
 
-export function JobMarketLabSection({ publication }: JobMarketLabSectionProps) {
+export function JobMarketLabSection({ publication, corpus }: JobMarketLabSectionProps) {
   return (
     <Section className="py-20">
       <Container>
@@ -217,6 +220,8 @@ export function JobMarketLabSection({ publication }: JobMarketLabSectionProps) {
         ) : (
           <PublishedDashboard snapshot={publication.snapshot} />
         )}
+
+        <JobMarketLabCorpusAdmin corpus={corpus} />
       </Container>
     </Section>
   );

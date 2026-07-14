@@ -10,5 +10,17 @@
   "taxonomyHeading": "Seniority and role family",
   "seniorityLabel": "Seniority",
   "roleFamilyLabel": "Role family",
-  "clustersHeading": "Requirement themes"
+  "clustersHeading": "Requirement themes",
+  "corpusAdmin": {
+    "heading": "Corpus management",
+    "description": "Soft-archive active job descriptions to exclude them from the next recompute, or restore archived ones. Objects in storage are not deleted.",
+    "archiveLabel": "Archive",
+    "restoreLabel": "Restore",
+    "statusActiveLabel": "Active",
+    "statusArchivedLabel": "Archived",
+    "emptyList": "No job descriptions found.",
+    "loadingLabel": "Loading corpus…",
+    "untitledLabel": "Untitled document",
+    "errorLabel": "Corpus management is temporarily unavailable."
+  }
 }
