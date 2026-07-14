@@ -173,6 +173,21 @@ export interface JobMarketLabUploadCopy {
   noFileSelected: string;
 }
 
+export interface JobMarketLabCvCopy {
+  heading: string;
+  description: string;
+  loadingLabel: string;
+  emptyHint: string;
+  seedButtonLabel: string;
+  seedingLabel: string;
+  seededMessage: string;
+  bodyLabel: string;
+  saveButtonLabel: string;
+  savingLabel: string;
+  savedMessage: string;
+  errorLabel: string;
+}
+
 export interface JobMarketLabConsoleCopy {
   heading: string;
   description: string;
@@ -190,6 +205,7 @@ export interface JobMarketLabConsoleCopy {
   runStatusSucceeded: string;
   runStatusFailed: string;
   failureReasonLabel: string;
+  cv: JobMarketLabCvCopy;
 }
 
 export interface JobMarketLabPageData {

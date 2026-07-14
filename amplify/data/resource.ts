@@ -56,6 +56,15 @@ const schema = a
         allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
+    CanonicalCv: a
+      .model({
+        body: a.string().required(),
+        updatedAt: a.datetime().required(),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update']),
+      ]),
+
     startJobMarketRecompute: a
       .mutation()
       .returns(
