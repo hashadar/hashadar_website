@@ -73,6 +73,9 @@ describe('JobMarketLabConsoleSection', () => {
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.console.cv.heading }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: jobMarketLab.console.compare.heading }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows facade-backed management and live run history when authenticated', async () => {
@@ -101,6 +104,9 @@ describe('JobMarketLabConsoleSection', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: jobMarketLab.console.cv.heading }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: jobMarketLab.console.compare.heading }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: jobMarketLab.upload.heading }),

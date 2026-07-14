@@ -89,7 +89,9 @@ describe('JobMarketLabCvPanel', () => {
     renderCvPanel({ auth: ownerAuth(), canonicalCv: deps });
 
     const textarea = await screen.findByLabelText(jobMarketLab.console.cv.bodyLabel);
-    expect(textarea).toHaveValue('## Experience\n\nInitial body.');
+    await waitFor(() => {
+      expect(textarea).toHaveValue('## Experience\n\nInitial body.');
+    });
 
     await user.clear(textarea);
     await user.type(textarea, '## Experience\n\nEdited body.');

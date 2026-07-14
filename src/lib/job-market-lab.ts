@@ -159,6 +159,25 @@ export async function startJobMarketRecompute(
 }
 
 export {
+  compareCvToJobDescription,
+  type CompareCvToJobDescriptionInput,
+  type CvJdComparisonItem,
+  type CvJdComparisonResult,
+  type CvJdComparisonTemplates,
+} from './compare-cv-to-job-description';
+
+export {
+  fetchJobDescriptionMarkdown,
+  type FetchJobDescriptionMarkdownDeps,
+} from './fetch-job-description-markdown';
+
+export {
+  matchTechnologiesInText,
+  FINSERV_AI_TECHNOLOGY_DICTIONARY,
+  type TechnologyEntry,
+} from './technology-ontology';
+
+export {
   uploadJobDescription,
   type UploadJobDescriptionResult,
   type UploadJobDescriptionDeps,

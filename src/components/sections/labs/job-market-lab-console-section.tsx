@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
 import { JobMarketLabAdminSection } from '@/components/sections/labs/job-market-lab-admin-section';
+import { JobMarketLabComparePanel } from '@/components/sections/labs/job-market-lab-compare-panel';
 import { JobMarketLabCorpusAdmin } from '@/components/sections/labs/job-market-lab-corpus-admin';
 import { JobMarketLabCvPanel } from '@/components/sections/labs/job-market-lab-cv-panel';
 import { JobMarketLabEmployerAdmin } from '@/components/sections/labs/job-market-lab-employer-admin';
@@ -76,6 +77,7 @@ export function JobMarketLabConsoleSection({
 
         <JobMarketLabAdminSection startRecompute={startRecompute} />
         <JobMarketLabCvPanel canonicalCv={canonicalCv} />
+        <JobMarketLabComparePanel canonicalCv={canonicalCv} corpus={corpus} />
         <JobMarketLabUploadPanel />
         <JobMarketLabHitlQueuePanel />
         <JobMarketLabEmployerAdmin />
