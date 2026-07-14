@@ -142,7 +142,8 @@ async function saveSnapshot(
   const { errors } = await client.models.CorpusSnapshot.create({
     id: snapshot.id,
     runId: snapshot.runId,
-    payload: snapshot.payload,
+    // a.json() / AWSJSON inputs must be serialised JSON strings.
+    payload: JSON.stringify(snapshot.payload),
   });
   if (errors?.length) {
     throw new Error(errors.map((error) => error.message).join('; '));
