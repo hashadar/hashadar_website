@@ -135,6 +135,14 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(page, 'description', 'jobMarketLab');
   requireString(page, 'emptyState', 'jobMarketLab');
   requireString(page, 'corpusNote', 'jobMarketLab');
+  requireString(page, 'metricsHeading', 'jobMarketLab');
+  requireString(page, 'documentCountLabel', 'jobMarketLab');
+  requireString(page, 'publishedAtLabel', 'jobMarketLab');
+  requireString(page, 'skillsHeading', 'jobMarketLab');
+  requireString(page, 'taxonomyHeading', 'jobMarketLab');
+  requireString(page, 'seniorityLabel', 'jobMarketLab');
+  requireString(page, 'roleFamilyLabel', 'jobMarketLab');
+  requireString(page, 'clustersHeading', 'jobMarketLab');
 }
 
 export function assertValidFooter(data: unknown): void {

@@ -145,6 +145,14 @@ export interface JobMarketLabPageData {
   description: string;
   emptyState: string;
   corpusNote: string;
+  metricsHeading: string;
+  documentCountLabel: string;
+  publishedAtLabel: string;
+  skillsHeading: string;
+  taxonomyHeading: string;
+  seniorityLabel: string;
+  roleFamilyLabel: string;
+  clustersHeading: string;
 }
 
 // Common/shared types
