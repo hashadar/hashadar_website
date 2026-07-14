@@ -210,6 +210,11 @@ export {
 } from './compare-cv-to-job-description';
 
 export {
+  compareCvToMarket,
+  type CompareCvToMarketInput,
+} from './compare-cv-to-market';
+
+export {
   fetchJobDescriptionMarkdown,
   type FetchJobDescriptionMarkdownDeps,
 } from './fetch-job-description-markdown';

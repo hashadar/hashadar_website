@@ -1,3 +1,4 @@
+import { shapeCvComparisonResult } from './compare-cv-comparison-shaping';
 import { matchTechnologiesInText } from './technology-ontology';
 
 export type CvJdComparisonItem = {
@@ -23,10 +24,6 @@ export type CompareCvToJobDescriptionInput = {
   templates: CvJdComparisonTemplates;
 };
 
-function applyTemplate(template: string, technology: string): string {
-  return template.replaceAll('{technology}', technology);
-}
-
 export function compareCvToJobDescription(
   input: CompareCvToJobDescriptionInput,
 ): CvJdComparisonResult {
@@ -44,23 +41,5 @@ export function compareCvToJobDescription(
     }
   }
 
-  const talkingPoints = [
-    ...matches.map((item) =>
-      applyTemplate(input.templates.matchTalkingPoint, item.name),
-    ),
-    ...gaps.map((item) =>
-      applyTemplate(input.templates.gapTalkingPoint, item.name),
-    ),
-  ];
-
-  const learningTargets = gaps.map((item) =>
-    applyTemplate(input.templates.gapLearningTarget, item.name),
-  );
-
-  return {
-    matches,
-    gaps,
-    talkingPoints,
-    learningTargets,
-  };
+  return shapeCvComparisonResult(matches, gaps, input.templates);
 }

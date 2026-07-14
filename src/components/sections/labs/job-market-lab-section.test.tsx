@@ -115,6 +115,11 @@ describe('JobMarketLabSection', () => {
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.console.compare.heading }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', {
+        name: jobMarketLab.console.marketCompare.heading,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('still shows the empty state when nothing is published', () => {
