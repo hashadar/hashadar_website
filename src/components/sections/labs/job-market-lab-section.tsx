@@ -1,6 +1,7 @@
 'use client';
 
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
+import { JobMarketLabAdminSection } from '@/components/sections/labs/job-market-lab-admin-section';
 import { jobMarketLab } from '@/data';
 import type {
   JobMarketSnapshot,
@@ -217,6 +218,8 @@ export function JobMarketLabSection({ publication }: JobMarketLabSectionProps) {
         ) : (
           <PublishedDashboard snapshot={publication.snapshot} />
         )}
+
+        <JobMarketLabAdminSection />
       </Container>
     </Section>
   );

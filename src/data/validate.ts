@@ -143,6 +143,29 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(page, 'seniorityLabel', 'jobMarketLab');
   requireString(page, 'roleFamilyLabel', 'jobMarketLab');
   requireString(page, 'clustersHeading', 'jobMarketLab');
+  const admin = requireRecord(page.admin, 'jobMarketLab.admin');
+  requireString(admin, 'heading', 'jobMarketLab.admin');
+  requireString(admin, 'description', 'jobMarketLab.admin');
+  requireString(admin, 'startButtonLabel', 'jobMarketLab.admin');
+  requireString(admin, 'startingLabel', 'jobMarketLab.admin');
+  requireString(admin, 'startedMessage', 'jobMarketLab.admin');
+  requireString(admin, 'rejectedHeading', 'jobMarketLab.admin');
+}
+
+export function assertValidLoginPage(data: unknown): void {
+  const page = requireRecord(data, 'login');
+  requireString(page, 'heading', 'login');
+  requireString(page, 'description', 'login');
+  requireString(page, 'emailLabel', 'login');
+  requireString(page, 'passwordLabel', 'login');
+  requireString(page, 'submitLabel', 'login');
+  requireString(page, 'signOutLabel', 'login');
+  requireString(page, 'signedInHeading', 'login');
+  requireString(page, 'signedInDescription', 'login');
+  const errors = requireRecord(page.errors, 'login.errors');
+  requireString(errors, 'generic', 'login.errors');
+  requireString(errors, 'notConfigured', 'login.errors');
+  requireString(errors, 'required', 'login.errors');
 }
 
 export function assertValidLoginPage(data: unknown): void {

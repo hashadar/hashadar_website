@@ -1,12 +1,25 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { JobMarketLabSection } from '@/components/sections/labs/job-market-lab-section';
+import { SiteAuthProvider } from '@/hooks/use-site-auth';
 import { jobMarketLab } from '@/data';
 import type { PublishedJobMarketResult } from '@/lib/job-market-lab';
+import { createMemorySiteAuth } from '@/lib/site-auth';
 
 afterEach(() => {
   cleanup();
 });
+
+function renderLab(
+  publication: PublishedJobMarketResult,
+  auth = createMemorySiteAuth(),
+) {
+  return render(
+    <SiteAuthProvider auth={auth}>
+      <JobMarketLabSection publication={publication} />
+    </SiteAuthProvider>,
+  );
+}
 
 const published: PublishedJobMarketResult = {
   status: 'published',
@@ -38,7 +51,7 @@ const published: PublishedJobMarketResult = {
 
 describe('JobMarketLabSection', () => {
   it('renders corpus freshness and aggregate visuals from a published snapshot', () => {
-    render(<JobMarketLabSection publication={published} />);
+    renderLab(published);
 
     expect(screen.queryByText(jobMarketLab.emptyState)).not.toBeInTheDocument();
     expect(screen.getByText(jobMarketLab.metricsHeading)).toBeInTheDocument();
@@ -58,10 +71,13 @@ describe('JobMarketLabSection', () => {
     expect(screen.getByText('Theme 2')).toBeInTheDocument();
 
     expect(screen.getByText(jobMarketLab.corpusNote)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: jobMarketLab.admin.heading }),
+    ).not.toBeInTheDocument();
   });
 
   it('still shows the empty state when nothing is published', () => {
-    render(<JobMarketLabSection publication={{ status: 'empty' }} />);
+    renderLab({ status: 'empty' });
 
     expect(screen.getByText(jobMarketLab.emptyState)).toBeInTheDocument();
     expect(screen.queryByText(jobMarketLab.skillsHeading)).not.toBeInTheDocument();

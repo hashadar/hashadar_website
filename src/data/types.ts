@@ -140,6 +140,15 @@ export interface LabsPageData {
   labs: LabIndexItem[];
 }
 
+export interface JobMarketLabAdminCopy {
+  heading: string;
+  description: string;
+  startButtonLabel: string;
+  startingLabel: string;
+  startedMessage: string;
+  rejectedHeading: string;
+}
+
 export interface JobMarketLabPageData {
   heading: string;
   description: string;
@@ -153,6 +162,25 @@ export interface JobMarketLabPageData {
   seniorityLabel: string;
   roleFamilyLabel: string;
   clustersHeading: string;
+  admin: JobMarketLabAdminCopy;
+}
+
+export interface LoginPageErrors {
+  generic: string;
+  notConfigured: string;
+  required: string;
+}
+
+export interface LoginPageData {
+  heading: string;
+  description: string;
+  emailLabel: string;
+  passwordLabel: string;
+  submitLabel: string;
+  signOutLabel: string;
+  signedInHeading: string;
+  signedInDescription: string;
+  errors: LoginPageErrors;
 }
 
 export interface LoginPageErrors {

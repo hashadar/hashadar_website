@@ -7,6 +7,7 @@ import {
   type AmplifyPublishedSnapshotClient,
 } from './fetch-published-job-market-snapshot';
 import { readAmplifyOutputs } from './read-amplify-outputs';
+import { defaultStartJobMarketRecompute } from './start-job-market-recompute-client';
 
 export type SkillFrequency = {
   name: string;
@@ -105,10 +106,7 @@ async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
 }
 
 async function defaultStartRecompute(): Promise<StartJobMarketRecomputeResult> {
-  return {
-    status: 'rejected',
-    reason: 'Recompute client is not configured',
-  };
+  return defaultStartJobMarketRecompute();
 }
 
 export async function getPublishedJobMarketSnapshot(
