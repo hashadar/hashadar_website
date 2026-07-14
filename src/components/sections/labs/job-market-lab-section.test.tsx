@@ -75,6 +75,29 @@ describe('JobMarketLabSection', () => {
       screen.queryByRole('heading', { name: jobMarketLab.admin.heading }),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(jobMarketLab.corpusAdmin.heading)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: jobMarketLab.console.openConsoleLabel }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('never embeds owner management panels even for signed-in owners', async () => {
+    renderLab(
+      published,
+      createMemorySiteAuth({
+        status: 'authenticated',
+        email: 'owner@example.com',
+      }),
+    );
+
+    expect(
+      await screen.findByRole('link', { name: jobMarketLab.console.openConsoleLabel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: jobMarketLab.admin.heading }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: jobMarketLab.corpusAdmin.heading }),
+    ).not.toBeInTheDocument();
   });
 
   it('still shows the empty state when nothing is published', () => {

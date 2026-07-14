@@ -162,6 +162,25 @@ export interface JobMarketLabCorpusAdminData {
   errorLabel: string;
 }
 
+export interface JobMarketLabConsoleCopy {
+  heading: string;
+  description: string;
+  unauthenticatedHeading: string;
+  unauthenticatedDescription: string;
+  signInLabel: string;
+  openConsoleLabel: string;
+  runsHeading: string;
+  runsDescription: string;
+  runsEmpty: string;
+  runsLoading: string;
+  runsError: string;
+  runStatusQueued: string;
+  runStatusRunning: string;
+  runStatusSucceeded: string;
+  runStatusFailed: string;
+  failureReasonLabel: string;
+}
+
 export interface JobMarketLabPageData {
   heading: string;
   description: string;
@@ -177,6 +196,7 @@ export interface JobMarketLabPageData {
   clustersHeading: string;
   admin: JobMarketLabAdminCopy;
   corpusAdmin: JobMarketLabCorpusAdminData;
+  console: JobMarketLabConsoleCopy;
 }
 
 export interface LoginPageErrors {

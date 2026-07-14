@@ -16,7 +16,7 @@
     "description": "Start an analysis run against the active corpus. Only one run may be queued or in progress at a time.",
     "startButtonLabel": "Start recompute",
     "startingLabel": "Starting…",
-    "startedMessage": "Recompute started. Run id: {runId}. Status: queued.",
+    "startedMessage": "Recompute started. Run id: {runId}. Check analysis runs below for live status.",
     "rejectedHeading": "Could not start recompute"
   },
   "corpusAdmin": {
@@ -30,5 +30,23 @@
     "loadingLabel": "Loading corpus…",
     "untitledLabel": "Untitled document",
     "errorLabel": "Corpus management is temporarily unavailable."
+  },
+  "console": {
+    "heading": "Job market owner console",
+    "description": "Manage the private corpus, start recomputes, and review analysis run history. Guests cannot access this console.",
+    "unauthenticatedHeading": "Owner sign-in required",
+    "unauthenticatedDescription": "Sign in to open the job market owner console.",
+    "signInLabel": "Sign in",
+    "openConsoleLabel": "Open owner console",
+    "runsHeading": "Analysis runs",
+    "runsDescription": "Recent recompute lifecycle status. Failed runs include the failure reason.",
+    "runsEmpty": "No analysis runs yet.",
+    "runsLoading": "Loading analysis runs…",
+    "runsError": "Analysis run history is temporarily unavailable.",
+    "runStatusQueued": "Queued",
+    "runStatusRunning": "Running",
+    "runStatusSucceeded": "Succeeded",
+    "runStatusFailed": "Failed",
+    "failureReasonLabel": "Failure reason"
   }
 }
