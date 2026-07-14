@@ -1,8 +1,7 @@
 'use client';
 
+import Link from 'next/link';
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
-import { JobMarketLabAdminSection } from '@/components/sections/labs/job-market-lab-admin-section';
-import { JobMarketLabCorpusAdmin } from '@/components/sections/labs/job-market-lab-corpus-admin';
 import { jobMarketLab } from '@/data';
 import type {
   JobMarketSnapshot,
@@ -10,13 +9,12 @@ import type {
   SkillFrequency,
   TaxonomyBucket,
 } from '@/lib/job-market-lab';
-import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
+import { useSiteAuth } from '@/hooks/use-site-auth';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { cn } from '@/lib/utils';
 
 interface JobMarketLabSectionProps {
   publication: PublishedJobMarketResult;
-  corpus?: AmplifyCorpusDeps;
 }
 
 function formatPublishedAt(iso: string): string {
@@ -202,7 +200,11 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
   );
 }
 
-export function JobMarketLabSection({ publication, corpus }: JobMarketLabSectionProps) {
+export function JobMarketLabSection({ publication }: JobMarketLabSectionProps) {
+  const { session, isLoading } = useSiteAuth();
+  const showConsoleLink =
+    !isLoading && session !== null && session.status === 'authenticated';
+
   return (
     <Section className="py-20">
       <Container>
@@ -212,6 +214,14 @@ export function JobMarketLabSection({ publication, corpus }: JobMarketLabSection
           <Text size="sm" variant="muted">
             {jobMarketLab.corpusNote}
           </Text>
+          {showConsoleLink ? (
+            <Link
+              href="/labs/job-market/console"
+              className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
+            >
+              {jobMarketLab.console.openConsoleLabel}
+            </Link>
+          ) : null}
         </div>
 
         {publication.status === 'empty' ? (
@@ -221,9 +231,6 @@ export function JobMarketLabSection({ publication, corpus }: JobMarketLabSection
         ) : (
           <PublishedDashboard snapshot={publication.snapshot} />
         )}
-
-        <JobMarketLabAdminSection />
-        <JobMarketLabCorpusAdmin corpus={corpus} />
       </Container>
     </Section>
   );

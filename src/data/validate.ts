@@ -161,6 +161,23 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(corpusAdmin, 'loadingLabel', 'jobMarketLab.corpusAdmin');
   requireString(corpusAdmin, 'untitledLabel', 'jobMarketLab.corpusAdmin');
   requireString(corpusAdmin, 'errorLabel', 'jobMarketLab.corpusAdmin');
+  const consoleCopy = requireRecord(page.console, 'jobMarketLab.console');
+  requireString(consoleCopy, 'heading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'description', 'jobMarketLab.console');
+  requireString(consoleCopy, 'unauthenticatedHeading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'unauthenticatedDescription', 'jobMarketLab.console');
+  requireString(consoleCopy, 'signInLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'openConsoleLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsHeading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsDescription', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsEmpty', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsLoading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsError', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runStatusQueued', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runStatusRunning', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runStatusSucceeded', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runStatusFailed', 'jobMarketLab.console');
+  requireString(consoleCopy, 'failureReasonLabel', 'jobMarketLab.console');
 }
 
 export function assertValidLoginPage(data: unknown): void {

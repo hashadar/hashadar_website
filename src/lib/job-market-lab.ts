@@ -77,6 +77,21 @@ export {
   type AmplifyCorpusDeps,
 } from './job-market-corpus-amplify';
 
+export {
+  listAnalysisRuns,
+  getAnalysisRun,
+  type AnalysisRunRecord,
+  type AnalysisRunStatus,
+  type ListAnalysisRunsDeps,
+  type GetAnalysisRunDeps,
+} from './job-market-analysis-runs';
+
+export {
+  createAmplifyAnalysisRunDeps,
+  createDefaultAmplifyAnalysisRunDeps,
+  type AmplifyAnalysisRunModelClient,
+} from './job-market-analysis-runs-amplify';
+
 function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
   return {
     documentCount: snapshot.documentCount,
