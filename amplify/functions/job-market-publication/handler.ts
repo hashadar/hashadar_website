@@ -23,9 +23,18 @@ export const handler: Schema['getPublishedJobMarketSnapshot']['functionHandler']
     }
 
     const snapshot = await client.models.CorpusSnapshot.get({ id: snapshotId });
-    if (!snapshot.data?.payload) {
+    const rawPayload = snapshot.data?.payload;
+    if (rawPayload == null) {
       return null;
     }
 
-    return snapshot.data.payload as CorpusSnapshotPayload;
+    if (typeof rawPayload === 'string') {
+      try {
+        return JSON.parse(rawPayload) as CorpusSnapshotPayload;
+      } catch {
+        return null;
+      }
+    }
+
+    return rawPayload as CorpusSnapshotPayload;
   };
