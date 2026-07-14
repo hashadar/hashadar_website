@@ -5,6 +5,12 @@ import type {
   PrepareActiveCorpusDeps,
 } from './job-market-corpus';
 
+import type {
+  CompensationPeriod,
+  JobDescriptionRoleFamily,
+  JobDescriptionSeniority,
+} from './job-market-employers';
+
 export type AmplifyJobDescriptionRow = {
   id: string;
   s3Key: string;
@@ -12,9 +18,14 @@ export type AmplifyJobDescriptionRow = {
   collectedAt: string;
   status: JobDescriptionStatus;
   title?: string | null;
-  seniority?: string | null;
-  roleFamily?: string | null;
+  seniority?: JobDescriptionSeniority | null;
+  roleFamily?: JobDescriptionRoleFamily | null;
   source?: string | null;
+  employerId?: string | null;
+  compensationCurrency?: string | null;
+  compensationMin?: number | null;
+  compensationMax?: number | null;
+  compensationPeriod?: CompensationPeriod | null;
 };
 
 type AmplifyDataResult<T> = {
@@ -51,6 +62,11 @@ function toCorpusRecord(row: AmplifyJobDescriptionRow): JobDescriptionCorpusReco
     seniority: row.seniority ?? undefined,
     roleFamily: row.roleFamily ?? undefined,
     source: row.source ?? undefined,
+    employerId: row.employerId ?? undefined,
+    compensationCurrency: row.compensationCurrency ?? undefined,
+    compensationMin: row.compensationMin ?? undefined,
+    compensationMax: row.compensationMax ?? undefined,
+    compensationPeriod: row.compensationPeriod ?? undefined,
   };
 }
 
@@ -80,6 +96,19 @@ export function createAmplifyCorpusDeps(
         ...(record.seniority !== undefined ? { seniority: record.seniority } : {}),
         ...(record.roleFamily !== undefined ? { roleFamily: record.roleFamily } : {}),
         ...(record.source !== undefined ? { source: record.source } : {}),
+        ...(record.employerId !== undefined ? { employerId: record.employerId } : {}),
+        ...(record.compensationCurrency !== undefined
+          ? { compensationCurrency: record.compensationCurrency }
+          : {}),
+        ...(record.compensationMin !== undefined
+          ? { compensationMin: record.compensationMin }
+          : {}),
+        ...(record.compensationMax !== undefined
+          ? { compensationMax: record.compensationMax }
+          : {}),
+        ...(record.compensationPeriod !== undefined
+          ? { compensationPeriod: record.compensationPeriod }
+          : {}),
       });
       throwIfErrors(errors);
     },
