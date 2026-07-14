@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  defaultStartJobMarketRecompute,
+  isAmplifyClientConfigured,
   startJobMarketRecomputeViaMutation,
   type StartJobMarketRecomputeMutation,
 } from './start-job-market-recompute-client';
@@ -66,6 +68,20 @@ describe('startJobMarketRecomputeViaMutation', () => {
     expect(result).toEqual({
       status: 'rejected',
       reason: 'You must be signed in to start a recompute.',
+    });
+  });
+
+  it('treats an empty Amplify config as not configured', () => {
+    expect(isAmplifyClientConfigured(() => ({}))).toBe(false);
+    expect(isAmplifyClientConfigured(() => ({ Auth: {} }))).toBe(true);
+  });
+
+  it('rejects clearly from the default path when Amplify is not configured', async () => {
+    const result = await defaultStartJobMarketRecompute();
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Recompute client is not configured',
     });
   });
 });

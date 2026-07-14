@@ -1,3 +1,4 @@
+import { Amplify } from 'aws-amplify';
 import type { StartJobMarketRecomputeResult } from './job-market-lab';
 
 export type StartJobMarketRecomputeMutationResult = {
@@ -44,6 +45,12 @@ function isUnauthenticatedError(message: string): boolean {
   );
 }
 
+export function isAmplifyClientConfigured(
+  getConfig: () => object = () => Amplify.getConfig(),
+): boolean {
+  return Object.keys(getConfig()).length > 0;
+}
+
 /** Builds a mutation seam that only calls startJobMarketRecompute. */
 export function startMutationFromClient(
   client: AmplifyStartRecomputeClient,
@@ -85,6 +92,34 @@ export async function startJobMarketRecomputeViaMutation(
     }
 
     return { status: 'rejected', reason: RECOMPUTE_FAILED_REASON };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (isUnauthenticatedError(message)) {
+      return { status: 'rejected', reason: RECOMPUTE_UNAUTHENTICATED_REASON };
+    }
+    return { status: 'rejected', reason: RECOMPUTE_FAILED_REASON };
+  }
+}
+
+/**
+ * Client-safe default start path. Relies on AmplifyProvider having configured
+ * Amplify already — avoids node:fs / readAmplifyOutputs in the browser bundle.
+ */
+export async function defaultStartJobMarketRecompute(): Promise<StartJobMarketRecomputeResult> {
+  if (!isAmplifyClientConfigured()) {
+    return {
+      status: 'rejected',
+      reason: RECOMPUTE_CLIENT_NOT_CONFIGURED_REASON,
+    };
+  }
+
+  try {
+    const { generateClient } = await import('aws-amplify/data');
+    const client = generateClient({
+      authMode: 'userPool',
+    }) as AmplifyStartRecomputeClient;
+
+    return startJobMarketRecomputeViaMutation(startMutationFromClient(client));
   } catch (error) {
     const message = error instanceof Error ? error.message : '';
     if (isUnauthenticatedError(message)) {

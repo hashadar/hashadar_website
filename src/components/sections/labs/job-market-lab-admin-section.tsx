@@ -9,18 +9,18 @@ import {
 } from '@/components/ui';
 import { jobMarketLab } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
-import {
-  startJobMarketRecompute,
-  type StartJobMarketRecompute,
-  type StartJobMarketRecomputeResult,
+import type {
+  StartJobMarketRecompute,
+  StartJobMarketRecomputeResult,
 } from '@/lib/job-market-lab';
+import { defaultStartJobMarketRecompute } from '@/lib/start-job-market-recompute-client';
 
 export type JobMarketLabAdminSectionProps = {
   startRecompute?: StartJobMarketRecompute;
 };
 
 export function JobMarketLabAdminSection({
-  startRecompute = startJobMarketRecompute,
+  startRecompute = defaultStartJobMarketRecompute,
 }: JobMarketLabAdminSectionProps) {
   const { session, isLoading } = useSiteAuth();
   const [isStarting, setIsStarting] = useState(false);
