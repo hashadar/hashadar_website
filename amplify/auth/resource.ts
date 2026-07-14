@@ -1,9 +1,9 @@
+/**
+ * Soft-disable Cognito self-registration in defineAuth comments;
+ * enforce allowAdminCreateUserOnly via backend.ts CDK override (#39).
+ */
 import { defineAuth } from '@aws-amplify/backend';
 
-/**
- * Job market lab auth skeleton.
- * Later slices tighten this (self-sign-up disabled, invited admin only — #39).
- */
 export const auth = defineAuth({
   loginWith: {
     email: true,

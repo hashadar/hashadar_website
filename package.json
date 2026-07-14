@@ -17,6 +17,8 @@
     "node": ">=22"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1086.0",
+    "@aws-sdk/client-lambda": "^3.1086.0",
     "@aws-sdk/client-s3": "^3.1086.0",
     "@fontsource/zalando-sans-expanded": "^5.2.1",
     "aws-amplify": "^6.18.0",

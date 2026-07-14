@@ -14,8 +14,14 @@ describe('job market lab ingest wiring', () => {
     expect(backendTs).toMatch(/prefix:\s*'raw\/'/);
   });
 
-  it('does not wire corpus recompute into the ingest path', () => {
-    expect(backendTs).not.toMatch(/recompute/i);
-    expect(backendTs).not.toMatch(/AnalysisRun/);
+  it('does not start recompute from the S3 ObjectCreated ingest notification', () => {
+    const notificationBlock =
+      backendTs.match(
+        /addEventNotification\([\s\S]*?\);\s*/,
+      )?.[0] ?? '';
+
+    expect(notificationBlock).toMatch(/jobMarketIngest\.resources\.lambda/);
+    expect(notificationBlock).not.toMatch(/jobMarketRecompute/);
+    expect(notificationBlock).not.toMatch(/AnalysisRun/);
   });
 });
