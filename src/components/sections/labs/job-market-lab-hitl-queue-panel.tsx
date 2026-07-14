@@ -16,6 +16,7 @@ import {
 import {
   createDefaultAmplifyScrapeCandidateDeps,
 } from '@/lib/scrape-candidates-amplify';
+import { defaultAssistWithLlm } from '@/lib/scrape-candidates-llm-assist';
 
 export type ScrapeCandidateQueueDeps = {
   listScrapeCandidates: () => Promise<ScrapeCandidateRecord[]>;
@@ -25,6 +26,7 @@ export type ScrapeCandidateQueueDeps = {
 
 export type AcceptScrapeCandidateFn = (
   id: string,
+  options?: { llmAssist?: boolean },
 ) => Promise<AcceptScrapeCandidateResult>;
 
 export type RejectScrapeCandidateFn = (
@@ -49,11 +51,16 @@ type ActionFeedback =
   | { kind: 'error'; reason: string };
 
 function defaultAcceptFn(deps: ScrapeCandidateQueueDeps): AcceptScrapeCandidateFn {
-  return (id) =>
-    acceptScrapeCandidate(id, {
-      ...deps,
-      uploadJobDescription,
-    });
+  return (id, options) =>
+    acceptScrapeCandidate(
+      id,
+      {
+        ...deps,
+        uploadJobDescription,
+        assistWithLlm: defaultAssistWithLlm,
+      },
+      options,
+    );
 }
 
 function defaultRejectFn(deps: ScrapeCandidateQueueDeps): RejectScrapeCandidateFn {
@@ -77,6 +84,7 @@ export function JobMarketLabHitlQueuePanel({
     null,
   );
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
+  const [llmAssistOptIn, setLlmAssistOptIn] = useState(false);
 
   const loadCandidates = useCallback(async () => {
     return listPendingScrapeCandidates(deps);
@@ -126,7 +134,7 @@ export function JobMarketLabHitlQueuePanel({
     setPendingAction('accept');
     setFeedback(null);
     try {
-      const result = await acceptFn(id);
+      const result = await acceptFn(id, { llmAssist: llmAssistOptIn });
       if (result.status === 'accepted') {
         setFeedback({ kind: 'accepted', s3Key: result.s3Key });
         await refresh();
@@ -180,6 +188,21 @@ export function JobMarketLabHitlQueuePanel({
           {jobMarketLab.hitlQueue.heading}
         </SectionHeader>
         <Text variant="muted">{jobMarketLab.hitlQueue.description}</Text>
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={llmAssistOptIn}
+            onChange={(event) => setLlmAssistOptIn(event.target.checked)}
+            aria-label={jobMarketLab.hitlQueue.llmAssistLabel}
+          />
+          <span className="space-y-1">
+            <Text size="sm">{jobMarketLab.hitlQueue.llmAssistLabel}</Text>
+            <Text size="sm" variant="muted">
+              {jobMarketLab.hitlQueue.llmAssistDescription}
+            </Text>
+          </span>
+        </label>
       </div>
 
       {loadState.status === 'loading' || loadState.status === 'idle' ? (

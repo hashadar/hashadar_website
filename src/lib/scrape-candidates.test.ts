@@ -191,6 +191,98 @@ describe('acceptScrapeCandidate', () => {
     });
     expect(saveScrapeCandidate).not.toHaveBeenCalled();
   });
+
+  it('does not call LLM assist by default', async () => {
+    const candidate = pendingCandidate({ id: 'candidate-no-llm' });
+    const assistWithLlm = vi.fn(async () => ({
+      title: 'LLM title',
+    }));
+    const uploadJobDescription = vi.fn(async () => ({
+      status: 'uploaded' as const,
+      s3Key: 'raw/senior-data-scientist.md',
+    }));
+
+    await acceptScrapeCandidate('candidate-no-llm', {
+      getScrapeCandidate: async () => candidate,
+      saveScrapeCandidate: async () => undefined,
+      uploadJobDescription,
+      assistWithLlm,
+    });
+
+    expect(assistWithLlm).not.toHaveBeenCalled();
+    expect(uploadJobDescription).toHaveBeenCalledWith({
+      fileName: 'senior-data-scientist.md',
+      body: validBody,
+    });
+  });
+
+  it('uses injectable LLM assist when explicitly opted in', async () => {
+    const candidate = pendingCandidate({
+      id: 'candidate-llm',
+      title: undefined,
+      source: undefined,
+    });
+    const enrichedBody = `---
+collectedAt: 2026-06-15T10:00:00.000Z
+title: Inferred title
+source: inferred-board
+---
+
+# Senior Data Scientist
+`;
+    const assistWithLlm = vi.fn(async () => ({
+      title: 'Inferred title',
+      source: 'inferred-board',
+      body: enrichedBody,
+    }));
+    const uploadJobDescription = vi.fn(async () => ({
+      status: 'uploaded' as const,
+      s3Key: 'raw/senior-data-scientist.md',
+    }));
+
+    const result = await acceptScrapeCandidate(
+      'candidate-llm',
+      {
+        getScrapeCandidate: async () => candidate,
+        saveScrapeCandidate: async () => undefined,
+        uploadJobDescription,
+        assistWithLlm,
+      },
+      { llmAssist: true },
+    );
+
+    expect(result.status).toBe('accepted');
+    expect(assistWithLlm).toHaveBeenCalledOnce();
+    expect(assistWithLlm).toHaveBeenCalledWith(candidate);
+    expect(uploadJobDescription).toHaveBeenCalledWith({
+      fileName: 'senior-data-scientist.md',
+      body: enrichedBody,
+    });
+  });
+
+  it('accepts without LLM assist when opted in but no adapter is configured', async () => {
+    const candidate = pendingCandidate({ id: 'candidate-llm-no-adapter' });
+    const uploadJobDescription = vi.fn(async () => ({
+      status: 'uploaded' as const,
+      s3Key: 'raw/senior-data-scientist.md',
+    }));
+
+    const result = await acceptScrapeCandidate(
+      'candidate-llm-no-adapter',
+      {
+        getScrapeCandidate: async () => candidate,
+        saveScrapeCandidate: async () => undefined,
+        uploadJobDescription,
+      },
+      { llmAssist: true },
+    );
+
+    expect(result.status).toBe('accepted');
+    expect(uploadJobDescription).toHaveBeenCalledWith({
+      fileName: 'senior-data-scientist.md',
+      body: validBody,
+    });
+  });
 });
 
 describe('rejectScrapeCandidate', () => {

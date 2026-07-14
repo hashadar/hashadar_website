@@ -54,7 +54,9 @@
     "rejectingLabel": "RejectingÔÇª",
     "acceptedMessage": "Accepted into {s3Key}. Ingest will update corpus metadata shortly.",
     "rejectedMessage": "Candidate rejected and will not enter the corpus.",
-    "actionErrorHeading": "Could not update scrape candidate"
+    "actionErrorHeading": "Could not update scrape candidate",
+    "llmAssistLabel": "Use LLM assist to fill missing fields",
+    "llmAssistDescription": "Optional. Infers title, source, or collection date when absent. Accept still works without it."
   },
   "console": {
     "heading": "Job market owner console",

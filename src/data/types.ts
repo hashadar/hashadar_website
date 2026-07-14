@@ -202,6 +202,8 @@ export interface JobMarketLabHitlQueueCopy {
   acceptedMessage: string;
   rejectedMessage: string;
   actionErrorHeading: string;
+  llmAssistLabel: string;
+  llmAssistDescription: string;
 }
 
 export interface JobMarketLabEmployerAdminCopy {
