@@ -57,6 +57,18 @@ describe('sitemap', () => {
     });
   });
 
+  it('includes the owner login route', () => {
+    const entries = sitemap();
+    const loginEntry = entries.find((entry) => entry.url === `${site.metadata.siteUrl}/login`);
+
+    expect(loginEntry).toEqual({
+      url: `${site.metadata.siteUrl}/login`,
+      lastModified: expect.any(Date),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    });
+  });
+
   it('includes blog post URLs with lastModified dates from the reader module', () => {
     const posts = getAllBlogPosts(fixturesDir);
     const entries = buildSitemap(fixturesDir);

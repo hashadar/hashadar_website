@@ -47,6 +47,12 @@ export function buildSitemap(blogDirectory?: string): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/login`,
+      lastModified,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
     ...blogPosts.map((post) => ({
       url: `${baseUrl}/blog/${post.slug}`,
       lastModified: new Date(post.frontmatter.date),

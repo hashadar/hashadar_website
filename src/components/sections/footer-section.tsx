@@ -43,6 +43,9 @@ export function FooterSection() {
                     {email}
                   </a>
                 </Text>
+                <NavLink href={footer.contact.ownerSignIn.href}>
+                  {footer.contact.ownerSignIn.label}
+                </NavLink>
               </div>
             </FooterColumn>
 

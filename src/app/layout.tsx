@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { site } from "@/data";
 import { AmplifyProvider } from "@/components/amplify-provider";
+import { SiteAuthRoot } from "@/components/site-auth-root";
 import { StructuredData } from "@/components/seo/structured-data";
 import { ThemeScript } from "@/components/theme-script";
 import { readAmplifyOutputs } from "@/lib/read-amplify-outputs";
@@ -60,7 +61,9 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className="antialiased">
-        <AmplifyProvider outputs={amplifyOutputs}>{children}</AmplifyProvider>
+        <AmplifyProvider outputs={amplifyOutputs}>
+          <SiteAuthRoot outputs={amplifyOutputs}>{children}</SiteAuthRoot>
+        </AmplifyProvider>
       </body>
     </html>
   );
