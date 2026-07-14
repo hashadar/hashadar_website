@@ -4,10 +4,22 @@
 
 | Concern | Where | Notes |
 |---------|--------|--------|
-| **PR and push checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, lint, typecheck, tests, `next build`. **Does not deploy.** |
-| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (blog clone, `sync-blogs`, `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
+| **PR and push checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, lint, typecheck, tests, `next build`. **Does not deploy.** Does not require live AWS or `amplify_outputs.json`. |
+| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (Gen 2 `ampx pipeline-deploy`, blog clone, `sync-blogs`, `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
 
 There is **no accidental double-deploy** from GitHub Actions: Actions do not push artefacts or run Amplify CLI deploy in the baseline setup.
+
+## Amplify Gen 2 backend
+
+Backend definitions live in `amplify/` (auth, data, storage, functions placeholders for the job market lab). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the existing frontend `preBuild` (blog sync) and `build`.
+
+| Environment | Outputs file |
+|-------------|----------------|
+| **GitHub Actions / marketing-only local** | `amplify_outputs.json` is absent (gitignored). `readAmplifyOutputs()` returns null; `configureSiteAmplify` no-ops so public pages stay up. |
+| **Local sandbox** | `npm run sandbox` (`npx ampx sandbox`) writes `amplify_outputs.json` at the repo root. |
+| **Amplify Hosting** | `pipeline-deploy` generates outputs for the frontend build. |
+
+Contract tests in `amplify.yml.test.ts` lock blog-sync steps and Gen 2 `pipeline-deploy` into CI.
 
 ## Node.js versions
 
@@ -15,7 +27,7 @@ There is **no accidental double-deploy** from GitHub Actions: Actions do not pus
 |--------|----------------|
 | **Local / CI** | Repository root **`.nvmrc`** (`22`). GitHub Actions uses `actions/setup-node` with `node-version-file: '.nvmrc'`. |
 | **`package.json`** | `"engines": { "node": ">=22" }` — run `npm ci` on Node 22 or newer. |
-| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of `preBuild` so `node scripts/sync-blogs.js`, `npm ci`, and `npm run build` all use Node 22. |
+| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of backend `build` and frontend `preBuild` so `ampx pipeline-deploy`, `node scripts/sync-blogs.js`, `npm ci`, and `npm run build` all use Node 22. |
 
 **Check in the AWS Amplify console**
 

@@ -9,13 +9,15 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sandbox": "npx ampx sandbox"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
     "@fontsource/zalando-sans-expanded": "^5.2.1",
+    "aws-amplify": "^6.18.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.0.0",
     "framer-motion": "^12.23.24",
@@ -38,6 +40,8 @@
     "unified": "^11.0.4"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.23.0",
+    "@aws-amplify/backend-cli": "^1.8.3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -46,11 +50,15 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.3.4",
+    "aws-cdk-lib": "^2.261.0",
     "babel-plugin-react-compiler": "1.0.0",
+    "constructs": "^10.6.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "jsdom": "^25.0.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^3.0.5"
   }
