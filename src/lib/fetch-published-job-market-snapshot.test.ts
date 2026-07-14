@@ -55,6 +55,7 @@ describe('fetchPublishedSnapshotViaQuery', () => {
       snapshot: {
         documentCount: 2,
         publishedAt: '2026-07-14T12:00:00.000Z',
+        technologies: [{ name: 'python', count: 2 }],
         skills: [{ name: 'python', count: 2 }],
         seniority: [{ name: 'senior', count: 1 }],
         roleFamily: [{ name: 'engineering', count: 2 }],

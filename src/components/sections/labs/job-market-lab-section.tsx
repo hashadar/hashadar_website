@@ -127,9 +127,10 @@ function ClusterProjection({ snapshot }: { snapshot: JobMarketSnapshot }) {
 }
 
 function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
-  const skillsId = 'job-market-skills-heading';
+  const technologiesId = 'job-market-technologies-heading';
   const taxonomyId = 'job-market-taxonomy-heading';
   const clustersId = 'job-market-clusters-heading';
+  const technologyPulse = snapshot.technologies ?? snapshot.skills;
 
   return (
     <div className="space-y-14">
@@ -157,11 +158,11 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
         </div>
       </section>
 
-      <section className="space-y-4" aria-labelledby={skillsId}>
-        <SectionHeader id={skillsId} as="h2" size="md" animated={false} showLeftAccent={false}>
+      <section className="space-y-4" aria-labelledby={technologiesId}>
+        <SectionHeader id={technologiesId} as="h2" size="md" animated={false} showLeftAccent={false}>
           {jobMarketLab.skillsHeading}
         </SectionHeader>
-        <FrequencyBars items={snapshot.skills.slice(0, 40)} labelledBy={skillsId} />
+        <FrequencyBars items={technologyPulse.slice(0, 40)} labelledBy={technologiesId} />
       </section>
 
       <section className="space-y-6" aria-labelledby={taxonomyId}>
