@@ -1,6 +1,33 @@
+export type SkillFrequency = {
+  name: string;
+  count: number;
+};
+
+export type TaxonomyBucket = {
+  name: string;
+  count: number;
+};
+
+export type ClusterSummary = {
+  id: number;
+  size: number;
+  label: string;
+};
+
+export type ProjectionPoint = {
+  x: number;
+  y: number;
+  clusterId: number;
+};
+
 export type JobMarketSnapshot = {
   documentCount: number;
   publishedAt: string;
+  skills: SkillFrequency[];
+  seniority: TaxonomyBucket[];
+  roleFamily: TaxonomyBucket[];
+  clusters: ClusterSummary[];
+  projection: ProjectionPoint[];
 };
 
 export type PublishedJobMarketResult =
@@ -13,6 +40,16 @@ export type GetPublishedJobMarketSnapshotDeps = {
   fetchPublished?: FetchPublishedJobMarketSnapshot;
 };
 
+export type StartJobMarketRecomputeResult =
+  | { status: 'started'; runId: string }
+  | { status: 'rejected'; reason: string };
+
+export type StartJobMarketRecompute = () => Promise<StartJobMarketRecomputeResult>;
+
+export type StartJobMarketRecomputeDeps = {
+  startRecompute?: StartJobMarketRecompute;
+};
+
 export {
   archiveJobDescription,
   restoreJobDescription,
@@ -23,9 +60,28 @@ export {
   type JobDescriptionStatus,
 } from './job-market-corpus';
 
+function sanitizeSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
+  return {
+    documentCount: snapshot.documentCount,
+    publishedAt: snapshot.publishedAt,
+    skills: snapshot.skills ?? [],
+    seniority: snapshot.seniority ?? [],
+    roleFamily: snapshot.roleFamily ?? [],
+    clusters: snapshot.clusters ?? [],
+    projection: snapshot.projection ?? [],
+  };
+}
+
 async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
-  // Guest publication query lands in a later slice; until then nothing is published.
+  // Wiring to Amplify getPublishedJobMarketSnapshot lands with sandbox/outputs.
   return null;
+}
+
+async function defaultStartRecompute(): Promise<StartJobMarketRecomputeResult> {
+  return {
+    status: 'rejected',
+    reason: 'Recompute client is not configured',
+  };
 }
 
 export async function getPublishedJobMarketSnapshot(
@@ -40,9 +96,13 @@ export async function getPublishedJobMarketSnapshot(
 
   return {
     status: 'published',
-    snapshot: {
-      documentCount: snapshot.documentCount,
-      publishedAt: snapshot.publishedAt,
-    },
+    snapshot: sanitizeSnapshot(snapshot),
   };
+}
+
+export async function startJobMarketRecompute(
+  deps: StartJobMarketRecomputeDeps = {},
+): Promise<StartJobMarketRecomputeResult> {
+  const start = deps.startRecompute ?? defaultStartRecompute;
+  return start();
 }

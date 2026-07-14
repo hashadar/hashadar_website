@@ -15,6 +15,21 @@ Backend definitions live in `amplify/` (auth, data, storage, and the job-market 
 
 Script-first JD ingest: with sandbox/Hosting outputs present, `npm run ingest:jd -- path/to/file.md` uploads markdown to the `raw/` prefix; the ingest Lambda upserts `JobDescription` metadata and does not start recompute.
 
+Owner recompute (Cognito email/password, self-sign-up disabled via `allowAdminCreateUserOnly`): authenticated `startJobMarketRecompute` creates a single-flight `AnalysisRun` (refuses above 150 active docs), then asynchronously invokes the analyse worker. The worker reads active markdown from S3, uses Bedrock embeddings with a `embeddings/{contentHash}.json` cache, writes `CorpusSnapshot` + run metrics, and updates `LabPublication` only on success. Guests read aggregates only via `getPublishedJobMarketSnapshot`.
+
+### Minimal CloudWatch cost / alerting path
+
+After the Gen 2 backend is deployed, configure these in the AWS console (names only; no committed secrets):
+
+| Alarm / metric | Where | Suggested use |
+|----------------|--------|----------------|
+| `AWS/Lambda` `Errors` on `job-market-analyse` | CloudWatch alarm | Page on repeated worker failures |
+| `AWS/Lambda` `Duration` / `Throttles` on analyse + recompute | CloudWatch alarm | Catch runaway or concurrency issues |
+| `AWS/Bedrock` `Invocations` / model invocation latency | CloudWatch metrics (region of Bedrock) | Spot unexpected embed volume |
+| Estimated cost from `AnalysisRun.estimatedCostUsd` | App metric / log filter on analyse success logs | Spot spend anomalies before the next recompute |
+
+V1 does not ship a dedicated billing budget in CDK; create a Billing → Budgets alert for Bedrock + Lambda in the account that hosts the Amplify app if spend sensitivity is high. Run-level token/cost fields on `AnalysisRun` are the product-side source of truth for per-recompute cost.
+
 | Environment | Outputs file |
 |-------------|----------------|
 | **GitHub Actions / marketing-only local** | `amplify_outputs.json` is absent (gitignored). `readAmplifyOutputs()` returns null; `configureSiteAmplify` no-ops so public pages stay up. |
