@@ -13,6 +13,16 @@ export type GetPublishedJobMarketSnapshotDeps = {
   fetchPublished?: FetchPublishedJobMarketSnapshot;
 };
 
+export {
+  archiveJobDescription,
+  restoreJobDescription,
+  prepareActiveCorpusForAnalysis,
+  selectActiveCorpus,
+  DEFAULT_MAX_AGE_MONTHS,
+  type JobDescriptionCorpusRecord,
+  type JobDescriptionStatus,
+} from './job-market-corpus';
+
 async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
   // Guest publication query lands in a later slice; until then nothing is published.
   return null;
