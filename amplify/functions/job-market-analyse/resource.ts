@@ -12,4 +12,6 @@ export const jobMarketAnalyse = defineFunction({
   environment: {
     BEDROCK_MODEL_ID: 'amazon.titan-embed-text-v2:0',
   },
+  // Uses the data API; storage bucket name is injected via defineStorage access (SSM).
+  resourceGroupName: 'data',
 });

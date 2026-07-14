@@ -61,7 +61,7 @@ async function saveJobDescription(
 async function loadMarkdown(s3Key: string): Promise<string> {
   const object = await s3.send(
     new GetObjectCommand({
-      Bucket: env.JOB_MARKET_BUCKET_NAME,
+      Bucket: env.JOB_MARKET_LAB_BUCKET_NAME,
       Key: s3Key,
     }),
   );
@@ -76,7 +76,7 @@ async function getCachedEmbedding(contentHash: string): Promise<number[] | null>
   try {
     const object = await s3.send(
       new GetObjectCommand({
-        Bucket: env.JOB_MARKET_BUCKET_NAME,
+        Bucket: env.JOB_MARKET_LAB_BUCKET_NAME,
         Key: `embeddings/${contentHash}.json`,
       }),
     );
@@ -97,7 +97,7 @@ async function putCachedEmbedding(
 ): Promise<void> {
   await s3.send(
     new PutObjectCommand({
-      Bucket: env.JOB_MARKET_BUCKET_NAME,
+      Bucket: env.JOB_MARKET_LAB_BUCKET_NAME,
       Key: `embeddings/${contentHash}.json`,
       Body: JSON.stringify({ vector }),
       ContentType: 'application/json',

@@ -6,26 +6,27 @@ import { jobMarketPublication } from '../functions/job-market-publication/resour
 
 const schema = a
   .schema({
+    JobDescriptionStatus: a.enum(['active', 'archived']),
+    AnalysisRunStatus: a.enum(['queued', 'running', 'succeeded', 'failed']),
+
     JobDescription: a
       .model({
         s3Key: a.string().required(),
         contentHash: a.string().required(),
         collectedAt: a.datetime().required(),
-        status: a.enum(['active', 'archived']).required(),
+        status: a.ref('JobDescriptionStatus').required(),
         title: a.string(),
         seniority: a.string(),
         roleFamily: a.string(),
         source: a.string(),
       })
       .authorization((allow) => [
-        allow.authenticated.to(['read', 'create', 'update', 'delete']),
+        allow.authenticated().to(['read', 'create', 'update', 'delete']),
       ]),
 
     AnalysisRun: a
       .model({
-        status: a
-          .enum(['queued', 'running', 'succeeded', 'failed'])
-          .required(),
+        status: a.ref('AnalysisRunStatus').required(),
         docsConsidered: a.integer(),
         docsEmbedded: a.integer(),
         docsCacheHit: a.integer(),
@@ -35,7 +36,7 @@ const schema = a
         errorMessage: a.string(),
       })
       .authorization((allow) => [
-        allow.authenticated.to(['read', 'create', 'update']),
+        allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
     CorpusSnapshot: a
@@ -44,7 +45,7 @@ const schema = a
         payload: a.json().required(),
       })
       .authorization((allow) => [
-        allow.authenticated.to(['read', 'create']),
+        allow.authenticated().to(['read', 'create']),
       ]),
 
     LabPublication: a
@@ -52,7 +53,7 @@ const schema = a
         currentSnapshotId: a.id().required(),
       })
       .authorization((allow) => [
-        allow.authenticated.to(['read', 'create', 'update']),
+        allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
     startJobMarketRecompute: a
