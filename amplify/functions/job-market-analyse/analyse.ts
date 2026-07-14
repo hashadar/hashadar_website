@@ -69,6 +69,7 @@ export type AnalyseCorpusDeps = {
   maxSkills?: number;
   maxProjectionPoints?: number;
   maxClusters?: number;
+  themeLabelOverrides?: Record<string, string>;
   cluster?: (
     vectors: number[][],
     k: number,
@@ -166,6 +167,48 @@ export function kMeansCluster(
   return { assignments, centroids };
 }
 
+export function deriveClusterKey(
+  documents: Array<{ markdown: string }>,
+): string {
+  const technologies = matchTechnologiesInDocuments(documents, { maxTechnologies: 2 });
+  if (technologies.length === 0) {
+    return '';
+  }
+
+  return technologies
+    .map((technology) => technology.name)
+    .sort((a, b) => a.localeCompare(b))
+    .join('|');
+}
+
+export function buildClusterLabel(
+  clusterId: number,
+  documents: Array<{ markdown: string }>,
+): string {
+  const technologies = matchTechnologiesInDocuments(documents, { maxTechnologies: 2 });
+  if (technologies.length === 0) {
+    return `Requirement theme ${clusterId + 1}`;
+  }
+
+  return technologies.map((technology) => technology.name).join(', ');
+}
+
+export function resolveClusterLabel(
+  clusterId: number,
+  documents: Array<{ markdown: string }>,
+  overrides: Record<string, string> | undefined,
+): string {
+  const keys = [String(clusterId), deriveClusterKey(documents)].filter(Boolean);
+  for (const key of keys) {
+    const override = overrides?.[key]?.trim();
+    if (override) {
+      return override;
+    }
+  }
+
+  return buildClusterLabel(clusterId, documents);
+}
+
 export async function analyseCorpus(
   documents: AnalyzableDocument[],
   deps: AnalyseCorpusDeps,
@@ -205,8 +248,16 @@ export async function analyseCorpus(
   const { assignments } = cluster(vectors, k);
 
   const clusterSizes = new Map<number, number>();
-  for (const assignment of assignments) {
-    clusterSizes.set(assignment, (clusterSizes.get(assignment) ?? 0) + 1);
+  const clusterDocuments = new Map<number, AnalyzableDocument[]>();
+  for (let index = 0; index < assignments.length; index += 1) {
+    const clusterId = assignments[index] ?? 0;
+    clusterSizes.set(clusterId, (clusterSizes.get(clusterId) ?? 0) + 1);
+    const documentsInCluster = clusterDocuments.get(clusterId) ?? [];
+    const document = documents[index];
+    if (document) {
+      documentsInCluster.push(document);
+      clusterDocuments.set(clusterId, documentsInCluster);
+    }
   }
 
   const clusters = [...clusterSizes.entries()]
@@ -214,7 +265,11 @@ export async function analyseCorpus(
     .map(([id, size]) => ({
       id,
       size,
-      label: `Theme ${id + 1}`,
+      label: resolveClusterLabel(
+        id,
+        clusterDocuments.get(id) ?? [],
+        deps.themeLabelOverrides,
+      ),
     }));
 
   const projection = documents.slice(0, maxProjectionPoints).map((document, index) => ({

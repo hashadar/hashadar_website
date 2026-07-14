@@ -86,6 +86,16 @@
       "savingLabel": "Saving…",
       "savedMessage": "Canonical CV saved.",
       "errorLabel": "Canonical CV is temporarily unavailable."
-    }
+    },
+    "themeLabelsHeading": "Theme label overrides",
+    "themeLabelsDescription": "Rename requirement themes for the published pulse. Overrides take effect on the next recompute and use the same publication path as the public lab view.",
+    "themeLabelsEmpty": "No published themes yet. Start a recompute after the corpus has active documents.",
+    "themeLabelsLoading": "Loading published themes…",
+    "themeLabelsError": "Theme label overrides are temporarily unavailable.",
+    "themeLabelInputLabel": "Theme label",
+    "themeLabelSaveLabel": "Save override",
+    "themeLabelSavingLabel": "Saving…",
+    "themeLabelSavedMessage": "Override saved for theme {clusterKey}. It will appear after the next recompute.",
+    "themeLabelSizeLabel": "Documents"
   }
 }

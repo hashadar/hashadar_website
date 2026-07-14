@@ -214,6 +214,16 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(cv, 'savingLabel', 'jobMarketLab.console.cv');
   requireString(cv, 'savedMessage', 'jobMarketLab.console.cv');
   requireString(cv, 'errorLabel', 'jobMarketLab.console.cv');
+  requireString(consoleCopy, 'themeLabelsHeading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelsDescription', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelsEmpty', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelsLoading', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelsError', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelInputLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelSaveLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelSavingLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelSavedMessage', 'jobMarketLab.console');
+  requireString(consoleCopy, 'themeLabelSizeLabel', 'jobMarketLab.console');
 }
 
 export function assertValidLoginPage(data: unknown): void {

@@ -200,6 +200,19 @@ async function getPublication() {
   return { currentSnapshotId: data.currentSnapshotId };
 }
 
+async function listThemeLabelOverrides(): Promise<Record<string, string>> {
+  const { data, errors } = await client.models.ThemeLabelOverride.list();
+  if (errors?.length) {
+    throw new Error(errors.map((error) => error.message).join('; '));
+  }
+
+  const overrides: Record<string, string> = {};
+  for (const row of data ?? []) {
+    overrides[row.clusterKey] = row.label;
+  }
+  return overrides;
+}
+
 export const handler: Handler<AnalyseEvent> = async (event) => {
   const runId = event.runId;
   if (!runId) {
@@ -218,6 +231,7 @@ export const handler: Handler<AnalyseEvent> = async (event) => {
     updateRun,
     updatePublication,
     getPublication,
+    listThemeLabelOverrides,
   });
 
   if (result.status === 'failed') {
