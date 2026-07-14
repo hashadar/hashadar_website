@@ -14,6 +14,8 @@ interface SectionHeaderProps {
   showBottomAccent?: boolean;
   animated?: boolean;
   delay?: number;
+  id?: string;
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
 export function SectionHeader({
@@ -26,6 +28,8 @@ export function SectionHeader({
   showBottomAccent = false,
   animated = true,
   delay = 0,
+  id,
+  as,
 }: SectionHeaderProps) {
   const alignmentClasses = {
     left: "",
@@ -43,7 +47,7 @@ export function SectionHeader({
         <div className="absolute -right-4 bottom-0 w-16 h-px bg-[var(--primary)] transform skew-x-12 opacity-30 hidden sm:block" />
       )}
 
-      <Heading size={size} className={`relative w-full ${className}`}>
+      <Heading id={id} as={as} size={size} className={`relative w-full ${className}`}>
         {children}
         {showBottomAccent && (
           <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[var(--primary)] opacity-10 transform rotate-45 hidden sm:block" />
