@@ -213,6 +213,28 @@ export interface JobMarketLabCompareCopy {
   gapLearningTargetTemplate: string;
 }
 
+export interface JobMarketLabMarketCompareCopy {
+  heading: string;
+  description: string;
+  runButtonLabel: string;
+  runningLabel: string;
+  loadingPulseLabel: string;
+  errorLabel: string;
+  noCvError: string;
+  noPulseError: string;
+  matchesHeading: string;
+  gapsHeading: string;
+  talkingPointsHeading: string;
+  learningTargetsHeading: string;
+  matchesEmpty: string;
+  gapsEmpty: string;
+  talkingPointsEmpty: string;
+  learningTargetsEmpty: string;
+  matchTalkingPointTemplate: string;
+  gapTalkingPointTemplate: string;
+  gapLearningTargetTemplate: string;
+}
+
 export interface JobMarketLabHitlQueueCopy {
   heading: string;
   description: string;
@@ -297,6 +319,7 @@ export interface JobMarketLabConsoleCopy {
   failureReasonLabel: string;
   cv: JobMarketLabCvCopy;
   compare: JobMarketLabCompareCopy;
+  marketCompare: JobMarketLabMarketCompareCopy;
   themeLabelsHeading: string;
   themeLabelsDescription: string;
   themeLabelsEmpty: string;

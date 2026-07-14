@@ -353,6 +353,41 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(compare, 'matchTalkingPointTemplate', 'jobMarketLab.console.compare');
   requireString(compare, 'gapTalkingPointTemplate', 'jobMarketLab.console.compare');
   requireString(compare, 'gapLearningTargetTemplate', 'jobMarketLab.console.compare');
+  const marketCompare = requireRecord(
+    consoleCopy.marketCompare,
+    'jobMarketLab.console.marketCompare',
+  );
+  requireString(marketCompare, 'heading', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'description', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'runButtonLabel', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'runningLabel', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'loadingPulseLabel', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'errorLabel', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'noCvError', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'noPulseError', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'matchesHeading', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'gapsHeading', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'talkingPointsHeading', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'learningTargetsHeading', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'matchesEmpty', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'gapsEmpty', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'talkingPointsEmpty', 'jobMarketLab.console.marketCompare');
+  requireString(marketCompare, 'learningTargetsEmpty', 'jobMarketLab.console.marketCompare');
+  requireString(
+    marketCompare,
+    'matchTalkingPointTemplate',
+    'jobMarketLab.console.marketCompare',
+  );
+  requireString(
+    marketCompare,
+    'gapTalkingPointTemplate',
+    'jobMarketLab.console.marketCompare',
+  );
+  requireString(
+    marketCompare,
+    'gapLearningTargetTemplate',
+    'jobMarketLab.console.marketCompare',
+  );
   requireString(consoleCopy, 'themeLabelsHeading', 'jobMarketLab.console');
   requireString(consoleCopy, 'themeLabelsDescription', 'jobMarketLab.console');
   requireString(consoleCopy, 'themeLabelsEmpty', 'jobMarketLab.console');
