@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
 import { jobMarketLab } from '@/data';
 import type {
@@ -9,6 +10,10 @@ import type {
   SkillFrequency,
   TaxonomyBucket,
 } from '@/lib/job-market-lab';
+import {
+  filterJobMarketPulse,
+  type JobMarketPulseTimeWindow,
+} from '@/lib/job-market-pulse-filters';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { cn } from '@/lib/utils';
@@ -127,13 +132,57 @@ function ClusterProjection({ snapshot }: { snapshot: JobMarketSnapshot }) {
 }
 
 function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
+  const [timeWindow, setTimeWindow] = useState<JobMarketPulseTimeWindow>('all');
+  const filtered = useMemo(
+    () =>
+      filterJobMarketPulse(
+        { snapshot, corpusMeta: snapshot.corpusMeta },
+        { timeWindow },
+        { audience: 'public' },
+      ),
+    [snapshot, timeWindow],
+  );
+
+  const displaySnapshot: JobMarketSnapshot = {
+    ...snapshot,
+    documentCount: filtered.documentCount,
+    technologies: filtered.technologies,
+    skills: filtered.skills,
+    seniority: filtered.seniority,
+    roleFamily: filtered.roleFamily,
+    clusters: filtered.clusters,
+    projection: filtered.projection,
+  };
+
   const technologiesId = 'job-market-technologies-heading';
   const taxonomyId = 'job-market-taxonomy-heading';
   const clustersId = 'job-market-clusters-heading';
-  const technologyPulse = snapshot.technologies ?? snapshot.skills;
+  const technologyPulse = displaySnapshot.technologies ?? displaySnapshot.skills;
+  const showTimeFilter = snapshot.corpusMeta != null;
 
   return (
     <div className="space-y-14">
+      {showTimeFilter ? (
+        <section className="max-w-md space-y-2" aria-labelledby="job-market-time-filter-label">
+          <Text id="job-market-time-filter-label" size="sm" variant="muted">
+            {jobMarketLab.pulseFiltersTimeLabel}
+          </Text>
+          <select
+            className="w-full rounded-md border border-[color-mix(in_oklab,var(--foreground)_20%,transparent)] bg-transparent px-3 py-2 font-body text-base text-[var(--foreground)]"
+            value={timeWindow}
+            onChange={(event) => {
+              setTimeWindow(event.target.value as JobMarketPulseTimeWindow);
+            }}
+          >
+            {(['all', '3m', '6m', '12m', '18m'] as const).map((window) => (
+              <option key={window} value={window}>
+                {jobMarketLab.pulseFilterTimeOptions[window]}
+              </option>
+            ))}
+          </select>
+        </section>
+      ) : null}
+
       <section className="space-y-4" aria-labelledby="job-market-metrics-heading">
         <SectionHeader id="job-market-metrics-heading" as="h2" size="md" animated={false} showLeftAccent={false}>
           {jobMarketLab.metricsHeading}
@@ -144,7 +193,7 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
               {jobMarketLab.documentCountLabel}
             </Text>
             <Text className="text-3xl font-semibold tabular-nums tracking-tight">
-              {snapshot.documentCount}
+              {displaySnapshot.documentCount}
             </Text>
           </div>
           <div className="space-y-1">
@@ -152,7 +201,7 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
               {jobMarketLab.publishedAtLabel}
             </Text>
             <Text className="text-xl font-medium tracking-tight">
-              {formatPublishedAt(snapshot.publishedAt)}
+              {formatPublishedAt(displaySnapshot.publishedAt)}
             </Text>
           </div>
         </div>
@@ -175,7 +224,7 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
               {jobMarketLab.seniorityLabel}
             </Text>
             <FrequencyBars
-              items={snapshot.seniority}
+              items={displaySnapshot.seniority}
               labelledBy={taxonomyId}
             />
           </div>
@@ -184,7 +233,7 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
               {jobMarketLab.roleFamilyLabel}
             </Text>
             <FrequencyBars
-              items={snapshot.roleFamily}
+              items={displaySnapshot.roleFamily}
               labelledBy={taxonomyId}
             />
           </div>
@@ -195,7 +244,7 @@ function PublishedDashboard({ snapshot }: { snapshot: JobMarketSnapshot }) {
         <SectionHeader id={clustersId} as="h2" size="md" animated={false} showLeftAccent={false}>
           {jobMarketLab.clustersHeading}
         </SectionHeader>
-        <ClusterProjection snapshot={snapshot} />
+        <ClusterProjection snapshot={displaySnapshot} />
       </section>
     </div>
   );

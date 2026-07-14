@@ -11,9 +11,25 @@ export type AnalyzableDocument = {
   id: string;
   contentHash: string;
   markdown: string;
+  collectedAt: string;
   seniority?: string;
   roleFamily?: string;
   title?: string;
+  employerSizeTier?: string;
+  employerPrestigeTier?: string;
+};
+
+export type DocumentPulseMeta = {
+  id: string;
+  collectedAt: string;
+  seniority?: string;
+  roleFamily?: string;
+  employerSizeTier?: string;
+  employerPrestigeTier?: string;
+  technologies: string[];
+  clusterId: number;
+  projectionX?: number;
+  projectionY?: number;
 };
 
 export type SkillFrequency = TechnologyFrequency;
@@ -44,6 +60,9 @@ export type CorpusSnapshotPayload = {
   roleFamily: TaxonomyBucket[];
   clusters: ClusterSummary[];
   projection: ProjectionPoint[];
+  corpusMeta?: {
+    documents: DocumentPulseMeta[];
+  };
 };
 
 export type AnalysisMetrics = {
@@ -282,6 +301,22 @@ export async function analyseCorpus(
     maxTechnologies: maxSkills,
   });
 
+  const corpusMetaDocuments: DocumentPulseMeta[] = documents.map((document, index) => {
+    const matched = matchTechnologiesInDocuments([document], { maxTechnologies: maxSkills });
+    return {
+      id: document.id,
+      collectedAt: document.collectedAt,
+      seniority: document.seniority,
+      roleFamily: document.roleFamily,
+      employerSizeTier: document.employerSizeTier,
+      employerPrestigeTier: document.employerPrestigeTier,
+      technologies: matched.map((technology) => technology.name),
+      clusterId: assignments[index] ?? 0,
+      projectionX: vectors[index]?.[0],
+      projectionY: vectors[index]?.[1],
+    };
+  });
+
   return {
     snapshot: {
       documentCount: documents.length,
@@ -292,6 +327,7 @@ export async function analyseCorpus(
       roleFamily: taxonomyBreakdown(documents, 'roleFamily'),
       clusters,
       projection,
+      corpusMeta: { documents: corpusMetaDocuments },
     },
     metrics: {
       docsConsidered: documents.length,

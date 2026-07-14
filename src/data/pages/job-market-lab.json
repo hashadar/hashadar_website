@@ -11,6 +11,14 @@
   "seniorityLabel": "Seniority",
   "roleFamilyLabel": "Role family",
   "clustersHeading": "Requirement themes",
+  "pulseFiltersTimeLabel": "Time window",
+  "pulseFilterTimeOptions": {
+    "all": "All published documents",
+    "3m": "Last 3 months",
+    "6m": "Last 6 months",
+    "12m": "Last 12 months",
+    "18m": "Last 18 months"
+  },
   "admin": {
     "heading": "Corpus recompute",
     "description": "Start an analysis run against the active corpus. Only one run may be queued or in progress at a time.",
@@ -122,7 +130,24 @@
     "themeLabelSaveLabel": "Save override",
     "themeLabelSavingLabel": "SavingÔÇª",
     "themeLabelSavedMessage": "Override saved for theme {clusterKey}. It will appear after the next recompute.",
-    "themeLabelSizeLabel": "Documents"
+    "themeLabelSizeLabel": "Documents",
+    "pulseFiltersHeading": "Themes and technology filters",
+    "pulseFiltersDescription": "Slice the published pulse by time, seniority, role family, and employer tier. Filters use corpus metadata and never expose raw job descriptions or compensation.",
+    "pulseFiltersLoading": "Loading filterable pulse…",
+    "pulseFiltersEmpty": "No filterable corpus metadata yet. Start a recompute after the corpus has active documents.",
+    "pulseFiltersError": "Pulse filters are temporarily unavailable.",
+    "pulseFiltersTimeLabel": "Time window",
+    "pulseFiltersAllOption": "All",
+    "pulseFiltersDocumentCountLabel": "Matching documents: {count}",
+    "pulseFiltersTechnologiesLabel": "Filtered technologies",
+    "pulseFiltersThemesLabel": "Filtered themes",
+    "pulseFilterTimeOptions": {
+      "all": "All published documents",
+      "3m": "Last 3 months",
+      "6m": "Last 6 months",
+      "12m": "Last 12 months",
+      "18m": "Last 18 months"
+    }
   },
   "employerAdmin": {
     "heading": "Employer registry",

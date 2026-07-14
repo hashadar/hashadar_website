@@ -4,6 +4,7 @@ import { generateClient } from 'aws-amplify/data';
 import { env } from '$amplify/env/job-market-publication';
 import type { Schema } from '../../data/resource';
 import type { CorpusSnapshotPayload } from '../job-market-analyse/analyse';
+import { sanitiseSnapshotPayloadForGuests } from './sanitize';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -30,11 +31,12 @@ export const handler: Schema['getPublishedJobMarketSnapshot']['functionHandler']
 
     if (typeof rawPayload === 'string') {
       try {
-        return JSON.parse(rawPayload) as CorpusSnapshotPayload;
+        const parsed = JSON.parse(rawPayload) as CorpusSnapshotPayload;
+        return sanitiseSnapshotPayloadForGuests(parsed);
       } catch {
         return null;
       }
     }
 
-    return rawPayload as CorpusSnapshotPayload;
+    return sanitiseSnapshotPayloadForGuests(rawPayload as CorpusSnapshotPayload);
   };
