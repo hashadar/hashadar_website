@@ -57,6 +57,20 @@
     "runStatusRunning": "Running",
     "runStatusSucceeded": "Succeeded",
     "runStatusFailed": "Failed",
-    "failureReasonLabel": "Failure reason"
+    "failureReasonLabel": "Failure reason",
+    "cv": {
+      "heading": "Canonical CV",
+      "description": "Private owner CV for later fit comparison against job descriptions and market signals. Never published to guests.",
+      "loadingLabel": "Loading canonical CV…",
+      "emptyHint": "No canonical CV saved yet. Seed from your About profile or write one below.",
+      "seedButtonLabel": "Seed from profile",
+      "seedingLabel": "Seeding…",
+      "seededMessage": "Seeded from your About profile. Review and save when ready.",
+      "bodyLabel": "CV body",
+      "saveButtonLabel": "Save CV",
+      "savingLabel": "Saving…",
+      "savedMessage": "Canonical CV saved.",
+      "errorLabel": "Canonical CV is temporarily unavailable."
+    }
   }
 }

@@ -187,6 +187,19 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(consoleCopy, 'runStatusSucceeded', 'jobMarketLab.console');
   requireString(consoleCopy, 'runStatusFailed', 'jobMarketLab.console');
   requireString(consoleCopy, 'failureReasonLabel', 'jobMarketLab.console');
+  const cv = requireRecord(consoleCopy.cv, 'jobMarketLab.console.cv');
+  requireString(cv, 'heading', 'jobMarketLab.console.cv');
+  requireString(cv, 'description', 'jobMarketLab.console.cv');
+  requireString(cv, 'loadingLabel', 'jobMarketLab.console.cv');
+  requireString(cv, 'emptyHint', 'jobMarketLab.console.cv');
+  requireString(cv, 'seedButtonLabel', 'jobMarketLab.console.cv');
+  requireString(cv, 'seedingLabel', 'jobMarketLab.console.cv');
+  requireString(cv, 'seededMessage', 'jobMarketLab.console.cv');
+  requireString(cv, 'bodyLabel', 'jobMarketLab.console.cv');
+  requireString(cv, 'saveButtonLabel', 'jobMarketLab.console.cv');
+  requireString(cv, 'savingLabel', 'jobMarketLab.console.cv');
+  requireString(cv, 'savedMessage', 'jobMarketLab.console.cv');
+  requireString(cv, 'errorLabel', 'jobMarketLab.console.cv');
 }
 
 export function assertValidLoginPage(data: unknown): void {

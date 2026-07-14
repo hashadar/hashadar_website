@@ -4,6 +4,7 @@ import { JobMarketLabConsoleSection } from '@/components/sections/labs/job-marke
 import { SiteAuthProvider } from '@/hooks/use-site-auth';
 import { jobMarketLab } from '@/data';
 import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
+import type { CanonicalCvDeps } from '@/lib/canonical-cv';
 import { createMemorySiteAuth } from '@/lib/site-auth';
 import type { ListAnalysisRunsDeps } from '@/lib/job-market-lab';
 
@@ -19,9 +20,21 @@ function createMemoryCorpus(): AmplifyCorpusDeps {
   };
 }
 
+function createMemoryCanonicalCv(): CanonicalCvDeps {
+  return {
+    getCanonicalCv: async () => null,
+    saveCanonicalCv: async (input) => ({
+      id: 'current',
+      body: input.body,
+      updatedAt: input.updatedAt,
+    }),
+  };
+}
+
 function renderConsole(options?: {
   auth?: ReturnType<typeof createMemorySiteAuth>;
   analysisRuns?: ListAnalysisRunsDeps;
+  canonicalCv?: CanonicalCvDeps;
 }) {
   const auth = options?.auth ?? createMemorySiteAuth();
   return render(
@@ -29,6 +42,7 @@ function renderConsole(options?: {
       <JobMarketLabConsoleSection
         corpus={createMemoryCorpus()}
         analysisRuns={options?.analysisRuns}
+        canonicalCv={options?.canonicalCv ?? createMemoryCanonicalCv()}
       />
     </SiteAuthProvider>,
   );
@@ -56,6 +70,9 @@ describe('JobMarketLabConsoleSection', () => {
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.console.runsHeading }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: jobMarketLab.console.cv.heading }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows facade-backed management and live run history when authenticated', async () => {
@@ -81,6 +98,9 @@ describe('JobMarketLabConsoleSection', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: jobMarketLab.admin.heading }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: jobMarketLab.console.cv.heading }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: jobMarketLab.upload.heading }),
