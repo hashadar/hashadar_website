@@ -7,6 +7,7 @@ import {
   assertValidHomePage,
   assertValidJobMarketLabPage,
   assertValidLabsPage,
+  assertValidLoginPage,
   assertValidNavigation,
   assertValidPortfolioPage,
   assertValidSite,
@@ -18,6 +19,7 @@ import blogData from '@/data/pages/blog.json';
 import portfolioData from '@/data/pages/portfolio.json';
 import labsData from '@/data/pages/labs.json';
 import jobMarketLabData from '@/data/pages/job-market-lab.json';
+import loginData from '@/data/pages/login.json';
 import footerData from '@/data/common/footer.json';
 import navigationData from '@/data/common/navigation.json';
 import siteData from '@/data/common/site.json';
@@ -55,6 +57,9 @@ describe('validateDataFile', () => {
         jobMarketLabData,
         assertValidJobMarketLabPage,
       ),
+    ).not.toThrow();
+    expect(() =>
+      validateDataFile('pages/login.json', loginData, assertValidLoginPage),
     ).not.toThrow();
     expect(() =>
       validateDataFile('common/footer.json', footerData, assertValidFooter),

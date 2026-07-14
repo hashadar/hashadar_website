@@ -155,6 +155,24 @@ export interface JobMarketLabPageData {
   clustersHeading: string;
 }
 
+export interface LoginPageErrors {
+  generic: string;
+  notConfigured: string;
+  required: string;
+}
+
+export interface LoginPageData {
+  heading: string;
+  description: string;
+  emailLabel: string;
+  passwordLabel: string;
+  submitLabel: string;
+  signOutLabel: string;
+  signedInHeading: string;
+  signedInDescription: string;
+  errors: LoginPageErrors;
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;
@@ -169,6 +187,7 @@ export interface ContactInfo {
   email: string;
   social: SocialLinks;
   copyright: string;
+  ownerSignIn: NavLink;
 }
 
 export interface FooterData {
