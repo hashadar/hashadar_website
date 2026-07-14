@@ -162,6 +162,17 @@ export interface JobMarketLabCorpusAdminData {
   errorLabel: string;
 }
 
+export interface JobMarketLabUploadCopy {
+  heading: string;
+  description: string;
+  fileLabel: string;
+  uploadButtonLabel: string;
+  uploadingLabel: string;
+  uploadedMessage: string;
+  rejectedHeading: string;
+  noFileSelected: string;
+}
+
 export interface JobMarketLabConsoleCopy {
   heading: string;
   description: string;
@@ -196,6 +207,7 @@ export interface JobMarketLabPageData {
   clustersHeading: string;
   admin: JobMarketLabAdminCopy;
   corpusAdmin: JobMarketLabCorpusAdminData;
+  upload: JobMarketLabUploadCopy;
   console: JobMarketLabConsoleCopy;
 }
 

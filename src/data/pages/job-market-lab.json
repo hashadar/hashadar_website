@@ -31,6 +31,16 @@
     "untitledLabel": "Untitled document",
     "errorLabel": "Corpus management is temporarily unavailable."
   },
+  "upload": {
+    "heading": "Upload job description",
+    "description": "Add a markdown file with YAML frontmatter. Frontmatter must include a valid collectedAt timestamp. Upload writes to the private raw corpus; ingest runs automatically. Recompute is not started.",
+    "fileLabel": "Markdown file",
+    "uploadButtonLabel": "Upload to corpus",
+    "uploadingLabel": "Uploading…",
+    "uploadedMessage": "Uploaded to {s3Key}. Ingest will update corpus metadata shortly.",
+    "rejectedHeading": "Could not upload job description",
+    "noFileSelected": "Choose a markdown file to upload."
+  },
   "console": {
     "heading": "Job market owner console",
     "description": "Manage the private corpus, start recomputes, and review analysis run history. Guests cannot access this console.",
