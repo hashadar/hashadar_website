@@ -184,6 +184,8 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(hitlQueue, 'acceptedMessage', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'rejectedMessage', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'actionErrorHeading', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'llmAssistLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'llmAssistDescription', 'jobMarketLab.hitlQueue');
   const employerAdmin = requireRecord(page.employerAdmin, 'jobMarketLab.employerAdmin');
   requireString(employerAdmin, 'heading', 'jobMarketLab.employerAdmin');
   requireString(employerAdmin, 'description', 'jobMarketLab.employerAdmin');

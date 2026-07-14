@@ -47,6 +47,19 @@ export type AcceptScrapeCandidateDeps = ScrapeCandidateStoreDeps & {
     input: { fileName: string; body: string },
     deps?: UploadJobDescriptionDeps,
   ) => Promise<UploadJobDescriptionResult>;
+  assistWithLlm?: AssistWithLlm;
+};
+
+export type ScrapeCandidateLlmEnrichment = Partial<
+  Pick<ScrapeCandidateRecord, 'title' | 'source' | 'collectedAt' | 'body'>
+>;
+
+export type AssistWithLlm = (
+  candidate: ScrapeCandidateRecord,
+) => Promise<ScrapeCandidateLlmEnrichment>;
+
+export type AcceptScrapeCandidateOptions = {
+  llmAssist?: boolean;
 };
 
 export type AcceptScrapeCandidateResult =
@@ -106,6 +119,51 @@ function metadataFromBody(body: string): Pick<
   };
 }
 
+function applyLlmEnrichment(
+  existing: ScrapeCandidateRecord,
+  enrichment: ScrapeCandidateLlmEnrichment,
+): Pick<ScrapeCandidateRecord, 'body' | 'title' | 'source' | 'collectedAt'> {
+  const title = existing.title ?? enrichment.title;
+  const source = existing.source ?? enrichment.source;
+  const collectedAt = existing.collectedAt ?? enrichment.collectedAt;
+
+  if (enrichment.body) {
+    return {
+      body: enrichment.body,
+      title,
+      source,
+      collectedAt,
+    };
+  }
+
+  const parsed = matter(existing.body);
+  const nextData = { ...(parsed.data as Record<string, unknown>) };
+
+  if (title !== undefined && existing.title === undefined) {
+    nextData.title = title;
+  }
+  if (source !== undefined && existing.source === undefined) {
+    nextData.source = source;
+  }
+  if (collectedAt !== undefined && existing.collectedAt === undefined) {
+    nextData.collectedAt = collectedAt;
+  }
+
+  const body =
+    title !== existing.title ||
+    source !== existing.source ||
+    collectedAt !== existing.collectedAt
+      ? matter.stringify(parsed.content, nextData)
+      : existing.body;
+
+  return {
+    body,
+    title,
+    source,
+    collectedAt,
+  };
+}
+
 export async function listPendingScrapeCandidates(
   deps: ListScrapeCandidatesDeps,
 ): Promise<ScrapeCandidateRecord[]> {
@@ -159,6 +217,7 @@ export async function enqueueScrapeCandidate(
 export async function acceptScrapeCandidate(
   id: string,
   deps: AcceptScrapeCandidateDeps,
+  options: AcceptScrapeCandidateOptions = {},
 ): Promise<AcceptScrapeCandidateResult> {
   const existing = await deps.getScrapeCandidate(id);
   if (!existing) {
@@ -169,9 +228,28 @@ export async function acceptScrapeCandidate(
     return { status: 'not_pending' };
   }
 
+  const llmAssist = options.llmAssist ?? false;
+  let acceptBody = existing.body;
+  let enrichedFields: Pick<ScrapeCandidateRecord, 'title' | 'source' | 'collectedAt'> = {
+    title: existing.title,
+    source: existing.source,
+    collectedAt: existing.collectedAt,
+  };
+
+  if (llmAssist && deps.assistWithLlm) {
+    const enrichment = await deps.assistWithLlm(existing);
+    const applied = applyLlmEnrichment(existing, enrichment);
+    acceptBody = applied.body;
+    enrichedFields = {
+      title: applied.title,
+      source: applied.source,
+      collectedAt: applied.collectedAt,
+    };
+  }
+
   const uploadResult = await deps.uploadJobDescription({
     fileName: existing.fileName,
-    body: existing.body,
+    body: acceptBody,
   });
 
   if (uploadResult.status === 'rejected') {
@@ -180,6 +258,8 @@ export async function acceptScrapeCandidate(
 
   const candidate: ScrapeCandidateRecord = {
     ...existing,
+    ...enrichedFields,
+    body: acceptBody,
     status: 'accepted',
   };
   await deps.saveScrapeCandidate(candidate);

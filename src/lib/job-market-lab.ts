@@ -173,12 +173,17 @@ export {
   listPendingScrapeCandidates,
   listScrapeCandidates,
   rejectScrapeCandidate,
+  type AcceptScrapeCandidateOptions,
   type AcceptScrapeCandidateResult,
+  type AssistWithLlm,
   type EnqueueScrapeCandidateResult,
   type RejectScrapeCandidateResult,
+  type ScrapeCandidateLlmEnrichment,
   type ScrapeCandidateRecord,
   type ScrapeCandidateStatus,
 } from './scrape-candidates';
+
+export { defaultAssistWithLlm } from './scrape-candidates-llm-assist';
 
 export {
   createAmplifyScrapeCandidateDeps,

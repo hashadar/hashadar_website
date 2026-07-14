@@ -87,7 +87,7 @@ describe('JobMarketLabHitlQueuePanel', () => {
     expect(screen.getByText('example-board')).toBeInTheDocument();
   });
 
-  it('accepts a candidate through the injected facade', async () => {
+  it('accepts a candidate through the injected facade without LLM assist by default', async () => {
     const acceptScrapeCandidateFn = vi.fn(async () => ({
       status: 'accepted' as const,
       s3Key: 'raw/quant-analyst.md',
@@ -104,13 +104,37 @@ describe('JobMarketLabHitlQueuePanel', () => {
     );
 
     await waitFor(() => {
-      expect(acceptScrapeCandidateFn).toHaveBeenCalledWith('c-1');
+      expect(acceptScrapeCandidateFn).toHaveBeenCalledWith('c-1', { llmAssist: false });
     });
     expect(
       screen.getByText(
         jobMarketLab.hitlQueue.acceptedMessage.replace('{s3Key}', 'raw/quant-analyst.md'),
       ),
     ).toBeInTheDocument();
+  });
+
+  it('passes llmAssist true when the owner opts into LLM assist', async () => {
+    const acceptScrapeCandidateFn = vi.fn(async () => ({
+      status: 'accepted' as const,
+      s3Key: 'raw/quant-analyst.md',
+      candidate: pendingCandidate({ id: 'c-1', status: 'accepted' }),
+    }));
+
+    renderPanel({
+      candidates: [pendingCandidate({ id: 'c-1' })],
+      acceptScrapeCandidateFn,
+    });
+
+    fireEvent.click(
+      await screen.findByRole('checkbox', { name: jobMarketLab.hitlQueue.llmAssistLabel }),
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: jobMarketLab.hitlQueue.acceptLabel }),
+    );
+
+    await waitFor(() => {
+      expect(acceptScrapeCandidateFn).toHaveBeenCalledWith('c-1', { llmAssist: true });
+    });
   });
 
   it('rejects a candidate without promoting to raw/', async () => {
