@@ -12,7 +12,7 @@ describe('ownerPulseSourceFromPayload', () => {
       technologies: [{ name: 'python', count: 1 }],
       skills: [{ name: 'python', count: 1 }],
       seniority: [{ name: 'senior', count: 1 }],
-      roleFamily: [{ name: 'data-science', count: 1 }],
+      roleFamily: [{ name: 'data_science', count: 1 }],
       clusters: [{ id: 0, size: 1, label: 'Python stack' }],
       projection: [{ x: 0.1, y: 0.2, clusterId: 0 }],
       corpusMeta: {
@@ -21,7 +21,7 @@ describe('ownerPulseSourceFromPayload', () => {
             id: 'jd-1',
             collectedAt: '2026-06-01T00:00:00.000Z',
             seniority: 'senior',
-            roleFamily: 'data-science',
+            roleFamily: 'data_science',
             employerSizeTier: 'enterprise',
             employerPrestigeTier: 'elite',
             technologies: ['python'],

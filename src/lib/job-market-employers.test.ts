@@ -155,7 +155,7 @@ describe('updateJobDescriptionStructuredFields', () => {
       {
         employerId: 'emp-1',
         seniority: 'senior',
-        roleFamily: 'data-science',
+        roleFamily: 'data_science',
         compensationCurrency: 'GBP',
         compensationMin: 80000,
         compensationMax: 95000,
@@ -176,7 +176,7 @@ describe('updateJobDescriptionStructuredFields', () => {
         id: 'jd-1',
         employerId: 'emp-1',
         seniority: 'senior',
-        roleFamily: 'data-science',
+        roleFamily: 'data_science',
         compensationCurrency: 'GBP',
         compensationMin: 80000,
         compensationMax: 95000,

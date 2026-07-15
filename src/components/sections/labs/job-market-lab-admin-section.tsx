@@ -41,7 +41,7 @@ export function JobMarketLabAdminSection({
   return (
     <div className="mt-16 max-w-2xl space-y-6 border-t border-[var(--border)] pt-12">
       <div className="space-y-3">
-        <SectionHeader as="h2" size="md" animated={false} showLeftAccent={false}>
+        <SectionHeader as="h2" size="md" animated={false} showLeftAccent>
           {jobMarketLab.admin.heading}
         </SectionHeader>
         <Text variant="muted">{jobMarketLab.admin.description}</Text>

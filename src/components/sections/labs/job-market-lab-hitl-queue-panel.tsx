@@ -183,7 +183,7 @@ export function JobMarketLabHitlQueuePanel({
           as="h2"
           size="md"
           animated={false}
-          showLeftAccent={false}
+          showLeftAccent
         >
           {jobMarketLab.hitlQueue.heading}
         </SectionHeader>
@@ -227,7 +227,7 @@ export function JobMarketLabHitlQueuePanel({
           {loadState.candidates.map((candidate) => (
             <li
               key={candidate.id}
-              className="flex flex-col gap-3 border-b border-[color-mix(in_oklab,var(--foreground)_12%,transparent)] py-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-md border border-[var(--border)] border-l-4 border-l-[var(--primary)] bg-[color-mix(in_oklab,var(--primary)_3%,var(--background))] px-3 py-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0 space-y-1">
                 <Text className="font-medium">

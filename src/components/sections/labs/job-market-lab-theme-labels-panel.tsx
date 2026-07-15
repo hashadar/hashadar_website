@@ -115,7 +115,7 @@ export function JobMarketLabThemeLabelsPanel({
           as="h2"
           size="md"
           animated={false}
-          showLeftAccent={false}
+          showLeftAccent
         >
           {jobMarketLab.console.themeLabelsHeading}
         </SectionHeader>

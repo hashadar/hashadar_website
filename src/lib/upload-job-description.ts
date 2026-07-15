@@ -66,3 +66,41 @@ export async function uploadJobDescription(
 
   return { status: 'uploaded', s3Key };
 }
+
+/** Overwrite markdown at an existing corpus object key (no recompute). */
+export async function overwriteJobDescriptionMarkdown(
+  input: { s3Key: string; body: string },
+  deps: UploadJobDescriptionDeps = {},
+): Promise<UploadJobDescriptionResult> {
+  const validation = validateJobDescriptionMarkdown(input.body);
+  if (validation.status === 'rejected') {
+    return validation;
+  }
+
+  const s3Key = input.s3Key.trim();
+  if (!s3Key.startsWith('raw/') || !s3Key.toLowerCase().endsWith('.md')) {
+    return {
+      status: 'rejected',
+      reason: 'Storage key must be a raw/*.md object',
+    };
+  }
+
+  const putRawObject = deps.putRawObject ?? (await createDefaultPutRawObject());
+  if (!putRawObject) {
+    return {
+      status: 'rejected',
+      reason: UPLOAD_CLIENT_NOT_CONFIGURED_REASON,
+    };
+  }
+
+  const uploadResult = await putRawObjectWithAuthHandling(putRawObject, {
+    key: s3Key,
+    body: input.body,
+  });
+
+  if (uploadResult.status === 'rejected') {
+    return uploadResult;
+  }
+
+  return { status: 'uploaded', s3Key };
+}

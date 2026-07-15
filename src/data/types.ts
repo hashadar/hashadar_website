@@ -300,6 +300,34 @@ export interface JobMarketPulseFilterTimeOptions {
   '18m': string;
 }
 
+export interface JobMarketLabConsoleNavItem {
+  id: string;
+  href: string;
+  label: string;
+  description: string;
+}
+
+export interface JobMarketLabConsoleNavCopy {
+  ariaLabel: string;
+  mobileLabel: string;
+  items: JobMarketLabConsoleNavItem[];
+}
+
+export interface JobMarketLabConsoleOverviewCopy {
+  heading: string;
+  description: string;
+  areasHeading: string;
+  statusHeading: string;
+  lastRunLabel: string;
+  lastRunEmpty: string;
+  pendingHitlLabel: string;
+  pendingHitlCount: string;
+  pendingHitlEmpty: string;
+  loadingLabel: string;
+  errorLabel: string;
+  openAreaLabel: string;
+}
+
 export interface JobMarketLabConsoleCopy {
   heading: string;
   description: string;
@@ -307,6 +335,8 @@ export interface JobMarketLabConsoleCopy {
   unauthenticatedDescription: string;
   signInLabel: string;
   openConsoleLabel: string;
+  nav: JobMarketLabConsoleNavCopy;
+  overview: JobMarketLabConsoleOverviewCopy;
   runsHeading: string;
   runsDescription: string;
   runsEmpty: string;
@@ -341,6 +371,99 @@ export interface JobMarketLabConsoleCopy {
   pulseFiltersTechnologiesLabel: string;
   pulseFiltersThemesLabel: string;
   pulseFilterTimeOptions: JobMarketPulseFilterTimeOptions;
+  corpusWorkspace: JobMarketLabCorpusWorkspaceCopy;
+}
+
+export interface JobMarketLabCorpusWorkspaceCopy {
+  heading: string;
+  description: string;
+  loadingLabel: string;
+  errorLabel: string;
+  emptyLabel: string;
+  filteredEmptyLabel: string;
+  documentCountLabel: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  statusFilterLabel: string;
+  statusFilterAll: string;
+  statusFilterActive: string;
+  statusFilterArchived: string;
+  missingEmployerFilterLabel: string;
+  missingPayFilterLabel: string;
+  columnTitle: string;
+  columnStatus: string;
+  columnSeniority: string;
+  columnRoleFamily: string;
+  columnEmployer: string;
+  columnCompensation: string;
+  columnCollectedAt: string;
+  columnGaps: string;
+  columnActions: string;
+  statusActive: string;
+  statusArchived: string;
+  noEmployerOption: string;
+  unsetOption: string;
+  gapEmployer: string;
+  gapPay: string;
+  gapNone: string;
+  saveRowLabel: string;
+  savingRowLabel: string;
+  rowSavedMessage: string;
+  rowSaveError: string;
+  archiveLabel: string;
+  restoreLabel: string;
+  archivingLabel: string;
+  restoringLabel: string;
+  openDetailLabel: string;
+  closeDetailLabel: string;
+  detailHeading: string;
+  markdownLabel: string;
+  markdownLoading: string;
+  markdownError: string;
+  markdownMissingKey: string;
+  saveMarkdownLabel: string;
+  savingMarkdownLabel: string;
+  markdownSavedMessage: string;
+  markdownSaveError: string;
+  metadataHeading: string;
+  employerLabel: string;
+  seniorityLabel: string;
+  roleFamilyLabel: string;
+  compensationCurrencyLabel: string;
+  compensationMinLabel: string;
+  compensationMaxLabel: string;
+  compensationPeriodLabel: string;
+  sourceLabel: string;
+  saveMetadataLabel: string;
+  savingMetadataLabel: string;
+  metadataSavedMessage: string;
+  metadataSaveError: string;
+  ingestHeading: string;
+  ingestDescription: string;
+  ingestFileLabel: string;
+  ingestDropLabel: string;
+  ingestUploadingLabel: string;
+  ingestQueueHeading: string;
+  ingestQueued: string;
+  ingestValidating: string;
+  ingestUploading: string;
+  ingestUploaded: string;
+  ingestRejected: string;
+  employersButtonLabel: string;
+  employersModalHeading: string;
+  employersModalDescription: string;
+  employersModalCloseLabel: string;
+  employersNameLabel: string;
+  employersSizeLabel: string;
+  employersPrestigeLabel: string;
+  employersCreateLabel: string;
+  employersCreatingLabel: string;
+  employersSaveLabel: string;
+  employersSavingLabel: string;
+  employersEmpty: string;
+  employersCreatedMessage: string;
+  employersSavedMessage: string;
+  employersError: string;
 }
 
 export interface JobMarketLabPayPrestigeAnalyticsCopy {

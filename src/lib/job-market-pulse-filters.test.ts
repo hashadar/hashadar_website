@@ -25,7 +25,7 @@ const snapshot: JobMarketSnapshot = {
     { name: 'mid', count: 2 },
   ],
   roleFamily: [
-    { name: 'data-science', count: 3 },
+    { name: 'data_science', count: 3 },
     { name: 'analytics', count: 1 },
   ],
   clusters: [
@@ -46,7 +46,7 @@ const corpusMeta: JobMarketCorpusMeta = {
       id: 'jd-1',
       collectedAt: '2026-06-01T00:00:00.000Z',
       seniority: 'senior',
-      roleFamily: 'data-science',
+      roleFamily: 'data_science',
       employerSizeTier: 'enterprise',
       employerPrestigeTier: 'elite',
       technologies: ['python', 'sql'],
@@ -70,7 +70,7 @@ const corpusMeta: JobMarketCorpusMeta = {
       id: 'jd-3',
       collectedAt: '2025-06-01T00:00:00.000Z',
       seniority: 'senior',
-      roleFamily: 'data-science',
+      roleFamily: 'data_science',
       employerSizeTier: 'enterprise',
       employerPrestigeTier: 'high',
       technologies: ['python'],
@@ -82,7 +82,7 @@ const corpusMeta: JobMarketCorpusMeta = {
       id: 'jd-4',
       collectedAt: '2024-01-01T00:00:00.000Z',
       seniority: 'mid',
-      roleFamily: 'data-science',
+      roleFamily: 'data_science',
       employerSizeTier: 'startup',
       employerPrestigeTier: 'low',
       technologies: ['sql'],
@@ -132,7 +132,7 @@ describe('filterJobMarketPulse', () => {
   it('filters by role family and employer prestige tier', () => {
     const result = filterJobMarketPulse(
       { snapshot, corpusMeta },
-      { roleFamily: 'data-science', employerPrestigeTier: 'elite' },
+      { roleFamily: 'data_science', employerPrestigeTier: 'elite' },
       { audience: 'owner', now },
     );
 

@@ -10,6 +10,9 @@ export const UPLOAD_UNAUTHENTICATED_REASON =
 export const UPLOAD_FAILED_REASON =
   'Unable to upload job description. Please try again.';
 
+/** No charset — browsers rewrite string Content-Types and break SigV4. */
+export const MARKDOWN_CONTENT_TYPE = 'text/markdown';
+
 function isUnauthenticatedError(message: string): boolean {
   const lower = message.toLowerCase();
   return (
@@ -24,9 +27,14 @@ function isUnauthenticatedError(message: string): boolean {
 
 export type AmplifyUploadData = (input: {
   path: string;
-  data: string;
+  data: string | Blob | ArrayBuffer | Uint8Array;
   options?: { contentType?: string };
 }) => { result: Promise<unknown> };
+
+/** Binary body so the browser cannot rewrite Content-Type with a charset. */
+export function markdownBodyToBinary(body: string): Uint8Array {
+  return new TextEncoder().encode(body);
+}
 
 export async function putRawObjectViaUploadData(
   input: { key: string; body: string },
@@ -34,9 +42,9 @@ export async function putRawObjectViaUploadData(
 ): Promise<void> {
   await uploadData({
     path: input.key,
-    data: input.body,
+    data: markdownBodyToBinary(input.body),
     options: {
-      contentType: 'text/markdown; charset=utf-8',
+      contentType: MARKDOWN_CONTENT_TYPE,
     },
   }).result;
 }

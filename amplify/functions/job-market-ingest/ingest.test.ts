@@ -28,7 +28,7 @@ describe('ingestJobDescription', () => {
         status: 'active',
         title: 'Senior Data Scientist',
         seniority: 'senior',
-        roleFamily: 'data-science',
+        roleFamily: 'data_science',
         source: 'confidential-board',
       },
     });

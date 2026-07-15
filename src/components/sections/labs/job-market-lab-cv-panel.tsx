@@ -106,7 +106,7 @@ export function JobMarketLabCvPanel({
           as="h2"
           size="md"
           animated={false}
-          showLeftAccent={false}
+          showLeftAccent
         >
           {cvCopy.heading}
         </SectionHeader>

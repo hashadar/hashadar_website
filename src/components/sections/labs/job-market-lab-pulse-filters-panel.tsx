@@ -143,7 +143,7 @@ export function JobMarketLabPulseFiltersPanel({
           as="h2"
           size="md"
           animated={false}
-          showLeftAccent={false}
+          showLeftAccent
         >
           {jobMarketLab.console.pulseFiltersHeading}
         </SectionHeader>

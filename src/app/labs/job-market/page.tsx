@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { SitePage } from '@/components/layout/site-page';
 import { JobMarketLabSection } from '@/components/sections/labs/job-market-lab-section';
 import { getPageData, site } from '@/data';
+import { ensureSiteAmplifyFromOutputs } from '@/lib/ensure-site-amplify-from-outputs';
 import { getPublishedJobMarketSnapshot } from '@/lib/job-market-lab';
 
 const jobMarketLab = getPageData('/labs/job-market');
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default async function JobMarketLabPage() {
+  ensureSiteAmplifyFromOutputs();
   const publication = await getPublishedJobMarketSnapshot();
 
   return (

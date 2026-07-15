@@ -48,6 +48,42 @@ export function buildSitemap(blogDirectory?: string): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/labs/job-market/console`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    },
+    {
+      url: `${baseUrl}/labs/job-market/console/corpus`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    },
+    {
+      url: `${baseUrl}/labs/job-market/console/hitl`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    },
+    {
+      url: `${baseUrl}/labs/job-market/console/fit`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    },
+    {
+      url: `${baseUrl}/labs/job-market/console/analytics`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    },
+    {
+      url: `${baseUrl}/labs/job-market/console/runs`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    },
+    {
       url: `${baseUrl}/login`,
       lastModified,
       changeFrequency: 'yearly',

@@ -197,7 +197,7 @@ export function JobMarketLabComparePanel({
           as="h2"
           size="md"
           animated={false}
-          showLeftAccent={false}
+          showLeftAccent
         >
           {copy.heading}
         </SectionHeader>

@@ -18,7 +18,7 @@ describe('sanitiseSnapshotPayloadForGuests', () => {
             id: 'jd-1',
             collectedAt: '2026-06-01T00:00:00.000Z',
             seniority: 'senior',
-            roleFamily: 'data-science',
+            roleFamily: 'data_science',
             employerSizeTier: 'enterprise',
             employerPrestigeTier: 'elite',
             technologies: ['python'],

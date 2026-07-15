@@ -36,11 +36,18 @@ describe('sitemap', () => {
     });
   });
 
-  it('includes Labs index and job-market lab routes', () => {
+  it('includes Labs index, job-market lab, and owner console routes', () => {
     const entries = sitemap();
     const labsEntry = entries.find((entry) => entry.url === `${site.metadata.siteUrl}/labs`);
     const jobMarketEntry = entries.find(
       (entry) => entry.url === `${site.metadata.siteUrl}/labs/job-market`,
+    );
+    const consoleEntry = entries.find(
+      (entry) => entry.url === `${site.metadata.siteUrl}/labs/job-market/console`,
+    );
+    const corpusEntry = entries.find(
+      (entry) =>
+        entry.url === `${site.metadata.siteUrl}/labs/job-market/console/corpus`,
     );
 
     expect(labsEntry).toEqual({
@@ -54,6 +61,18 @@ describe('sitemap', () => {
       lastModified: expect.any(Date),
       changeFrequency: 'weekly',
       priority: 0.7,
+    });
+    expect(consoleEntry).toEqual({
+      url: `${site.metadata.siteUrl}/labs/job-market/console`,
+      lastModified: expect.any(Date),
+      changeFrequency: 'monthly',
+      priority: 0.2,
+    });
+    expect(corpusEntry).toEqual({
+      url: `${site.metadata.siteUrl}/labs/job-market/console/corpus`,
+      lastModified: expect.any(Date),
+      changeFrequency: 'monthly',
+      priority: 0.2,
     });
   });
 

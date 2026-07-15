@@ -307,6 +307,35 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(consoleCopy, 'unauthenticatedDescription', 'jobMarketLab.console');
   requireString(consoleCopy, 'signInLabel', 'jobMarketLab.console');
   requireString(consoleCopy, 'openConsoleLabel', 'jobMarketLab.console');
+  const consoleNav = requireRecord(consoleCopy.nav, 'jobMarketLab.console.nav');
+  requireString(consoleNav, 'ariaLabel', 'jobMarketLab.console.nav');
+  requireString(consoleNav, 'mobileLabel', 'jobMarketLab.console.nav');
+  if (!Array.isArray(consoleNav.items) || consoleNav.items.length === 0) {
+    throw new Error('jobMarketLab.console.nav.items must be a non-empty array');
+  }
+  for (const [index, item] of consoleNav.items.entries()) {
+    const navItem = requireRecord(item, `jobMarketLab.console.nav.items[${index}]`);
+    requireString(navItem, 'id', `jobMarketLab.console.nav.items[${index}]`);
+    requireString(navItem, 'href', `jobMarketLab.console.nav.items[${index}]`);
+    requireString(navItem, 'label', `jobMarketLab.console.nav.items[${index}]`);
+    requireString(navItem, 'description', `jobMarketLab.console.nav.items[${index}]`);
+  }
+  const consoleOverview = requireRecord(
+    consoleCopy.overview,
+    'jobMarketLab.console.overview',
+  );
+  requireString(consoleOverview, 'heading', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'description', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'areasHeading', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'statusHeading', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'lastRunLabel', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'lastRunEmpty', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'pendingHitlLabel', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'pendingHitlCount', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'pendingHitlEmpty', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'loadingLabel', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'errorLabel', 'jobMarketLab.console.overview');
+  requireString(consoleOverview, 'openAreaLabel', 'jobMarketLab.console.overview');
   requireString(consoleCopy, 'runsHeading', 'jobMarketLab.console');
   requireString(consoleCopy, 'runsDescription', 'jobMarketLab.console');
   requireString(consoleCopy, 'runsEmpty', 'jobMarketLab.console');
@@ -417,6 +446,104 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(consolePulseFilterTimeOptions, '6m', 'jobMarketLab.console.pulseFilterTimeOptions');
   requireString(consolePulseFilterTimeOptions, '12m', 'jobMarketLab.console.pulseFilterTimeOptions');
   requireString(consolePulseFilterTimeOptions, '18m', 'jobMarketLab.console.pulseFilterTimeOptions');
+  const corpusWorkspace = requireRecord(
+    consoleCopy.corpusWorkspace,
+    'jobMarketLab.console.corpusWorkspace',
+  );
+  const corpusWorkspaceKeys = [
+    'heading',
+    'description',
+    'loadingLabel',
+    'errorLabel',
+    'emptyLabel',
+    'filteredEmptyLabel',
+    'documentCountLabel',
+    'searchLabel',
+    'searchPlaceholder',
+    'statusFilterLabel',
+    'statusFilterAll',
+    'statusFilterActive',
+    'statusFilterArchived',
+    'missingEmployerFilterLabel',
+    'missingPayFilterLabel',
+    'columnTitle',
+    'columnStatus',
+    'columnSeniority',
+    'columnRoleFamily',
+    'columnEmployer',
+    'columnCompensation',
+    'columnCollectedAt',
+    'columnGaps',
+    'columnActions',
+    'statusActive',
+    'statusArchived',
+    'noEmployerOption',
+    'unsetOption',
+    'gapEmployer',
+    'gapPay',
+    'gapNone',
+    'saveRowLabel',
+    'savingRowLabel',
+    'rowSavedMessage',
+    'rowSaveError',
+    'archiveLabel',
+    'restoreLabel',
+    'archivingLabel',
+    'restoringLabel',
+    'openDetailLabel',
+    'closeDetailLabel',
+    'detailHeading',
+    'markdownLabel',
+    'markdownLoading',
+    'markdownError',
+    'markdownMissingKey',
+    'saveMarkdownLabel',
+    'savingMarkdownLabel',
+    'markdownSavedMessage',
+    'markdownSaveError',
+    'metadataHeading',
+    'employerLabel',
+    'seniorityLabel',
+    'roleFamilyLabel',
+    'compensationCurrencyLabel',
+    'compensationMinLabel',
+    'compensationMaxLabel',
+    'compensationPeriodLabel',
+    'sourceLabel',
+    'saveMetadataLabel',
+    'savingMetadataLabel',
+    'metadataSavedMessage',
+    'metadataSaveError',
+    'ingestHeading',
+    'ingestDescription',
+    'ingestFileLabel',
+    'ingestDropLabel',
+    'ingestUploadingLabel',
+    'ingestQueueHeading',
+    'ingestQueued',
+    'ingestValidating',
+    'ingestUploading',
+    'ingestUploaded',
+    'ingestRejected',
+    'employersButtonLabel',
+    'employersModalHeading',
+    'employersModalDescription',
+    'employersModalCloseLabel',
+    'employersNameLabel',
+    'employersSizeLabel',
+    'employersPrestigeLabel',
+    'employersCreateLabel',
+    'employersCreatingLabel',
+    'employersSaveLabel',
+    'employersSavingLabel',
+    'employersEmpty',
+    'employersCreatedMessage',
+    'employersSavedMessage',
+    'employersError',
+  ] as const;
+  for (const key of corpusWorkspaceKeys) {
+    requireString(corpusWorkspace, key, 'jobMarketLab.console.corpusWorkspace');
+  }
 }
 
 export function assertValidLoginPage(data: unknown): void {

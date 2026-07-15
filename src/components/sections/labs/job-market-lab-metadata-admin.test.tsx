@@ -126,7 +126,7 @@ describe('JobMarketLabMetadataAdmin', () => {
     );
     await user.selectOptions(
       screen.getByLabelText(`${jobMarketLab.metadataAdmin.roleFamilyLabel} (jd-1)`),
-      'data-science',
+      'data_science',
     );
     await user.type(
       screen.getByLabelText(`${jobMarketLab.metadataAdmin.compensationCurrencyLabel} (jd-1)`),
@@ -160,7 +160,7 @@ describe('JobMarketLabMetadataAdmin', () => {
       expect.objectContaining({
         employerId: 'emp-1',
         seniority: 'senior',
-        roleFamily: 'data-science',
+        roleFamily: 'data_science',
         compensationCurrency: 'GBP',
         compensationMin: 80000,
         compensationMax: 95000,

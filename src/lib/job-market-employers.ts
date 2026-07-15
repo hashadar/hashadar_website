@@ -19,10 +19,10 @@ export const JOB_DESCRIPTION_SENIORITIES = [
 ] as const;
 
 export const JOB_DESCRIPTION_ROLE_FAMILIES = [
-  'data-science',
+  'data_science',
   'analytics',
   'engineering',
-  'ml-ops',
+  'ml_ops',
   'product',
   'other',
 ] as const;

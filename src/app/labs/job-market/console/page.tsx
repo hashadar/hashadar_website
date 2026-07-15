@@ -1,6 +1,5 @@
-import { Metadata } from 'next';
-import { SitePage } from '@/components/layout/site-page';
-import { JobMarketLabConsoleSection } from '@/components/sections/labs/job-market-lab-console-section';
+import type { Metadata } from 'next';
+import { JobMarketConsoleOverview } from '@/components/sections/labs/console/job-market-console-overview';
 import { getPageData, site } from '@/data';
 
 const jobMarketLab = getPageData('/labs/job-market');
@@ -20,10 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function JobMarketLabConsolePage() {
-  return (
-    <SitePage mainClassName="min-h-screen pt-20">
-      <JobMarketLabConsoleSection />
-    </SitePage>
-  );
+export default function JobMarketLabConsoleOverviewPage() {
+  return <JobMarketConsoleOverview />;
 }

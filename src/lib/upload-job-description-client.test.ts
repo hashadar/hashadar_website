@@ -1,28 +1,32 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   createDefaultPutRawObject,
+  MARKDOWN_CONTENT_TYPE,
+  markdownBodyToBinary,
   putRawObjectViaUploadData,
   putRawObjectWithAuthHandling,
 } from './upload-job-description-client';
 
 describe('putRawObjectViaUploadData', () => {
-  it('writes markdown to the given raw key via Amplify uploadData', async () => {
+  it('uploads UTF-8 bytes with a charset-free Content-Type to avoid SigV4 mismatch', async () => {
     const uploadData = vi.fn(() => ({
       result: Promise.resolve({ path: 'raw/role.md' }),
     }));
 
     await putRawObjectViaUploadData(
-      { key: 'raw/role.md', body: '# Role' },
+      { key: 'raw/role.md', body: '# Role — café' },
       uploadData,
     );
 
     expect(uploadData).toHaveBeenCalledWith({
       path: 'raw/role.md',
-      data: '# Role',
+      data: markdownBodyToBinary('# Role — café'),
       options: {
-        contentType: 'text/markdown; charset=utf-8',
+        contentType: MARKDOWN_CONTENT_TYPE,
       },
     });
+    expect(MARKDOWN_CONTENT_TYPE).toBe('text/markdown');
+    expect(MARKDOWN_CONTENT_TYPE.includes('charset')).toBe(false);
   });
 });
 

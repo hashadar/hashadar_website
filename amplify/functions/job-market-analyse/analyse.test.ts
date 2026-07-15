@@ -19,7 +19,7 @@ const docs: AnalyzableDocument[] = [
     markdown:
       'We need Python, SQL, and teamwork. Senior data scientist role with modelling.',
     seniority: 'senior',
-    roleFamily: 'data-science',
+    roleFamily: 'data_science',
   },
   {
     id: 'jd-2',
@@ -36,7 +36,7 @@ const docs: AnalyzableDocument[] = [
     markdown:
       'We need Python, SQL, and teamwork. Senior data scientist role with modelling.',
     seniority: 'senior',
-    roleFamily: 'data-science',
+    roleFamily: 'data_science',
   },
 ];
 
@@ -148,7 +148,7 @@ describe('analyseCorpus cluster labels', () => {
         collectedAt: '2026-06-01T00:00:00.000Z',
         markdown: 'Python, SQL, and modelling experience.',
         seniority: 'senior',
-        roleFamily: 'data-science',
+        roleFamily: 'data_science',
         employerSizeTier: 'enterprise',
         employerPrestigeTier: 'elite',
       },
@@ -169,7 +169,7 @@ describe('analyseCorpus cluster labels', () => {
       id: 'jd-a',
       collectedAt: '2026-06-01T00:00:00.000Z',
       seniority: 'senior',
-      roleFamily: 'data-science',
+      roleFamily: 'data_science',
       employerSizeTier: 'enterprise',
       employerPrestigeTier: 'elite',
       technologies: ['python', 'sql'],

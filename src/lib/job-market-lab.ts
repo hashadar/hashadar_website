@@ -1,13 +1,13 @@
-import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
-import { configureSiteAmplify } from './configure-site-amplify';
 import {
   fetchPublishedSnapshotViaQuery,
   publishedQueryFromClient,
   type AmplifyPublishedSnapshotClient,
 } from './fetch-published-job-market-snapshot';
-import { readAmplifyOutputs } from './read-amplify-outputs';
-import { defaultStartJobMarketRecompute } from './start-job-market-recompute-client';
+import {
+  defaultStartJobMarketRecompute,
+  isAmplifyClientConfigured,
+} from './start-job-market-recompute-client';
 import type { JobMarketPublicCorpusMeta } from './job-market-pulse-filters';
 
 export type SkillFrequency = {
@@ -152,16 +152,16 @@ function sanitiseSnapshot(snapshot: JobMarketSnapshot): JobMarketSnapshot {
   return sanitised;
 }
 
+/**
+ * Client- and server-safe default. Relies on Amplify already being configured
+ * (layout AmplifyProvider on the client, or ensureSiteAmplifyFromOutputs on RSC)
+ * so this module never imports node:fs / readAmplifyOutputs.
+ */
 async function defaultFetchPublished(): Promise<JobMarketSnapshot | null> {
   try {
-    const outputs = readAmplifyOutputs();
-    if (!outputs) {
+    if (!isAmplifyClientConfigured()) {
       return null;
     }
-
-    configureSiteAmplify(outputs, (config, options) => {
-      Amplify.configure(config, options);
-    });
 
     // Guest-safe auth: default data mode is userPool; allow.guest needs identityPool.
     const client = generateClient({
@@ -227,6 +227,7 @@ export {
 
 export {
   uploadJobDescription,
+  overwriteJobDescriptionMarkdown,
   type UploadJobDescriptionResult,
   type UploadJobDescriptionDeps,
   type PutRawObject,

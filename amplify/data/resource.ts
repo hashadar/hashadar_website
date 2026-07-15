@@ -13,10 +13,10 @@ const schema = a
     EmployerPrestigeTier: a.enum(['low', 'mid', 'high', 'elite']),
     JobDescriptionSeniority: a.enum(['junior', 'mid', 'senior', 'lead', 'principal']),
     JobDescriptionRoleFamily: a.enum([
-      'data-science',
+      'data_science',
       'analytics',
       'engineering',
-      'ml-ops',
+      'ml_ops',
       'product',
       'other',
     ]),

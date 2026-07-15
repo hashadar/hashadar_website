@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Amplify } from 'aws-amplify';
 import {
   configureSiteAmplify,
@@ -13,11 +12,11 @@ type AmplifyProviderProps = {
 };
 
 export function AmplifyProvider({ children, outputs }: AmplifyProviderProps) {
-  useEffect(() => {
-    configureSiteAmplify(outputs, (config, options) => {
-      Amplify.configure(config, options);
-    });
-  }, [outputs]);
+  // Configure synchronously (not in useEffect) so Storage/Auth signing
+  // never races the first client upload after hydration.
+  configureSiteAmplify(outputs, (config, options) => {
+    Amplify.configure(config, options);
+  });
 
   return children;
 }

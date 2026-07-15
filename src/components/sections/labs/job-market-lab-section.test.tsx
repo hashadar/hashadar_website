@@ -39,7 +39,7 @@ const published: PublishedJobMarketResult = {
       { name: 'mid', count: 4 },
     ],
     roleFamily: [
-      { name: 'data-science', count: 7 },
+      { name: 'data_science', count: 7 },
       { name: 'analytics', count: 5 },
     ],
     clusters: [
@@ -68,7 +68,7 @@ describe('JobMarketLabSection', () => {
 
     expect(screen.getByText(jobMarketLab.taxonomyHeading)).toBeInTheDocument();
     expect(screen.getByText('senior')).toBeInTheDocument();
-    expect(screen.getByText('data-science')).toBeInTheDocument();
+    expect(screen.getByText('data_science')).toBeInTheDocument();
 
     expect(screen.getByText(jobMarketLab.clustersHeading)).toBeInTheDocument();
     expect(screen.getByText('Theme 1')).toBeInTheDocument();

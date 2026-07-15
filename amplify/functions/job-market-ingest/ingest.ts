@@ -3,6 +3,35 @@ import matter from 'gray-matter';
 
 export type JobDescriptionStatus = 'active' | 'archived';
 
+export const JOB_DESCRIPTION_SENIORITIES = [
+  'junior',
+  'mid',
+  'senior',
+  'lead',
+  'principal',
+] as const;
+
+export const JOB_DESCRIPTION_ROLE_FAMILIES = [
+  'data_science',
+  'analytics',
+  'engineering',
+  'ml_ops',
+  'product',
+  'other',
+] as const;
+
+export type JobDescriptionSeniority =
+  (typeof JOB_DESCRIPTION_SENIORITIES)[number];
+
+export type JobDescriptionRoleFamily =
+  (typeof JOB_DESCRIPTION_ROLE_FAMILIES)[number];
+
+/** Frontmatter may still use kebab-case; map to GraphQL-safe enum values. */
+const ROLE_FAMILY_ALIASES: Record<string, JobDescriptionRoleFamily> = {
+  'data-science': 'data_science',
+  'ml-ops': 'ml_ops',
+};
+
 export type JobDescriptionRecord = {
   id: string;
   s3Key: string;
@@ -10,8 +39,8 @@ export type JobDescriptionRecord = {
   collectedAt: string;
   status: JobDescriptionStatus;
   title?: string;
-  seniority?: string;
-  roleFamily?: string;
+  seniority?: JobDescriptionSeniority;
+  roleFamily?: JobDescriptionRoleFamily;
   source?: string;
 };
 
@@ -31,6 +60,26 @@ function optionalString(
   value: unknown,
 ): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function optionalEnum<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+): T | undefined {
+  return typeof value === 'string' &&
+    (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : undefined;
+}
+
+function optionalRoleFamily(value: unknown): JobDescriptionRoleFamily | undefined {
+  if (typeof value !== 'string' || value.length === 0) {
+    return undefined;
+  }
+  return (
+    optionalEnum(value, JOB_DESCRIPTION_ROLE_FAMILIES) ??
+    ROLE_FAMILY_ALIASES[value]
+  );
 }
 
 function formatCollectedAt(value: unknown): string | undefined {
@@ -83,8 +132,8 @@ export async function ingestJobDescription(
     collectedAt,
     status: 'active',
     title: optionalString(data.title),
-    seniority: optionalString(data.seniority),
-    roleFamily: optionalString(data.roleFamily),
+    seniority: optionalEnum(data.seniority, JOB_DESCRIPTION_SENIORITIES),
+    roleFamily: optionalRoleFamily(data.roleFamily),
     source: optionalString(data.source),
   };
 

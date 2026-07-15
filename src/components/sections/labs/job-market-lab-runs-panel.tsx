@@ -10,6 +10,7 @@ import {
   type ListAnalysisRunsDeps,
 } from '@/lib/job-market-lab';
 import { createDefaultAmplifyAnalysisRunDeps } from '@/lib/job-market-analysis-runs-amplify';
+import { cn } from '@/lib/utils';
 
 export type JobMarketLabRunsPanelProps = {
   analysisRuns?: ListAnalysisRunsDeps;
@@ -61,7 +62,7 @@ export function JobMarketLabRunsPanel({ analysisRuns }: JobMarketLabRunsPanelPro
   return (
     <div className="mt-16 max-w-2xl space-y-6 border-t border-[var(--border)] pt-12">
       <div className="space-y-3">
-        <SectionHeader as="h2" size="md" animated={false} showLeftAccent={false}>
+        <SectionHeader as="h2" size="md" animated={false} showLeftAccent>
           {jobMarketLab.console.runsHeading}
         </SectionHeader>
         <Text variant="muted">{jobMarketLab.console.runsDescription}</Text>
@@ -83,21 +84,42 @@ export function JobMarketLabRunsPanel({ analysisRuns }: JobMarketLabRunsPanelPro
 
       {!error && runs !== null && runs.length > 0 ? (
         <ul className="space-y-4">
-          {runs.map((run) => (
-            <li key={run.id} className="space-y-1 border-b border-[var(--border)] pb-4 last:border-b-0">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <Heading as="h3" size="sm">
-                  {run.id}
-                </Heading>
-                <Text size="sm">{statusLabel(run.status)}</Text>
-              </div>
-              {run.status === 'failed' && run.errorMessage ? (
-                <Text size="sm" variant="muted">
-                  {jobMarketLab.console.failureReasonLabel}: {run.errorMessage}
-                </Text>
-              ) : null}
-            </li>
-          ))}
+          {runs.map((run) => {
+            const accentPrimary =
+              run.status === 'running' || run.status === 'succeeded';
+            return (
+              <li
+                key={run.id}
+                className={cn(
+                  'space-y-1 border-b border-[var(--border)] border-l-4 pb-4 pl-3 last:border-b-0',
+                  accentPrimary
+                    ? 'border-l-[var(--primary)]'
+                    : 'border-l-[var(--mono-300)]',
+                )}
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <Heading as="h3" size="sm">
+                    {run.id}
+                  </Heading>
+                  <span
+                    className={cn(
+                      'inline-flex rounded px-1.5 py-0.5 font-body text-xs font-medium',
+                      accentPrimary
+                        ? 'bg-[color-mix(in_oklab,var(--primary)_12%,transparent)] text-[var(--primary)]'
+                        : 'bg-[var(--muted)] text-[var(--mono-500)]',
+                    )}
+                  >
+                    {statusLabel(run.status)}
+                  </span>
+                </div>
+                {run.status === 'failed' && run.errorMessage ? (
+                  <Text size="sm" variant="muted">
+                    {jobMarketLab.console.failureReasonLabel}: {run.errorMessage}
+                  </Text>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>

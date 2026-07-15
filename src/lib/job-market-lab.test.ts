@@ -21,7 +21,7 @@ describe('getPublishedJobMarketSnapshot', () => {
       technologies: [{ name: 'python', count: 3 }],
       skills: [{ name: 'python', count: 3 }],
       seniority: [{ name: 'senior', count: 2 }],
-      roleFamily: [{ name: 'data-science', count: 2 }],
+      roleFamily: [{ name: 'data_science', count: 2 }],
       clusters: [{ id: 0, size: 3, label: 'Theme 1' }],
       projection: [{ x: 0.1, y: 0.2, clusterId: 0 }],
     };
@@ -114,7 +114,7 @@ describe('getPublishedJobMarketSnapshot', () => {
                 id: 'jd-1',
                 collectedAt: '2026-06-01T00:00:00.000Z',
                 seniority: 'senior',
-                roleFamily: 'data-science',
+                roleFamily: 'data_science',
                 employerSizeTier: 'enterprise',
                 employerPrestigeTier: 'elite',
                 technologies: ['python'],
@@ -186,7 +186,7 @@ describe('getPublishedJobMarketSnapshot', () => {
     });
   });
 
-  it('returns empty from the default Amplify path when outputs are absent', async () => {
+  it('returns empty from the default Amplify path when Amplify is not configured', async () => {
     const result = await getPublishedJobMarketSnapshot();
 
     expect(result).toEqual({ status: 'empty' });
