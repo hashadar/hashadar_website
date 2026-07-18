@@ -84,30 +84,34 @@ export function JobMarketCorpusJdDetail({
   onChanged,
 }: JobMarketCorpusJdDetailProps) {
   const copy = jobMarketLab.console.corpusWorkspace;
+  const frontmatterMergedNotice = copy.frontmatterMergedNotice;
   const [markdown, setMarkdown] = useState('');
   const [markdownStatus, setMarkdownStatus] = useState<
     'loading' | 'ready' | 'error' | 'missing'
-  >('loading');
+  >(() => (record.s3Key?.trim() ? 'loading' : 'missing'));
   const [draft, setDraft] = useState<MetadataDraft>(() => toMetadataDraft(record));
   const [savingMarkdown, setSavingMarkdown] = useState(false);
   const [savingMetadata, setSavingMetadata] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [syncedRecord, setSyncedRecord] = useState(record);
 
-  useEffect(() => {
+  if (record !== syncedRecord) {
+    setSyncedRecord(record);
     setDraft(toMetadataDraft(record));
     setMessage(null);
     setError(null);
+    setMarkdown('');
+    setMarkdownStatus(record.s3Key?.trim() ? 'loading' : 'missing');
+  }
 
+  useEffect(() => {
     const key = record.s3Key?.trim();
     if (!key) {
-      setMarkdown('');
-      setMarkdownStatus('missing');
       return;
     }
 
     let cancelled = false;
-    setMarkdownStatus('loading');
     void (async () => {
       try {
         const body = await fetchJobDescriptionMarkdown(key, markdownDeps);
@@ -133,7 +137,7 @@ export function JobMarketCorpusJdDetail({
         setMarkdown(merged);
         setMarkdownStatus('ready');
         if (merged !== body) {
-          setMessage(copy.frontmatterMergedNotice);
+          setMessage(frontmatterMergedNotice);
         }
       } catch {
         if (!cancelled) {
@@ -146,7 +150,7 @@ export function JobMarketCorpusJdDetail({
     return () => {
       cancelled = true;
     };
-  }, [record, markdownDeps]);
+  }, [record, markdownDeps, frontmatterMergedNotice]);
 
   async function handleSaveMarkdown() {
     const key = record.s3Key?.trim();

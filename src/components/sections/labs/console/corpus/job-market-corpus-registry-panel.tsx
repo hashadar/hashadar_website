@@ -66,18 +66,22 @@ export function JobMarketCorpusRegistryPanel({
   const [createSize, setCreateSize] = useState<EmployerSizeTier>('startup');
   const [createPrestige, setCreatePrestige] =
     useState<EmployerPrestigeTier>('low');
-  const [drafts, setDrafts] = useState<Record<string, EmployerRecord>>({});
+  const [drafts, setDrafts] = useState<Record<string, EmployerRecord>>(() =>
+    Object.fromEntries(employers.map((record) => [record.id, { ...record }])),
+  );
+  const [syncedEmployers, setSyncedEmployers] = useState(employers);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [audit, setAudit] = useState<AuditLoad>({ status: 'idle' });
 
-  useEffect(() => {
+  if (employers !== syncedEmployers) {
+    setSyncedEmployers(employers);
     setDrafts(
       Object.fromEntries(employers.map((record) => [record.id, { ...record }])),
     );
-  }, [employers]);
+  }
 
   useEffect(() => {
     if (!open) {
@@ -85,9 +89,9 @@ export function JobMarketCorpusRegistryPanel({
     }
 
     let cancelled = false;
-    setAudit({ status: 'loading' });
 
     void (async () => {
+      setAudit({ status: 'loading' });
       try {
         const pendingFn =
           listPendingCandidates ??
