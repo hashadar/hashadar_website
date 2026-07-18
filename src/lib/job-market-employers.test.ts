@@ -26,7 +26,39 @@ function doc(
     collectedAt: '2026-01-15T00:00:00.000Z',
     status: 'active',
     title: 'Data scientist',
+    s3Key: 'raw/jd-1.md',
     ...overrides,
+  };
+}
+
+function baseMarkdown(title = 'Data scientist'): string {
+  return `---
+collectedAt: 2026-01-15T00:00:00.000Z
+title: ${title}
+---
+
+Role body.
+`;
+}
+
+function withMarkdownDeps(
+  store: Map<string, JobDescriptionCorpusRecord>,
+  employers: Map<string, EmployerRecord>,
+  markdownStore?: Map<string, string>,
+) {
+  const files = markdownStore ?? new Map([['raw/jd-1.md', baseMarkdown()]]);
+  return {
+    getJobDescription: async (id: string) => store.get(id) ?? null,
+    saveJobDescription: async (record: JobDescriptionCorpusRecord) => {
+      store.set(record.id, record);
+    },
+    getEmployer: async (id: string) => employers.get(id) ?? null,
+    getMarkdown: async (s3Key: string) => files.get(s3Key) ?? null,
+    overwriteMarkdown: async (input: { s3Key: string; body: string }) => {
+      files.set(input.s3Key, input.body);
+      return { status: 'uploaded' as const, s3Key: input.s3Key };
+    },
+    files,
   };
 }
 
@@ -144,11 +176,10 @@ describe('listEmployers', () => {
 });
 
 describe('updateJobDescriptionStructuredFields', () => {
-  it('links a job description to an employer and stores controlled metadata', async () => {
-    const store = new Map([
-      ['jd-1', doc({ id: 'jd-1' })],
-    ]);
+  it('writes metadata into frontmatter then updates the model projection', async () => {
+    const store = new Map([['jd-1', doc({ id: 'jd-1' })]]);
     const employers = new Map([['emp-1', employer({ id: 'emp-1' })]]);
+    const deps = withMarkdownDeps(store, employers);
 
     const result = await updateJobDescriptionStructuredFields(
       'jd-1',
@@ -161,13 +192,7 @@ describe('updateJobDescriptionStructuredFields', () => {
         compensationMax: 95000,
         compensationPeriod: 'year',
       },
-      {
-        getJobDescription: async (id) => store.get(id) ?? null,
-        saveJobDescription: async (record) => {
-          store.set(record.id, record);
-        },
-        getEmployer: async (id) => employers.get(id) ?? null,
-      },
+      deps,
     );
 
     expect(result).toEqual({
@@ -183,19 +208,19 @@ describe('updateJobDescriptionStructuredFields', () => {
         compensationPeriod: 'year',
       }),
     });
+    const body = deps.files.get('raw/jd-1.md') ?? '';
+    expect(body).toContain('employerId: emp-1');
+    expect(body).toContain('seniority: senior');
+    expect(body).toContain('compensationCurrency: GBP');
+    expect(body).toContain('compensationMin: 80000');
   });
 
   it('rejects uncontrolled seniority or role family values', async () => {
     const store = new Map([['jd-1', doc({ id: 'jd-1' })]]);
-
     const result = await updateJobDescriptionStructuredFields(
       'jd-1',
       { seniority: 'super-senior' as never },
-      {
-        getJobDescription: async (id) => store.get(id) ?? null,
-        saveJobDescription: async () => undefined,
-        getEmployer: async () => null,
-      },
+      withMarkdownDeps(store, new Map()),
     );
 
     expect(result).toEqual({
@@ -210,11 +235,7 @@ describe('updateJobDescriptionStructuredFields', () => {
     const result = await updateJobDescriptionStructuredFields(
       'jd-1',
       { employerId: 'emp-missing' },
-      {
-        getJobDescription: async (id) => store.get(id) ?? null,
-        saveJobDescription: async () => undefined,
-        getEmployer: async () => null,
-      },
+      withMarkdownDeps(store, new Map()),
     );
 
     expect(result).toEqual({
@@ -239,6 +260,29 @@ describe('updateJobDescriptionStructuredFields', () => {
         }),
       ],
     ]);
+    const deps = withMarkdownDeps(
+      store,
+      new Map([['emp-1', employer({ id: 'emp-1' })]]),
+      new Map([
+        [
+          'raw/jd-1.md',
+          `---
+collectedAt: 2026-01-15T00:00:00.000Z
+title: Data scientist
+employerId: emp-1
+seniority: lead
+roleFamily: engineering
+compensationCurrency: USD
+compensationMin: 120000
+compensationMax: 140000
+compensationPeriod: year
+---
+
+Role body.
+`,
+        ],
+      ]),
+    );
 
     const result = await updateJobDescriptionStructuredFields(
       'jd-1',
@@ -249,13 +293,7 @@ describe('updateJobDescriptionStructuredFields', () => {
         compensationMax: null,
         compensationPeriod: null,
       },
-      {
-        getJobDescription: async (id) => store.get(id) ?? null,
-        saveJobDescription: async (record) => {
-          store.set(record.id, record);
-        },
-        getEmployer: async () => null,
-      },
+      deps,
     );
 
     expect(result).toEqual({
@@ -271,5 +309,9 @@ describe('updateJobDescriptionStructuredFields', () => {
         compensationPeriod: undefined,
       }),
     });
+    const body = deps.files.get('raw/jd-1.md') ?? '';
+    expect(body).not.toContain('employerId:');
+    expect(body).not.toContain('compensationCurrency:');
+    expect(body).toContain('seniority: lead');
   });
 });

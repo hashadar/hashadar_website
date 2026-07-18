@@ -86,29 +86,22 @@ export function createAmplifyCorpusDeps(
     },
     async saveJobDescription(record) {
       // Model update only — never remove the S3 object for soft-archive/restore.
+      // Optional fields use null so clears persist (frontmatter SSOT projection).
       const { errors } = await client.update({
         id: record.id,
         status: record.status,
         ...(record.s3Key !== undefined ? { s3Key: record.s3Key } : {}),
         ...(record.contentHash !== undefined ? { contentHash: record.contentHash } : {}),
         ...(record.collectedAt !== undefined ? { collectedAt: record.collectedAt } : {}),
-        ...(record.title !== undefined ? { title: record.title } : {}),
-        ...(record.seniority !== undefined ? { seniority: record.seniority } : {}),
-        ...(record.roleFamily !== undefined ? { roleFamily: record.roleFamily } : {}),
-        ...(record.source !== undefined ? { source: record.source } : {}),
-        ...(record.employerId !== undefined ? { employerId: record.employerId } : {}),
-        ...(record.compensationCurrency !== undefined
-          ? { compensationCurrency: record.compensationCurrency }
-          : {}),
-        ...(record.compensationMin !== undefined
-          ? { compensationMin: record.compensationMin }
-          : {}),
-        ...(record.compensationMax !== undefined
-          ? { compensationMax: record.compensationMax }
-          : {}),
-        ...(record.compensationPeriod !== undefined
-          ? { compensationPeriod: record.compensationPeriod }
-          : {}),
+        title: record.title ?? null,
+        seniority: record.seniority ?? null,
+        roleFamily: record.roleFamily ?? null,
+        source: record.source ?? null,
+        employerId: record.employerId ?? null,
+        compensationCurrency: record.compensationCurrency ?? null,
+        compensationMin: record.compensationMin ?? null,
+        compensationMax: record.compensationMax ?? null,
+        compensationPeriod: record.compensationPeriod ?? null,
       });
       throwIfErrors(errors);
     },

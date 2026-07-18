@@ -34,12 +34,25 @@ function createMemoryMetadataDeps(): {
   metadata: UpdateJobDescriptionStructuredFieldsDeps;
   corpusStore: Map<string, JobDescriptionCorpusRecord>;
   employerStore: Map<string, EmployerRecord>;
+  markdownFiles: Map<string, string>;
 } {
   const corpusStore = new Map([
     ['jd-1', doc({ id: 'jd-1', title: 'Senior analyst' })],
   ]);
   const employerStore = new Map<string, EmployerRecord>([
     ['emp-1', { id: 'emp-1', name: 'Alpha Bank', sizeTier: 'enterprise', prestigeTier: 'high' }],
+  ]);
+  const markdownFiles = new Map([
+    [
+      'keys/jd-1.md',
+      `---
+collectedAt: 2026-01-15T00:00:00.000Z
+title: Senior analyst
+---
+
+Body.
+`,
+    ],
   ]);
 
   const corpus: AmplifyCorpusDeps = {
@@ -73,9 +86,14 @@ function createMemoryMetadataDeps(): {
     getJobDescription: corpus.getJobDescription,
     saveJobDescription: corpus.saveJobDescription,
     getEmployer: employers.getEmployer,
+    getMarkdown: async (s3Key) => markdownFiles.get(s3Key) ?? null,
+    overwriteMarkdown: async (input) => {
+      markdownFiles.set(input.s3Key, input.body);
+      return { status: 'uploaded', s3Key: input.s3Key };
+    },
   };
 
-  return { corpus, employers, metadata, corpusStore, employerStore };
+  return { corpus, employers, metadata, corpusStore, employerStore, markdownFiles };
 }
 
 function renderMetadataAdmin(

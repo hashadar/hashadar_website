@@ -236,15 +236,34 @@ export {
 export { validateJobDescriptionMarkdown } from './validate-job-description-markdown';
 
 export {
+  parseJobListingFromUrl,
+  type ParseJobListingDeps,
+  type ParseJobListingFromUrl,
+  type ParseJobListingFromUrlResult,
+  type ParseJobListingStatus,
+} from './parse-job-listing';
+
+export {
+  defaultParseJobListingFromUrl,
+  parseJobListingFromUrlViaMutation,
+  parseListingMutationFromClient,
+  type AmplifyParseJobListingClient,
+  type ParseJobListingMutation,
+} from './parse-job-listing-client';
+
+export {
   acceptScrapeCandidate,
+  applyOwnerMetadata,
   enqueueScrapeCandidate,
   listPendingScrapeCandidates,
   listScrapeCandidates,
   rejectScrapeCandidate,
   type AcceptScrapeCandidateOptions,
   type AcceptScrapeCandidateResult,
+  type ApplyOwnerMetadataResult,
   type AssistWithLlm,
   type EnqueueScrapeCandidateResult,
+  type OwnerCandidateMetadataInput,
   type RejectScrapeCandidateResult,
   type ScrapeCandidateLlmEnrichment,
   type ScrapeCandidateRecord,

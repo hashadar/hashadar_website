@@ -20,16 +20,22 @@ const s3 = new S3Client();
 async function upsertJobDescription(
   record: JobDescriptionRecord,
 ): Promise<void> {
+  // Frontmatter is SSOT: always write optional fields (including null clears).
   const payload = {
     id: record.id,
     s3Key: record.s3Key,
     contentHash: record.contentHash,
     collectedAt: record.collectedAt,
     status: record.status,
-    ...(record.title !== undefined ? { title: record.title } : {}),
-    ...(record.seniority !== undefined ? { seniority: record.seniority } : {}),
-    ...(record.roleFamily !== undefined ? { roleFamily: record.roleFamily } : {}),
-    ...(record.source !== undefined ? { source: record.source } : {}),
+    title: record.title,
+    seniority: record.seniority,
+    roleFamily: record.roleFamily,
+    source: record.source,
+    employerId: record.employerId,
+    compensationCurrency: record.compensationCurrency,
+    compensationMin: record.compensationMin,
+    compensationMax: record.compensationMax,
+    compensationPeriod: record.compensationPeriod,
   };
 
   const existing = await client.models.JobDescription.get({ id: record.id });
@@ -73,7 +79,6 @@ export const handler: S3Handler = async (event) => {
       { s3Key, body },
       { upsertJobDescription },
     );
-
     if (result.status === 'rejected') {
       const message = `[job-market-ingest] Rejected ${s3Key}: ${result.reason}`;
       console.error(message);

@@ -3,6 +3,7 @@ import { jobMarketIngest } from '../functions/job-market-ingest/resource';
 import { jobMarketRecompute } from '../functions/job-market-recompute/resource';
 import { jobMarketAnalyse } from '../functions/job-market-analyse/resource';
 import { jobMarketPublication } from '../functions/job-market-publication/resource';
+import { jobMarketParseListing } from '../functions/job-market-parse-listing/resource';
 
 const schema = a
   .schema({
@@ -63,6 +64,7 @@ const schema = a
         source: a.string(),
         collectedAt: a.datetime(),
         candidateS3Key: a.string(),
+        employerId: a.id(),
       })
       .authorization((allow) => [
         allow.authenticated().to(['read', 'create', 'update']),
@@ -130,6 +132,28 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(jobMarketRecompute)),
 
+    parseJobListingFromUrl: a
+      .mutation()
+      .arguments({
+        url: a.string().required(),
+        /** When set, skip HTTP fetch and extract from this pasted page text/HTML. */
+        pageText: a.string(),
+      })
+      .returns(
+        a.customType({
+          status: a.string().required(),
+          reason: a.string(),
+          candidateId: a.string(),
+          previewTitle: a.string(),
+          previewExcerpt: a.string(),
+          inputTokens: a.integer(),
+          outputTokens: a.integer(),
+          estimatedCostUsd: a.float(),
+        }),
+      )
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(jobMarketParseListing)),
+
     getPublishedJobMarketSnapshot: a
       .query()
       .returns(a.json())
@@ -141,6 +165,7 @@ const schema = a
     allow.resource(jobMarketRecompute),
     allow.resource(jobMarketAnalyse),
     allow.resource(jobMarketPublication),
+    allow.resource(jobMarketParseListing),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

@@ -26,6 +26,10 @@ import {
   overwriteJobDescriptionMarkdown,
   type UploadJobDescriptionDeps,
 } from '@/lib/upload-job-description';
+import {
+  checkEmployerInRegistry,
+  mergeModelFieldsIntoMarkdown,
+} from '@/lib/job-description-frontmatter';
 import { cn } from '@/lib/utils';
 
 export type JobMarketCorpusJdDetailProps = {
@@ -115,8 +119,22 @@ export function JobMarketCorpusJdDetail({
           setMarkdownStatus('error');
           return;
         }
-        setMarkdown(body);
+        const merged = mergeModelFieldsIntoMarkdown(body, {
+          title: record.title,
+          source: record.source,
+          employerId: record.employerId,
+          seniority: record.seniority,
+          roleFamily: record.roleFamily,
+          compensationCurrency: record.compensationCurrency,
+          compensationMin: record.compensationMin,
+          compensationMax: record.compensationMax,
+          compensationPeriod: record.compensationPeriod,
+        });
+        setMarkdown(merged);
         setMarkdownStatus('ready');
+        if (merged !== body) {
+          setMessage(copy.frontmatterMergedNotice);
+        }
       } catch {
         if (!cancelled) {
           setMarkdown('');
@@ -202,24 +220,29 @@ export function JobMarketCorpusJdDetail({
     }
   }
 
+  const employerCheck = checkEmployerInRegistry(
+    draft.employerId || undefined,
+    employers.map((employer) => employer.id),
+  );
+
   const panel = (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
+    <div className="flex min-h-0 flex-col gap-3 sm:gap-4">
+      <div className="sticky top-0 z-10 -mx-3 flex items-start justify-between gap-3 border-b border-[var(--border)] bg-[var(--background)] px-3 pb-3 pt-0 sm:-mx-4 sm:px-4 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
+        <div className="min-w-0 space-y-0.5">
           <Heading as="h3" size="sm">
             {copy.detailHeading}
           </Heading>
-          <Text size="sm" variant="muted">
+          <Text size="sm" variant="muted" className="break-words">
             {displayTitle(record)}
           </Text>
         </div>
-        <Button type="button" variant="ghost" onClick={onClose}>
+        <Button type="button" variant="ghost" className="shrink-0" onClick={onClose}>
           {copy.closeDetailLabel}
         </Button>
       </div>
 
       <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
-        <div className="flex min-h-0 flex-col gap-2">
+        <div className="order-2 flex min-h-0 min-w-0 flex-col gap-2 lg:order-1">
           <Text size="sm">{copy.markdownLabel}</Text>
           {markdownStatus === 'loading' ? (
             <Text variant="muted">{copy.markdownLoading}</Text>
@@ -237,7 +260,7 @@ export function JobMarketCorpusJdDetail({
               <textarea
                 className={cn(
                   corpusFieldClassName,
-                  'min-h-[20rem] flex-1 font-mono text-xs leading-relaxed',
+                  'min-h-[11rem] w-full max-w-full flex-1 resize-y font-mono text-xs leading-relaxed lg:min-h-[20rem]',
                 )}
                 value={markdown}
                 onChange={(event) => setMarkdown(event.target.value)}
@@ -256,7 +279,7 @@ export function JobMarketCorpusJdDetail({
           ) : null}
         </div>
 
-        <div className="space-y-3">
+        <div className="order-1 min-w-0 space-y-2.5 lg:order-2 lg:space-y-3">
           <Heading as="h4" size="sm">
             {copy.metadataHeading}
           </Heading>
@@ -280,48 +303,60 @@ export function JobMarketCorpusJdDetail({
               ))}
             </select>
           </label>
-          <label className="block space-y-1">
-            <Text size="sm">{copy.seniorityLabel}</Text>
-            <select
-              className={corpusFieldClassName}
-              value={draft.seniority}
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  seniority: event.target.value,
-                }))
-              }
-            >
-              <option value="">{copy.unsetOption}</option>
-              {JOB_DESCRIPTION_SENIORITIES.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block space-y-1">
-            <Text size="sm">{copy.roleFamilyLabel}</Text>
-            <select
-              className={corpusFieldClassName}
-              value={draft.roleFamily}
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  roleFamily: event.target.value,
-                }))
-              }
-            >
-              <option value="">{copy.unsetOption}</option>
-              {JOB_DESCRIPTION_ROLE_FAMILIES.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <label className="block space-y-1">
+          {employerCheck.status === 'unset' ? (
+            <p role="status" className="font-body text-sm text-[var(--mono-500)]">
+              {copy.employerUnsetWarning}
+            </p>
+          ) : null}
+          {employerCheck.status === 'unknown' ? (
+            <p role="alert" className="font-body text-sm text-[var(--foreground)]">
+              {copy.employerUnknownWarning.replace('{id}', employerCheck.employerId)}
+            </p>
+          ) : null}
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block min-w-0 space-y-1">
+              <Text size="sm">{copy.seniorityLabel}</Text>
+              <select
+                className={corpusFieldClassName}
+                value={draft.seniority}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    seniority: event.target.value,
+                  }))
+                }
+              >
+                <option value="">{copy.unsetOption}</option>
+                {JOB_DESCRIPTION_SENIORITIES.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block min-w-0 space-y-1">
+              <Text size="sm">{copy.roleFamilyLabel}</Text>
+              <select
+                className={corpusFieldClassName}
+                value={draft.roleFamily}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    roleFamily: event.target.value,
+                  }))
+                }
+              >
+                <option value="">{copy.unsetOption}</option>
+                {JOB_DESCRIPTION_ROLE_FAMILIES.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block min-w-0 space-y-1">
               <Text size="sm">{copy.compensationCurrencyLabel}</Text>
               <input
                 className={corpusFieldClassName}
@@ -334,7 +369,7 @@ export function JobMarketCorpusJdDetail({
                 }
               />
             </label>
-            <label className="block space-y-1">
+            <label className="block min-w-0 space-y-1">
               <Text size="sm">{copy.compensationPeriodLabel}</Text>
               <select
                 className={corpusFieldClassName}
@@ -354,7 +389,7 @@ export function JobMarketCorpusJdDetail({
                 ))}
               </select>
             </label>
-            <label className="block space-y-1">
+            <label className="block min-w-0 space-y-1">
               <Text size="sm">{copy.compensationMinLabel}</Text>
               <input
                 className={corpusFieldClassName}
@@ -368,7 +403,7 @@ export function JobMarketCorpusJdDetail({
                 }
               />
             </label>
-            <label className="block space-y-1">
+            <label className="block min-w-0 space-y-1">
               <Text size="sm">{copy.compensationMaxLabel}</Text>
               <input
                 className={corpusFieldClassName}
@@ -384,7 +419,7 @@ export function JobMarketCorpusJdDetail({
             </label>
           </div>
           {record.source ? (
-            <Text size="sm" variant="muted">
+            <Text size="sm" variant="muted" className="break-all">
               {copy.sourceLabel}: {record.source}
             </Text>
           ) : null}
@@ -414,7 +449,7 @@ export function JobMarketCorpusJdDetail({
   );
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 mt-4 w-full max-w-xl overflow-y-auto rounded-md border border-[var(--border)] border-l-4 border-l-[var(--primary)] bg-[var(--background)] p-4 shadow-lg lg:static lg:inset-auto lg:z-auto lg:max-w-none lg:shadow-none">
+    <div className="fixed inset-x-0 bottom-0 top-20 z-40 overflow-x-hidden overflow-y-auto border border-[var(--border)] border-l-4 border-l-[var(--primary)] bg-[var(--background)] p-3 shadow-lg sm:p-4 lg:static lg:inset-auto lg:z-auto lg:mt-4 lg:max-w-none lg:rounded-md lg:shadow-none">
       {panel}
     </div>
   );

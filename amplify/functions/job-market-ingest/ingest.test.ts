@@ -128,4 +128,29 @@ describe('ingestJobDescription', () => {
     expect(upsertJobDescription).toHaveBeenCalledOnce();
     expect(startRecompute).not.toHaveBeenCalled();
   });
+
+  it('persists optional employerId from frontmatter', async () => {
+    const upsertJobDescription = vi.fn(async () => undefined);
+    const body = `---
+collectedAt: 2026-06-15T10:00:00.000Z
+title: Senior Data Scientist
+employerId: emp-42
+---
+
+Body text.
+`;
+
+    const result = await ingestJobDescription(
+      { s3Key: 'raw/with-employer.md', body },
+      { upsertJobDescription },
+    );
+
+    expect(result).toMatchObject({
+      status: 'ingested',
+      record: {
+        employerId: 'emp-42',
+        title: 'Senior Data Scientist',
+      },
+    });
+  });
 });
