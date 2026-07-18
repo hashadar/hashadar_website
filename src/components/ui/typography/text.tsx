@@ -7,6 +7,8 @@ interface TextProps {
   variant?: "default" | "muted" | "accent";
   as?: "p" | "span" | "div";
   className?: string;
+  id?: string;
+  role?: string;
 }
 
 const sizeClasses = {
@@ -27,10 +29,14 @@ export function Text({
   size = "base", 
   variant = "default",
   as: Component = "p", 
-  className 
+  className,
+  id,
+  role,
 }: TextProps) {
   return (
     <Component 
+      id={id}
+      role={role}
       className={cn(
         "font-body",
         sizeClasses[size],

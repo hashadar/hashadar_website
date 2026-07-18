@@ -166,7 +166,7 @@ export function JobMarketCorpusWorkspace({
             records={loadState.records}
             employers={loadState.employers}
             employerDeps={employerDeps}
-            onChanged={refresh}
+            onChanged={() => void refresh()}
             listPendingCandidates={listPendingCandidates}
             listRuns={listRuns}
           />
@@ -248,7 +248,7 @@ export function JobMarketCorpusWorkspace({
               selectedId={selectedId}
               corpusDeps={corpus}
               onSelect={setSelectedId}
-              onRecordsChanged={refresh}
+              onRecordsChanged={() => void refresh()}
             />
           )}
 
@@ -260,7 +260,7 @@ export function JobMarketCorpusWorkspace({
               markdownDeps={markdownDeps}
               uploadDeps={uploadDeps}
               onClose={() => setSelectedId(null)}
-              onChanged={refresh}
+              onChanged={() => void refresh()}
             />
           ) : null}
         </>

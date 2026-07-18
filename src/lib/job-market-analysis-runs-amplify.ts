@@ -72,7 +72,7 @@ export async function createDefaultAmplifyAnalysisRunDeps(): Promise<
   ListAnalysisRunsDeps & GetAnalysisRunDeps
 > {
   const { generateClient } = await import('aws-amplify/data');
-  const client = generateClient({ authMode: 'userPool' }) as {
+  const client = generateClient({ authMode: 'userPool' }) as unknown as {
     models: {
       AnalysisRun: AmplifyAnalysisRunModelClient;
     };
