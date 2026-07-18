@@ -147,7 +147,7 @@ describe('JobMarketConsoleCorpusPage', () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', {
+      await screen.findByRole('heading', {
         name: jobMarketLab.console.corpusWorkspace.registryHeading,
       }),
     ).toBeInTheDocument();
