@@ -147,10 +147,15 @@ describe('JobMarketConsoleCorpusPage', () => {
       }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('heading', {
+        name: jobMarketLab.console.corpusWorkspace.registryHeading,
+      }),
+    ).toBeInTheDocument();
+    expect(
       screen.queryByRole('heading', { name: jobMarketLab.upload.heading }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { name: jobMarketLab.employerAdmin.heading }),
+      screen.queryByText(jobMarketLab.employerAdmin.description),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.metadataAdmin.heading }),
