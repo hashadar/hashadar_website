@@ -245,9 +245,9 @@ export function JobMarketLabHitlQueuePanel({
     }
 
     let cancelled = false;
-    setEmployersState({ status: 'loading' });
 
     void (async () => {
+      setEmployersState({ status: 'loading' });
       try {
         const employers = sortEmployers(await listEmployersResolved());
         if (!cancelled) {
