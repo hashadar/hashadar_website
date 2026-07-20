@@ -22,6 +22,12 @@ export const JOB_DESCRIPTION_ROLE_FAMILIES = [
 
 export const COMPENSATION_PERIODS = ['year', 'month', 'day', 'hour'] as const;
 
+export const COMPENSATION_DISCLOSURES = [
+  'range',
+  'competitive',
+  'unknown',
+] as const;
+
 export type JobDescriptionSeniority =
   (typeof JOB_DESCRIPTION_SENIORITIES)[number];
 
@@ -29,6 +35,9 @@ export type JobDescriptionRoleFamily =
   (typeof JOB_DESCRIPTION_ROLE_FAMILIES)[number];
 
 export type CompensationPeriod = (typeof COMPENSATION_PERIODS)[number];
+
+export type CompensationDisclosure =
+  (typeof COMPENSATION_DISCLOSURES)[number];
 
 /** Frontmatter may still use kebab-case; map to GraphQL-safe enum values. */
 const ROLE_FAMILY_ALIASES: Record<string, JobDescriptionRoleFamily> = {
@@ -55,6 +64,7 @@ export type JobDescriptionRecord = {
   compensationMin: number | null;
   compensationMax: number | null;
   compensationPeriod: CompensationPeriod | null;
+  compensationDisclosure: CompensationDisclosure;
 };
 
 export type IngestResult =
@@ -120,6 +130,23 @@ function formatCollectedAt(value: unknown): string | undefined {
   return undefined;
 }
 
+function resolveDisclosure(input: {
+  compensationDisclosure: CompensationDisclosure | null;
+  compensationMin: number | null;
+  compensationMax: number | null;
+}): CompensationDisclosure {
+  if (input.compensationDisclosure === 'competitive') {
+    return 'competitive';
+  }
+  if (input.compensationMin != null && input.compensationMax != null) {
+    return 'range';
+  }
+  if (input.compensationDisclosure === 'range') {
+    return 'range';
+  }
+  return 'unknown';
+}
+
 export async function ingestJobDescription(
   input: { s3Key: string; body: string },
   deps: IngestJobDescriptionDeps,
@@ -147,8 +174,8 @@ export async function ingestJobDescription(
     };
   }
 
-  const compensationMin = optionalNumber(data.compensationMin);
-  const compensationMax = optionalNumber(data.compensationMax);
+  let compensationMin = optionalNumber(data.compensationMin);
+  let compensationMax = optionalNumber(data.compensationMax);
   if (
     compensationMin !== null &&
     compensationMax !== null &&
@@ -158,6 +185,28 @@ export async function ingestJobDescription(
       status: 'rejected',
       reason: 'compensationMin must be less than or equal to compensationMax',
     };
+  }
+
+  const compensationDisclosure = resolveDisclosure({
+    compensationDisclosure: optionalEnum(
+      data.compensationDisclosure,
+      COMPENSATION_DISCLOSURES,
+    ),
+    compensationMin,
+    compensationMax,
+  });
+
+  let compensationCurrency = optionalString(data.compensationCurrency);
+  let compensationPeriod = optionalEnum(
+    data.compensationPeriod,
+    COMPENSATION_PERIODS,
+  );
+
+  if (compensationDisclosure !== 'range') {
+    compensationCurrency = null;
+    compensationMin = null;
+    compensationMax = null;
+    compensationPeriod = null;
   }
 
   const record: JobDescriptionRecord = {
@@ -171,10 +220,11 @@ export async function ingestJobDescription(
     roleFamily: optionalRoleFamily(data.roleFamily),
     source: optionalString(data.source),
     employerId: optionalString(data.employerId),
-    compensationCurrency: optionalString(data.compensationCurrency),
+    compensationCurrency,
     compensationMin,
     compensationMax,
-    compensationPeriod: optionalEnum(data.compensationPeriod, COMPENSATION_PERIODS),
+    compensationPeriod,
+    compensationDisclosure,
   };
 
   await deps.upsertJobDescription(record);

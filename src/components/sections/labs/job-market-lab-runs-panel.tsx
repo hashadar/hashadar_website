@@ -1,19 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Heading, SectionHeader, Text } from '@/components/ui';
+import { useCallback, useEffect, useState } from 'react';
+import { Button, Heading, SectionHeader, Text } from '@/components/ui';
+import { JobMarketLabAdminSection } from '@/components/sections/labs/job-market-lab-admin-section';
 import { jobMarketLab } from '@/data';
 import {
   listAnalysisRuns,
   type AnalysisRunRecord,
   type AnalysisRunStatus,
   type ListAnalysisRunsDeps,
+  type StartJobMarketRecompute,
 } from '@/lib/job-market-lab';
 import { createDefaultAmplifyAnalysisRunDeps } from '@/lib/job-market-analysis-runs-amplify';
 import { cn } from '@/lib/utils';
 
 export type JobMarketLabRunsPanelProps = {
   analysisRuns?: ListAnalysisRunsDeps;
+  startRecompute?: StartJobMarketRecompute;
 };
 
 function statusLabel(status: AnalysisRunStatus): string {
@@ -30,17 +33,36 @@ function statusLabel(status: AnalysisRunStatus): string {
   }
 }
 
-export function JobMarketLabRunsPanel({ analysisRuns }: JobMarketLabRunsPanelProps) {
+function formatCost(value: number | undefined): string {
+  if (value == null) {
+    return '—';
+  }
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 4,
+  }).format(value);
+}
+
+export function JobMarketLabRunsPanel({
+  analysisRuns,
+  startRecompute,
+}: JobMarketLabRunsPanelProps) {
   const [runs, setRuns] = useState<AnalysisRunRecord[] | null>(null);
   const [error, setError] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const load = useCallback(async () => {
+    const deps = analysisRuns ?? (await createDefaultAmplifyAnalysisRunDeps());
+    return listAnalysisRuns(deps);
+  }, [analysisRuns]);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function load() {
+    void (async () => {
       try {
-        const deps = analysisRuns ?? (await createDefaultAmplifyAnalysisRunDeps());
-        const next = await listAnalysisRuns(deps);
+        const next = await load();
         if (!cancelled) {
           setRuns(next);
           setError(false);
@@ -51,21 +73,38 @@ export function JobMarketLabRunsPanel({ analysisRuns }: JobMarketLabRunsPanelPro
           setError(true);
         }
       }
-    }
+    })();
 
-    void load();
     return () => {
       cancelled = true;
     };
-  }, [analysisRuns]);
+  }, [load, reloadToken]);
 
   return (
-    <div className="mt-16 max-w-2xl space-y-6 border-t border-[var(--border)] pt-12">
+    <div className="space-y-6">
       <div className="space-y-3">
         <SectionHeader as="h2" size="md" animated={false} showLeftAccent>
           {jobMarketLab.console.runsHeading}
         </SectionHeader>
         <Text variant="muted">{jobMarketLab.console.runsDescription}</Text>
+      </div>
+
+      <JobMarketLabAdminSection
+        startRecompute={startRecompute}
+        variant="secondary"
+      />
+
+      <div className="flex items-center justify-between gap-3">
+        <Text size="sm" variant="muted">
+          {runs != null ? `${runs.length} runs` : ''}
+        </Text>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setReloadToken((value) => value + 1)}
+        >
+          {jobMarketLab.console.runsReloadLabel}
+        </Button>
       </div>
 
       {error ? (
@@ -83,7 +122,7 @@ export function JobMarketLabRunsPanel({ analysisRuns }: JobMarketLabRunsPanelPro
       ) : null}
 
       {!error && runs !== null && runs.length > 0 ? (
-        <ul className="space-y-4">
+        <ul className="divide-y divide-[var(--border)] border-t border-[var(--border)]">
           {runs.map((run) => {
             const accentPrimary =
               run.status === 'running' || run.status === 'succeeded';
@@ -91,32 +130,53 @@ export function JobMarketLabRunsPanel({ analysisRuns }: JobMarketLabRunsPanelPro
               <li
                 key={run.id}
                 className={cn(
-                  'space-y-1 border-b border-[var(--border)] border-l-4 pb-4 pl-3 last:border-b-0',
+                  'grid gap-2 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start',
+                  'border-l-4 pl-3',
                   accentPrimary
                     ? 'border-l-[var(--primary)]'
                     : 'border-l-[var(--mono-300)]',
                 )}
               >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <Heading as="h3" size="sm">
-                    {run.id}
-                  </Heading>
-                  <span
-                    className={cn(
-                      'inline-flex rounded px-1.5 py-0.5 font-body text-xs font-medium',
-                      accentPrimary
-                        ? 'bg-[color-mix(in_oklab,var(--primary)_12%,transparent)] text-[var(--primary)]'
-                        : 'bg-[var(--muted)] text-[var(--mono-500)]',
-                    )}
-                  >
-                    {statusLabel(run.status)}
-                  </span>
+                <div className="min-w-0 space-y-1">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <Heading as="h3" size="sm" className="truncate">
+                      {run.id}
+                    </Heading>
+                    <span
+                      className={cn(
+                        'inline-flex rounded px-1.5 py-0.5 font-body text-xs font-medium',
+                        accentPrimary
+                          ? 'bg-[color-mix(in_oklab,var(--primary)_12%,transparent)] text-[var(--primary)]'
+                          : 'bg-[var(--muted)] text-[var(--mono-500)]',
+                      )}
+                    >
+                      {statusLabel(run.status)}
+                    </span>
+                  </div>
+                  <dl className="grid gap-1 text-sm sm:grid-cols-2">
+                    <div className="flex gap-2">
+                      <dt className="text-[var(--mono-500)]">
+                        {jobMarketLab.console.runsDocsConsideredLabel}
+                      </dt>
+                      <dd className="tabular-nums">
+                        {run.docsConsidered ?? '—'}
+                      </dd>
+                    </div>
+                    <div className="flex gap-2">
+                      <dt className="text-[var(--mono-500)]">
+                        {jobMarketLab.console.runsEstimatedCostLabel}
+                      </dt>
+                      <dd className="tabular-nums">
+                        {formatCost(run.estimatedCostUsd)}
+                      </dd>
+                    </div>
+                  </dl>
+                  {run.status === 'failed' && run.errorMessage ? (
+                    <Text size="sm" variant="muted">
+                      {jobMarketLab.console.failureReasonLabel}: {run.errorMessage}
+                    </Text>
+                  ) : null}
                 </div>
-                {run.status === 'failed' && run.errorMessage ? (
-                  <Text size="sm" variant="muted">
-                    {jobMarketLab.console.failureReasonLabel}: {run.errorMessage}
-                  </Text>
-                ) : null}
               </li>
             );
           })}

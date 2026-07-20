@@ -30,6 +30,7 @@ describe('ingestJobDescription', () => {
         seniority: 'senior',
         roleFamily: 'data_science',
         source: 'confidential-board',
+        compensationDisclosure: 'unknown',
       },
     });
     expect(result.status).toBe('ingested');

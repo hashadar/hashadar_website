@@ -2,6 +2,8 @@ import type { ToolConfiguration } from '@aws-sdk/client-bedrock-runtime';
 import type { DocumentType } from '@smithy/types';
 import type { ExtractedJobDescription } from './assemble-markdown';
 import {
+  COMPENSATION_DISCLOSURES,
+  COMPENSATION_PERIODS,
   JOB_DESCRIPTION_ROLE_FAMILIES,
   JOB_DESCRIPTION_SENIORITIES,
   normaliseExtraction,
@@ -16,6 +18,11 @@ export const EXTRACT_TOOL_NAME = 'extract_job_description';
 export const SYSTEM_PROMPT = [
   'Extract a structured job description from career-page plain text.',
   'Map seniority and roleFamily only to the allowed enums; omit them when unsure.',
+  'For compensationDisclosure: use range when a numeric salary or day-rate band is stated;',
+  'use competitive for phrases such as competitive, DOE, negotiable, or attractive package;',
+  'use unknown when pay is not mentioned.',
+  'When disclosure is range, also extract currency (ISO-like code), min, max, and period when present;',
+  'omit numeric pay fields for competitive or unknown.',
   'Do not invent employer marketing fluff; keep the body faithful to the listing.',
   'Leave source unset — the owner will tag it later.',
   'Call the extract_job_description tool exactly once.',
@@ -94,12 +101,34 @@ export function buildExtractToolSchema(): DocumentType {
         type: 'string',
         enum: [...JOB_DESCRIPTION_ROLE_FAMILIES],
       },
+      compensationDisclosure: {
+        type: 'string',
+        enum: [...COMPENSATION_DISCLOSURES],
+        description:
+          'range for numeric bands; competitive for DOE/negotiable/attractive package; unknown when pay is absent',
+      },
+      compensationCurrency: {
+        type: 'string',
+        description: 'ISO-like currency code when disclosure is range (e.g. GBP, USD)',
+      },
+      compensationMin: {
+        type: 'number',
+        description: 'Lower bound of the stated pay band when disclosure is range',
+      },
+      compensationMax: {
+        type: 'number',
+        description: 'Upper bound of the stated pay band when disclosure is range',
+      },
+      compensationPeriod: {
+        type: 'string',
+        enum: [...COMPENSATION_PERIODS],
+      },
       body: {
         type: 'string',
         description: 'Cleaned markdown-friendly job description body',
       },
     },
-    required: ['title', 'body'],
+    required: ['title', 'body', 'compensationDisclosure'],
     additionalProperties: false,
   };
 }

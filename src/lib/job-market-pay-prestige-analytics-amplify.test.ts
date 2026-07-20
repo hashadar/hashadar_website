@@ -15,6 +15,7 @@ describe('createAmplifyPayPrestigeAnalyticsDeps', () => {
         compensationCurrency: 'GBP',
         compensationMin: 90000,
         compensationPeriod: 'year',
+        compensationDisclosure: 'range',
       },
     ];
     const employers: EmployerRecord[] = [

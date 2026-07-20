@@ -82,12 +82,15 @@ describe('JobMarketLabPayPrestigeAnalyticsPanel', () => {
       }),
     ).toBeInTheDocument();
 
-    expect(await screen.findByText('2')).toBeInTheDocument();
+    expect(await screen.findByText(jobMarketLab.payPrestigeAnalytics.disclosureHeading)).toBeInTheDocument();
     expect(
       screen.getByText(jobMarketLab.payPrestigeAnalytics.missingDataHeading),
     ).toBeInTheDocument();
     expect(
       screen.getByText(jobMarketLab.payPrestigeAnalytics.missingFieldLabels.employerLink),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(jobMarketLab.payPrestigeAnalytics.disclosureLabels.range),
     ).toBeInTheDocument();
     expect(
       screen.getByText(jobMarketLab.payPrestigeAnalytics.prestigeHeading),

@@ -1,7 +1,8 @@
 import { defineFunction } from '@aws-amplify/backend';
 
 /**
- * Analysis worker: Bedrock embeddings (contentHash cache), descriptive stats, k-means.
+ * Analysis worker: Bedrock embeddings (contentHash cache), descriptive stats,
+ * k-means clusters, and PCA 2D projection for the published theme map.
  * Invoked asynchronously by the recompute orchestrator — not guest-callable.
  */
 export const jobMarketAnalyse = defineFunction({

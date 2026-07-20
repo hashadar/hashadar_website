@@ -137,6 +137,11 @@ export interface LabIndexItem {
 export interface LabsPageData {
   heading: string;
   description: string;
+  brandEyebrow: string;
+  purposeLine: string;
+  ctaLabel: string;
+  flagshipTitle: string;
+  teaserAriaLabel: string;
   labs: LabIndexItem[];
 }
 
@@ -146,7 +151,39 @@ export interface JobMarketLabAdminCopy {
   startButtonLabel: string;
   startingLabel: string;
   startedMessage: string;
+  startedMessageWithRunsHint: string;
+  secondaryStartDescription: string;
   rejectedHeading: string;
+}
+
+export interface JobMarketLabAnalyticsWorkspaceCopy {
+  heading: string;
+  description: string;
+  summaryHeading: string;
+  activeDocumentsLabel: string;
+  payDisclosedLabel: string;
+  payUndisclosedLabel: string;
+  employerLinkedLabel: string;
+  completeCompensationLabel: string;
+  startRecomputeHeading: string;
+  startRecomputeDescription: string;
+  viewRunsLabel: string;
+  secondaryToolsHeading: string;
+  secondaryToolsDescription: string;
+}
+
+export interface JobMarketLabFitWorkspaceCopy {
+  heading: string;
+  description: string;
+  loadingLabel: string;
+  errorLabel: string;
+  saveCvFirstHint: string;
+  modeRoleLabel: string;
+  modeMarketLabel: string;
+  jdSearchLabel: string;
+  jdSearchPlaceholder: string;
+  cvColumnHeading: string;
+  resultsHeading: string;
 }
 
 export interface JobMarketLabCorpusAdminData {
@@ -310,6 +347,12 @@ export interface JobMarketLabEmployerAdminCopy {
   rejectedHeading: string;
 }
 
+export interface JobMarketLabCompensationDisclosureOptions {
+  range: string;
+  competitive: string;
+  unknown: string;
+}
+
 export interface JobMarketLabMetadataAdminCopy {
   heading: string;
   description: string;
@@ -317,6 +360,8 @@ export interface JobMarketLabMetadataAdminCopy {
   noEmployerOption: string;
   seniorityLabel: string;
   roleFamilyLabel: string;
+  compensationDisclosureLabel: string;
+  compensationDisclosureOptions: JobMarketLabCompensationDisclosureOptions;
   compensationCurrencyLabel: string;
   compensationMinLabel: string;
   compensationMaxLabel: string;
@@ -381,11 +426,16 @@ export interface JobMarketLabConsoleCopy {
   runsEmpty: string;
   runsLoading: string;
   runsError: string;
+  runsDocsConsideredLabel: string;
+  runsEstimatedCostLabel: string;
+  runsReloadLabel: string;
   runStatusQueued: string;
   runStatusRunning: string;
   runStatusSucceeded: string;
   runStatusFailed: string;
   failureReasonLabel: string;
+  analyticsWorkspace: JobMarketLabAnalyticsWorkspaceCopy;
+  fitWorkspace: JobMarketLabFitWorkspaceCopy;
   cv: JobMarketLabCvCopy;
   compare: JobMarketLabCompareCopy;
   marketCompare: JobMarketLabMarketCompareCopy;
@@ -471,6 +521,8 @@ export interface JobMarketLabCorpusWorkspaceCopy {
   frontmatterMergedNotice: string;
   seniorityLabel: string;
   roleFamilyLabel: string;
+  compensationDisclosureLabel: string;
+  compensationDisclosureOptions: JobMarketLabCompensationDisclosureOptions;
   compensationCurrencyLabel: string;
   compensationMinLabel: string;
   compensationMaxLabel: string;
@@ -521,6 +573,7 @@ export interface JobMarketLabPayPrestigeAnalyticsCopy {
   errorLabel: string;
   activeDocumentsLabel: string;
   missingDataHeading: string;
+  disclosureHeading: string;
   prestigeHeading: string;
   sizeHeading: string;
   compensationHeading: string;
@@ -530,29 +583,58 @@ export interface JobMarketLabPayPrestigeAnalyticsCopy {
   medianMinLabel: string;
   medianMaxLabel: string;
   documentCountLabel: string;
+  disclosureLabels: JobMarketLabCompensationDisclosureOptions;
   missingFieldLabels: {
     employerLink: string;
     compensationCurrency: string;
     compensationMin: string;
     compensationMax: string;
     compensationPeriod: string;
+    compensationDisclosed: string;
     completeCompensation: string;
   };
 }
 
-export interface JobMarketLabPageData {
+export interface JobMarketLabCraftStage {
+  id: string;
+  title: string;
+  inShort: string;
+  underTheHood: string;
+}
+
+export interface JobMarketLabCraftCopy {
   heading: string;
+  intro: string;
+  inShortLabel: string;
+  underTheHoodLabel: string;
+  /** Optional closing note under the craft stages; omit on the public page when unused. */
+  closing?: string;
+  stages: JobMarketLabCraftStage[];
+}
+
+export interface JobMarketLabPageData {
+  /** Possessive brand line shown above the heading (e.g. "Hasha Dar's"). */
+  brandEyebrow: string;
+  heading: string;
+  purposeLine: string;
   description: string;
   emptyState: string;
-  corpusNote: string;
+  /** Optional privacy note under the hero; omit when not shown on the public page. */
+  corpusNote?: string;
+  craft: JobMarketLabCraftCopy;
   metricsHeading: string;
   documentCountLabel: string;
   publishedAtLabel: string;
+  topSignalsLabel: string;
   skillsHeading: string;
+  skillsCaption: string;
   taxonomyHeading: string;
   seniorityLabel: string;
   roleFamilyLabel: string;
   clustersHeading: string;
+  clustersSizeHeading: string;
+  clustersMapHeading: string;
+  clustersCaption: string;
   pulseFiltersTimeLabel: string;
   pulseFilterTimeOptions: JobMarketPulseFilterTimeOptions;
   admin: JobMarketLabAdminCopy;

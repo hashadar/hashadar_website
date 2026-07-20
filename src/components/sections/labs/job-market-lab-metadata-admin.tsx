@@ -8,10 +8,13 @@ import type { JobDescriptionCorpusRecord } from '@/lib/job-market-corpus';
 import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
 import { createDefaultAmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
 import {
+  COMPENSATION_DISCLOSURES,
   COMPENSATION_PERIODS,
   JOB_DESCRIPTION_ROLE_FAMILIES,
   JOB_DESCRIPTION_SENIORITIES,
+  resolveCompensationDisclosure,
   updateJobDescriptionStructuredFields,
+  type CompensationDisclosure,
   type CompensationPeriod,
   type EmployerRecord,
   type JobDescriptionRoleFamily,
@@ -46,6 +49,7 @@ type MetadataDraft = {
   employerId: string;
   seniority: string;
   roleFamily: string;
+  compensationDisclosure: CompensationDisclosure;
   compensationCurrency: string;
   compensationMin: string;
   compensationMax: string;
@@ -60,6 +64,7 @@ function toDraft(record: JobDescriptionCorpusRecord): MetadataDraft {
     employerId: record.employerId ?? '',
     seniority: record.seniority ?? '',
     roleFamily: record.roleFamily ?? '',
+    compensationDisclosure: resolveCompensationDisclosure(record),
     compensationCurrency: record.compensationCurrency ?? '',
     compensationMin:
       record.compensationMin != null ? String(record.compensationMin) : '',
@@ -141,6 +146,9 @@ export function JobMarketLabMetadataAdmin({
     const draft = drafts[record.id] ?? toDraft(record);
     setSaveState({ status: 'saving' });
 
+    const disclosure = draft.compensationDisclosure;
+    const isRange = disclosure === 'range';
+
     const result = await updateJobDescriptionStructuredFields(
       record.id,
       {
@@ -151,13 +159,20 @@ export function JobMarketLabMetadataAdmin({
         roleFamily: draft.roleFamily
           ? (draft.roleFamily as JobDescriptionRoleFamily)
           : null,
-        compensationCurrency: draft.compensationCurrency.trim()
-          ? draft.compensationCurrency.trim()
+        compensationDisclosure: disclosure,
+        compensationCurrency: isRange
+          ? draft.compensationCurrency.trim() || null
           : null,
-        compensationMin: parseOptionalNumber(draft.compensationMin),
-        compensationMax: parseOptionalNumber(draft.compensationMax),
-        compensationPeriod: draft.compensationPeriod
-          ? (draft.compensationPeriod as CompensationPeriod)
+        compensationMin: isRange
+          ? parseOptionalNumber(draft.compensationMin)
+          : null,
+        compensationMax: isRange
+          ? parseOptionalNumber(draft.compensationMax)
+          : null,
+        compensationPeriod: isRange
+          ? draft.compensationPeriod
+            ? (draft.compensationPeriod as CompensationPeriod)
+            : null
           : null,
       },
       metadata,
@@ -281,59 +296,106 @@ export function JobMarketLabMetadataAdmin({
                 </label>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block space-y-2">
-                    <Text size="sm">{jobMarketLab.metadataAdmin.compensationCurrencyLabel}</Text>
-                    <input
-                      className={fieldClassName}
-                      value={draft.compensationCurrency}
-                      onChange={(event) =>
-                        updateDraft(record.id, { compensationCurrency: event.target.value })
-                      }
-                      aria-label={`${jobMarketLab.metadataAdmin.compensationCurrencyLabel} (${record.id})`}
-                    />
-                  </label>
-                  <label className="block space-y-2">
-                    <Text size="sm">{jobMarketLab.metadataAdmin.compensationPeriodLabel}</Text>
+                  <label className="block space-y-2 sm:col-span-2">
+                    <Text size="sm">
+                      {jobMarketLab.metadataAdmin.compensationDisclosureLabel}
+                    </Text>
                     <select
                       className={fieldClassName}
-                      value={draft.compensationPeriod}
+                      value={draft.compensationDisclosure}
                       onChange={(event) =>
-                        updateDraft(record.id, { compensationPeriod: event.target.value })
+                        updateDraft(record.id, {
+                          compensationDisclosure: event.target
+                            .value as CompensationDisclosure,
+                        })
                       }
-                      aria-label={`${jobMarketLab.metadataAdmin.compensationPeriodLabel} (${record.id})`}
+                      aria-label={`${jobMarketLab.metadataAdmin.compensationDisclosureLabel} (${record.id})`}
                     >
-                      <option value="">{jobMarketLab.metadataAdmin.unsetOption}</option>
-                      {COMPENSATION_PERIODS.map((value) => (
+                      {COMPENSATION_DISCLOSURES.map((value) => (
                         <option key={value} value={value}>
-                          {value}
+                          {
+                            jobMarketLab.metadataAdmin
+                              .compensationDisclosureOptions[value]
+                          }
                         </option>
                       ))}
                     </select>
                   </label>
-                  <label className="block space-y-2">
-                    <Text size="sm">{jobMarketLab.metadataAdmin.compensationMinLabel}</Text>
-                    <input
-                      className={fieldClassName}
-                      inputMode="decimal"
-                      value={draft.compensationMin}
-                      onChange={(event) =>
-                        updateDraft(record.id, { compensationMin: event.target.value })
-                      }
-                      aria-label={`${jobMarketLab.metadataAdmin.compensationMinLabel} (${record.id})`}
-                    />
-                  </label>
-                  <label className="block space-y-2">
-                    <Text size="sm">{jobMarketLab.metadataAdmin.compensationMaxLabel}</Text>
-                    <input
-                      className={fieldClassName}
-                      inputMode="decimal"
-                      value={draft.compensationMax}
-                      onChange={(event) =>
-                        updateDraft(record.id, { compensationMax: event.target.value })
-                      }
-                      aria-label={`${jobMarketLab.metadataAdmin.compensationMaxLabel} (${record.id})`}
-                    />
-                  </label>
+                  {draft.compensationDisclosure === 'range' ? (
+                    <>
+                      <label className="block space-y-2">
+                        <Text size="sm">
+                          {jobMarketLab.metadataAdmin.compensationCurrencyLabel}
+                        </Text>
+                        <input
+                          className={fieldClassName}
+                          value={draft.compensationCurrency}
+                          onChange={(event) =>
+                            updateDraft(record.id, {
+                              compensationCurrency: event.target.value,
+                            })
+                          }
+                          aria-label={`${jobMarketLab.metadataAdmin.compensationCurrencyLabel} (${record.id})`}
+                        />
+                      </label>
+                      <label className="block space-y-2">
+                        <Text size="sm">
+                          {jobMarketLab.metadataAdmin.compensationPeriodLabel}
+                        </Text>
+                        <select
+                          className={fieldClassName}
+                          value={draft.compensationPeriod}
+                          onChange={(event) =>
+                            updateDraft(record.id, {
+                              compensationPeriod: event.target.value,
+                            })
+                          }
+                          aria-label={`${jobMarketLab.metadataAdmin.compensationPeriodLabel} (${record.id})`}
+                        >
+                          <option value="">
+                            {jobMarketLab.metadataAdmin.unsetOption}
+                          </option>
+                          {COMPENSATION_PERIODS.map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="block space-y-2">
+                        <Text size="sm">
+                          {jobMarketLab.metadataAdmin.compensationMinLabel}
+                        </Text>
+                        <input
+                          className={fieldClassName}
+                          inputMode="decimal"
+                          value={draft.compensationMin}
+                          onChange={(event) =>
+                            updateDraft(record.id, {
+                              compensationMin: event.target.value,
+                            })
+                          }
+                          aria-label={`${jobMarketLab.metadataAdmin.compensationMinLabel} (${record.id})`}
+                        />
+                      </label>
+                      <label className="block space-y-2">
+                        <Text size="sm">
+                          {jobMarketLab.metadataAdmin.compensationMaxLabel}
+                        </Text>
+                        <input
+                          className={fieldClassName}
+                          inputMode="decimal"
+                          value={draft.compensationMax}
+                          onChange={(event) =>
+                            updateDraft(record.id, {
+                              compensationMax: event.target.value,
+                            })
+                          }
+                          aria-label={`${jobMarketLab.metadataAdmin.compensationMaxLabel} (${record.id})`}
+                        />
+                      </label>
+                    </>
+                  ) : null}
                 </div>
 
                 <Button

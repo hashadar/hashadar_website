@@ -20,8 +20,36 @@ describe('assembleJobDescriptionMarkdown', () => {
     expect(markdown).toContain('title: Senior Data Scientist');
     expect(markdown).toContain('seniority: senior');
     expect(markdown).toContain('roleFamily: data_science');
+    expect(markdown).toContain('compensationDisclosure: unknown');
     expect(markdown).not.toContain('source:');
     expect(markdown).toContain('Lead modelling across credit risk.');
+  });
+
+  it('emits range fields and strips them for competitive disclosure', () => {
+    expect(
+      assembleJobDescriptionMarkdown({
+        title: 'Analyst',
+        body: 'Do analysis.',
+        collectedAt: '2026-07-18T10:00:00.000Z',
+        compensationDisclosure: 'range',
+        compensationCurrency: 'GBP',
+        compensationMin: 50000,
+        compensationMax: 60000,
+        compensationPeriod: 'year',
+      }),
+    ).toContain('compensationMin: 50000');
+
+    const competitive = assembleJobDescriptionMarkdown({
+      title: 'Analyst',
+      body: 'Do analysis.',
+      collectedAt: '2026-07-18T10:00:00.000Z',
+      compensationDisclosure: 'competitive',
+      compensationCurrency: 'GBP',
+      compensationMin: 50000,
+      compensationMax: 60000,
+    });
+    expect(competitive).toContain('compensationDisclosure: competitive');
+    expect(competitive).not.toContain('compensationMin:');
   });
 
   it('drops invalid enum values from model output', () => {
@@ -37,6 +65,42 @@ describe('assembleJobDescriptionMarkdown', () => {
       body: 'Do analysis.',
       seniority: undefined,
       roleFamily: 'data_science',
+      compensationDisclosure: 'unknown',
+    });
+  });
+
+  it('maps competitive and range extractions pay', () => {
+    expect(
+      normaliseExtraction({
+        title: 'Analyst',
+        body: 'Do analysis.',
+        compensationDisclosure: 'competitive',
+        compensationMin: 1,
+        compensationMax: 2,
+      }),
+    ).toEqual({
+      title: 'Analyst',
+      body: 'Do analysis.',
+      seniority: undefined,
+      roleFamily: undefined,
+      compensationDisclosure: 'competitive',
+    });
+
+    expect(
+      normaliseExtraction({
+        title: 'Analyst',
+        body: 'Do analysis.',
+        compensationMin: 80000,
+        compensationMax: 90000,
+        compensationCurrency: 'GBP',
+        compensationPeriod: 'year',
+      }),
+    ).toMatchObject({
+      compensationDisclosure: 'range',
+      compensationMin: 80000,
+      compensationMax: 90000,
+      compensationCurrency: 'GBP',
+      compensationPeriod: 'year',
     });
   });
 });

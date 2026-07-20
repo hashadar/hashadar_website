@@ -6,6 +6,7 @@ import type {
 } from './job-market-corpus';
 
 import type {
+  CompensationDisclosure,
   CompensationPeriod,
   JobDescriptionRoleFamily,
   JobDescriptionSeniority,
@@ -26,6 +27,7 @@ export type AmplifyJobDescriptionRow = {
   compensationMin?: number | null;
   compensationMax?: number | null;
   compensationPeriod?: CompensationPeriod | null;
+  compensationDisclosure?: CompensationDisclosure | null;
 };
 
 type AmplifyDataResult<T> = {
@@ -67,6 +69,7 @@ function toCorpusRecord(row: AmplifyJobDescriptionRow): JobDescriptionCorpusReco
     compensationMin: row.compensationMin ?? undefined,
     compensationMax: row.compensationMax ?? undefined,
     compensationPeriod: row.compensationPeriod ?? undefined,
+    compensationDisclosure: row.compensationDisclosure ?? undefined,
   };
 }
 
@@ -102,6 +105,7 @@ export function createAmplifyCorpusDeps(
         compensationMin: record.compensationMin ?? null,
         compensationMax: record.compensationMax ?? null,
         compensationPeriod: record.compensationPeriod ?? null,
+        compensationDisclosure: record.compensationDisclosure ?? null,
       });
       throwIfErrors(errors);
     },

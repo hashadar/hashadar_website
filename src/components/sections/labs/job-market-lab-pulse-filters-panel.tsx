@@ -20,6 +20,7 @@ import {
 
 export type JobMarketLabPulseFiltersPanelProps = {
   ownerPulse?: FetchOwnerJobMarketPulseSourceDeps;
+  embedded?: boolean;
 };
 
 type LoadState =
@@ -75,6 +76,7 @@ function FrequencySummary({ pulse }: { pulse: FilteredJobMarketPulse }) {
 
 export function JobMarketLabPulseFiltersPanel({
   ownerPulse,
+  embedded = false,
 }: JobMarketLabPulseFiltersPanelProps) {
   const { session, isLoading } = useSiteAuth();
   const [loadState, setLoadState] = useState<LoadState>({ status: 'idle' });
@@ -136,18 +138,23 @@ export function JobMarketLabPulseFiltersPanel({
   }
 
   return (
-    <section className="mt-16 space-y-6" aria-labelledby="job-market-pulse-filters-heading">
+    <section
+      className={embedded ? 'space-y-4' : 'mt-16 space-y-6'}
+      aria-labelledby="job-market-pulse-filters-heading"
+    >
       <div className="space-y-2">
         <SectionHeader
           id="job-market-pulse-filters-heading"
-          as="h2"
-          size="md"
+          as={embedded ? 'h3' : 'h2'}
+          size={embedded ? 'sm' : 'md'}
           animated={false}
-          showLeftAccent
+          showLeftAccent={!embedded}
         >
           {jobMarketLab.console.pulseFiltersHeading}
         </SectionHeader>
-        <Text variant="muted">{jobMarketLab.console.pulseFiltersDescription}</Text>
+        <Text size={embedded ? 'sm' : 'base'} variant="muted">
+          {jobMarketLab.console.pulseFiltersDescription}
+        </Text>
       </div>
 
       {loadState.status === 'loading' || loadState.status === 'idle' ? (

@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 export type JobMarketLabPayPrestigeAnalyticsPanelProps = {
   analytics?: GetOwnerPayPrestigeAnalyticsDeps;
+  embedded?: boolean;
 };
 
 function formatPercent(rate: number): string {
@@ -75,69 +76,82 @@ function TierBars({ items, labelledBy }: { items: TierBucket[]; labelledBy: stri
 function AnalyticsDashboard({ analytics }: { analytics: OwnerPayPrestigeAnalytics }) {
   const copy = jobMarketLab.payPrestigeAnalytics;
   const missingDataId = 'job-market-missing-data-heading';
+  const disclosureId = 'job-market-disclosure-heading';
   const prestigeId = 'job-market-prestige-heading';
   const sizeId = 'job-market-size-heading';
   const compensationId = 'job-market-compensation-heading';
 
   return (
-    <div className="space-y-10">
-      <div className="space-y-1">
-        <Text size="sm" variant="muted">
-          {copy.activeDocumentsLabel}
-        </Text>
-        <Text className="text-3xl font-semibold tabular-nums tracking-tight">
-          {analytics.activeDocumentCount}
-        </Text>
-      </div>
-
-      <section className="space-y-4" aria-labelledby={missingDataId}>
-        <Heading id={missingDataId} as="h3" size="sm">
-          {copy.missingDataHeading}
-        </Heading>
-        <ul className="space-y-3">
-          {analytics.missingDataRates.map((rate) => (
-            <li
-              key={rate.field}
-              className="grid gap-2 border border-[color-mix(in_oklab,var(--foreground)_12%,transparent)] p-4 sm:grid-cols-[minmax(0,12rem)_1fr]"
-            >
-              <Text size="sm">{copy.missingFieldLabels[rate.field]}</Text>
-              <div className="space-y-1">
+    <div className="space-y-8">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="space-y-3" aria-labelledby={missingDataId}>
+          <Heading id={missingDataId} as="h3" size="sm">
+            {copy.missingDataHeading}
+          </Heading>
+          <ul className="space-y-2">
+            {analytics.missingDataRates.map((rate) => (
+              <li
+                key={rate.field}
+                className="grid gap-1 border-b border-[color-mix(in_oklab,var(--foreground)_10%,transparent)] py-2 sm:grid-cols-[minmax(0,11rem)_1fr]"
+              >
+                <Text size="sm">{copy.missingFieldLabels[rate.field]}</Text>
                 <Text size="sm" variant="muted">
                   {copy.presentLabel}: {rate.present} · {copy.missingLabel}: {rate.missing} (
-                  {formatPercent(rate.missingRate)} {copy.missingLabel.toLowerCase()})
+                  {formatPercent(rate.missingRate)})
                 </Text>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      <section className="space-y-4" aria-labelledby={prestigeId}>
-        <Heading id={prestigeId} as="h3" size="sm">
-          {copy.prestigeHeading}
-        </Heading>
-        <TierBars items={analytics.prestigeTierBreakdown} labelledBy={prestigeId} />
-      </section>
+        <section className="space-y-3" aria-labelledby={disclosureId}>
+          <Heading id={disclosureId} as="h3" size="sm">
+            {copy.disclosureHeading}
+          </Heading>
+          <ul className="space-y-2">
+            {analytics.compensationDisclosureBreakdown.map((bucket) => (
+              <li
+                key={bucket.disclosure}
+                className="flex items-baseline justify-between gap-3 border-b border-[color-mix(in_oklab,var(--foreground)_10%,transparent)] py-2"
+              >
+                <Text size="sm">{copy.disclosureLabels[bucket.disclosure]}</Text>
+                <Text size="sm" variant="muted" className="tabular-nums">
+                  {bucket.count}
+                </Text>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
 
-      <section className="space-y-4" aria-labelledby={sizeId}>
-        <Heading id={sizeId} as="h3" size="sm">
-          {copy.sizeHeading}
-        </Heading>
-        <TierBars items={analytics.sizeTierBreakdown} labelledBy={sizeId} />
-      </section>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="space-y-3" aria-labelledby={prestigeId}>
+          <Heading id={prestigeId} as="h3" size="sm">
+            {copy.prestigeHeading}
+          </Heading>
+          <TierBars items={analytics.prestigeTierBreakdown} labelledBy={prestigeId} />
+        </section>
 
-      <section className="space-y-4" aria-labelledby={compensationId}>
+        <section className="space-y-3" aria-labelledby={sizeId}>
+          <Heading id={sizeId} as="h3" size="sm">
+            {copy.sizeHeading}
+          </Heading>
+          <TierBars items={analytics.sizeTierBreakdown} labelledBy={sizeId} />
+        </section>
+      </div>
+
+      <section className="space-y-3" aria-labelledby={compensationId}>
         <Heading id={compensationId} as="h3" size="sm">
           {copy.compensationHeading}
         </Heading>
         {analytics.compensationByCurrency.length === 0 ? (
           <Text variant="muted">{copy.compensationEmpty}</Text>
         ) : (
-          <ul className="space-y-4">
+          <ul className="grid gap-3 sm:grid-cols-2">
             {analytics.compensationByCurrency.map((summary) => (
               <li
                 key={summary.currency}
-                className="space-y-2 border border-[color-mix(in_oklab,var(--foreground)_12%,transparent)] p-4"
+                className="space-y-1 border-l-2 border-l-[var(--border)] pl-3"
               >
                 <Text className="font-medium">{summary.currency}</Text>
                 <Text size="sm" variant="muted">
@@ -164,6 +178,7 @@ function AnalyticsDashboard({ analytics }: { analytics: OwnerPayPrestigeAnalytic
 
 export function JobMarketLabPayPrestigeAnalyticsPanel({
   analytics: analyticsDepsProp,
+  embedded = false,
 }: JobMarketLabPayPrestigeAnalyticsPanelProps) {
   const { session, isLoading } = useSiteAuth();
   const [analytics, setAnalytics] = useState<OwnerPayPrestigeAnalytics | null>(null);
@@ -205,7 +220,14 @@ export function JobMarketLabPayPrestigeAnalyticsPanel({
   const copy = jobMarketLab.payPrestigeAnalytics;
 
   return (
-    <div className="mt-16 max-w-2xl space-y-6 border-t border-[var(--border)] pt-12">
+    <div
+      className={cn(
+        'space-y-6',
+        embedded
+          ? 'border-t border-[var(--border)] pt-8'
+          : 'mt-16 max-w-2xl border-t border-[var(--border)] pt-12',
+      )}
+    >
       <div className="space-y-3">
         <SectionHeader as="h2" size="md" animated={false} showLeftAccent>
           {copy.heading}

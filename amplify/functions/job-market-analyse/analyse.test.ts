@@ -285,5 +285,18 @@ describe('analyseCorpus', () => {
     expect(result.metrics.estimatedCostUsd).toBeGreaterThan(0);
     expect(embed).toHaveBeenCalledOnce();
     expect(cachePut).toHaveBeenCalledOnce();
+
+    // Projection uses PCA coordinates, not raw first-two embedding dimensions.
+    const firstTwoDims = Array.from({ length: 8 }, (_, index) => index / 10);
+    expect(result.snapshot.projection[0]).not.toMatchObject({
+      x: firstTwoDims[0],
+      y: firstTwoDims[1],
+    });
+    expect(result.snapshot.corpusMeta?.documents[0]?.projectionX).toEqual(
+      result.snapshot.projection[0]?.x,
+    );
+    expect(result.snapshot.corpusMeta?.documents[0]?.projectionY).toEqual(
+      result.snapshot.projection[0]?.y,
+    );
   });
 });

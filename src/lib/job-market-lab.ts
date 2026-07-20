@@ -304,12 +304,15 @@ export {
   JOB_DESCRIPTION_SENIORITIES,
   JOB_DESCRIPTION_ROLE_FAMILIES,
   COMPENSATION_PERIODS,
+  COMPENSATION_DISCLOSURES,
+  resolveCompensationDisclosure,
   type EmployerRecord,
   type EmployerSizeTier,
   type EmployerPrestigeTier,
   type JobDescriptionSeniority,
   type JobDescriptionRoleFamily,
   type CompensationPeriod,
+  type CompensationDisclosure,
   type JobDescriptionStructuredFieldsPatch,
   type UpdateJobDescriptionStructuredFieldsDeps,
 } from './job-market-employers';
@@ -329,6 +332,7 @@ export {
   type MissingDataRate,
   type TierBucket,
   type CompensationCurrencySummary,
+  type CompensationDisclosureBreakdown,
 } from './job-market-pay-prestige-analytics';
 
 export {

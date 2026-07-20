@@ -1,15 +1,24 @@
 'use client';
 
-import { JobMarketLabPayPrestigeAnalyticsPanel } from '@/components/sections/labs/job-market-lab-pay-prestige-analytics-panel';
-import { JobMarketLabPulseFiltersPanel } from '@/components/sections/labs/job-market-lab-pulse-filters-panel';
-import { JobMarketLabThemeLabelsPanel } from '@/components/sections/labs/job-market-lab-theme-labels-panel';
+import { JobMarketAnalyticsWorkspace } from '@/components/sections/labs/console/analytics/job-market-analytics-workspace';
+import type {
+  GetOwnerPayPrestigeAnalyticsDeps,
+  StartJobMarketRecompute,
+} from '@/lib/job-market-lab';
 
-export function JobMarketConsoleAnalyticsPage() {
+export type JobMarketConsoleAnalyticsPageProps = {
+  analytics?: GetOwnerPayPrestigeAnalyticsDeps;
+  startRecompute?: StartJobMarketRecompute;
+};
+
+export function JobMarketConsoleAnalyticsPage({
+  analytics,
+  startRecompute,
+}: JobMarketConsoleAnalyticsPageProps) {
   return (
-    <>
-      <JobMarketLabThemeLabelsPanel />
-      <JobMarketLabPulseFiltersPanel />
-      <JobMarketLabPayPrestigeAnalyticsPanel />
-    </>
+    <JobMarketAnalyticsWorkspace
+      analytics={analytics}
+      startRecompute={startRecompute}
+    />
   );
 }
