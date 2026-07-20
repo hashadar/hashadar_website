@@ -15,6 +15,7 @@ export type AmplifyScrapeCandidateRow = {
   source?: string | null;
   collectedAt?: string | null;
   candidateS3Key?: string | null;
+  employerId?: string | null;
 };
 
 type AmplifyDataResult<T> = {
@@ -50,6 +51,7 @@ function toScrapeCandidateRecord(row: AmplifyScrapeCandidateRow): ScrapeCandidat
     source: row.source ?? undefined,
     collectedAt: row.collectedAt ?? undefined,
     candidateS3Key: row.candidateS3Key ?? undefined,
+    employerId: row.employerId ?? undefined,
   };
 }
 
@@ -79,6 +81,7 @@ export function createAmplifyScrapeCandidateDeps(
         ...(record.candidateS3Key !== undefined
           ? { candidateS3Key: record.candidateS3Key }
           : {}),
+        employerId: record.employerId ?? null,
       });
       throwIfErrors(errors);
     },
@@ -93,6 +96,7 @@ export function createAmplifyScrapeCandidateDeps(
         ...(input.candidateS3Key !== undefined
           ? { candidateS3Key: input.candidateS3Key }
           : {}),
+        ...(input.employerId !== undefined ? { employerId: input.employerId } : {}),
       });
       throwIfErrors(errors);
       if (!data) {

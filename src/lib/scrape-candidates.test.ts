@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   acceptScrapeCandidate,
+  applyOwnerMetadata,
   enqueueScrapeCandidate,
   listPendingScrapeCandidates,
   rejectScrapeCandidate,
@@ -316,5 +317,46 @@ describe('rejectScrapeCandidate', () => {
     });
 
     expect(result).toEqual({ status: 'not_found' });
+  });
+});
+
+describe('applyOwnerMetadata', () => {
+  it('writes source into frontmatter and record fields for HITL tagging', () => {
+    const candidate = pendingCandidate({
+      id: 'c-tags',
+      source: undefined,
+      body: `---
+collectedAt: 2026-06-15T10:00:00.000Z
+title: Senior Data Scientist
+---
+
+# Senior Data Scientist
+`,
+    });
+
+    const result = applyOwnerMetadata(candidate, {
+      title: 'Senior Data Scientist',
+      source: 'linkedin',
+      collectedAt: '2026-06-15T10:00:00.000Z',
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.candidate.source).toBe('linkedin');
+    expect(result.candidate.body).toContain('source: linkedin');
+  });
+
+  it('rejects invalid collectedAt without mutating the candidate', () => {
+    const candidate = pendingCandidate({ id: 'c-bad-date' });
+    const result = applyOwnerMetadata(candidate, {
+      title: candidate.title,
+      source: 'board',
+      collectedAt: 'not-a-date',
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      reason: 'Frontmatter requires a valid collectedAt',
+    });
   });
 });

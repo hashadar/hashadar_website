@@ -1,6 +1,7 @@
 import { defineStorage } from '@aws-amplify/backend';
 import { jobMarketIngest } from '../functions/job-market-ingest/resource';
 import { jobMarketAnalyse } from '../functions/job-market-analyse/resource';
+import { jobMarketParseListing } from '../functions/job-market-parse-listing/resource';
 
 /**
  * Job market lab corpus storage.
@@ -16,7 +17,10 @@ export const storage = defineStorage({
       allow.resource(jobMarketIngest).to(['read']),
       allow.resource(jobMarketAnalyse).to(['read']),
     ],
-    'candidates/*': [allow.authenticated.to(['read', 'write', 'delete'])],
+    'candidates/*': [
+      allow.authenticated.to(['read', 'write', 'delete']),
+      allow.resource(jobMarketParseListing).to(['write']),
+    ],
     'embeddings/*': [
       allow.authenticated.to(['read', 'write', 'delete']),
       allow.resource(jobMarketAnalyse).to(['read', 'write']),

@@ -60,7 +60,7 @@ export function buildSitemap(blogDirectory?: string): MetadataRoute.Sitemap {
       priority: 0.2,
     },
     {
-      url: `${baseUrl}/labs/job-market/console/hitl`,
+      url: `${baseUrl}/labs/job-market/console/intake`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.2,

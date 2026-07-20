@@ -235,13 +235,44 @@ export interface JobMarketLabMarketCompareCopy {
   gapLearningTargetTemplate: string;
 }
 
+export interface JobMarketLabHitlParseListingCopy {
+  heading: string;
+  description: string;
+  urlLabel: string;
+  urlPlaceholder: string;
+  submitLabel: string;
+  fetchingLabel: string;
+  extractingLabel: string;
+  successHeading: string;
+  successMessage: string;
+  previewLabel: string;
+  costLabel: string;
+  unfetchableHeading: string;
+  extractFailedHeading: string;
+  rejectedHeading: string;
+  pasteFallbackHeading: string;
+  pasteFallbackDescription: string;
+  pasteLabel: string;
+  pastePlaceholder: string;
+  pasteSubmitLabel: string;
+  showPasteLabel: string;
+  hidePasteLabel: string;
+}
+
 export interface JobMarketLabHitlQueueCopy {
   heading: string;
   description: string;
   emptyList: string;
+  pendingHeading: string;
+  pendingCountLabel: string;
   loadingLabel: string;
   errorLabel: string;
   untitledLabel: string;
+  controlsHeading: string;
+  reviewHeading: string;
+  emptyReview: string;
+  selectPendingHint: string;
+  bodyPreviewLabel: string;
   acceptLabel: string;
   rejectLabel: string;
   acceptingLabel: string;
@@ -249,8 +280,16 @@ export interface JobMarketLabHitlQueueCopy {
   acceptedMessage: string;
   rejectedMessage: string;
   actionErrorHeading: string;
-  llmAssistLabel: string;
-  llmAssistDescription: string;
+  titleLabel: string;
+  sourceLabel: string;
+  collectedAtLabel: string;
+  employerLabel: string;
+  noEmployerOption: string;
+  employersLoadingLabel: string;
+  employersErrorLabel: string;
+  employerUnsetWarning: string;
+  employerUnknownWarning: string;
+  parseListing: JobMarketLabHitlParseListingCopy;
 }
 
 export interface JobMarketLabEmployerAdminCopy {
@@ -427,6 +466,9 @@ export interface JobMarketLabCorpusWorkspaceCopy {
   markdownSaveError: string;
   metadataHeading: string;
   employerLabel: string;
+  employerUnsetWarning: string;
+  employerUnknownWarning: string;
+  frontmatterMergedNotice: string;
   seniorityLabel: string;
   roleFamilyLabel: string;
   compensationCurrencyLabel: string;
@@ -438,17 +480,23 @@ export interface JobMarketLabCorpusWorkspaceCopy {
   savingMetadataLabel: string;
   metadataSavedMessage: string;
   metadataSaveError: string;
-  ingestHeading: string;
-  ingestDescription: string;
-  ingestFileLabel: string;
-  ingestDropLabel: string;
-  ingestUploadingLabel: string;
-  ingestQueueHeading: string;
-  ingestQueued: string;
-  ingestValidating: string;
-  ingestUploading: string;
-  ingestUploaded: string;
-  ingestRejected: string;
+  registryHeading: string;
+  registryDescription: string;
+  registryExpandLabel: string;
+  registryCollapseLabel: string;
+  auditHeading: string;
+  auditDescription: string;
+  auditLoadingLabel: string;
+  auditErrorLabel: string;
+  auditJobDescriptionsLabel: string;
+  auditActiveLabel: string;
+  auditArchivedLabel: string;
+  auditMissingEmployerLabel: string;
+  auditMissingPayLabel: string;
+  auditEmployersLabel: string;
+  auditPendingIntakeLabel: string;
+  auditRunsLabel: string;
+  auditFailedRunsLabel: string;
   employersButtonLabel: string;
   employersModalHeading: string;
   employersModalDescription: string;

@@ -5,14 +5,16 @@ import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
 import type { AmplifyEmployerDeps } from '@/lib/job-market-employers-amplify';
 import type { FetchJobDescriptionMarkdownDeps } from '@/lib/fetch-job-description-markdown';
 import type { UploadJobDescriptionDeps } from '@/lib/upload-job-description';
-import type { CorpusUploadFn } from '@/components/sections/labs/console/corpus/job-market-corpus-ingest-toolbar';
+import type { ScrapeCandidateRecord } from '@/lib/scrape-candidates';
+import type { AnalysisRunRecord } from '@/lib/job-market-analysis-runs';
 
 export type JobMarketConsoleCorpusPageProps = {
   corpus?: AmplifyCorpusDeps;
   employers?: AmplifyEmployerDeps;
   markdownDeps?: FetchJobDescriptionMarkdownDeps;
   uploadDeps?: UploadJobDescriptionDeps;
-  uploadJobDescription?: CorpusUploadFn;
+  listPendingCandidates?: () => Promise<ScrapeCandidateRecord[]>;
+  listRuns?: () => Promise<AnalysisRunRecord[]>;
 };
 
 export function JobMarketConsoleCorpusPage({
@@ -20,7 +22,8 @@ export function JobMarketConsoleCorpusPage({
   employers,
   markdownDeps,
   uploadDeps,
-  uploadJobDescription,
+  listPendingCandidates,
+  listRuns,
 }: JobMarketConsoleCorpusPageProps) {
   return (
     <JobMarketCorpusWorkspace
@@ -28,7 +31,8 @@ export function JobMarketConsoleCorpusPage({
       employers={employers}
       markdownDeps={markdownDeps}
       uploadDeps={uploadDeps}
-      uploadJobDescription={uploadJobDescription}
+      listPendingCandidates={listPendingCandidates}
+      listRuns={listRuns}
     />
   );
 }

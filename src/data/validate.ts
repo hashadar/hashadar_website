@@ -184,9 +184,16 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(hitlQueue, 'heading', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'description', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'emptyList', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'pendingHeading', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'pendingCountLabel', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'loadingLabel', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'errorLabel', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'untitledLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'controlsHeading', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'reviewHeading', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'emptyReview', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'selectPendingHint', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'bodyPreviewLabel', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'acceptLabel', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'rejectLabel', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'acceptingLabel', 'jobMarketLab.hitlQueue');
@@ -194,8 +201,40 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(hitlQueue, 'acceptedMessage', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'rejectedMessage', 'jobMarketLab.hitlQueue');
   requireString(hitlQueue, 'actionErrorHeading', 'jobMarketLab.hitlQueue');
-  requireString(hitlQueue, 'llmAssistLabel', 'jobMarketLab.hitlQueue');
-  requireString(hitlQueue, 'llmAssistDescription', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'titleLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'sourceLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'collectedAtLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'employerLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'noEmployerOption', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'employersLoadingLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'employersErrorLabel', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'employerUnsetWarning', 'jobMarketLab.hitlQueue');
+  requireString(hitlQueue, 'employerUnknownWarning', 'jobMarketLab.hitlQueue');
+  const parseListing = requireRecord(
+    hitlQueue.parseListing,
+    'jobMarketLab.hitlQueue.parseListing',
+  );
+  requireString(parseListing, 'heading', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'description', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'urlLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'urlPlaceholder', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'submitLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'fetchingLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'extractingLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'successHeading', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'successMessage', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'previewLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'costLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'unfetchableHeading', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'extractFailedHeading', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'rejectedHeading', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'pasteFallbackHeading', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'pasteFallbackDescription', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'pasteLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'pastePlaceholder', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'pasteSubmitLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'showPasteLabel', 'jobMarketLab.hitlQueue.parseListing');
+  requireString(parseListing, 'hidePasteLabel', 'jobMarketLab.hitlQueue.parseListing');
   const employerAdmin = requireRecord(page.employerAdmin, 'jobMarketLab.employerAdmin');
   requireString(employerAdmin, 'heading', 'jobMarketLab.employerAdmin');
   requireString(employerAdmin, 'description', 'jobMarketLab.employerAdmin');
@@ -503,6 +542,9 @@ export function assertValidJobMarketLabPage(data: unknown): void {
     'markdownSaveError',
     'metadataHeading',
     'employerLabel',
+    'employerUnsetWarning',
+    'employerUnknownWarning',
+    'frontmatterMergedNotice',
     'seniorityLabel',
     'roleFamilyLabel',
     'compensationCurrencyLabel',
@@ -514,17 +556,23 @@ export function assertValidJobMarketLabPage(data: unknown): void {
     'savingMetadataLabel',
     'metadataSavedMessage',
     'metadataSaveError',
-    'ingestHeading',
-    'ingestDescription',
-    'ingestFileLabel',
-    'ingestDropLabel',
-    'ingestUploadingLabel',
-    'ingestQueueHeading',
-    'ingestQueued',
-    'ingestValidating',
-    'ingestUploading',
-    'ingestUploaded',
-    'ingestRejected',
+    'registryHeading',
+    'registryDescription',
+    'registryExpandLabel',
+    'registryCollapseLabel',
+    'auditHeading',
+    'auditDescription',
+    'auditLoadingLabel',
+    'auditErrorLabel',
+    'auditJobDescriptionsLabel',
+    'auditActiveLabel',
+    'auditArchivedLabel',
+    'auditMissingEmployerLabel',
+    'auditMissingPayLabel',
+    'auditEmployersLabel',
+    'auditPendingIntakeLabel',
+    'auditRunsLabel',
+    'auditFailedRunsLabel',
     'employersButtonLabel',
     'employersModalHeading',
     'employersModalDescription',

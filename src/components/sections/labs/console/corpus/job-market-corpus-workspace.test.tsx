@@ -1,6 +1,6 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { JobMarketCorpusWorkspace } from '@/components/sections/labs/console/corpus/job-market-corpus-workspace';
 import { SiteAuthProvider } from '@/hooks/use-site-auth';
 import { jobMarketLab } from '@/data';
@@ -104,9 +104,12 @@ describe('JobMarketCorpusWorkspace', () => {
       await screen.findByRole('heading', { name: copy.heading }),
     ).toBeInTheDocument();
     expect(
+      await screen.findByRole('heading', { name: copy.registryHeading }),
+    ).toBeInTheDocument();
+    expect(
       await screen.findByRole('button', { name: 'Applied AI Architect' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Archived Role')).toBeInTheDocument();
+    expect(screen.getAllByText('Archived Role').length).toBeGreaterThan(0);
     expect(
       screen.queryByRole('heading', { name: jobMarketLab.upload.heading }),
     ).not.toBeInTheDocument();
@@ -118,7 +121,7 @@ describe('JobMarketCorpusWorkspace', () => {
     expect(
       screen.getByRole('button', { name: 'Applied AI Architect' }),
     ).toBeInTheDocument();
-    expect(screen.queryByText('Archived Role')).not.toBeInTheDocument();
+    expect(screen.queryAllByText('Archived Role')).toHaveLength(0);
 
     await user.click(
       screen.getByRole('button', { name: 'Applied AI Architect' }),
@@ -129,59 +132,7 @@ describe('JobMarketCorpusWorkspace', () => {
     expect(await screen.findByDisplayValue(/Body copy/)).toBeInTheDocument();
   });
 
-  it('uploads valid files through the ingest toolbar and selects the new row', async () => {
-    const user = userEvent.setup();
-    const corpus = createCorpus([]);
-    const employers = createEmployers([]);
-    const uploadJobDescription = vi.fn(async (input: { fileName: string }) => {
-      const id = `raw/${input.fileName}`;
-      await corpus.saveJobDescription({
-        id,
-        s3Key: id,
-        collectedAt: '2026-07-01T00:00:00.000Z',
-        status: 'active',
-        title: 'Uploaded Role',
-      });
-      return { status: 'uploaded' as const, s3Key: id };
-    });
-
-    render(
-      <SiteAuthProvider
-        auth={createMemorySiteAuth({
-          status: 'authenticated',
-          email: 'owner@example.com',
-        })}
-      >
-        <JobMarketCorpusWorkspace
-          corpus={corpus}
-          employers={employers}
-          markdownDeps={{ fetchMarkdown: async () => 'x' }}
-          uploadJobDescription={uploadJobDescription}
-        />
-      </SiteAuthProvider>,
-    );
-
-    await screen.findByRole('heading', { name: copy.heading });
-
-    const file = new File(
-      [
-        '---\ncollectedAt: 2026-07-01T00:00:00.000Z\ntitle: Uploaded Role\n---\nBody\n',
-      ],
-      'uploaded.md',
-      { type: 'text/markdown' },
-    );
-    const input = screen.getByLabelText(copy.ingestFileLabel);
-    await user.upload(input, file);
-
-    await waitFor(() => {
-      expect(uploadJobDescription).toHaveBeenCalled();
-    });
-    expect(
-      await screen.findByRole('button', { name: 'Uploaded Role' }),
-    ).toBeInTheDocument();
-  });
-
-  it('creates an employer from the modal for the table select', async () => {
+  it('expands the registry panel to add employers and show audit counts', async () => {
     const user = userEvent.setup();
     const corpus = createCorpus([
       {
@@ -205,29 +156,32 @@ describe('JobMarketCorpusWorkspace', () => {
           corpus={corpus}
           employers={employers}
           markdownDeps={{ fetchMarkdown: async () => 'body' }}
+          listPendingCandidates={async () => []}
+          listRuns={async () => []}
         />
       </SiteAuthProvider>,
     );
 
-    await screen.findByText('Role');
+    await screen.findAllByText('Role');
     await user.click(
-      screen.getByRole('button', { name: copy.employersButtonLabel }),
+      screen.getByRole('button', { name: new RegExp(copy.registryHeading) }),
     );
-    const dialog = await screen.findByRole('dialog', {
-      name: copy.employersModalHeading,
-    });
+
+    expect(
+      await screen.findByRole('heading', { name: copy.auditHeading }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(copy.auditJobDescriptionsLabel)).toBeInTheDocument();
+
     await user.type(
-      within(dialog).getByPlaceholderText(copy.employersNameLabel),
+      screen.getByPlaceholderText(copy.employersNameLabel),
       'Accenture',
     );
     await user.click(
-      within(dialog).getByRole('button', { name: copy.employersCreateLabel }),
+      screen.getByRole('button', { name: copy.employersCreateLabel }),
     );
     await waitFor(() => {
       expect(employers.store.size).toBe(1);
     });
-    expect(
-      within(dialog).getByDisplayValue('Accenture'),
-    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Accenture')).toBeInTheDocument();
   });
 });

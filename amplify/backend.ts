@@ -9,6 +9,7 @@ import { jobMarketIngest } from './functions/job-market-ingest/resource.js';
 import { jobMarketRecompute } from './functions/job-market-recompute/resource.js';
 import { jobMarketAnalyse } from './functions/job-market-analyse/resource.js';
 import { jobMarketPublication } from './functions/job-market-publication/resource.js';
+import { jobMarketParseListing } from './functions/job-market-parse-listing/resource.js';
 
 const backend = defineBackend({
   auth,
@@ -18,6 +19,7 @@ const backend = defineBackend({
   jobMarketRecompute,
   jobMarketAnalyse,
   jobMarketPublication,
+  jobMarketParseListing,
 });
 
 // Owner-only Cognito: disable self-sign-up (admin invite / AdminCreateUser only).
@@ -45,6 +47,14 @@ backend.jobMarketAnalyse.resources.lambda.grantInvoke(
 );
 
 backend.jobMarketAnalyse.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['bedrock:InvokeModel'],
+    resources: ['*'],
+  }),
+);
+
+backend.jobMarketParseListing.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     effect: Effect.ALLOW,
     actions: ['bedrock:InvokeModel'],

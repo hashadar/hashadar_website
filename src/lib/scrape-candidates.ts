@@ -16,6 +16,7 @@ export type ScrapeCandidateRecord = {
   source?: string;
   collectedAt?: string;
   candidateS3Key?: string;
+  employerId?: string;
 };
 
 export type PutCandidateObject = (input: { key: string; body: string }) => Promise<void>;
@@ -109,14 +110,43 @@ function formatCollectedAt(value: unknown): string | undefined {
 
 function metadataFromBody(body: string): Pick<
   ScrapeCandidateRecord,
-  'title' | 'source' | 'collectedAt'
+  'title' | 'source' | 'collectedAt' | 'employerId'
 > {
   const { data } = matter(body) as { data: Record<string, unknown> };
   return {
     title: optionalString(data.title),
     source: optionalString(data.source),
     collectedAt: formatCollectedAt(data.collectedAt),
+    employerId: optionalString(data.employerId),
   };
+}
+
+function setOptionalFrontmatterField(
+  data: Record<string, unknown>,
+  key: 'title' | 'source' | 'collectedAt' | 'employerId',
+  value: string | undefined,
+) {
+  if (value !== undefined) {
+    data[key] = value;
+  } else {
+    delete data[key];
+  }
+}
+
+function rewriteFrontmatter(
+  body: string,
+  fields: Pick<
+    ScrapeCandidateRecord,
+    'title' | 'source' | 'collectedAt' | 'employerId'
+  >,
+): string {
+  const parsed = matter(body);
+  const nextData = { ...(parsed.data as Record<string, unknown>) };
+  setOptionalFrontmatterField(nextData, 'title', fields.title);
+  setOptionalFrontmatterField(nextData, 'source', fields.source);
+  setOptionalFrontmatterField(nextData, 'collectedAt', fields.collectedAt);
+  setOptionalFrontmatterField(nextData, 'employerId', fields.employerId);
+  return matter.stringify(parsed.content, nextData);
 }
 
 function applyLlmEnrichment(
@@ -136,24 +166,11 @@ function applyLlmEnrichment(
     };
   }
 
-  const parsed = matter(existing.body);
-  const nextData = { ...(parsed.data as Record<string, unknown>) };
-
-  if (title !== undefined && existing.title === undefined) {
-    nextData.title = title;
-  }
-  if (source !== undefined && existing.source === undefined) {
-    nextData.source = source;
-  }
-  if (collectedAt !== undefined && existing.collectedAt === undefined) {
-    nextData.collectedAt = collectedAt;
-  }
-
   const body =
     title !== existing.title ||
     source !== existing.source ||
     collectedAt !== existing.collectedAt
-      ? matter.stringify(parsed.content, nextData)
+      ? rewriteFrontmatter(existing.body, { title, source, collectedAt })
       : existing.body;
 
   return {
@@ -161,6 +178,54 @@ function applyLlmEnrichment(
     title,
     source,
     collectedAt,
+  };
+}
+
+export type OwnerCandidateMetadataInput = {
+  title?: string;
+  source?: string;
+  collectedAt?: string;
+  employerId?: string;
+};
+
+export type ApplyOwnerMetadataResult =
+  | { ok: true; candidate: ScrapeCandidateRecord }
+  | { ok: false; reason: string };
+
+/** Owner intake edits: overwrite metadata and sync YAML frontmatter for accept. */
+export function applyOwnerMetadata(
+  existing: ScrapeCandidateRecord,
+  input: OwnerCandidateMetadataInput,
+): ApplyOwnerMetadataResult {
+  const title = optionalString(input.title?.trim());
+  const source = optionalString(input.source?.trim());
+  const employerId = optionalString(input.employerId?.trim());
+  const collectedAtRaw = input.collectedAt?.trim() ?? '';
+  const collectedAt = collectedAtRaw
+    ? formatCollectedAt(collectedAtRaw)
+    : undefined;
+
+  if (collectedAtRaw && collectedAt === undefined) {
+    return {
+      ok: false,
+      reason: 'Frontmatter requires a valid collectedAt',
+    };
+  }
+
+  const next = {
+    title,
+    source,
+    collectedAt,
+    employerId,
+  };
+
+  return {
+    ok: true,
+    candidate: {
+      ...existing,
+      ...next,
+      body: rewriteFrontmatter(existing.body, next),
+    },
   };
 }
 

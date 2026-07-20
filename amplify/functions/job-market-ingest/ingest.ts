@@ -20,11 +20,15 @@ export const JOB_DESCRIPTION_ROLE_FAMILIES = [
   'other',
 ] as const;
 
+export const COMPENSATION_PERIODS = ['year', 'month', 'day', 'hour'] as const;
+
 export type JobDescriptionSeniority =
   (typeof JOB_DESCRIPTION_SENIORITIES)[number];
 
 export type JobDescriptionRoleFamily =
   (typeof JOB_DESCRIPTION_ROLE_FAMILIES)[number];
+
+export type CompensationPeriod = (typeof COMPENSATION_PERIODS)[number];
 
 /** Frontmatter may still use kebab-case; map to GraphQL-safe enum values. */
 const ROLE_FAMILY_ALIASES: Record<string, JobDescriptionRoleFamily> = {
@@ -32,16 +36,25 @@ const ROLE_FAMILY_ALIASES: Record<string, JobDescriptionRoleFamily> = {
   'ml-ops': 'ml_ops',
 };
 
+/**
+ * Projection of YAML frontmatter onto the JobDescription model.
+ * Optional fields use null when absent so upserts clear stale DB values (SSOT).
+ */
 export type JobDescriptionRecord = {
   id: string;
   s3Key: string;
   contentHash: string;
   collectedAt: string;
   status: JobDescriptionStatus;
-  title?: string;
-  seniority?: JobDescriptionSeniority;
-  roleFamily?: JobDescriptionRoleFamily;
-  source?: string;
+  title: string | null;
+  seniority: JobDescriptionSeniority | null;
+  roleFamily: JobDescriptionRoleFamily | null;
+  source: string | null;
+  employerId: string | null;
+  compensationCurrency: string | null;
+  compensationMin: number | null;
+  compensationMax: number | null;
+  compensationPeriod: CompensationPeriod | null;
 };
 
 export type IngestResult =
@@ -56,30 +69,39 @@ export type IngestJobDescriptionDeps = {
   upsertJobDescription: UpsertJobDescription;
 };
 
-function optionalString(
-  value: unknown,
-): string | undefined {
-  return typeof value === 'string' && value.length > 0 ? value : undefined;
+function optionalString(value: unknown): string | null {
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 function optionalEnum<T extends string>(
   value: unknown,
   allowed: readonly T[],
-): T | undefined {
-  return typeof value === 'string' &&
-    (allowed as readonly string[]).includes(value)
+): T | null {
+  return typeof value === 'string' && (allowed as readonly string[]).includes(value)
     ? (value as T)
-    : undefined;
+    : null;
 }
 
-function optionalRoleFamily(value: unknown): JobDescriptionRoleFamily | undefined {
+function optionalRoleFamily(value: unknown): JobDescriptionRoleFamily | null {
   if (typeof value !== 'string' || value.length === 0) {
-    return undefined;
+    return null;
   }
   return (
     optionalEnum(value, JOB_DESCRIPTION_ROLE_FAMILIES) ??
-    ROLE_FAMILY_ALIASES[value]
+    ROLE_FAMILY_ALIASES[value] ??
+    null
   );
+}
+
+function optionalNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
 }
 
 function formatCollectedAt(value: unknown): string | undefined {
@@ -125,6 +147,19 @@ export async function ingestJobDescription(
     };
   }
 
+  const compensationMin = optionalNumber(data.compensationMin);
+  const compensationMax = optionalNumber(data.compensationMax);
+  if (
+    compensationMin !== null &&
+    compensationMax !== null &&
+    compensationMin > compensationMax
+  ) {
+    return {
+      status: 'rejected',
+      reason: 'compensationMin must be less than or equal to compensationMax',
+    };
+  }
+
   const record: JobDescriptionRecord = {
     id: input.s3Key,
     s3Key: input.s3Key,
@@ -135,6 +170,11 @@ export async function ingestJobDescription(
     seniority: optionalEnum(data.seniority, JOB_DESCRIPTION_SENIORITIES),
     roleFamily: optionalRoleFamily(data.roleFamily),
     source: optionalString(data.source),
+    employerId: optionalString(data.employerId),
+    compensationCurrency: optionalString(data.compensationCurrency),
+    compensationMin,
+    compensationMax,
+    compensationPeriod: optionalEnum(data.compensationPeriod, COMPENSATION_PERIODS),
   };
 
   await deps.upsertJobDescription(record);

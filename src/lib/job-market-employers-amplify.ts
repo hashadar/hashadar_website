@@ -8,6 +8,9 @@ import type {
   UpdateJobDescriptionStructuredFieldsDeps,
 } from './job-market-employers';
 import { createDefaultAmplifyCorpusDeps } from './job-market-corpus-amplify';
+import { fetchJobDescriptionMarkdown } from './fetch-job-description-markdown';
+import { createDefaultFetchJobDescriptionMarkdownDeps } from './fetch-job-description-markdown-client';
+import { overwriteJobDescriptionMarkdown } from './upload-job-description';
 
 export type AmplifyEmployerRow = {
   id: string;
@@ -133,11 +136,27 @@ export function createAmplifyMetadataDeps(
     saveJobDescription: UpdateJobDescriptionStructuredFieldsDeps['saveJobDescription'];
   },
   employerDeps: Pick<UpdateJobDescriptionStructuredFieldsDeps, 'getEmployer'>,
+  markdownDeps?: Pick<
+    UpdateJobDescriptionStructuredFieldsDeps,
+    'getMarkdown' | 'overwriteMarkdown'
+  >,
 ): UpdateJobDescriptionStructuredFieldsDeps {
   return {
     getJobDescription: corpusDeps.getJobDescription,
     saveJobDescription: corpusDeps.saveJobDescription,
     getEmployer: employerDeps.getEmployer,
+    getMarkdown:
+      markdownDeps?.getMarkdown ??
+      (async (s3Key) => {
+        const deps = await createDefaultFetchJobDescriptionMarkdownDeps();
+        if (!deps) {
+          return null;
+        }
+        return fetchJobDescriptionMarkdown(s3Key, deps);
+      }),
+    overwriteMarkdown:
+      markdownDeps?.overwriteMarkdown ??
+      ((input) => overwriteJobDescriptionMarkdown(input)),
   };
 }
 

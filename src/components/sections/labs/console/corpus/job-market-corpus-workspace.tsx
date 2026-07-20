@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Heading, Text } from '@/components/ui';
-import { JobMarketCorpusEmployersModal } from '@/components/sections/labs/console/corpus/job-market-corpus-employers-modal';
-import { JobMarketCorpusIngestToolbar } from '@/components/sections/labs/console/corpus/job-market-corpus-ingest-toolbar';
 import { JobMarketCorpusJdDetail } from '@/components/sections/labs/console/corpus/job-market-corpus-jd-detail';
 import { JobMarketCorpusJdTable } from '@/components/sections/labs/console/corpus/job-market-corpus-jd-table';
+import { JobMarketCorpusRegistryPanel } from '@/components/sections/labs/console/corpus/job-market-corpus-registry-panel';
 import { corpusFieldClassName } from '@/components/sections/labs/console/corpus/corpus-field-styles';
 import { jobMarketLab } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
@@ -30,14 +29,16 @@ import {
 } from '@/lib/fetch-job-description-markdown-client';
 import type { FetchJobDescriptionMarkdownDeps } from '@/lib/fetch-job-description-markdown';
 import type { UploadJobDescriptionDeps } from '@/lib/upload-job-description';
-import type { CorpusUploadFn } from '@/components/sections/labs/console/corpus/job-market-corpus-ingest-toolbar';
+import type { ScrapeCandidateRecord } from '@/lib/scrape-candidates';
+import type { AnalysisRunRecord } from '@/lib/job-market-analysis-runs';
 
 export type JobMarketCorpusWorkspaceProps = {
   corpus?: AmplifyCorpusDeps;
   employers?: AmplifyEmployerDeps;
   markdownDeps?: FetchJobDescriptionMarkdownDeps;
   uploadDeps?: UploadJobDescriptionDeps;
-  uploadJobDescription?: CorpusUploadFn;
+  listPendingCandidates?: () => Promise<ScrapeCandidateRecord[]>;
+  listRuns?: () => Promise<AnalysisRunRecord[]>;
 };
 
 type LoadState =
@@ -54,7 +55,8 @@ export function JobMarketCorpusWorkspace({
   employers: employersProp,
   markdownDeps: markdownDepsProp,
   uploadDeps,
-  uploadJobDescription,
+  listPendingCandidates,
+  listRuns,
 }: JobMarketCorpusWorkspaceProps) {
   const copy = jobMarketLab.console.corpusWorkspace;
   const { session, isLoading } = useSiteAuth();
@@ -73,7 +75,6 @@ export function JobMarketCorpusWorkspace({
     );
   const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' });
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [employersOpen, setEmployersOpen] = useState(false);
   const [filters, setFilters] = useState<CorpusTableFilters>({
     status: 'all',
     search: '',
@@ -149,20 +150,6 @@ export function JobMarketCorpusWorkspace({
         <Text variant="muted">{copy.description}</Text>
       </div>
 
-      <JobMarketCorpusIngestToolbar
-        uploadJobDescription={uploadJobDescription}
-        onOpenEmployers={() => setEmployersOpen(true)}
-        onUploaded={async (s3Key) => {
-          const next = await refresh();
-          const match = next.records.find(
-            (record) => record.s3Key === s3Key || record.id === s3Key,
-          );
-          if (match) {
-            setSelectedId(match.id);
-          }
-        }}
-      />
-
       {loadState.status === 'loading' ? (
         <Text variant="muted">{copy.loadingLabel}</Text>
       ) : null}
@@ -175,6 +162,15 @@ export function JobMarketCorpusWorkspace({
 
       {loadState.status === 'ready' ? (
         <>
+          <JobMarketCorpusRegistryPanel
+            records={loadState.records}
+            employers={loadState.employers}
+            employerDeps={employerDeps}
+            onChanged={() => void refresh()}
+            listPendingCandidates={listPendingCandidates}
+            listRuns={listRuns}
+          />
+
           <div className="flex flex-wrap items-end gap-3">
             <label className="space-y-1">
               <Text size="sm">{copy.searchLabel}</Text>
@@ -250,10 +246,9 @@ export function JobMarketCorpusWorkspace({
               records={filteredRecords}
               employers={loadState.employers}
               selectedId={selectedId}
-              metadataDeps={metadataDeps}
               corpusDeps={corpus}
               onSelect={setSelectedId}
-              onRecordsChanged={refresh}
+              onRecordsChanged={() => void refresh()}
             />
           )}
 
@@ -265,17 +260,9 @@ export function JobMarketCorpusWorkspace({
               markdownDeps={markdownDeps}
               uploadDeps={uploadDeps}
               onClose={() => setSelectedId(null)}
-              onChanged={refresh}
+              onChanged={() => void refresh()}
             />
           ) : null}
-
-          <JobMarketCorpusEmployersModal
-            open={employersOpen}
-            employers={loadState.employers}
-            employerDeps={employerDeps}
-            onClose={() => setEmployersOpen(false)}
-            onChanged={refresh}
-          />
         </>
       ) : null}
     </div>

@@ -1,4 +1,5 @@
 import type { JobDescriptionCorpusRecord } from './job-market-corpus';
+import { applyMetadataPatchToMarkdown } from './job-description-frontmatter';
 
 export const EMPLOYER_SIZE_TIERS = [
   'startup',
@@ -84,6 +85,12 @@ export type UpdateJobDescriptionStructuredFieldsDeps = {
   getJobDescription: (id: string) => Promise<JobDescriptionCorpusRecord | null>;
   saveJobDescription: (record: JobDescriptionCorpusRecord) => Promise<void>;
   getEmployer: (id: string) => Promise<EmployerRecord | null>;
+  /** Load current markdown so metadata can be written into frontmatter (SSOT). */
+  getMarkdown: (s3Key: string) => Promise<string | null>;
+  overwriteMarkdown: (input: {
+    s3Key: string;
+    body: string;
+  }) => Promise<{ status: 'uploaded'; s3Key: string } | { status: 'rejected'; reason: string }>;
 };
 
 export type UpdateJobDescriptionStructuredFieldsResult =
@@ -273,7 +280,37 @@ export async function updateJobDescriptionStructuredFields(
     }
   }
 
+  const s3Key = existing.s3Key?.trim();
+  if (!s3Key) {
+    return { status: 'rejected', reason: 'Job description has no S3 key' };
+  }
+
+  const markdown = await deps.getMarkdown(s3Key);
+  if (markdown == null) {
+    return { status: 'rejected', reason: 'Could not load job description markdown' };
+  }
+
+  const merged = applyMetadataPatchToMarkdown(markdown, patch);
+  if (merged.status === 'rejected' || !merged.body) {
+    return {
+      status: 'rejected',
+      reason:
+        merged.status === 'rejected'
+          ? merged.reason
+          : 'Could not update frontmatter',
+    };
+  }
+
+  const upload = await deps.overwriteMarkdown({ s3Key, body: merged.body });
+  if (upload.status === 'rejected') {
+    return upload;
+  }
+
+  // Keep the Amplify projection in sync immediately (ingest will confirm).
   const record = applyStructuredFieldsPatch(existing, patch);
+  if (merged.data.title !== undefined) record.title = merged.data.title;
+  if (merged.data.source !== undefined) record.source = merged.data.source;
+  record.collectedAt = merged.data.collectedAt;
   await deps.saveJobDescription(record);
   return { status: 'updated', record };
 }
