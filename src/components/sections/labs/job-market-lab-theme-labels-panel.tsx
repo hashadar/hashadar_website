@@ -17,6 +17,7 @@ import { createDefaultAmplifyThemeLabelOverrideDeps } from '@/lib/job-market-the
 export type JobMarketLabThemeLabelsPanelProps = {
   publication?: GetPublishedJobMarketSnapshotDeps;
   themeLabels?: ListThemeLabelOverridesDeps & SetThemeLabelOverrideDeps;
+  embedded?: boolean;
 };
 
 type LoadState =
@@ -33,6 +34,7 @@ function formatSavedMessage(clusterKey: string): string {
 export function JobMarketLabThemeLabelsPanel({
   publication,
   themeLabels,
+  embedded = false,
 }: JobMarketLabThemeLabelsPanelProps) {
   const { session, isLoading } = useSiteAuth();
   const [deps] = useState(
@@ -108,18 +110,23 @@ export function JobMarketLabThemeLabelsPanel({
   }
 
   return (
-    <section className="mt-16 space-y-6" aria-labelledby="job-market-theme-labels-heading">
+    <section
+      className={embedded ? 'space-y-4' : 'mt-16 space-y-6'}
+      aria-labelledby="job-market-theme-labels-heading"
+    >
       <div className="space-y-2">
         <SectionHeader
           id="job-market-theme-labels-heading"
-          as="h2"
-          size="md"
+          as={embedded ? 'h3' : 'h2'}
+          size={embedded ? 'sm' : 'md'}
           animated={false}
-          showLeftAccent
+          showLeftAccent={!embedded}
         >
           {jobMarketLab.console.themeLabelsHeading}
         </SectionHeader>
-        <Text variant="muted">{jobMarketLab.console.themeLabelsDescription}</Text>
+        <Text size={embedded ? 'sm' : 'base'} variant="muted">
+          {jobMarketLab.console.themeLabelsDescription}
+        </Text>
       </div>
 
       {loadState.status === 'loading' || loadState.status === 'idle' ? (

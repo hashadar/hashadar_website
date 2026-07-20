@@ -17,6 +17,8 @@ import {
 export type JobMarketLabMarketComparePanelProps = {
   canonicalCv?: CanonicalCvDeps;
   ownerPulse?: FetchOwnerJobMarketPulseSourceDeps;
+  embedded?: boolean;
+  showHeading?: boolean;
 };
 
 type LoadState =
@@ -44,6 +46,8 @@ function comparisonTemplates() {
 export function JobMarketLabMarketComparePanel({
   canonicalCv,
   ownerPulse,
+  embedded = false,
+  showHeading = true,
 }: JobMarketLabMarketComparePanelProps) {
   const { session, isLoading } = useSiteAuth();
   const [cvDeps] = useState(() => canonicalCv ?? createDefaultAmplifyCanonicalCvDeps());
@@ -93,6 +97,7 @@ export function JobMarketLabMarketComparePanel({
   }
 
   const copy = jobMarketLab.console.marketCompare;
+  const fitCopy = jobMarketLab.console.fitWorkspace;
 
   async function handleCompare() {
     const compareCopy = jobMarketLab.console.marketCompare;
@@ -157,19 +162,24 @@ export function JobMarketLabMarketComparePanel({
   }
 
   return (
-    <section className="mt-16 space-y-6" aria-labelledby="job-market-market-compare-heading">
-      <div className="max-w-2xl space-y-4">
-        <SectionHeader
-          id="job-market-market-compare-heading"
-          as="h2"
-          size="md"
-          animated={false}
-          showLeftAccent
-        >
-          {copy.heading}
-        </SectionHeader>
-        <Text variant="muted">{copy.description}</Text>
-      </div>
+    <section
+      className={embedded ? 'space-y-4' : 'mt-16 space-y-6'}
+      aria-labelledby="job-market-market-compare-heading"
+    >
+      {showHeading ? (
+        <div className={embedded ? 'space-y-2' : 'max-w-2xl space-y-4'}>
+          <SectionHeader
+            id="job-market-market-compare-heading"
+            as={embedded ? 'h3' : 'h2'}
+            size={embedded ? 'sm' : 'md'}
+            animated={false}
+            showLeftAccent={!embedded}
+          >
+            {copy.heading}
+          </SectionHeader>
+          {embedded ? null : <Text variant="muted">{copy.description}</Text>}
+        </div>
+      ) : null}
 
       {loadState.status === 'loading' || loadState.status === 'idle' ? (
         <Text variant="muted">{copy.loadingPulseLabel}</Text>
@@ -185,7 +195,12 @@ export function JobMarketLabMarketComparePanel({
       ) : null}
 
       {loadState.status === 'ready' || loadState.status === 'empty' ? (
-        <div className="max-w-2xl space-y-4">
+        <div className={embedded ? 'space-y-3' : 'max-w-2xl space-y-4'}>
+          {embedded ? (
+            <p role="status" className="font-body text-sm text-[var(--mono-500)]">
+              {fitCopy.saveCvFirstHint}
+            </p>
+          ) : null}
           <Button
             type="button"
             onClick={() => void handleCompare()}

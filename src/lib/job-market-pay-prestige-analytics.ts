@@ -1,7 +1,10 @@
 import { selectActiveCorpus, type JobDescriptionCorpusRecord } from './job-market-corpus';
 import {
+  COMPENSATION_DISCLOSURES,
   EMPLOYER_PRESTIGE_TIERS,
   EMPLOYER_SIZE_TIERS,
+  resolveCompensationDisclosure,
+  type CompensationDisclosure,
   type EmployerRecord,
 } from './job-market-employers';
 
@@ -12,6 +15,7 @@ export type MissingDataRate = {
     | 'compensationMin'
     | 'compensationMax'
     | 'compensationPeriod'
+    | 'compensationDisclosed'
     | 'completeCompensation';
   present: number;
   missing: number;
@@ -30,12 +34,18 @@ export type CompensationCurrencySummary = {
   medianMax?: number;
 };
 
+export type CompensationDisclosureBreakdown = {
+  disclosure: CompensationDisclosure;
+  count: number;
+};
+
 export type OwnerPayPrestigeAnalytics = {
   activeDocumentCount: number;
   missingDataRates: MissingDataRate[];
   prestigeTierBreakdown: TierBucket[];
   sizeTierBreakdown: TierBucket[];
   compensationByCurrency: CompensationCurrencySummary[];
+  compensationDisclosureBreakdown: CompensationDisclosureBreakdown[];
 };
 
 export type GetOwnerPayPrestigeAnalyticsDeps = {
@@ -49,6 +59,7 @@ const MISSING_DATA_FIELDS = [
   'compensationMin',
   'compensationMax',
   'compensationPeriod',
+  'compensationDisclosed',
   'completeCompensation',
 ] as const satisfies ReadonlyArray<MissingDataRate['field']>;
 
@@ -87,7 +98,19 @@ function hasCompensationPeriod(record: JobDescriptionCorpusRecord): boolean {
   return record.compensationPeriod != null;
 }
 
+function hasCompensationDisclosed(record: JobDescriptionCorpusRecord): boolean {
+  // Competitive counts as disclosed; unknown (including legacy unset) does not.
+  return resolveCompensationDisclosure(record) !== 'unknown';
+}
+
 function hasCompleteCompensation(record: JobDescriptionCorpusRecord): boolean {
+  const disclosure = resolveCompensationDisclosure(record);
+  if (disclosure === 'competitive') {
+    return true;
+  }
+  if (disclosure !== 'range') {
+    return false;
+  }
   return (
     hasCompensationCurrency(record) &&
     hasCompensationPeriod(record) &&
@@ -110,6 +133,8 @@ function fieldPresent(
       return hasCompensationMax(record);
     case 'compensationPeriod':
       return hasCompensationPeriod(record);
+    case 'compensationDisclosed':
+      return hasCompensationDisclosed(record);
     case 'completeCompensation':
       return hasCompleteCompensation(record);
   }
@@ -149,6 +174,9 @@ function buildCompensationByCurrency(
   const byCurrency = new Map<string, { mins: number[]; maxes: number[] }>();
 
   for (const record of records) {
+    if (resolveCompensationDisclosure(record) !== 'range') {
+      continue;
+    }
     if (!hasCompensationCurrency(record)) {
       continue;
     }
@@ -178,6 +206,23 @@ function buildCompensationByCurrency(
       medianMin: median(values.mins),
       medianMax: median(values.maxes),
     }));
+}
+
+function buildCompensationDisclosureBreakdown(
+  records: JobDescriptionCorpusRecord[],
+): CompensationDisclosureBreakdown[] {
+  const counts = new Map<CompensationDisclosure, number>();
+  for (const disclosure of COMPENSATION_DISCLOSURES) {
+    counts.set(disclosure, 0);
+  }
+  for (const record of records) {
+    const disclosure = resolveCompensationDisclosure(record);
+    counts.set(disclosure, (counts.get(disclosure) ?? 0) + 1);
+  }
+  return COMPENSATION_DISCLOSURES.map((disclosure) => ({
+    disclosure,
+    count: counts.get(disclosure) ?? 0,
+  }));
 }
 
 export async function getOwnerPayPrestigeAnalytics(
@@ -219,5 +264,7 @@ export async function getOwnerPayPrestigeAnalytics(
     prestigeTierBreakdown: buildTierBreakdown(EMPLOYER_PRESTIGE_TIERS, prestigeCounts),
     sizeTierBreakdown: buildTierBreakdown(EMPLOYER_SIZE_TIERS, sizeCounts),
     compensationByCurrency: buildCompensationByCurrency(activeRecords),
+    compensationDisclosureBreakdown:
+      buildCompensationDisclosureBreakdown(activeRecords),
   };
 }

@@ -7,10 +7,13 @@ import { jobMarketLab } from '@/data';
 import { displayTitle } from '@/lib/job-market-corpus-table';
 import type { JobDescriptionCorpusRecord } from '@/lib/job-market-corpus';
 import {
+  COMPENSATION_DISCLOSURES,
   COMPENSATION_PERIODS,
   JOB_DESCRIPTION_ROLE_FAMILIES,
   JOB_DESCRIPTION_SENIORITIES,
+  resolveCompensationDisclosure,
   updateJobDescriptionStructuredFields,
+  type CompensationDisclosure,
   type CompensationPeriod,
   type EmployerRecord,
   type JobDescriptionRoleFamily,
@@ -46,6 +49,7 @@ type MetadataDraft = {
   employerId: string;
   seniority: string;
   roleFamily: string;
+  compensationDisclosure: CompensationDisclosure;
   compensationCurrency: string;
   compensationMin: string;
   compensationMax: string;
@@ -57,6 +61,7 @@ function toMetadataDraft(record: JobDescriptionCorpusRecord): MetadataDraft {
     employerId: record.employerId ?? '',
     seniority: record.seniority ?? '',
     roleFamily: record.roleFamily ?? '',
+    compensationDisclosure: resolveCompensationDisclosure(record),
     compensationCurrency: record.compensationCurrency ?? '',
     compensationMin:
       record.compensationMin != null ? String(record.compensationMin) : '',
@@ -129,6 +134,7 @@ export function JobMarketCorpusJdDetail({
           employerId: record.employerId,
           seniority: record.seniority,
           roleFamily: record.roleFamily,
+          compensationDisclosure: record.compensationDisclosure,
           compensationCurrency: record.compensationCurrency,
           compensationMin: record.compensationMin,
           compensationMax: record.compensationMax,
@@ -182,9 +188,12 @@ export function JobMarketCorpusJdDetail({
     setSavingMetadata(true);
     setMessage(null);
     setError(null);
-    const min = parseOptionalNumber(draft.compensationMin);
-    const max = parseOptionalNumber(draft.compensationMax);
-    if (min === undefined || max === undefined) {
+
+    const disclosure = draft.compensationDisclosure;
+    const isRange = disclosure === 'range';
+    const min = isRange ? parseOptionalNumber(draft.compensationMin) : null;
+    const max = isRange ? parseOptionalNumber(draft.compensationMax) : null;
+    if (isRange && (min === undefined || max === undefined)) {
       setError(copy.metadataSaveError);
       setSavingMetadata(false);
       return;
@@ -194,11 +203,15 @@ export function JobMarketCorpusJdDetail({
       employerId: draft.employerId || null,
       seniority: (draft.seniority || null) as JobDescriptionSeniority | null,
       roleFamily: (draft.roleFamily || null) as JobDescriptionRoleFamily | null,
-      compensationCurrency: draft.compensationCurrency.trim() || null,
-      compensationMin: min,
-      compensationMax: max,
-      compensationPeriod: (draft.compensationPeriod ||
-        null) as CompensationPeriod | null,
+      compensationDisclosure: disclosure,
+      compensationCurrency: isRange
+        ? draft.compensationCurrency.trim() || null
+        : null,
+      compensationMin: min ?? null,
+      compensationMax: max ?? null,
+      compensationPeriod: isRange
+        ? ((draft.compensationPeriod || null) as CompensationPeriod | null)
+        : null,
     };
 
     try {
@@ -360,67 +373,91 @@ export function JobMarketCorpusJdDetail({
             </label>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <label className="block min-w-0 space-y-1">
-              <Text size="sm">{copy.compensationCurrencyLabel}</Text>
-              <input
-                className={corpusFieldClassName}
-                value={draft.compensationCurrency}
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    compensationCurrency: event.target.value,
-                  }))
-                }
-              />
-            </label>
-            <label className="block min-w-0 space-y-1">
-              <Text size="sm">{copy.compensationPeriodLabel}</Text>
+            <label className="block min-w-0 space-y-1 col-span-2">
+              <Text size="sm">{copy.compensationDisclosureLabel}</Text>
               <select
                 className={corpusFieldClassName}
-                value={draft.compensationPeriod}
+                value={draft.compensationDisclosure}
                 onChange={(event) =>
                   setDraft((current) => ({
                     ...current,
-                    compensationPeriod: event.target.value,
+                    compensationDisclosure: event.target
+                      .value as CompensationDisclosure,
                   }))
                 }
               >
-                <option value="">{copy.unsetOption}</option>
-                {COMPENSATION_PERIODS.map((value) => (
+                {COMPENSATION_DISCLOSURES.map((value) => (
                   <option key={value} value={value}>
-                    {value}
+                    {copy.compensationDisclosureOptions[value]}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="block min-w-0 space-y-1">
-              <Text size="sm">{copy.compensationMinLabel}</Text>
-              <input
-                className={corpusFieldClassName}
-                inputMode="decimal"
-                value={draft.compensationMin}
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    compensationMin: event.target.value,
-                  }))
-                }
-              />
-            </label>
-            <label className="block min-w-0 space-y-1">
-              <Text size="sm">{copy.compensationMaxLabel}</Text>
-              <input
-                className={corpusFieldClassName}
-                inputMode="decimal"
-                value={draft.compensationMax}
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    compensationMax: event.target.value,
-                  }))
-                }
-              />
-            </label>
+            {draft.compensationDisclosure === 'range' ? (
+              <>
+                <label className="block min-w-0 space-y-1">
+                  <Text size="sm">{copy.compensationCurrencyLabel}</Text>
+                  <input
+                    className={corpusFieldClassName}
+                    value={draft.compensationCurrency}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        compensationCurrency: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+                <label className="block min-w-0 space-y-1">
+                  <Text size="sm">{copy.compensationPeriodLabel}</Text>
+                  <select
+                    className={corpusFieldClassName}
+                    value={draft.compensationPeriod}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        compensationPeriod: event.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">{copy.unsetOption}</option>
+                    {COMPENSATION_PERIODS.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block min-w-0 space-y-1">
+                  <Text size="sm">{copy.compensationMinLabel}</Text>
+                  <input
+                    className={corpusFieldClassName}
+                    inputMode="decimal"
+                    value={draft.compensationMin}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        compensationMin: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+                <label className="block min-w-0 space-y-1">
+                  <Text size="sm">{copy.compensationMaxLabel}</Text>
+                  <input
+                    className={corpusFieldClassName}
+                    inputMode="decimal"
+                    value={draft.compensationMax}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        compensationMax: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
           {record.source ? (
             <Text size="sm" variant="muted" className="break-all">

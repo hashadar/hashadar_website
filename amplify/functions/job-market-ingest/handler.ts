@@ -36,6 +36,7 @@ async function upsertJobDescription(
     compensationMin: record.compensationMin,
     compensationMax: record.compensationMax,
     compensationPeriod: record.compensationPeriod,
+    compensationDisclosure: record.compensationDisclosure,
   };
 
   const existing = await client.models.JobDescription.get({ id: record.id });

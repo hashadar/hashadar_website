@@ -1,8 +1,6 @@
 'use client';
 
-import { JobMarketLabComparePanel } from '@/components/sections/labs/job-market-lab-compare-panel';
-import { JobMarketLabCvPanel } from '@/components/sections/labs/job-market-lab-cv-panel';
-import { JobMarketLabMarketComparePanel } from '@/components/sections/labs/job-market-lab-market-compare-panel';
+import { JobMarketFitWorkspace } from '@/components/sections/labs/console/fit/job-market-fit-workspace';
 import type { AmplifyCorpusDeps } from '@/lib/job-market-corpus-amplify';
 import type { CanonicalCvDeps } from '@/lib/canonical-cv';
 
@@ -15,11 +13,5 @@ export function JobMarketConsoleFitPage({
   corpus,
   canonicalCv,
 }: JobMarketConsoleFitPageProps) {
-  return (
-    <>
-      <JobMarketLabCvPanel canonicalCv={canonicalCv} />
-      <JobMarketLabComparePanel canonicalCv={canonicalCv} corpus={corpus} />
-      <JobMarketLabMarketComparePanel canonicalCv={canonicalCv} />
-    </>
-  );
+  return <JobMarketFitWorkspace corpus={corpus} canonicalCv={canonicalCv} />;
 }

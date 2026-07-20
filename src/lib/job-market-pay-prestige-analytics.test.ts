@@ -79,11 +79,22 @@ describe('getOwnerPayPrestigeAnalytics', () => {
         missingRate: 1 / 3,
       },
       {
+        field: 'compensationDisclosed',
+        present: 2,
+        missing: 1,
+        missingRate: 1 / 3,
+      },
+      {
         field: 'completeCompensation',
         present: 2,
         missing: 1,
         missingRate: 1 / 3,
       },
+    ]);
+    expect(result.compensationDisclosureBreakdown).toEqual([
+      { disclosure: 'range', count: 2 },
+      { disclosure: 'competitive', count: 0 },
+      { disclosure: 'unknown', count: 1 },
     ]);
     expect(result.prestigeTierBreakdown).toEqual([
       { tier: 'low', count: 0 },
@@ -123,7 +134,13 @@ describe('getOwnerPayPrestigeAnalytics', () => {
       { field: 'compensationMin', present: 0, missing: 0, missingRate: 0 },
       { field: 'compensationMax', present: 0, missing: 0, missingRate: 0 },
       { field: 'compensationPeriod', present: 0, missing: 0, missingRate: 0 },
+      { field: 'compensationDisclosed', present: 0, missing: 0, missingRate: 0 },
       { field: 'completeCompensation', present: 0, missing: 0, missingRate: 0 },
+    ]);
+    expect(result.compensationDisclosureBreakdown).toEqual([
+      { disclosure: 'range', count: 0 },
+      { disclosure: 'competitive', count: 0 },
+      { disclosure: 'unknown', count: 0 },
     ]);
     expect(result.prestigeTierBreakdown).toEqual([
       { tier: 'low', count: 0 },
@@ -170,6 +187,34 @@ describe('getOwnerPayPrestigeAnalytics', () => {
       { tier: 'enterprise', count: 0 },
       { tier: 'big4', count: 1 },
       { tier: 'other', count: 0 },
+    ]);
+  });
+
+  it('treats competitive disclosure as present, not missing compensation', async () => {
+    const result = await getOwnerPayPrestigeAnalytics({
+      listJobDescriptions: async () => [
+        doc({ id: 'jd-1', compensationDisclosure: 'competitive' }),
+        doc({ id: 'jd-2' }),
+      ],
+      listEmployers: async () => [],
+    });
+
+    expect(result.missingDataRates).toContainEqual({
+      field: 'compensationDisclosed',
+      present: 1,
+      missing: 1,
+      missingRate: 0.5,
+    });
+    expect(result.missingDataRates).toContainEqual({
+      field: 'completeCompensation',
+      present: 1,
+      missing: 1,
+      missingRate: 0.5,
+    });
+    expect(result.compensationDisclosureBreakdown).toEqual([
+      { disclosure: 'range', count: 0 },
+      { disclosure: 'competitive', count: 1 },
+      { disclosure: 'unknown', count: 1 },
     ]);
   });
 });

@@ -146,6 +146,12 @@ describe('JobMarketLabMetadataAdmin', () => {
       screen.getByLabelText(`${jobMarketLab.metadataAdmin.roleFamilyLabel} (jd-1)`),
       'data_science',
     );
+    await user.selectOptions(
+      screen.getByLabelText(
+        `${jobMarketLab.metadataAdmin.compensationDisclosureLabel} (jd-1)`,
+      ),
+      'range',
+    );
     await user.type(
       screen.getByLabelText(`${jobMarketLab.metadataAdmin.compensationCurrencyLabel} (jd-1)`),
       'GBP',
@@ -183,6 +189,7 @@ describe('JobMarketLabMetadataAdmin', () => {
         compensationMin: 80000,
         compensationMax: 95000,
         compensationPeriod: 'year',
+        compensationDisclosure: 'range',
       }),
     );
   });

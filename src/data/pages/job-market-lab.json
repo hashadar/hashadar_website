@@ -1,16 +1,66 @@
 {
-  "heading": "Job market signal lab",
-  "description": "High-level aggregates from a private financial-services job-description corpus. This is a portfolio demonstration, not live job-board coverage or career advice.",
-  "emptyState": "No published snapshot is available yet. Check back after the next corpus recompute.",
-  "corpusNote": "Figures shown here are aggregates only. Raw job descriptions and employer identity are never published.",
-  "metricsHeading": "Corpus freshness",
-  "documentCountLabel": "Active documents in latest snapshot",
-  "publishedAtLabel": "Last published",
-  "skillsHeading": "Technology frequencies",
+  "brandEyebrow": "Hasha Dar's",
+  "heading": "Job Signal Lab",
+  "purposeLine": "A personal lab I use to analyse job listings that may be relevant to me and draw insights from what those roles ask for.",
+  "description": "I built this lab end-to-end: private corpus intake, ontology matching, embedding clusters, and a published pulse of market signals. What you see here is the results surface, not a job board or career advice.",
+  "emptyState": "No published pulse yet. The lab is ready; the next corpus recompute will populate this view.",
+  "craft": {
+    "heading": "How this is produced",
+    "intro": "I built this pipeline end-to-end so the published pulse is reproducible craft, not hand-picked charts. Here is the path from a private listing to published aggregates, with plain language first and a short technical note under each stage.",
+    "inShortLabel": "In short",
+    "underTheHoodLabel": "Under the hood",
+    "stages": [
+      {
+        "id": "ingest",
+        "title": "Collect Job Listings from the Web",
+        "inShort": "I collect job listings into a private corpus I control, never a public scrape dump.",
+        "underTheHood": "Markdown with YAML frontmatter lands in private storage via upload or career-page parse-and-review; ingest refreshes corpus metadata without starting a full recompute."
+      },
+      {
+        "id": "structure",
+        "title": "Tag Each Role with Context",
+        "inShort": "I tag each role with seniority, role family, and optional employer context so later filters mean something.",
+        "underTheHood": "Controlled vocabularies and an employer registry live in the owner console. Archiving excludes a document from the next recompute without deleting the stored file."
+      },
+      {
+        "id": "match",
+        "title": "Match Technologies Across Listings",
+        "inShort": "Technology counts come from a curated FinServ/AI dictionary, not every buzzword in the text.",
+        "underTheHood": "Alias-aware ontology matching collapses variants (for example k8s to Kubernetes) and ignores terms outside the dictionary, so frequency bars stay signal rather than noise."
+      },
+      {
+        "id": "cluster",
+        "title": "Fingerprint Requirements into Themes",
+        "inShort": "Each listing gets a numeric fingerprint; similar fingerprints group into themes of related requirements.",
+        "underTheHood": "Bedrock embeddings of the markdown body, cached by content hash, feed k-means themes. Labels default to top matched technologies; I can override them from the console."
+      },
+      {
+        "id": "project",
+        "title": "Lay Out the Theme Map",
+        "inShort": "The theme map is a similarity layout where nearby dots share requirement language, not geography or employer.",
+        "underTheHood": "PCA reduces embeddings to two principal components in the analyse worker. Those coordinates ship with the snapshot so the public map does not invent positions in the browser."
+      },
+      {
+        "id": "publish",
+        "title": "Publish Counts, Themes, and the Map",
+        "inShort": "The page shows published counts, themes, and the map; sensitive listing details stay redacted.",
+        "underTheHood": "Publication sanitises owner-only fields before the public query. I trigger a recompute from the console when the corpus changes; only one run may be in flight at a time."
+      }
+    ]
+  },
+  "metricsHeading": "Pulse",
+  "documentCountLabel": "Documents",
+  "publishedAtLabel": "Published",
+  "topSignalsLabel": "Top signals",
+  "skillsHeading": "Technologies",
+  "skillsCaption": "Curated tools and platforms matched in the listings from a controlled ontology, ranked by how often they appear.",
   "taxonomyHeading": "Seniority and role family",
   "seniorityLabel": "Seniority",
   "roleFamilyLabel": "Role family",
   "clustersHeading": "Requirement themes",
+  "clustersSizeHeading": "Theme size",
+  "clustersMapHeading": "Theme map",
+  "clustersCaption": "Groups of listings with similar overall requirements. Bars show theme size; the map places documents by how alike their requirement language is.",
   "pulseFiltersTimeLabel": "Time window",
   "pulseFilterTimeOptions": {
     "all": "All published documents",
@@ -23,8 +73,10 @@
     "heading": "Corpus recompute",
     "description": "Start an analysis run against the active corpus. Only one run may be queued or in progress at a time.",
     "startButtonLabel": "Start recompute",
-    "startingLabel": "StartingÔÇª",
-    "startedMessage": "Recompute started. Run id: {runId}. Check analysis runs below for live status.",
+    "startingLabel": "Starting…",
+    "startedMessage": "Recompute started. Run id: {runId}.",
+    "startedMessageWithRunsHint": "Recompute started. Run id: {runId}. Open Runs for live status.",
+    "secondaryStartDescription": "Secondary control for power users. Prefer starting recomputes from Analytics.",
     "rejectedHeading": "Could not start recompute"
   },
   "corpusAdmin": {
@@ -81,7 +133,7 @@
     "employerUnknownWarning": "Employer id '{id}' is not in the registry.",
     "parseListing": {
       "heading": "Listing URL",
-      "description": "Employer career or ATS pages work best. Some sites block automated fetch — paste the page text instead.",
+      "description": "Employer career or ATS pages work best. Some sites block automated fetch, so paste the page text instead.",
       "urlLabel": "URL",
       "urlPlaceholder": "https://boards.greenhouse.io/…",
       "submitLabel": "Parse listing",
@@ -136,19 +188,19 @@
           "id": "fit",
           "href": "/labs/job-market/console/fit",
           "label": "CV and fit",
-          "description": "Canonical CV and comparisons against roles and the market."
+          "description": "Edit the canonical CV and compare against roles or market demand."
         },
         {
           "id": "analytics",
           "href": "/labs/job-market/console/analytics",
           "label": "Analytics",
-          "description": "Theme labels, pulse filters, and pay or prestige summaries."
+          "description": "Coverage insights, pay and prestige, and start a corpus recompute."
         },
         {
           "id": "runs",
           "href": "/labs/job-market/console/runs",
           "label": "Runs",
-          "description": "Start a recompute and review analysis run history."
+          "description": "Audit analysis run history, costs, and failures."
         }
       ]
     },
@@ -167,15 +219,46 @@
       "openAreaLabel": "Open {label}"
     },
     "runsHeading": "Analysis runs",
-    "runsDescription": "Recent recompute lifecycle status. Failed runs include the failure reason.",
+    "runsDescription": "Audit recent recompute lifecycle, document counts, estimated cost, and failures.",
     "runsEmpty": "No analysis runs yet.",
-    "runsLoading": "Loading analysis runsÔÇª",
+    "runsLoading": "Loading analysis runs…",
     "runsError": "Analysis run history is temporarily unavailable.",
+    "runsDocsConsideredLabel": "Documents considered",
+    "runsEstimatedCostLabel": "Estimated cost (USD)",
+    "runsReloadLabel": "Reload",
     "runStatusQueued": "Queued",
     "runStatusRunning": "Running",
     "runStatusSucceeded": "Succeeded",
     "runStatusFailed": "Failed",
     "failureReasonLabel": "Failure reason",
+    "analyticsWorkspace": {
+      "heading": "Analytics",
+      "description": "Coverage and pay insights for the active corpus. Start a recompute here; review run history on Runs.",
+      "summaryHeading": "Coverage summary",
+      "activeDocumentsLabel": "Active documents",
+      "payDisclosedLabel": "Pay disclosed",
+      "payUndisclosedLabel": "Pay not disclosed",
+      "employerLinkedLabel": "Employer linked",
+      "completeCompensationLabel": "Complete compensation",
+      "startRecomputeHeading": "Recompute",
+      "startRecomputeDescription": "Primary control to start an analysis run against the active corpus.",
+      "viewRunsLabel": "View run history",
+      "secondaryToolsHeading": "Publication tools",
+      "secondaryToolsDescription": "Theme label overrides and pulse filters apply on the next recompute and publication."
+    },
+    "fitWorkspace": {
+      "heading": "CV and fit",
+      "description": "Keep the canonical CV visible while comparing against a role or market demand.",
+      "loadingLabel": "Loading fit workspace…",
+      "errorLabel": "Fit workspace is temporarily unavailable.",
+      "saveCvFirstHint": "Save a canonical CV before running a comparison.",
+      "modeRoleLabel": "Versus role",
+      "modeMarketLabel": "Versus market",
+      "jdSearchLabel": "Search roles",
+      "jdSearchPlaceholder": "Filter by title…",
+      "cvColumnHeading": "Canonical CV",
+      "resultsHeading": "Fit results"
+    },
     "cv": {
       "heading": "Canonical CV",
       "description": "Private owner CV for later fit comparison against job descriptions and market signals. Never published to guests.",
@@ -207,7 +290,7 @@
       "talkingPointsHeading": "Suggested talking points",
       "learningTargetsHeading": "Learning targets",
       "matchesEmpty": "No shared ontology technologies found between your CV and this job description.",
-      "gapsEmpty": "No technology gaps — your CV covers every ontology term in this job description.",
+      "gapsEmpty": "No technology gaps: your CV covers every ontology term in this job description.",
       "talkingPointsEmpty": "No talking points generated.",
       "learningTargetsEmpty": "No learning targets generated.",
       "matchTalkingPointTemplate": "Prepare a concise example of your {technology} work.",
@@ -228,7 +311,7 @@
       "talkingPointsHeading": "Suggested talking points",
       "learningTargetsHeading": "Learning targets",
       "matchesEmpty": "No shared technologies or themes found between your CV and current market demand.",
-      "gapsEmpty": "No market gaps — your CV reflects every demand theme and technology in the published pulse.",
+      "gapsEmpty": "No market gaps: your CV reflects every demand theme and technology in the published pulse.",
       "talkingPointsEmpty": "No talking points generated.",
       "learningTargetsEmpty": "No learning targets generated.",
       "matchTalkingPointTemplate": "Your CV aligns with current market demand for {technology}.",
@@ -293,7 +376,7 @@
       "unsetOption": "Not set",
       "gapEmployer": "Employer",
       "gapPay": "Pay",
-      "gapNone": "—",
+      "gapNone": "-",
       "saveRowLabel": "Save",
       "savingRowLabel": "Saving…",
       "rowSavedMessage": "Row saved.",
@@ -317,9 +400,15 @@
       "employerLabel": "Employer",
       "employerUnsetWarning": "No employer linked. Add one in the registry and select it here.",
       "employerUnknownWarning": "Employer id '{id}' is not in the registry. Create it under Employers or clear the field.",
-      "frontmatterMergedNotice": "Missing frontmatter fields were filled from the database projection — save markdown or metadata to persist them in the file.",
+      "frontmatterMergedNotice": "Missing frontmatter fields were filled from the database projection. Save markdown or metadata to persist them in the file.",
       "seniorityLabel": "Seniority",
       "roleFamilyLabel": "Role family",
+      "compensationDisclosureLabel": "Pay disclosure",
+      "compensationDisclosureOptions": {
+        "range": "Numeric range",
+        "competitive": "Competitive / negotiable",
+        "unknown": "Not disclosed"
+      },
       "compensationCurrencyLabel": "Currency",
       "compensationMinLabel": "Minimum",
       "compensationMaxLabel": "Maximum",
@@ -387,6 +476,12 @@
     "noEmployerOption": "No employer linked",
     "seniorityLabel": "Seniority",
     "roleFamilyLabel": "Role family",
+    "compensationDisclosureLabel": "Pay disclosure",
+    "compensationDisclosureOptions": {
+      "range": "Numeric range",
+      "competitive": "Competitive / negotiable",
+      "unknown": "Not disclosed"
+    },
     "compensationCurrencyLabel": "Currency",
     "compensationMinLabel": "Minimum",
     "compensationMaxLabel": "Maximum",
@@ -402,26 +497,33 @@
   },
   "payPrestigeAnalytics": {
     "heading": "Compensation and prestige analytics",
-    "description": "Owner-only aggregates from structured metadata. Missing-data rates show how much of the active corpus still lacks employer links or compensation fields.",
+    "description": "Owner-only aggregates from structured metadata. Missing-data rates show how much of the active corpus still lacks employer links or disclosed pay.",
     "loadingLabel": "Loading analytics…",
     "errorLabel": "Pay and prestige analytics are temporarily unavailable.",
     "activeDocumentsLabel": "Active documents in analytics scope",
     "missingDataHeading": "Missing-data rates",
+    "disclosureHeading": "Pay disclosure breakdown",
     "prestigeHeading": "Prestige tier breakdown",
     "sizeHeading": "Size tier breakdown",
     "compensationHeading": "Compensation by currency",
-    "compensationEmpty": "No structured compensation recorded on active documents.",
+    "compensationEmpty": "No structured compensation ranges recorded on active documents.",
     "presentLabel": "Present",
     "missingLabel": "Missing",
     "medianMinLabel": "Median minimum",
     "medianMaxLabel": "Median maximum",
     "documentCountLabel": "Documents",
+    "disclosureLabels": {
+      "range": "Numeric range",
+      "competitive": "Competitive / negotiable",
+      "unknown": "Not disclosed"
+    },
     "missingFieldLabels": {
       "employerLink": "Employer linked",
       "compensationCurrency": "Currency",
       "compensationMin": "Minimum",
       "compensationMax": "Maximum",
       "compensationPeriod": "Period",
+      "compensationDisclosed": "Pay disclosed",
       "completeCompensation": "Complete compensation record"
     }
   }

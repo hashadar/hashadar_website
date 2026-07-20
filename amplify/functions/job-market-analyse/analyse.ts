@@ -1,3 +1,4 @@
+import { projectEmbeddingsTo2D } from './project-embeddings-2d';
 import {
   matchTechnologiesInDocuments,
   type TechnologyFrequency,
@@ -291,9 +292,10 @@ export async function analyseCorpus(
       ),
     }));
 
-  const projection = documents.slice(0, maxProjectionPoints).map((document, index) => ({
-    x: vectors[index]?.[0] ?? 0,
-    y: vectors[index]?.[1] ?? 0,
+  const projected = projectEmbeddingsTo2D(vectors);
+  const projection = documents.slice(0, maxProjectionPoints).map((_, index) => ({
+    x: projected[index]?.x ?? 0,
+    y: projected[index]?.y ?? 0,
     clusterId: assignments[index] ?? 0,
   }));
 
@@ -312,8 +314,8 @@ export async function analyseCorpus(
       employerPrestigeTier: document.employerPrestigeTier,
       technologies: matched.map((technology) => technology.name),
       clusterId: assignments[index] ?? 0,
-      projectionX: vectors[index]?.[0],
-      projectionY: vectors[index]?.[1],
+      projectionX: projected[index]?.x,
+      projectionY: projected[index]?.y,
     };
   });
 

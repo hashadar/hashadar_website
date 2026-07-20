@@ -121,6 +121,11 @@ export function assertValidLabsPage(data: unknown): void {
   const page = requireRecord(data, 'labs');
   requireString(page, 'heading', 'labs');
   requireString(page, 'description', 'labs');
+  requireString(page, 'brandEyebrow', 'labs');
+  requireString(page, 'purposeLine', 'labs');
+  requireString(page, 'ctaLabel', 'labs');
+  requireString(page, 'flagshipTitle', 'labs');
+  requireString(page, 'teaserAriaLabel', 'labs');
   requireArray(page.labs, 'labs.labs').forEach((lab, index) => {
     const item = requireRecord(lab, `labs.labs[${index}]`);
     requireString(item, 'title', `labs.labs[${index}]`);
@@ -131,18 +136,46 @@ export function assertValidLabsPage(data: unknown): void {
 
 export function assertValidJobMarketLabPage(data: unknown): void {
   const page = requireRecord(data, 'jobMarketLab');
+  requireString(page, 'brandEyebrow', 'jobMarketLab');
   requireString(page, 'heading', 'jobMarketLab');
+  requireString(page, 'purposeLine', 'jobMarketLab');
   requireString(page, 'description', 'jobMarketLab');
   requireString(page, 'emptyState', 'jobMarketLab');
-  requireString(page, 'corpusNote', 'jobMarketLab');
+  if (page.corpusNote !== undefined) {
+    requireString(page, 'corpusNote', 'jobMarketLab');
+  }
+  const craft = requireRecord(page.craft, 'jobMarketLab.craft');
+  requireString(craft, 'heading', 'jobMarketLab.craft');
+  requireString(craft, 'intro', 'jobMarketLab.craft');
+  requireString(craft, 'inShortLabel', 'jobMarketLab.craft');
+  requireString(craft, 'underTheHoodLabel', 'jobMarketLab.craft');
+  if (craft.closing !== undefined) {
+    requireString(craft, 'closing', 'jobMarketLab.craft');
+  }
+  const craftStages = requireArray(craft.stages, 'jobMarketLab.craft.stages');
+  if (craftStages.length === 0) {
+    fail('jobMarketLab.craft.stages: expected at least one stage');
+  }
+  for (const [index, stageValue] of craftStages.entries()) {
+    const stage = requireRecord(stageValue, `jobMarketLab.craft.stages[${index}]`);
+    requireString(stage, 'id', `jobMarketLab.craft.stages[${index}]`);
+    requireString(stage, 'title', `jobMarketLab.craft.stages[${index}]`);
+    requireString(stage, 'inShort', `jobMarketLab.craft.stages[${index}]`);
+    requireString(stage, 'underTheHood', `jobMarketLab.craft.stages[${index}]`);
+  }
   requireString(page, 'metricsHeading', 'jobMarketLab');
   requireString(page, 'documentCountLabel', 'jobMarketLab');
   requireString(page, 'publishedAtLabel', 'jobMarketLab');
+  requireString(page, 'topSignalsLabel', 'jobMarketLab');
   requireString(page, 'skillsHeading', 'jobMarketLab');
+  requireString(page, 'skillsCaption', 'jobMarketLab');
   requireString(page, 'taxonomyHeading', 'jobMarketLab');
   requireString(page, 'seniorityLabel', 'jobMarketLab');
   requireString(page, 'roleFamilyLabel', 'jobMarketLab');
   requireString(page, 'clustersHeading', 'jobMarketLab');
+  requireString(page, 'clustersSizeHeading', 'jobMarketLab');
+  requireString(page, 'clustersMapHeading', 'jobMarketLab');
+  requireString(page, 'clustersCaption', 'jobMarketLab');
   requireString(page, 'pulseFiltersTimeLabel', 'jobMarketLab');
   const pulseFilterTimeOptions = requireRecord(
     page.pulseFilterTimeOptions,
@@ -159,6 +192,8 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(admin, 'startButtonLabel', 'jobMarketLab.admin');
   requireString(admin, 'startingLabel', 'jobMarketLab.admin');
   requireString(admin, 'startedMessage', 'jobMarketLab.admin');
+  requireString(admin, 'startedMessageWithRunsHint', 'jobMarketLab.admin');
+  requireString(admin, 'secondaryStartDescription', 'jobMarketLab.admin');
   requireString(admin, 'rejectedHeading', 'jobMarketLab.admin');
   const corpusAdmin = requireRecord(page.corpusAdmin, 'jobMarketLab.corpusAdmin');
   requireString(corpusAdmin, 'heading', 'jobMarketLab.corpusAdmin');
@@ -258,6 +293,30 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(metadataAdmin, 'noEmployerOption', 'jobMarketLab.metadataAdmin');
   requireString(metadataAdmin, 'seniorityLabel', 'jobMarketLab.metadataAdmin');
   requireString(metadataAdmin, 'roleFamilyLabel', 'jobMarketLab.metadataAdmin');
+  requireString(
+    metadataAdmin,
+    'compensationDisclosureLabel',
+    'jobMarketLab.metadataAdmin',
+  );
+  const metadataDisclosureOptions = requireRecord(
+    metadataAdmin.compensationDisclosureOptions,
+    'jobMarketLab.metadataAdmin.compensationDisclosureOptions',
+  );
+  requireString(
+    metadataDisclosureOptions,
+    'range',
+    'jobMarketLab.metadataAdmin.compensationDisclosureOptions',
+  );
+  requireString(
+    metadataDisclosureOptions,
+    'competitive',
+    'jobMarketLab.metadataAdmin.compensationDisclosureOptions',
+  );
+  requireString(
+    metadataDisclosureOptions,
+    'unknown',
+    'jobMarketLab.metadataAdmin.compensationDisclosureOptions',
+  );
   requireString(metadataAdmin, 'compensationCurrencyLabel', 'jobMarketLab.metadataAdmin');
   requireString(metadataAdmin, 'compensationMinLabel', 'jobMarketLab.metadataAdmin');
   requireString(metadataAdmin, 'compensationMaxLabel', 'jobMarketLab.metadataAdmin');
@@ -288,6 +347,11 @@ export function assertValidJobMarketLabPage(data: unknown): void {
     'missingDataHeading',
     'jobMarketLab.payPrestigeAnalytics',
   );
+  requireString(
+    payPrestigeAnalytics,
+    'disclosureHeading',
+    'jobMarketLab.payPrestigeAnalytics',
+  );
   requireString(payPrestigeAnalytics, 'prestigeHeading', 'jobMarketLab.payPrestigeAnalytics');
   requireString(payPrestigeAnalytics, 'sizeHeading', 'jobMarketLab.payPrestigeAnalytics');
   requireString(
@@ -304,6 +368,25 @@ export function assertValidJobMarketLabPage(data: unknown): void {
     payPrestigeAnalytics,
     'documentCountLabel',
     'jobMarketLab.payPrestigeAnalytics',
+  );
+  const disclosureLabels = requireRecord(
+    payPrestigeAnalytics.disclosureLabels,
+    'jobMarketLab.payPrestigeAnalytics.disclosureLabels',
+  );
+  requireString(
+    disclosureLabels,
+    'range',
+    'jobMarketLab.payPrestigeAnalytics.disclosureLabels',
+  );
+  requireString(
+    disclosureLabels,
+    'competitive',
+    'jobMarketLab.payPrestigeAnalytics.disclosureLabels',
+  );
+  requireString(
+    disclosureLabels,
+    'unknown',
+    'jobMarketLab.payPrestigeAnalytics.disclosureLabels',
   );
   const missingFieldLabels = requireRecord(
     payPrestigeAnalytics.missingFieldLabels,
@@ -332,6 +415,11 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(
     missingFieldLabels,
     'compensationPeriod',
+    'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
+  );
+  requireString(
+    missingFieldLabels,
+    'compensationDisclosed',
     'jobMarketLab.payPrestigeAnalytics.missingFieldLabels',
   );
   requireString(
@@ -380,11 +468,58 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(consoleCopy, 'runsEmpty', 'jobMarketLab.console');
   requireString(consoleCopy, 'runsLoading', 'jobMarketLab.console');
   requireString(consoleCopy, 'runsError', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsDocsConsideredLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsEstimatedCostLabel', 'jobMarketLab.console');
+  requireString(consoleCopy, 'runsReloadLabel', 'jobMarketLab.console');
   requireString(consoleCopy, 'runStatusQueued', 'jobMarketLab.console');
   requireString(consoleCopy, 'runStatusRunning', 'jobMarketLab.console');
   requireString(consoleCopy, 'runStatusSucceeded', 'jobMarketLab.console');
   requireString(consoleCopy, 'runStatusFailed', 'jobMarketLab.console');
   requireString(consoleCopy, 'failureReasonLabel', 'jobMarketLab.console');
+  const analyticsWorkspace = requireRecord(
+    consoleCopy.analyticsWorkspace,
+    'jobMarketLab.console.analyticsWorkspace',
+  );
+  for (const key of [
+    'heading',
+    'description',
+    'summaryHeading',
+    'activeDocumentsLabel',
+    'payDisclosedLabel',
+    'payUndisclosedLabel',
+    'employerLinkedLabel',
+    'completeCompensationLabel',
+    'startRecomputeHeading',
+    'startRecomputeDescription',
+    'viewRunsLabel',
+    'secondaryToolsHeading',
+    'secondaryToolsDescription',
+  ] as const) {
+    requireString(
+      analyticsWorkspace,
+      key,
+      'jobMarketLab.console.analyticsWorkspace',
+    );
+  }
+  const fitWorkspace = requireRecord(
+    consoleCopy.fitWorkspace,
+    'jobMarketLab.console.fitWorkspace',
+  );
+  for (const key of [
+    'heading',
+    'description',
+    'loadingLabel',
+    'errorLabel',
+    'saveCvFirstHint',
+    'modeRoleLabel',
+    'modeMarketLabel',
+    'jdSearchLabel',
+    'jdSearchPlaceholder',
+    'cvColumnHeading',
+    'resultsHeading',
+  ] as const) {
+    requireString(fitWorkspace, key, 'jobMarketLab.console.fitWorkspace');
+  }
   const cv = requireRecord(consoleCopy.cv, 'jobMarketLab.console.cv');
   requireString(cv, 'heading', 'jobMarketLab.console.cv');
   requireString(cv, 'description', 'jobMarketLab.console.cv');
@@ -547,6 +682,7 @@ export function assertValidJobMarketLabPage(data: unknown): void {
     'frontmatterMergedNotice',
     'seniorityLabel',
     'roleFamilyLabel',
+    'compensationDisclosureLabel',
     'compensationCurrencyLabel',
     'compensationMinLabel',
     'compensationMaxLabel',
@@ -592,6 +728,25 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   for (const key of corpusWorkspaceKeys) {
     requireString(corpusWorkspace, key, 'jobMarketLab.console.corpusWorkspace');
   }
+  const corpusDisclosureOptions = requireRecord(
+    corpusWorkspace.compensationDisclosureOptions,
+    'jobMarketLab.console.corpusWorkspace.compensationDisclosureOptions',
+  );
+  requireString(
+    corpusDisclosureOptions,
+    'range',
+    'jobMarketLab.console.corpusWorkspace.compensationDisclosureOptions',
+  );
+  requireString(
+    corpusDisclosureOptions,
+    'competitive',
+    'jobMarketLab.console.corpusWorkspace.compensationDisclosureOptions',
+  );
+  requireString(
+    corpusDisclosureOptions,
+    'unknown',
+    'jobMarketLab.console.corpusWorkspace.compensationDisclosureOptions',
+  );
 }
 
 export function assertValidLoginPage(data: unknown): void {

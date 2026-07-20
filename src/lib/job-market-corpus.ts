@@ -1,4 +1,5 @@
 import type {
+  CompensationDisclosure,
   CompensationPeriod,
   JobDescriptionRoleFamily,
   JobDescriptionSeniority,
@@ -21,6 +22,7 @@ export type JobDescriptionCorpusRecord = {
   compensationMin?: number;
   compensationMax?: number;
   compensationPeriod?: CompensationPeriod;
+  compensationDisclosure?: CompensationDisclosure;
 };
 
 export const DEFAULT_MAX_AGE_MONTHS = 18;

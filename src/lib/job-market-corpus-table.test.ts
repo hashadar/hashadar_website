@@ -25,10 +25,18 @@ describe('filterCorpusRecords', () => {
       title: 'Analyst',
       status: 'archived',
       employerId: 'emp-1',
+      compensationDisclosure: 'range',
       compensationCurrency: 'GBP',
       compensationMin: 1,
       compensationMax: 2,
       compensationPeriod: 'year',
+    },
+    {
+      ...base,
+      id: 'raw/c.md',
+      s3Key: 'raw/c.md',
+      title: 'Consultant',
+      compensationDisclosure: 'competitive',
     },
   ];
 
@@ -40,7 +48,7 @@ describe('filterCorpusRecords', () => {
         missingEmployer: true,
         missingPay: false,
       }).map((record) => record.id),
-    ).toEqual(['raw/a.md']);
+    ).toEqual(['raw/a.md', 'raw/c.md']);
   });
 
   it('filters by search text', () => {
@@ -53,6 +61,17 @@ describe('filterCorpusRecords', () => {
       }).map((record) => record.id),
     ).toEqual(['raw/b.md']);
   });
+
+  it('treats competitive as disclosed for missing-pay filter', () => {
+    expect(
+      filterCorpusRecords(records, {
+        status: 'all',
+        search: '',
+        missingEmployer: false,
+        missingPay: true,
+      }).map((record) => record.id),
+    ).toEqual(['raw/a.md']);
+  });
 });
 
 describe('corpus table helpers', () => {
@@ -63,6 +82,13 @@ describe('corpus table helpers', () => {
     expect(
       compensationSummary({
         ...base,
+        compensationDisclosure: 'competitive',
+      }),
+    ).toBe('Competitive');
+    expect(
+      compensationSummary({
+        ...base,
+        compensationDisclosure: 'range',
         compensationCurrency: 'GBP',
         compensationMin: 80_000,
         compensationMax: 100_000,

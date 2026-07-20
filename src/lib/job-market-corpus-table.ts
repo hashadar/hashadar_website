@@ -1,4 +1,5 @@
 import type { JobDescriptionCorpusRecord } from '@/lib/job-market-corpus';
+import { resolveCompensationDisclosure } from '@/lib/job-market-employers';
 
 export type CorpusStatusFilter = 'all' | 'active' | 'archived';
 
@@ -9,13 +10,9 @@ export type CorpusTableFilters = {
   missingPay: boolean;
 };
 
+/** True when pay is not disclosed (`unknown`, including legacy unset). */
 export function hasMissingPay(record: JobDescriptionCorpusRecord): boolean {
-  return (
-    record.compensationCurrency == null ||
-    record.compensationMin == null ||
-    record.compensationMax == null ||
-    record.compensationPeriod == null
-  );
+  return resolveCompensationDisclosure(record) === 'unknown';
 }
 
 export function displayTitle(record: JobDescriptionCorpusRecord): string {
@@ -28,12 +25,19 @@ export function displayTitle(record: JobDescriptionCorpusRecord): string {
 }
 
 export function compensationSummary(record: JobDescriptionCorpusRecord): string {
+  const disclosure = resolveCompensationDisclosure(record);
+  if (disclosure === 'competitive') {
+    return 'Competitive';
+  }
+  if (disclosure !== 'range') {
+    return '—';
+  }
   if (
     record.compensationCurrency == null ||
     record.compensationMin == null ||
     record.compensationMax == null
   ) {
-    return '—';
+    return 'Range (incomplete)';
   }
   const period = record.compensationPeriod ? ` / ${record.compensationPeriod}` : '';
   return `${record.compensationCurrency} ${record.compensationMin}–${record.compensationMax}${period}`;

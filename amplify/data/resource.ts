@@ -22,6 +22,7 @@ const schema = a
       'other',
     ]),
     CompensationPeriod: a.enum(['year', 'month', 'day', 'hour']),
+    CompensationDisclosure: a.enum(['range', 'competitive', 'unknown']),
 
     Employer: a
       .model({
@@ -50,6 +51,7 @@ const schema = a
         compensationMin: a.float(),
         compensationMax: a.float(),
         compensationPeriod: a.ref('CompensationPeriod'),
+        compensationDisclosure: a.ref('CompensationDisclosure'),
       })
       .authorization((allow) => [
         allow.authenticated().to(['read', 'create', 'update', 'delete']),

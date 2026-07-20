@@ -206,11 +206,13 @@ describe('updateJobDescriptionStructuredFields', () => {
         compensationMin: 80000,
         compensationMax: 95000,
         compensationPeriod: 'year',
+        compensationDisclosure: 'range',
       }),
     });
     const body = deps.files.get('raw/jd-1.md') ?? '';
     expect(body).toContain('employerId: emp-1');
     expect(body).toContain('seniority: senior');
+    expect(body).toContain('compensationDisclosure: range');
     expect(body).toContain('compensationCurrency: GBP');
     expect(body).toContain('compensationMin: 80000');
   });
@@ -288,6 +290,7 @@ Role body.
       'jd-1',
       {
         employerId: null,
+        compensationDisclosure: 'unknown',
         compensationCurrency: null,
         compensationMin: null,
         compensationMax: null,
@@ -303,6 +306,7 @@ Role body.
         employerId: undefined,
         seniority: 'lead',
         roleFamily: 'engineering',
+        compensationDisclosure: 'unknown',
         compensationCurrency: undefined,
         compensationMin: undefined,
         compensationMax: undefined,
@@ -312,6 +316,7 @@ Role body.
     const body = deps.files.get('raw/jd-1.md') ?? '';
     expect(body).not.toContain('employerId:');
     expect(body).not.toContain('compensationCurrency:');
+    expect(body).toContain('compensationDisclosure: unknown');
     expect(body).toContain('seniority: lead');
   });
 });

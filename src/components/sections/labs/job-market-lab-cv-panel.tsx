@@ -14,6 +14,7 @@ import { createDefaultAmplifyCanonicalCvDeps } from '@/lib/canonical-cv-amplify'
 
 export type JobMarketLabCvPanelProps = {
   canonicalCv?: CanonicalCvDeps;
+  embedded?: boolean;
 };
 
 type LoadState =
@@ -24,6 +25,7 @@ type LoadState =
 
 export function JobMarketLabCvPanel({
   canonicalCv,
+  embedded = false,
 }: JobMarketLabCvPanelProps) {
   const { session, isLoading } = useSiteAuth();
   const [deps] = useState(() => canonicalCv ?? createDefaultAmplifyCanonicalCvDeps());
@@ -99,18 +101,23 @@ export function JobMarketLabCvPanel({
   }
 
   return (
-    <section className="mt-16 space-y-6" aria-labelledby="job-market-cv-heading">
-      <div className="max-w-2xl space-y-4">
+    <section
+      className={embedded ? 'space-y-4' : 'mt-16 space-y-6'}
+      aria-labelledby="job-market-cv-heading"
+    >
+      <div className={embedded ? 'space-y-2' : 'max-w-2xl space-y-4'}>
         <SectionHeader
           id="job-market-cv-heading"
-          as="h2"
-          size="md"
+          as={embedded ? 'h3' : 'h2'}
+          size={embedded ? 'sm' : 'md'}
           animated={false}
-          showLeftAccent
+          showLeftAccent={!embedded}
         >
-          {cvCopy.heading}
+          {embedded
+            ? jobMarketLab.console.fitWorkspace.cvColumnHeading
+            : cvCopy.heading}
         </SectionHeader>
-        <Text variant="muted">{cvCopy.description}</Text>
+        {embedded ? null : <Text variant="muted">{cvCopy.description}</Text>}
       </div>
 
       {loadState.status === 'loading' ? (
@@ -122,9 +129,11 @@ export function JobMarketLabCvPanel({
       ) : null}
 
       {loadState.status === 'ready' || loadState.status === 'idle' ? (
-        <div className="max-w-2xl space-y-4">
+        <div className={embedded ? 'space-y-3' : 'max-w-2xl space-y-4'}>
           {isEmpty ? (
-            <Text variant="muted">{cvCopy.emptyHint}</Text>
+            <Text size="sm" variant="muted">
+              {cvCopy.emptyHint}
+            </Text>
           ) : null}
 
           <label className="block space-y-2" htmlFor="job-market-cv-body">
@@ -133,8 +142,12 @@ export function JobMarketLabCvPanel({
               id="job-market-cv-body"
               value={draftBody}
               onChange={(event) => setDraftBody(event.target.value)}
-              rows={16}
-              className="block w-full rounded border border-[var(--border)] bg-[var(--background)] p-3 font-body text-base leading-relaxed text-[var(--foreground)]"
+              rows={embedded ? 22 : 16}
+              className={
+                embedded
+                  ? 'block min-h-[18rem] w-full resize-y rounded-md border border-[color-mix(in_oklab,var(--foreground)_20%,transparent)] bg-transparent p-2 font-body text-sm leading-relaxed text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[color-mix(in_oklab,var(--primary)_35%,transparent)]'
+                  : 'block w-full rounded border border-[var(--border)] bg-[var(--background)] p-3 font-body text-base leading-relaxed text-[var(--foreground)]'
+              }
             />
           </label>
 

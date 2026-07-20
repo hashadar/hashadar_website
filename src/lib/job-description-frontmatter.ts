@@ -1,8 +1,11 @@
 import matter from 'gray-matter';
 import {
+  COMPENSATION_DISCLOSURES,
   COMPENSATION_PERIODS,
   JOB_DESCRIPTION_ROLE_FAMILIES,
   JOB_DESCRIPTION_SENIORITIES,
+  resolveCompensationDisclosure,
+  type CompensationDisclosure,
   type CompensationPeriod,
   type JobDescriptionRoleFamily,
   type JobDescriptionSeniority,
@@ -20,6 +23,7 @@ export const JOB_DESCRIPTION_FRONTMATTER_KEYS = [
   'compensationMin',
   'compensationMax',
   'compensationPeriod',
+  'compensationDisclosure',
 ] as const;
 
 export type JobDescriptionFrontmatterKey =
@@ -36,6 +40,7 @@ export type JobDescriptionFrontmatter = {
   compensationMin?: number;
   compensationMax?: number;
   compensationPeriod?: CompensationPeriod;
+  compensationDisclosure?: CompensationDisclosure;
 };
 
 export type ParseFrontmatterResult =
@@ -119,6 +124,39 @@ function yamlScalar(value: string | number): string {
   return value;
 }
 
+function normaliseCompensationFrontmatter(input: {
+  compensationDisclosure?: CompensationDisclosure;
+  compensationCurrency?: string;
+  compensationMin?: number;
+  compensationMax?: number;
+  compensationPeriod?: CompensationPeriod;
+}): Pick<
+  JobDescriptionFrontmatter,
+  | 'compensationDisclosure'
+  | 'compensationCurrency'
+  | 'compensationMin'
+  | 'compensationMax'
+  | 'compensationPeriod'
+> {
+  const compensationDisclosure = resolveCompensationDisclosure({
+    compensationDisclosure: input.compensationDisclosure,
+    compensationMin: input.compensationMin,
+    compensationMax: input.compensationMax,
+  });
+
+  if (compensationDisclosure !== 'range') {
+    return { compensationDisclosure };
+  }
+
+  return {
+    compensationDisclosure,
+    compensationCurrency: input.compensationCurrency,
+    compensationMin: input.compensationMin,
+    compensationMax: input.compensationMax,
+    compensationPeriod: input.compensationPeriod,
+  };
+}
+
 /** Parse and normalise JD frontmatter. Invalid enum values are dropped. */
 export function parseJobDescriptionFrontmatter(body: string): ParseFrontmatterResult {
   if (!body.startsWith('---')) {
@@ -157,6 +195,29 @@ export function parseJobDescriptionFrontmatter(body: string): ParseFrontmatterRe
     };
   }
 
+  const compensation = normaliseCompensationFrontmatter({
+    compensationDisclosure: optionalEnum(
+      data.compensationDisclosure,
+      COMPENSATION_DISCLOSURES,
+    ),
+    compensationCurrency: optionalString(data.compensationCurrency),
+    compensationMin,
+    compensationMax,
+    compensationPeriod: optionalEnum(data.compensationPeriod, COMPENSATION_PERIODS),
+  });
+
+  if (
+    compensation.compensationDisclosure === 'range' &&
+    compensation.compensationMin !== undefined &&
+    compensation.compensationMax !== undefined &&
+    compensation.compensationMin > compensation.compensationMax
+  ) {
+    return {
+      status: 'rejected',
+      reason: 'compensationMin must be less than or equal to compensationMax',
+    };
+  }
+
   return {
     status: 'ok',
     content,
@@ -167,10 +228,7 @@ export function parseJobDescriptionFrontmatter(body: string): ParseFrontmatterRe
       roleFamily: optionalRoleFamily(data.roleFamily),
       source: optionalString(data.source),
       employerId: optionalString(data.employerId),
-      compensationCurrency: optionalString(data.compensationCurrency),
-      compensationMin,
-      compensationMax,
-      compensationPeriod: optionalEnum(data.compensationPeriod, COMPENSATION_PERIODS),
+      ...compensation,
     },
   };
 }
@@ -179,23 +237,27 @@ export function serializeJobDescriptionFrontmatter(
   data: JobDescriptionFrontmatter,
   content: string,
 ): string {
+  const compensation = normaliseCompensationFrontmatter(data);
   const lines = ['---', `collectedAt: ${data.collectedAt}`];
   if (data.title) lines.push(`title: ${yamlScalar(data.title)}`);
   if (data.seniority) lines.push(`seniority: ${data.seniority}`);
   if (data.roleFamily) lines.push(`roleFamily: ${data.roleFamily}`);
   if (data.source) lines.push(`source: ${yamlScalar(data.source)}`);
   if (data.employerId) lines.push(`employerId: ${yamlScalar(data.employerId)}`);
-  if (data.compensationCurrency) {
-    lines.push(`compensationCurrency: ${yamlScalar(data.compensationCurrency)}`);
+  lines.push(`compensationDisclosure: ${compensation.compensationDisclosure}`);
+  if (compensation.compensationCurrency) {
+    lines.push(
+      `compensationCurrency: ${yamlScalar(compensation.compensationCurrency)}`,
+    );
   }
-  if (data.compensationMin !== undefined) {
-    lines.push(`compensationMin: ${yamlScalar(data.compensationMin)}`);
+  if (compensation.compensationMin !== undefined) {
+    lines.push(`compensationMin: ${yamlScalar(compensation.compensationMin)}`);
   }
-  if (data.compensationMax !== undefined) {
-    lines.push(`compensationMax: ${yamlScalar(data.compensationMax)}`);
+  if (compensation.compensationMax !== undefined) {
+    lines.push(`compensationMax: ${yamlScalar(compensation.compensationMax)}`);
   }
-  if (data.compensationPeriod) {
-    lines.push(`compensationPeriod: ${data.compensationPeriod}`);
+  if (compensation.compensationPeriod) {
+    lines.push(`compensationPeriod: ${compensation.compensationPeriod}`);
   }
   lines.push('---', '', content.replace(/^\n+/, '').trimEnd(), '');
   return lines.join('\n');
@@ -212,6 +274,7 @@ export type FrontmatterMetadataPatch = {
   compensationMin?: number | null;
   compensationMax?: number | null;
   compensationPeriod?: CompensationPeriod | null;
+  compensationDisclosure?: CompensationDisclosure | null;
 };
 
 function applyPatch(
@@ -250,8 +313,14 @@ function applyPatch(
   if ('compensationPeriod' in patch) {
     next.compensationPeriod = patch.compensationPeriod ?? undefined;
   }
+  if ('compensationDisclosure' in patch) {
+    next.compensationDisclosure = patch.compensationDisclosure ?? undefined;
+  }
 
-  return next;
+  return {
+    ...next,
+    ...normaliseCompensationFrontmatter(next),
+  };
 }
 
 /** Merge metadata into markdown frontmatter (SSOT write). */
@@ -265,6 +334,7 @@ export function applyMetadataPatchToMarkdown(
   }
   const next = applyPatch(parsed.data, patch);
   if (
+    next.compensationDisclosure === 'range' &&
     next.compensationMin !== undefined &&
     next.compensationMax !== undefined &&
     next.compensationMin > next.compensationMax
@@ -301,6 +371,14 @@ export function mergeModelFieldsIntoMarkdown(
   if (!parsed.data.employerId && model.employerId) patch.employerId = model.employerId;
   if (!parsed.data.seniority && model.seniority) patch.seniority = model.seniority;
   if (!parsed.data.roleFamily && model.roleFamily) patch.roleFamily = model.roleFamily;
+  if (
+    (parsed.data.compensationDisclosure === undefined ||
+      parsed.data.compensationDisclosure === 'unknown') &&
+    model.compensationDisclosure &&
+    model.compensationDisclosure !== 'unknown'
+  ) {
+    patch.compensationDisclosure = model.compensationDisclosure;
+  }
   if (!parsed.data.compensationCurrency && model.compensationCurrency) {
     patch.compensationCurrency = model.compensationCurrency;
   }
@@ -312,6 +390,17 @@ export function mergeModelFieldsIntoMarkdown(
   }
   if (!parsed.data.compensationPeriod && model.compensationPeriod) {
     patch.compensationPeriod = model.compensationPeriod;
+  }
+
+  // Infer range when merging a complete numeric band without an explicit disclosure.
+  if (
+    patch.compensationMin != null &&
+    patch.compensationMax != null &&
+    !patch.compensationDisclosure &&
+    (parsed.data.compensationDisclosure === undefined ||
+      parsed.data.compensationDisclosure === 'unknown')
+  ) {
+    patch.compensationDisclosure = 'range';
   }
 
   if (Object.keys(patch).length === 0) {

@@ -30,11 +30,58 @@ export const JOB_DESCRIPTION_ROLE_FAMILIES = [
 
 export const COMPENSATION_PERIODS = ['year', 'month', 'day', 'hour'] as const;
 
+export const COMPENSATION_DISCLOSURES = [
+  'range',
+  'competitive',
+  'unknown',
+] as const;
+
 export type EmployerSizeTier = (typeof EMPLOYER_SIZE_TIERS)[number];
 export type EmployerPrestigeTier = (typeof EMPLOYER_PRESTIGE_TIERS)[number];
 export type JobDescriptionSeniority = (typeof JOB_DESCRIPTION_SENIORITIES)[number];
 export type JobDescriptionRoleFamily = (typeof JOB_DESCRIPTION_ROLE_FAMILIES)[number];
 export type CompensationPeriod = (typeof COMPENSATION_PERIODS)[number];
+export type CompensationDisclosure = (typeof COMPENSATION_DISCLOSURES)[number];
+
+/** Readers: competitive wins; valid band numerics → range; else unknown. */
+export function resolveCompensationDisclosure(input: {
+  compensationDisclosure?: CompensationDisclosure | null;
+  compensationMin?: number | null;
+  compensationMax?: number | null;
+}): CompensationDisclosure {
+  if (input.compensationDisclosure === 'competitive') {
+    return 'competitive';
+  }
+  if (input.compensationMin != null && input.compensationMax != null) {
+    return 'range';
+  }
+  if (input.compensationDisclosure === 'range') {
+    return 'range';
+  }
+  return 'unknown';
+}
+
+/** Clear numeric pay fields unless disclosure is an explicit range. */
+export function clearCompensationRangeFieldsWhenNotRange<
+  T extends {
+    compensationDisclosure: CompensationDisclosure;
+    compensationCurrency?: string | null;
+    compensationMin?: number | null;
+    compensationMax?: number | null;
+    compensationPeriod?: CompensationPeriod | null;
+  },
+>(fields: T): T {
+  if (fields.compensationDisclosure === 'range') {
+    return fields;
+  }
+  return {
+    ...fields,
+    compensationCurrency: null,
+    compensationMin: null,
+    compensationMax: null,
+    compensationPeriod: null,
+  };
+}
 
 export type EmployerRecord = {
   id: string;
@@ -79,6 +126,7 @@ export type JobDescriptionStructuredFieldsPatch = {
   compensationMin?: number | null;
   compensationMax?: number | null;
   compensationPeriod?: CompensationPeriod | null;
+  compensationDisclosure?: CompensationDisclosure | null;
 };
 
 export type UpdateJobDescriptionStructuredFieldsDeps = {
@@ -118,6 +166,12 @@ function isCompensationPeriod(value: string): value is CompensationPeriod {
   return (COMPENSATION_PERIODS as readonly string[]).includes(value);
 }
 
+function isCompensationDisclosure(
+  value: string,
+): value is CompensationDisclosure {
+  return (COMPENSATION_DISCLOSURES as readonly string[]).includes(value);
+}
+
 function validateEmployerInput(
   input: CreateEmployerInput,
 ): { status: 'valid' } | { status: 'rejected'; reason: string } {
@@ -139,6 +193,26 @@ function validateEmployerInput(
 function validateCompensationPatch(
   patch: JobDescriptionStructuredFieldsPatch,
 ): { status: 'valid' } | { status: 'rejected'; reason: string } {
+  if (
+    patch.compensationDisclosure != null &&
+    patch.compensationDisclosure !== undefined &&
+    !isCompensationDisclosure(patch.compensationDisclosure)
+  ) {
+    return {
+      status: 'rejected',
+      reason: 'Unrecognised compensation disclosure',
+    };
+  }
+
+  const disclosure =
+    patch.compensationDisclosure === undefined
+      ? undefined
+      : (patch.compensationDisclosure ?? 'unknown');
+
+  if (disclosure != null && disclosure !== 'range') {
+    return { status: 'valid' };
+  }
+
   if (
     patch.compensationMin != null &&
     patch.compensationMax != null &&
@@ -195,6 +269,18 @@ function applyStructuredFieldsPatch(
   }
   if ('compensationPeriod' in patch) {
     next.compensationPeriod = patch.compensationPeriod ?? undefined;
+  }
+  if ('compensationDisclosure' in patch) {
+    next.compensationDisclosure = patch.compensationDisclosure ?? undefined;
+  }
+
+  const disclosure = resolveCompensationDisclosure(next);
+  next.compensationDisclosure = disclosure;
+  if (disclosure !== 'range') {
+    next.compensationCurrency = undefined;
+    next.compensationMin = undefined;
+    next.compensationMax = undefined;
+    next.compensationPeriod = undefined;
   }
 
   return next;
@@ -311,6 +397,11 @@ export async function updateJobDescriptionStructuredFields(
   if (merged.data.title !== undefined) record.title = merged.data.title;
   if (merged.data.source !== undefined) record.source = merged.data.source;
   record.collectedAt = merged.data.collectedAt;
+  record.compensationDisclosure = merged.data.compensationDisclosure;
+  record.compensationCurrency = merged.data.compensationCurrency;
+  record.compensationMin = merged.data.compensationMin;
+  record.compensationMax = merged.data.compensationMax;
+  record.compensationPeriod = merged.data.compensationPeriod;
   await deps.saveJobDescription(record);
   return { status: 'updated', record };
 }
