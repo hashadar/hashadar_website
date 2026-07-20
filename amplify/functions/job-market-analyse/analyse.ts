@@ -1,3 +1,9 @@
+import { projectEmbeddingsTo2D } from './project-embeddings-2d';
+import {
+  matchTechnologiesInDocuments,
+  type TechnologyFrequency,
+} from './technology-ontology';
+
 export const MAX_SKILLS = 40;
 export const MAX_PROJECTION_POINTS = 200;
 export const MAX_CLUSTER_K = 12;
@@ -6,15 +12,28 @@ export type AnalyzableDocument = {
   id: string;
   contentHash: string;
   markdown: string;
+  collectedAt: string;
   seniority?: string;
   roleFamily?: string;
   title?: string;
+  employerSizeTier?: string;
+  employerPrestigeTier?: string;
 };
 
-export type SkillFrequency = {
-  name: string;
-  count: number;
+export type DocumentPulseMeta = {
+  id: string;
+  collectedAt: string;
+  seniority?: string;
+  roleFamily?: string;
+  employerSizeTier?: string;
+  employerPrestigeTier?: string;
+  technologies: string[];
+  clusterId: number;
+  projectionX?: number;
+  projectionY?: number;
 };
+
+export type SkillFrequency = TechnologyFrequency;
 
 export type TaxonomyBucket = {
   name: string;
@@ -36,11 +55,15 @@ export type ProjectionPoint = {
 export type CorpusSnapshotPayload = {
   documentCount: number;
   publishedAt: string;
+  technologies: SkillFrequency[];
   skills: SkillFrequency[];
   seniority: TaxonomyBucket[];
   roleFamily: TaxonomyBucket[];
   clusters: ClusterSummary[];
   projection: ProjectionPoint[];
+  corpusMeta?: {
+    documents: DocumentPulseMeta[];
+  };
 };
 
 export type AnalysisMetrics = {
@@ -66,6 +89,7 @@ export type AnalyseCorpusDeps = {
   maxSkills?: number;
   maxProjectionPoints?: number;
   maxClusters?: number;
+  themeLabelOverrides?: Record<string, string>;
   cluster?: (
     vectors: number[][],
     k: number,
@@ -76,61 +100,6 @@ export type AnalyseCorpusResult = {
   snapshot: CorpusSnapshotPayload;
   metrics: AnalysisMetrics;
 };
-
-const STOPWORDS = new Set([
-  'a',
-  'an',
-  'and',
-  'are',
-  'as',
-  'at',
-  'be',
-  'by',
-  'for',
-  'from',
-  'in',
-  'is',
-  'it',
-  'of',
-  'on',
-  'or',
-  'the',
-  'to',
-  'we',
-  'with',
-  'you',
-  'your',
-  'need',
-  'looking',
-  'role',
-  'skills',
-]);
-
-export function extractSkillFrequencies(
-  documents: AnalyzableDocument[],
-  maxSkills: number = MAX_SKILLS,
-): SkillFrequency[] {
-  const counts = new Map<string, number>();
-
-  for (const document of documents) {
-    const tokens = document.markdown
-      .toLowerCase()
-      .match(/[a-z][a-z0-9+.#-]{1,}/g) ?? [];
-    const seen = new Set<string>();
-    for (const token of tokens) {
-      if (STOPWORDS.has(token) || seen.has(token)) {
-        continue;
-      }
-      seen.add(token);
-      counts.set(token, (counts.get(token) ?? 0) + 1);
-    }
-  }
-
-  return [...counts.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-    .slice(0, maxSkills);
-}
 
 function taxonomyBreakdown(
   documents: AnalyzableDocument[],
@@ -218,6 +187,48 @@ export function kMeansCluster(
   return { assignments, centroids };
 }
 
+export function deriveClusterKey(
+  documents: Array<{ markdown: string }>,
+): string {
+  const technologies = matchTechnologiesInDocuments(documents, { maxTechnologies: 2 });
+  if (technologies.length === 0) {
+    return '';
+  }
+
+  return technologies
+    .map((technology) => technology.name)
+    .sort((a, b) => a.localeCompare(b))
+    .join('|');
+}
+
+export function buildClusterLabel(
+  clusterId: number,
+  documents: Array<{ markdown: string }>,
+): string {
+  const technologies = matchTechnologiesInDocuments(documents, { maxTechnologies: 2 });
+  if (technologies.length === 0) {
+    return `Requirement theme ${clusterId + 1}`;
+  }
+
+  return technologies.map((technology) => technology.name).join(', ');
+}
+
+export function resolveClusterLabel(
+  clusterId: number,
+  documents: Array<{ markdown: string }>,
+  overrides: Record<string, string> | undefined,
+): string {
+  const keys = [String(clusterId), deriveClusterKey(documents)].filter(Boolean);
+  for (const key of keys) {
+    const override = overrides?.[key]?.trim();
+    if (override) {
+      return override;
+    }
+  }
+
+  return buildClusterLabel(clusterId, documents);
+}
+
 export async function analyseCorpus(
   documents: AnalyzableDocument[],
   deps: AnalyseCorpusDeps,
@@ -257,8 +268,16 @@ export async function analyseCorpus(
   const { assignments } = cluster(vectors, k);
 
   const clusterSizes = new Map<number, number>();
-  for (const assignment of assignments) {
-    clusterSizes.set(assignment, (clusterSizes.get(assignment) ?? 0) + 1);
+  const clusterDocuments = new Map<number, AnalyzableDocument[]>();
+  for (let index = 0; index < assignments.length; index += 1) {
+    const clusterId = assignments[index] ?? 0;
+    clusterSizes.set(clusterId, (clusterSizes.get(clusterId) ?? 0) + 1);
+    const documentsInCluster = clusterDocuments.get(clusterId) ?? [];
+    const document = documents[index];
+    if (document) {
+      documentsInCluster.push(document);
+      clusterDocuments.set(clusterId, documentsInCluster);
+    }
   }
 
   const clusters = [...clusterSizes.entries()]
@@ -266,24 +285,51 @@ export async function analyseCorpus(
     .map(([id, size]) => ({
       id,
       size,
-      label: `Theme ${id + 1}`,
+      label: resolveClusterLabel(
+        id,
+        clusterDocuments.get(id) ?? [],
+        deps.themeLabelOverrides,
+      ),
     }));
 
-  const projection = documents.slice(0, maxProjectionPoints).map((document, index) => ({
-    x: vectors[index]?.[0] ?? 0,
-    y: vectors[index]?.[1] ?? 0,
+  const projected = projectEmbeddingsTo2D(vectors);
+  const projection = documents.slice(0, maxProjectionPoints).map((_, index) => ({
+    x: projected[index]?.x ?? 0,
+    y: projected[index]?.y ?? 0,
     clusterId: assignments[index] ?? 0,
   }));
+
+  const technologies = matchTechnologiesInDocuments(documents, {
+    maxTechnologies: maxSkills,
+  });
+
+  const corpusMetaDocuments: DocumentPulseMeta[] = documents.map((document, index) => {
+    const matched = matchTechnologiesInDocuments([document], { maxTechnologies: maxSkills });
+    return {
+      id: document.id,
+      collectedAt: document.collectedAt,
+      seniority: document.seniority,
+      roleFamily: document.roleFamily,
+      employerSizeTier: document.employerSizeTier,
+      employerPrestigeTier: document.employerPrestigeTier,
+      technologies: matched.map((technology) => technology.name),
+      clusterId: assignments[index] ?? 0,
+      projectionX: projected[index]?.x,
+      projectionY: projected[index]?.y,
+    };
+  });
 
   return {
     snapshot: {
       documentCount: documents.length,
       publishedAt: now.toISOString(),
-      skills: extractSkillFrequencies(documents, maxSkills),
+      technologies,
+      skills: technologies,
       seniority: taxonomyBreakdown(documents, 'seniority'),
       roleFamily: taxonomyBreakdown(documents, 'roleFamily'),
       clusters,
       projection,
+      corpusMeta: { documents: corpusMetaDocuments },
     },
     metrics: {
       docsConsidered: documents.length,

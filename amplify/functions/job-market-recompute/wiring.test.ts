@@ -31,9 +31,11 @@ describe('job market recompute wiring', () => {
   it('exposes guest publication query and authenticated recompute mutation', () => {
     expect(dataTs).toMatch(/getPublishedJobMarketSnapshot/);
     expect(dataTs).toMatch(/startJobMarketRecompute/);
+    expect(dataTs).toMatch(/parseJobListingFromUrl/);
     expect(dataTs).toMatch(/allow\.guest\(\)/);
     expect(dataTs).toMatch(/AnalysisRun/);
     expect(dataTs).toMatch(/CorpusSnapshot/);
     expect(dataTs).toMatch(/LabPublication/);
+    expect(dataTs).toMatch(/ThemeLabelOverride/);
   });
 });

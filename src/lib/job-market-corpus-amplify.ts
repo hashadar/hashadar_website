@@ -5,6 +5,13 @@ import type {
   PrepareActiveCorpusDeps,
 } from './job-market-corpus';
 
+import type {
+  CompensationDisclosure,
+  CompensationPeriod,
+  JobDescriptionRoleFamily,
+  JobDescriptionSeniority,
+} from './job-market-employers';
+
 export type AmplifyJobDescriptionRow = {
   id: string;
   s3Key: string;
@@ -12,9 +19,15 @@ export type AmplifyJobDescriptionRow = {
   collectedAt: string;
   status: JobDescriptionStatus;
   title?: string | null;
-  seniority?: string | null;
-  roleFamily?: string | null;
+  seniority?: JobDescriptionSeniority | null;
+  roleFamily?: JobDescriptionRoleFamily | null;
   source?: string | null;
+  employerId?: string | null;
+  compensationCurrency?: string | null;
+  compensationMin?: number | null;
+  compensationMax?: number | null;
+  compensationPeriod?: CompensationPeriod | null;
+  compensationDisclosure?: CompensationDisclosure | null;
 };
 
 type AmplifyDataResult<T> = {
@@ -51,6 +64,12 @@ function toCorpusRecord(row: AmplifyJobDescriptionRow): JobDescriptionCorpusReco
     seniority: row.seniority ?? undefined,
     roleFamily: row.roleFamily ?? undefined,
     source: row.source ?? undefined,
+    employerId: row.employerId ?? undefined,
+    compensationCurrency: row.compensationCurrency ?? undefined,
+    compensationMin: row.compensationMin ?? undefined,
+    compensationMax: row.compensationMax ?? undefined,
+    compensationPeriod: row.compensationPeriod ?? undefined,
+    compensationDisclosure: row.compensationDisclosure ?? undefined,
   };
 }
 
@@ -70,16 +89,23 @@ export function createAmplifyCorpusDeps(
     },
     async saveJobDescription(record) {
       // Model update only — never remove the S3 object for soft-archive/restore.
+      // Optional fields use null so clears persist (frontmatter SSOT projection).
       const { errors } = await client.update({
         id: record.id,
         status: record.status,
         ...(record.s3Key !== undefined ? { s3Key: record.s3Key } : {}),
         ...(record.contentHash !== undefined ? { contentHash: record.contentHash } : {}),
         ...(record.collectedAt !== undefined ? { collectedAt: record.collectedAt } : {}),
-        ...(record.title !== undefined ? { title: record.title } : {}),
-        ...(record.seniority !== undefined ? { seniority: record.seniority } : {}),
-        ...(record.roleFamily !== undefined ? { roleFamily: record.roleFamily } : {}),
-        ...(record.source !== undefined ? { source: record.source } : {}),
+        title: record.title ?? null,
+        seniority: record.seniority ?? null,
+        roleFamily: record.roleFamily ?? null,
+        source: record.source ?? null,
+        employerId: record.employerId ?? null,
+        compensationCurrency: record.compensationCurrency ?? null,
+        compensationMin: record.compensationMin ?? null,
+        compensationMax: record.compensationMax ?? null,
+        compensationPeriod: record.compensationPeriod ?? null,
+        compensationDisclosure: record.compensationDisclosure ?? null,
       });
       throwIfErrors(errors);
     },

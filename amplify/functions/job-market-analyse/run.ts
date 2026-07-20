@@ -28,6 +28,10 @@ export type ExecuteAnalysisRunDeps = {
   embed: AnalyseCorpusDeps['embed'];
   getCachedEmbedding: AnalyseCorpusDeps['getCachedEmbedding'];
   putCachedEmbedding: AnalyseCorpusDeps['putCachedEmbedding'];
+  listThemeLabelOverrides?: () => Promise<Record<string, string>>;
+  getEmployerTiers?: (
+    employerId: string,
+  ) => Promise<{ sizeTier?: string; prestigeTier?: string } | null>;
   saveSnapshot: (snapshot: StoredCorpusSnapshot) => Promise<StoredCorpusSnapshot>;
   updateRun: (run: AnalysisRunRecord) => Promise<AnalysisRunRecord>;
   updatePublication: (publication: LabPublicationPointer) => Promise<void>;
@@ -64,20 +68,33 @@ export async function executeAnalysisRun(
       id: string;
       contentHash: string;
       markdown: string;
+      collectedAt: string;
       seniority?: string;
       roleFamily?: string;
       title?: string;
+      employerSizeTier?: string;
+      employerPrestigeTier?: string;
     }> = [];
     for (const record of active) {
       const s3Key = record.s3Key ?? record.id;
       const markdown = await deps.loadMarkdown(s3Key);
+      let employerSizeTier: string | undefined;
+      let employerPrestigeTier: string | undefined;
+      if (record.employerId && deps.getEmployerTiers) {
+        const tiers = await deps.getEmployerTiers(record.employerId);
+        employerSizeTier = tiers?.sizeTier;
+        employerPrestigeTier = tiers?.prestigeTier;
+      }
       analyzable.push({
         id: record.id,
         contentHash: record.contentHash ?? record.id,
         markdown,
+        collectedAt: record.collectedAt,
         seniority: record.seniority,
         roleFamily: record.roleFamily,
         title: record.title,
+        employerSizeTier,
+        employerPrestigeTier,
       });
     }
 
@@ -85,6 +102,9 @@ export async function executeAnalysisRun(
       embed: deps.embed,
       getCachedEmbedding: deps.getCachedEmbedding,
       putCachedEmbedding: deps.putCachedEmbedding,
+      themeLabelOverrides: deps.listThemeLabelOverrides
+        ? await deps.listThemeLabelOverrides()
+        : undefined,
       now,
     });
 

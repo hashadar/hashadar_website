@@ -3,11 +3,37 @@ import { jobMarketIngest } from '../functions/job-market-ingest/resource';
 import { jobMarketRecompute } from '../functions/job-market-recompute/resource';
 import { jobMarketAnalyse } from '../functions/job-market-analyse/resource';
 import { jobMarketPublication } from '../functions/job-market-publication/resource';
+import { jobMarketParseListing } from '../functions/job-market-parse-listing/resource';
 
 const schema = a
   .schema({
     JobDescriptionStatus: a.enum(['active', 'archived']),
+    ScrapeCandidateStatus: a.enum(['pending', 'accepted', 'rejected']),
     AnalysisRunStatus: a.enum(['queued', 'running', 'succeeded', 'failed']),
+    EmployerSizeTier: a.enum(['startup', 'scaleup', 'enterprise', 'big4', 'other']),
+    EmployerPrestigeTier: a.enum(['low', 'mid', 'high', 'elite']),
+    JobDescriptionSeniority: a.enum(['junior', 'mid', 'senior', 'lead', 'principal']),
+    JobDescriptionRoleFamily: a.enum([
+      'data_science',
+      'analytics',
+      'engineering',
+      'ml_ops',
+      'product',
+      'other',
+    ]),
+    CompensationPeriod: a.enum(['year', 'month', 'day', 'hour']),
+    CompensationDisclosure: a.enum(['range', 'competitive', 'unknown']),
+
+    Employer: a
+      .model({
+        name: a.string().required(),
+        sizeTier: a.ref('EmployerSizeTier').required(),
+        prestigeTier: a.ref('EmployerPrestigeTier').required(),
+        jobDescriptions: a.hasMany('JobDescription', 'employerId'),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      ]),
 
     JobDescription: a
       .model({
@@ -16,12 +42,34 @@ const schema = a
         collectedAt: a.datetime().required(),
         status: a.ref('JobDescriptionStatus').required(),
         title: a.string(),
-        seniority: a.string(),
-        roleFamily: a.string(),
+        seniority: a.ref('JobDescriptionSeniority'),
+        roleFamily: a.ref('JobDescriptionRoleFamily'),
         source: a.string(),
+        employerId: a.id(),
+        employer: a.belongsTo('Employer', 'employerId'),
+        compensationCurrency: a.string(),
+        compensationMin: a.float(),
+        compensationMax: a.float(),
+        compensationPeriod: a.ref('CompensationPeriod'),
+        compensationDisclosure: a.ref('CompensationDisclosure'),
       })
       .authorization((allow) => [
         allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      ]),
+
+    ScrapeCandidate: a
+      .model({
+        fileName: a.string().required(),
+        body: a.string().required(),
+        status: a.ref('ScrapeCandidateStatus').required(),
+        title: a.string(),
+        source: a.string(),
+        collectedAt: a.datetime(),
+        candidateS3Key: a.string(),
+        employerId: a.id(),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
     AnalysisRun: a
@@ -56,6 +104,24 @@ const schema = a
         allow.authenticated().to(['read', 'create', 'update']),
       ]),
 
+    CanonicalCv: a
+      .model({
+        body: a.string().required(),
+        updatedAt: a.datetime().required(),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update']),
+      ]),
+
+    ThemeLabelOverride: a
+      .model({
+        clusterKey: a.string().required(),
+        label: a.string().required(),
+      })
+      .authorization((allow) => [
+        allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      ]),
+
     startJobMarketRecompute: a
       .mutation()
       .returns(
@@ -68,6 +134,28 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(jobMarketRecompute)),
 
+    parseJobListingFromUrl: a
+      .mutation()
+      .arguments({
+        url: a.string().required(),
+        /** When set, skip HTTP fetch and extract from this pasted page text/HTML. */
+        pageText: a.string(),
+      })
+      .returns(
+        a.customType({
+          status: a.string().required(),
+          reason: a.string(),
+          candidateId: a.string(),
+          previewTitle: a.string(),
+          previewExcerpt: a.string(),
+          inputTokens: a.integer(),
+          outputTokens: a.integer(),
+          estimatedCostUsd: a.float(),
+        }),
+      )
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(jobMarketParseListing)),
+
     getPublishedJobMarketSnapshot: a
       .query()
       .returns(a.json())
@@ -79,6 +167,7 @@ const schema = a
     allow.resource(jobMarketRecompute),
     allow.resource(jobMarketAnalyse),
     allow.resource(jobMarketPublication),
+    allow.resource(jobMarketParseListing),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

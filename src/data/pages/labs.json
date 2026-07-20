@@ -1,10 +1,15 @@
 {
   "heading": "Labs",
-  "description": "Interactive technical demos that show how I approach AI, data science, machine learning, and AWS full-stack work.",
+  "description": "Personal technical labs for exploring AI, data science, and full-stack craft, starting with Job Signal Lab.",
+  "brandEyebrow": "Hasha Dar's",
+  "purposeLine": "Personal labs for technical craft, with Job Signal Lab as the place I analyse listings that may be relevant to me.",
+  "ctaLabel": "Open Job Signal Lab",
+  "flagshipTitle": "Job Signal Lab",
+  "teaserAriaLabel": "Decorative motif of signals coalescing into a cluster",
   "labs": [
     {
-      "title": "Job market signal lab",
-      "description": "Aggregate labour-market signals from a private job-description corpus.",
+      "title": "Job Signal Lab",
+      "description": "A personal lab for analysing job listings and drawing market-signal insights.",
       "href": "/labs/job-market"
     }
   ]

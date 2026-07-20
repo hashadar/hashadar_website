@@ -17,6 +17,8 @@ Script-first JD ingest: with sandbox/Hosting outputs present, `npm run ingest:jd
 
 Owner recompute (Cognito email/password, self-sign-up disabled via `allowAdminCreateUserOnly`): authenticated `startJobMarketRecompute` creates a single-flight `AnalysisRun` (refuses above 150 active docs), then asynchronously invokes the analyse worker. The worker reads active markdown from S3, uses Bedrock embeddings with a `embeddings/{contentHash}.json` cache, writes `CorpusSnapshot` + run metrics, and updates `LabPublication` only on success. Guests read aggregates only via `getPublishedJobMarketSnapshot`.
 
+Owner career-page parse (Intake console): authenticated `parseJobListingFromUrl` fetches the listing (fail-fast before Bedrock), extracts structured JD markdown via Bedrock Converse (`BEDROCK_PARSE_MODEL_ID`, default `qwen.qwen3-32b-v1:0` — in-region in `eu-west-2`; override after enabling model access), and enqueues a pending `ScrapeCandidate` under `candidates/*` — never `raw/`. Token/cost fields are logged and returned on the mutation response.
+
 ### Minimal CloudWatch cost / alerting path
 
 After the Gen 2 backend is deployed, configure these in the AWS console (names only; no committed secrets):
@@ -25,10 +27,12 @@ After the Gen 2 backend is deployed, configure these in the AWS console (names o
 |----------------|--------|----------------|
 | `AWS/Lambda` `Errors` on `job-market-analyse` | CloudWatch alarm | Page on repeated worker failures |
 | `AWS/Lambda` `Duration` / `Throttles` on analyse + recompute | CloudWatch alarm | Catch runaway or concurrency issues |
-| `AWS/Bedrock` `Invocations` / model invocation latency | CloudWatch metrics (region of Bedrock) | Spot unexpected embed volume |
+| `AWS/Bedrock` `Invocations` / model invocation latency | CloudWatch metrics (region of Bedrock) | Spot unexpected embed or parse volume |
+| `AWS/Lambda` `Errors` / `Duration` on `job-market-parse-listing` | CloudWatch alarm | Catch parse fetch/Bedrock failures |
 | Estimated cost from `AnalysisRun.estimatedCostUsd` | App metric / log filter on analyse success logs | Spot spend anomalies before the next recompute |
+| Parse `estimatedCostUsd` on mutation / CloudWatch logs | Log filter on `job-market-parse-listing` | Spot unexpected parse spend (~$0.01/call typical) |
 
-V1 does not ship a dedicated billing budget in CDK; create a Billing → Budgets alert for Bedrock + Lambda in the account that hosts the Amplify app if spend sensitivity is high. Run-level token/cost fields on `AnalysisRun` are the product-side source of truth for per-recompute cost.
+V1 does not ship a dedicated billing budget in CDK; create a Billing → Budgets alert for Bedrock + Lambda in the account that hosts the Amplify app if spend sensitivity is high. Run-level token/cost fields on `AnalysisRun` are the product-side source of truth for per-recompute cost; parse costs are logged per owner-initiated call.
 
 | Environment | Outputs file |
 |-------------|----------------|

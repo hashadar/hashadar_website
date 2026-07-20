@@ -2,7 +2,7 @@
 collectedAt: 2026-06-15T10:00:00.000Z
 title: Senior Data Scientist
 seniority: senior
-roleFamily: data-science
+roleFamily: data_science
 source: confidential-board
 ---
 

@@ -43,7 +43,21 @@ async function listJobDescriptions(): Promise<JobDescriptionCorpusRecord[]> {
     seniority: record.seniority ?? undefined,
     roleFamily: record.roleFamily ?? undefined,
     source: record.source ?? undefined,
+    employerId: record.employerId ?? undefined,
   }));
+}
+
+async function getEmployerTiers(
+  employerId: string,
+): Promise<{ sizeTier?: string; prestigeTier?: string } | null> {
+  const { data, errors } = await client.models.Employer.get({ id: employerId });
+  if (errors?.length || !data) {
+    return null;
+  }
+  return {
+    sizeTier: data.sizeTier ?? undefined,
+    prestigeTier: data.prestigeTier ?? undefined,
+  };
 }
 
 async function saveJobDescription(
@@ -200,6 +214,19 @@ async function getPublication() {
   return { currentSnapshotId: data.currentSnapshotId };
 }
 
+async function listThemeLabelOverrides(): Promise<Record<string, string>> {
+  const { data, errors } = await client.models.ThemeLabelOverride.list();
+  if (errors?.length) {
+    throw new Error(errors.map((error) => error.message).join('; '));
+  }
+
+  const overrides: Record<string, string> = {};
+  for (const row of data ?? []) {
+    overrides[row.clusterKey] = row.label;
+  }
+  return overrides;
+}
+
 export const handler: Handler<AnalyseEvent> = async (event) => {
   const runId = event.runId;
   if (!runId) {
@@ -218,6 +245,8 @@ export const handler: Handler<AnalyseEvent> = async (event) => {
     updateRun,
     updatePublication,
     getPublication,
+    listThemeLabelOverrides,
+    getEmployerTiers,
   });
 
   if (result.status === 'failed') {

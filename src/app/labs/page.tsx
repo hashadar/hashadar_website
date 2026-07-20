@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function LabsPage() {
   return (
-    <SitePage mainClassName="min-h-screen pt-20">
+    <SitePage mainClassName="min-h-screen pt-16 md:pt-20">
       <LabsIndexSection />
     </SitePage>
   );

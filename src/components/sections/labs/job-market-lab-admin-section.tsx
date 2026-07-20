@@ -17,10 +17,13 @@ import { defaultStartJobMarketRecompute } from '@/lib/start-job-market-recompute
 
 export type JobMarketLabAdminSectionProps = {
   startRecompute?: StartJobMarketRecompute;
+  /** Primary (analytics) uses the runs-hint started message; secondary is denser for Runs audit. */
+  variant?: 'primary' | 'secondary';
 };
 
 export function JobMarketLabAdminSection({
   startRecompute = defaultStartJobMarketRecompute,
+  variant = 'secondary',
 }: JobMarketLabAdminSectionProps) {
   const { session, isLoading } = useSiteAuth();
   const [isStarting, setIsStarting] = useState(false);
@@ -38,14 +41,29 @@ export function JobMarketLabAdminSection({
     setIsStarting(false);
   }
 
+  const startedMessage =
+    variant === 'primary'
+      ? jobMarketLab.admin.startedMessageWithRunsHint
+      : jobMarketLab.admin.startedMessage;
+
   return (
-    <div className="mt-16 max-w-2xl space-y-6 border-t border-[var(--border)] pt-12">
-      <div className="space-y-3">
-        <SectionHeader as="h2" size="md" animated={false} showLeftAccent={false}>
-          {jobMarketLab.admin.heading}
-        </SectionHeader>
-        <Text variant="muted">{jobMarketLab.admin.description}</Text>
-      </div>
+    <div
+      className={
+        variant === 'primary'
+          ? 'space-y-4'
+          : 'space-y-4 border-t border-[var(--border)] pt-6'
+      }
+    >
+      {variant === 'secondary' ? (
+        <div className="space-y-2">
+          <SectionHeader as="h2" size="sm" animated={false} showLeftAccent>
+            {jobMarketLab.admin.heading}
+          </SectionHeader>
+          <Text size="sm" variant="muted">
+            {jobMarketLab.admin.secondaryStartDescription}
+          </Text>
+        </div>
+      ) : null}
 
       <Button
         type="button"
@@ -58,8 +76,8 @@ export function JobMarketLabAdminSection({
       </Button>
 
       {result?.status === 'started' ? (
-        <p role="status" className="font-body text-base leading-relaxed text-[var(--foreground)]">
-          {jobMarketLab.admin.startedMessage.replace('{runId}', result.runId)}
+        <p role="status" className="font-body text-sm leading-relaxed text-[var(--foreground)]">
+          {startedMessage.replace('{runId}', result.runId)}
         </p>
       ) : null}
 
@@ -68,7 +86,7 @@ export function JobMarketLabAdminSection({
           <Heading as="h3" size="sm">
             {jobMarketLab.admin.rejectedHeading}
           </Heading>
-          <Text>{result.reason}</Text>
+          <Text size="sm">{result.reason}</Text>
         </div>
       ) : null}
     </div>

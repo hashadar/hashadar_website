@@ -15,6 +15,57 @@ function doc(
 }
 
 describe('executeAnalysisRun', () => {
+  it('applies stored theme label overrides when publishing a snapshot', async () => {
+    const store = new Map<string, JobDescriptionCorpusRecord>([
+      ['active', doc({ id: 'active', title: 'Active role', seniority: 'senior' })],
+    ]);
+    const publication = { currentSnapshotId: 'snap-old' };
+    const snapshots = new Map<string, unknown>();
+    const runs = new Map<string, { id: string; status: string }>([
+      ['run-1', { id: 'run-1', status: 'queued' }],
+    ]);
+
+    const result = await executeAnalysisRun({
+      runId: 'run-1',
+      listJobDescriptions: async () => [...store.values()],
+      saveJobDescription: async (record) => {
+        store.set(record.id, record);
+      },
+      loadMarkdown: async () => 'Python SQL modelling experience required',
+      embed: async () => ({
+        vector: [0.1, 0.2, 0.3, 0.4],
+        inputTokens: 8,
+        estimatedCostUsd: 0.0002,
+      }),
+      getCachedEmbedding: async () => null,
+      putCachedEmbedding: async () => undefined,
+      listThemeLabelOverrides: async () => ({
+        '0': 'Core data engineering demand',
+      }),
+      saveSnapshot: async (snapshot) => {
+        snapshots.set(snapshot.id, snapshot);
+        return snapshot;
+      },
+      updateRun: async (run) => {
+        runs.set(run.id, run);
+        return run;
+      },
+      updatePublication: async (next) => {
+        publication.currentSnapshotId = next.currentSnapshotId;
+      },
+      getPublication: async () => publication,
+      createSnapshotId: () => 'snap-new',
+      now: new Date('2026-07-14T12:00:00.000Z'),
+    });
+
+    expect(result.status).toBe('succeeded');
+    expect(snapshots.get('snap-new')).toMatchObject({
+      payload: expect.objectContaining({
+        clusters: [{ id: 0, size: 1, label: 'Core data engineering demand' }],
+      }),
+    });
+  });
+
   it('excludes archived documents from analysis and publishes on success', async () => {
     const store = new Map<string, JobDescriptionCorpusRecord>([
       ['active', doc({ id: 'active', title: 'Active role', seniority: 'senior' })],
