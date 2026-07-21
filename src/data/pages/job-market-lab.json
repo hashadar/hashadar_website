@@ -93,13 +93,15 @@
   },
   "upload": {
     "heading": "Upload job description",
-    "description": "Add a markdown file with YAML frontmatter. Frontmatter must include a valid collectedAt timestamp. Upload writes to the private raw corpus; ingest runs automatically. Recompute is not started.",
-    "fileLabel": "Markdown file",
+    "description": "Add one or more pre-formatted markdown files with YAML frontmatter (collectedAt required). Upload writes straight to the private raw corpus; ingest runs automatically. Recompute is not started.",
+    "fileLabel": "Markdown files",
     "uploadButtonLabel": "Upload to corpus",
-    "uploadingLabel": "UploadingÔÇª",
+    "uploadingLabel": "Uploading…",
     "uploadedMessage": "Uploaded to {s3Key}. Ingest will update corpus metadata shortly.",
+    "uploadedManyMessage": "Uploaded {count} files ({s3Keys}). Ingest will update corpus metadata shortly.",
+    "partialUploadMessage": "Uploaded before failure: {s3Keys}.",
     "rejectedHeading": "Could not upload job description",
-    "noFileSelected": "Choose a markdown file to upload."
+    "noFileSelected": "Choose one or more markdown files to upload."
   },
   "hitlQueue": {
     "heading": "Intake",
@@ -147,7 +149,7 @@
       "extractFailedHeading": "Could not extract job description",
       "rejectedHeading": "Could not parse listing",
       "pasteFallbackHeading": "Paste page content",
-      "pasteFallbackDescription": "Open the listing in your browser, copy the job text (or page HTML), and paste it here.",
+      "pasteFallbackDescription": "Open the listing in your browser, copy the job text (or page HTML), and paste it here. A URL is optional for provenance.",
       "pasteLabel": "Page text or HTML",
       "pastePlaceholder": "Paste the listing content…",
       "pasteSubmitLabel": "Parse pasted content",
