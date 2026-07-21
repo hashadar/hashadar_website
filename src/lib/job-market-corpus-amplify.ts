@@ -53,6 +53,19 @@ function throwIfErrors(errors: Array<{ message: string }> | null | undefined): v
   }
 }
 
+// Reads tolerate GraphQL partial success: AppSync returns rows with unresolved
+// enum fields nulled plus non-fatal field errors. Surface data when present and
+// only throw when the operation returned none.
+function warnFieldErrors(errors: Array<{ message: string }> | null | undefined): void {
+  if (errors?.length) {
+    console.warn(
+      `JobDescription read returned field errors: ${errors
+        .map((error) => error.message)
+        .join('; ')}`,
+    );
+  }
+}
+
 function toCorpusRecord(row: AmplifyJobDescriptionRow): JobDescriptionCorpusRecord {
   return {
     id: row.id,
@@ -79,13 +92,21 @@ export function createAmplifyCorpusDeps(
   return {
     async getJobDescription(id) {
       const { data, errors } = await client.get({ id });
-      throwIfErrors(errors);
-      return data ? toCorpusRecord(data) : null;
+      if (data == null) {
+        throwIfErrors(errors);
+        return null;
+      }
+      warnFieldErrors(errors);
+      return toCorpusRecord(data);
     },
     async listJobDescriptions() {
       const { data, errors } = await client.list();
-      throwIfErrors(errors);
-      return (data ?? []).map(toCorpusRecord);
+      if (data == null) {
+        throwIfErrors(errors);
+        return [];
+      }
+      warnFieldErrors(errors);
+      return data.map(toCorpusRecord);
     },
     async saveJobDescription(record) {
       // Model update only — never remove the S3 object for soft-archive/restore.
