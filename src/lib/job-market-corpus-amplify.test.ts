@@ -90,4 +90,66 @@ describe('createAmplifyCorpusDeps', () => {
       } satisfies Partial<JobDescriptionCorpusRecord>),
     );
   });
+
+  it('returns records on GraphQL partial success (data with non-fatal field errors)', async () => {
+    // Mirrors prod: stored seniority/roleFamily outside the enum are nulled by
+    // AppSync and reported as per-field errors alongside valid data.
+    const client: AmplifyJobDescriptionModelClient = {
+      async get() {
+        return {
+          data: row({ id: 'jd-1', seniority: null, roleFamily: null }),
+          errors: [
+            {
+              message:
+                "Can't serialize value (/getJobDescription/seniority) : Invalid input for Enum 'JobDescriptionSeniority'.",
+            },
+          ],
+        };
+      },
+      async list() {
+        return {
+          data: [row({ id: 'jd-1', seniority: null, roleFamily: null })],
+          errors: [
+            {
+              message:
+                "Can't serialize value (/listJobDescriptions/items[0]/seniority) : Invalid input for Enum 'JobDescriptionSeniority'.",
+            },
+            {
+              message:
+                "Can't serialize value (/listJobDescriptions/items[0]/roleFamily) : Invalid input for Enum 'JobDescriptionRoleFamily'.",
+            },
+          ],
+        };
+      },
+      async update(input) {
+        return { data: row({ id: input.id }) };
+      },
+    };
+    const deps = createAmplifyCorpusDeps(client);
+
+    await expect(deps.listJobDescriptions()).resolves.toEqual([
+      expect.objectContaining({ id: 'jd-1', seniority: undefined, roleFamily: undefined }),
+    ]);
+    await expect(deps.getJobDescription('jd-1')).resolves.toEqual(
+      expect.objectContaining({ id: 'jd-1' }),
+    );
+  });
+
+  it('throws when the read returns no data alongside errors', async () => {
+    const client: AmplifyJobDescriptionModelClient = {
+      async get() {
+        return { data: null, errors: [{ message: 'Not Authorized to access getJobDescription' }] };
+      },
+      async list() {
+        return { data: null, errors: [{ message: 'Not Authorized to access listJobDescriptions' }] };
+      },
+      async update(input) {
+        return { data: row({ id: input.id }) };
+      },
+    };
+    const deps = createAmplifyCorpusDeps(client);
+
+    await expect(deps.listJobDescriptions()).rejects.toThrow(/Not Authorized/);
+    await expect(deps.getJobDescription('jd-1')).rejects.toThrow(/Not Authorized/);
+  });
 });
