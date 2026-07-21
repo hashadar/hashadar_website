@@ -234,6 +234,49 @@ describe('JobMarketLabHitlQueuePanel', () => {
     expect(await screen.findByDisplayValue('Senior engineer')).toBeInTheDocument();
   });
 
+  it('parses pasted content without a listing URL using a provenance placeholder', async () => {
+    const deps = createMemoryDeps([]);
+    const parseJobListingFromUrlFn = vi.fn(async (input) => {
+      expect(input).toEqual({
+        url: 'https://pasted.local/listing',
+        pageText: 'Senior engineer role. '.repeat(20),
+      });
+      await deps.saveScrapeCandidate(
+        pendingCandidate({
+          id: 'c-pasted-no-url',
+          title: 'Senior engineer',
+        }),
+      );
+      return {
+        status: 'enqueued' as const,
+        candidateId: 'c-pasted-no-url',
+        previewTitle: 'Senior engineer',
+      };
+    });
+
+    renderPanel({ scrapeCandidates: deps, parseJobListingFromUrlFn });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: jobMarketLab.hitlQueue.parseListing.showPasteLabel,
+      }),
+    );
+    fireEvent.change(
+      await screen.findByLabelText(jobMarketLab.hitlQueue.parseListing.pasteLabel),
+      { target: { value: 'Senior engineer role. '.repeat(20) } },
+    );
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: jobMarketLab.hitlQueue.parseListing.pasteSubmitLabel,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(parseJobListingFromUrlFn).toHaveBeenCalled();
+    });
+    expect(await screen.findByDisplayValue('Senior engineer')).toBeInTheDocument();
+  });
+
   it('discards a candidate without promoting to raw/', async () => {
     const rejectScrapeCandidateFn = vi.fn(async () => ({
       status: 'rejected' as const,

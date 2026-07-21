@@ -80,6 +80,8 @@ type CandidateTagsDraft = {
 };
 
 const EXTRACTING_HINT_MS = 1500;
+/** Provenance placeholder when paste-path is used without a listing URL. */
+const PASTED_LISTING_URL = 'https://pasted.local/listing';
 
 const fieldClassName =
   'w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 font-body text-sm text-[var(--foreground)]';
@@ -361,7 +363,9 @@ export function JobMarketLabHitlQueuePanel({
   }
 
   async function runParse(options: { usePaste: boolean }) {
-    const url = listingUrl.trim();
+    const typedUrl = listingUrl.trim();
+    const url =
+      typedUrl || (options.usePaste ? PASTED_LISTING_URL : '');
     if (!url || parsePhase !== 'idle') {
       return;
     }
@@ -395,9 +399,9 @@ export function JobMarketLabHitlQueuePanel({
         if (
           result.candidateId &&
           employersState.status === 'ready' &&
-          url
+          typedUrl
         ) {
-          const suggested = suggestEmployerId(employersState.employers, url);
+          const suggested = suggestEmployerId(employersState.employers, typedUrl);
           if (suggested) {
             setDrafts((current) => {
               const existing = current[result.candidateId!];
@@ -415,6 +419,15 @@ export function JobMarketLabHitlQueuePanel({
       if (result.status === 'unfetchable' && !options.usePaste) {
         setShowPaste(true);
       }
+    } catch (error) {
+      const reason =
+        error instanceof Error && error.message.trim()
+          ? error.message.trim()
+          : jobMarketLab.hitlQueue.parseListing.rejectedHeading;
+      setParseFeedback({
+        kind: 'failure',
+        result: { status: 'rejected', reason },
+      });
     } finally {
       if (extractingHintTimer.current) {
         clearTimeout(extractingHintTimer.current);
@@ -492,7 +505,8 @@ export function JobMarketLabHitlQueuePanel({
                 </Text>
                 <input
                   id="job-market-parse-listing-url"
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   name="listingUrl"
                   value={listingUrl}
                   onChange={(event) => setListingUrl(event.target.value)}
@@ -557,7 +571,7 @@ export function JobMarketLabHitlQueuePanel({
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={isParsing || !listingUrl.trim() || !pageText.trim()}
+                  disabled={isParsing || !pageText.trim()}
                 >
                   {parsePhase === 'extracting'
                     ? parseCopy.extractingLabel
