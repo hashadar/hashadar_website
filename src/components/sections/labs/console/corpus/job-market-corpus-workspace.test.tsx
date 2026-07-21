@@ -111,8 +111,8 @@ describe('JobMarketCorpusWorkspace', () => {
     ).toBeInTheDocument();
     expect(screen.getAllByText('Archived Role').length).toBeGreaterThan(0);
     expect(
-      screen.queryByRole('heading', { name: jobMarketLab.upload.heading }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('heading', { name: jobMarketLab.upload.heading }),
+    ).toBeInTheDocument();
 
     await user.selectOptions(
       screen.getByLabelText(copy.statusFilterLabel),
