@@ -6,7 +6,6 @@ import { JobMarketCorpusJdDetail } from '@/components/sections/labs/console/corp
 import { JobMarketCorpusJdTable } from '@/components/sections/labs/console/corpus/job-market-corpus-jd-table';
 import { JobMarketCorpusRegistryPanel } from '@/components/sections/labs/console/corpus/job-market-corpus-registry-panel';
 import { corpusFieldClassName } from '@/components/sections/labs/console/corpus/corpus-field-styles';
-import { JobMarketLabUploadPanel } from '@/components/sections/labs/job-market-lab-upload-panel';
 import { jobMarketLab } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 import type { JobDescriptionCorpusRecord } from '@/lib/job-market-corpus';
@@ -29,10 +28,7 @@ import {
   createDefaultFetchJobDescriptionMarkdownDeps,
 } from '@/lib/fetch-job-description-markdown-client';
 import type { FetchJobDescriptionMarkdownDeps } from '@/lib/fetch-job-description-markdown';
-import {
-  uploadJobDescription,
-  type UploadJobDescriptionDeps,
-} from '@/lib/upload-job-description';
+import type { UploadJobDescriptionDeps } from '@/lib/upload-job-description';
 import type { ScrapeCandidateRecord } from '@/lib/scrape-candidates';
 import type { AnalysisRunRecord } from '@/lib/job-market-analysis-runs';
 
@@ -153,13 +149,6 @@ export function JobMarketCorpusWorkspace({
         </Heading>
         <Text variant="muted">{copy.description}</Text>
       </div>
-
-      <JobMarketLabUploadPanel
-        uploadJobDescription={(input) =>
-          uploadJobDescription(input, uploadDeps)
-        }
-        onUploaded={() => void refresh()}
-      />
 
       {loadState.status === 'loading' ? (
         <Text variant="muted">{copy.loadingLabel}</Text>

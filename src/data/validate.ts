@@ -213,8 +213,6 @@ export function assertValidJobMarketLabPage(data: unknown): void {
   requireString(upload, 'uploadButtonLabel', 'jobMarketLab.upload');
   requireString(upload, 'uploadingLabel', 'jobMarketLab.upload');
   requireString(upload, 'uploadedMessage', 'jobMarketLab.upload');
-  requireString(upload, 'uploadedManyMessage', 'jobMarketLab.upload');
-  requireString(upload, 'partialUploadMessage', 'jobMarketLab.upload');
   requireString(upload, 'rejectedHeading', 'jobMarketLab.upload');
   requireString(upload, 'noFileSelected', 'jobMarketLab.upload');
   const hitlQueue = requireRecord(page.hitlQueue, 'jobMarketLab.hitlQueue');

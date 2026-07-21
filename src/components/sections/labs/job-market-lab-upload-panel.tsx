@@ -16,12 +16,7 @@ export type UploadJobDescriptionFn = (
 
 export type JobMarketLabUploadPanelProps = {
   uploadJobDescription?: UploadJobDescriptionFn;
-  onUploaded?: () => void;
 };
-
-type UploadBatchResult =
-  | { status: 'uploaded'; s3Keys: string[] }
-  | { status: 'rejected'; reason: string; uploadedS3Keys?: string[] };
 
 async function readFileAsText(file: File): Promise<string> {
   if (typeof file.text === 'function') {
@@ -39,22 +34,19 @@ async function readFileAsText(file: File): Promise<string> {
 
 export function JobMarketLabUploadPanel({
   uploadJobDescription = defaultUploadJobDescription,
-  onUploaded,
 }: JobMarketLabUploadPanelProps) {
   const { session, isLoading } = useSiteAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [result, setResult] = useState<UploadBatchResult | null>(null);
+  const [result, setResult] = useState<UploadJobDescriptionResult | null>(null);
 
   if (isLoading || session === null || session.status !== 'authenticated') {
     return null;
   }
 
   async function handleUpload() {
-    const files = fileInputRef.current?.files
-      ? Array.from(fileInputRef.current.files)
-      : [];
-    if (files.length === 0) {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
       setResult({ status: 'rejected', reason: jobMarketLab.upload.noFileSelected });
       return;
     }
@@ -62,66 +54,30 @@ export function JobMarketLabUploadPanel({
     setIsUploading(true);
     setResult(null);
 
-    const uploadedS3Keys: string[] = [];
-
-    for (const file of files) {
-      const body = await readFileAsText(file);
-      const validation = validateJobDescriptionMarkdown(body);
-      if (validation.status === 'rejected') {
-        setResult({
-          status: 'rejected',
-          reason: `${file.name}: ${validation.reason}`,
-          uploadedS3Keys: uploadedS3Keys.length > 0 ? uploadedS3Keys : undefined,
-        });
-        setIsUploading(false);
-        if (uploadedS3Keys.length > 0) {
-          onUploaded?.();
-        }
-        return;
-      }
-
-      const next = await uploadJobDescription({
-        fileName: file.name,
-        body,
-      });
-
-      if (next.status === 'rejected') {
-        setResult({
-          status: 'rejected',
-          reason: `${file.name}: ${next.reason}`,
-          uploadedS3Keys: uploadedS3Keys.length > 0 ? uploadedS3Keys : undefined,
-        });
-        setIsUploading(false);
-        if (uploadedS3Keys.length > 0) {
-          onUploaded?.();
-        }
-        return;
-      }
-
-      uploadedS3Keys.push(next.s3Key);
+    const body = await readFileAsText(file);
+    const validation = validateJobDescriptionMarkdown(body);
+    if (validation.status === 'rejected') {
+      setResult(validation);
+      setIsUploading(false);
+      return;
     }
 
-    setResult({ status: 'uploaded', s3Keys: uploadedS3Keys });
+    const next = await uploadJobDescription({
+      fileName: file.name,
+      body,
+    });
+
+    setResult(next);
     setIsUploading(false);
 
-    if (fileInputRef.current) {
+    if (next.status === 'uploaded' && fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    onUploaded?.();
   }
 
-  const uploadedMessage =
-    result?.status === 'uploaded'
-      ? result.s3Keys.length === 1
-        ? jobMarketLab.upload.uploadedMessage.replace('{s3Key}', result.s3Keys[0]!)
-        : jobMarketLab.upload.uploadedManyMessage
-            .replace('{count}', String(result.s3Keys.length))
-            .replace('{s3Keys}', result.s3Keys.join(', '))
-      : null;
-
   return (
-    <section className="space-y-4" aria-labelledby="job-market-upload-heading">
-      <div className="max-w-2xl space-y-2">
+    <section className="mt-16 space-y-6" aria-labelledby="job-market-upload-heading">
+      <div className="max-w-2xl space-y-4">
         <SectionHeader
           id="job-market-upload-heading"
           as="h2"
@@ -131,12 +87,10 @@ export function JobMarketLabUploadPanel({
         >
           {jobMarketLab.upload.heading}
         </SectionHeader>
-        <Text size="sm" variant="muted">
-          {jobMarketLab.upload.description}
-        </Text>
+        <Text variant="muted">{jobMarketLab.upload.description}</Text>
       </div>
 
-      <div className="max-w-2xl space-y-3">
+      <div className="max-w-2xl space-y-4">
         <label className="block space-y-2" htmlFor="job-market-upload-file">
           <Text size="sm">{jobMarketLab.upload.fileLabel}</Text>
           <input
@@ -144,14 +98,12 @@ export function JobMarketLabUploadPanel({
             id="job-market-upload-file"
             type="file"
             accept=".md,text/markdown"
-            multiple
-            className="block w-full font-body text-sm text-[var(--foreground)]"
+            className="block w-full font-body text-base text-[var(--foreground)]"
           />
         </label>
 
         <Button
           type="button"
-          size="sm"
           onClick={() => void handleUpload()}
           disabled={isUploading}
         >
@@ -161,12 +113,9 @@ export function JobMarketLabUploadPanel({
         </Button>
       </div>
 
-      {uploadedMessage ? (
-        <p
-          role="status"
-          className="font-body text-sm leading-relaxed text-[var(--foreground)]"
-        >
-          {uploadedMessage}
+      {result?.status === 'uploaded' ? (
+        <p role="status" className="font-body text-base leading-relaxed text-[var(--foreground)]">
+          {jobMarketLab.upload.uploadedMessage.replace('{s3Key}', result.s3Key)}
         </p>
       ) : null}
 
@@ -175,15 +124,7 @@ export function JobMarketLabUploadPanel({
           <Heading as="h3" size="sm">
             {jobMarketLab.upload.rejectedHeading}
           </Heading>
-          <Text size="sm">{result.reason}</Text>
-          {result.uploadedS3Keys && result.uploadedS3Keys.length > 0 ? (
-            <Text size="sm" variant="muted">
-              {jobMarketLab.upload.partialUploadMessage.replace(
-                '{s3Keys}',
-                result.uploadedS3Keys.join(', '),
-              )}
-            </Text>
-          ) : null}
+          <Text>{result.reason}</Text>
         </div>
       ) : null}
     </section>

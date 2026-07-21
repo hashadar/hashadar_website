@@ -93,15 +93,13 @@
   },
   "upload": {
     "heading": "Upload job description",
-    "description": "Add one or more pre-formatted markdown files with YAML frontmatter (collectedAt required). Upload writes straight to the private raw corpus; ingest runs automatically. Recompute is not started.",
-    "fileLabel": "Markdown files",
+    "description": "Add a markdown file with YAML frontmatter. Frontmatter must include a valid collectedAt timestamp. Upload writes to the private raw corpus; ingest runs automatically. Recompute is not started.",
+    "fileLabel": "Markdown file",
     "uploadButtonLabel": "Upload to corpus",
-    "uploadingLabel": "Uploading…",
+    "uploadingLabel": "UploadingÔÇª",
     "uploadedMessage": "Uploaded to {s3Key}. Ingest will update corpus metadata shortly.",
-    "uploadedManyMessage": "Uploaded {count} files ({s3Keys}). Ingest will update corpus metadata shortly.",
-    "partialUploadMessage": "Uploaded before failure: {s3Keys}.",
     "rejectedHeading": "Could not upload job description",
-    "noFileSelected": "Choose one or more markdown files to upload."
+    "noFileSelected": "Choose a markdown file to upload."
   },
   "hitlQueue": {
     "heading": "Intake",

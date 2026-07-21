@@ -206,8 +206,6 @@ export interface JobMarketLabUploadCopy {
   uploadButtonLabel: string;
   uploadingLabel: string;
   uploadedMessage: string;
-  uploadedManyMessage: string;
-  partialUploadMessage: string;
   rejectedHeading: string;
   noFileSelected: string;
 }

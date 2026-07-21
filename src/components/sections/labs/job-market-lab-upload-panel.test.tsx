@@ -77,7 +77,7 @@ describe('JobMarketLabUploadPanel', () => {
     expect(
       await screen.findByText(jobMarketLab.upload.rejectedHeading),
     ).toBeInTheDocument();
-    expect(screen.getByText('invalid.md: Missing YAML frontmatter')).toBeInTheDocument();
+    expect(screen.getByText('Missing YAML frontmatter')).toBeInTheDocument();
     expect(upload).not.toHaveBeenCalled();
   });
 
@@ -111,36 +111,6 @@ describe('JobMarketLabUploadPanel', () => {
           '{s3Key}',
           'raw/senior-data-scientist.md',
         ),
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('uploads multiple markdown files in one batch', async () => {
-    const user = userEvent.setup();
-    const upload = vi.fn(async (input: { fileName: string }) => ({
-      status: 'uploaded' as const,
-      s3Key: `raw/${input.fileName}`,
-    }));
-    renderUpload({ auth: ownerAuth(), upload });
-
-    const files = [
-      new File([validMarkdown], 'role-a.md', { type: 'text/markdown' }),
-      new File([validMarkdown], 'role-b.md', { type: 'text/markdown' }),
-    ];
-    const input = await screen.findByLabelText(jobMarketLab.upload.fileLabel);
-    await user.upload(input, files);
-    await user.click(
-      screen.getByRole('button', { name: jobMarketLab.upload.uploadButtonLabel }),
-    );
-
-    await waitFor(() => {
-      expect(upload).toHaveBeenCalledTimes(2);
-    });
-    expect(
-      screen.getByText(
-        jobMarketLab.upload.uploadedManyMessage
-          .replace('{count}', '2')
-          .replace('{s3Keys}', 'raw/role-a.md, raw/role-b.md'),
       ),
     ).toBeInTheDocument();
   });

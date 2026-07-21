@@ -152,8 +152,8 @@ describe('JobMarketConsoleCorpusPage', () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: jobMarketLab.upload.heading }),
-    ).toBeInTheDocument();
+      screen.queryByRole('heading', { name: jobMarketLab.upload.heading }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByText(jobMarketLab.employerAdmin.description),
     ).not.toBeInTheDocument();
