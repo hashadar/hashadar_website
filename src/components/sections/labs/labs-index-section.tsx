@@ -10,7 +10,7 @@ const flagship = labs.labs[0];
 
 const springEnter = { type: 'spring' as const, damping: 25, stiffness: 80 };
 
-/** Soft green radial (job-market) plus a quiet geometric wash (home DNA, muted). */
+/** Soft green radial plus a quiet geometric wash (home DNA, muted). */
 function LabsStageAtmosphere() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -80,8 +80,9 @@ function LabsSignalTeaser({
 
 export function LabsIndexSection() {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const flagshipHref = flagship?.href ?? '/labs/job-market';
-  const flagshipTitle = labs.flagshipTitle || flagship?.title || 'Job Signal Lab';
+  const flagshipHref = flagship?.href;
+  const flagshipTitle = labs.flagshipTitle || flagship?.title || labs.heading;
+  const showCta = Boolean(flagshipHref);
 
   return (
     <section className="relative flex min-h-[calc(100vh-5rem)] items-center overflow-hidden">
@@ -176,22 +177,27 @@ export function LabsIndexSection() {
             <Text className="text-[var(--foreground)]">{labs.purposeLine}</Text>
           </motion.div>
 
-          <motion.div
-            className="mb-10 sm:mb-12"
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={
-              prefersReducedMotion
-                ? { duration: 0 }
-                : { ...springEnter, delay: 1.05, duration: 0.7 }
-            }
-          >
-            <Button href={flagshipHref} variant="primary" size="md">
-              {labs.ctaLabel}
-            </Button>
-          </motion.div>
+          {showCta ? (
+            <motion.div
+              className="mb-10 sm:mb-12"
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { ...springEnter, delay: 1.05, duration: 0.7 }
+              }
+            >
+              <Button href={flagshipHref!} variant="primary" size="md">
+                {labs.ctaLabel}
+              </Button>
+            </motion.div>
+          ) : null}
 
-          <LabsSignalTeaser prefersReducedMotion={prefersReducedMotion} />
+          <LabsSignalTeaser
+            prefersReducedMotion={prefersReducedMotion}
+            className={showCta ? undefined : 'mt-4 sm:mt-6'}
+          />
         </div>
       </Container>
     </section>

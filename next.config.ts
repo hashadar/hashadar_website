@@ -6,6 +6,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    return [
+      {
+        source: '/labs/job-market',
+        destination: '/labs',
+        permanent: true,
+      },
+      {
+        source: '/labs/job-market/:path*',
+        destination: '/labs',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     unoptimized: true,
     formats: ['image/webp', 'image/avif'],

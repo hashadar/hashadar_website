@@ -36,18 +36,11 @@ describe('sitemap', () => {
     });
   });
 
-  it('includes Labs index, job-market lab, and owner console routes', () => {
+  it('includes the Labs index and excludes the retired job-market lab routes', () => {
     const entries = sitemap();
     const labsEntry = entries.find((entry) => entry.url === `${site.metadata.siteUrl}/labs`);
-    const jobMarketEntry = entries.find(
-      (entry) => entry.url === `${site.metadata.siteUrl}/labs/job-market`,
-    );
-    const consoleEntry = entries.find(
-      (entry) => entry.url === `${site.metadata.siteUrl}/labs/job-market/console`,
-    );
-    const corpusEntry = entries.find(
-      (entry) =>
-        entry.url === `${site.metadata.siteUrl}/labs/job-market/console/corpus`,
+    const jobMarketUrls = entries.filter((entry) =>
+      entry.url.includes('/labs/job-market'),
     );
 
     expect(labsEntry).toEqual({
@@ -56,24 +49,7 @@ describe('sitemap', () => {
       changeFrequency: 'monthly',
       priority: 0.8,
     });
-    expect(jobMarketEntry).toEqual({
-      url: `${site.metadata.siteUrl}/labs/job-market`,
-      lastModified: expect.any(Date),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    });
-    expect(consoleEntry).toEqual({
-      url: `${site.metadata.siteUrl}/labs/job-market/console`,
-      lastModified: expect.any(Date),
-      changeFrequency: 'monthly',
-      priority: 0.2,
-    });
-    expect(corpusEntry).toEqual({
-      url: `${site.metadata.siteUrl}/labs/job-market/console/corpus`,
-      lastModified: expect.any(Date),
-      changeFrequency: 'monthly',
-      priority: 0.2,
-    });
+    expect(jobMarketUrls).toEqual([]);
   });
 
   it('includes the owner login route', () => {

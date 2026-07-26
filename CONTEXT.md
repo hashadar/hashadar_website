@@ -1,0 +1,59 @@
+# Job OS
+
+Private job-hunting operating system for the site owner. The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the v3.0 hunting-graph rebuild. The authenticated product lives at `/labs/job-os`, entered from the labs index; there is no public pulse page in v3.0.
+
+## Language
+
+### Hunting hierarchy
+
+**Employer**:
+A company (or hiring organisation) the owner tracks: what it does, how it presents, and any standing notes. Parent of Opportunities. Every Opportunity must reference an Employer; when the company is unknown, use the reserved Anon Employer rather than a null parent.
+_Avoid_: Company (as a model name), organisation record, firm
+
+**Anon Employer**:
+The single reserved Employer used when an Opportunity’s company is not yet known. Prevents orphan Opportunities.
+_Avoid_: null employer, unknown company (as a null), unassigned
+
+**Opportunity**:
+A concrete role or listing under an Employer — the absorbed successor to JobDescription. Holds structured listing evidence (compensation, seniority, technologies, source, and similar) plus an optional Body. May exist with no Application; at most one Application ever. A re-apply is a new Opportunity that captures what changed.
+_Avoid_: Job, listing (as the model name), inbox item, lead, JobDescription (legacy v2 noun)
+
+**Market pulse**:
+The former public themes/tech publication pipeline (embeddings, clustering, guest snapshot). Out of scope for the v3.0 hunting-graph rebuild; not a synonym for Opportunity evidence.
+_Avoid_: corpus recompute, LabPublication (as a v3.0 requirement)
+
+**Application**:
+A pursuit of a specific Opportunity: process state, contacts, prep, and debrief. Requires an Opportunity. At most one Application per Opportunity; created when pursuit begins, not automatically with the Opportunity.
+_Avoid_: Pursuit (synonym only), candidacy, pipeline item
+
+**Opportunity status**:
+Lifecycle of the listing as a market object: `open` or `closed`. Not whether the owner applied or passed.
+_Avoid_: active/archived as pursuit state, Application status, withdrawn (use closed)
+
+**Application status**:
+Lifecycle of a pursuit: researching, applied, interviewing, offer, accepted, rejected, withdrawn. Exists only when an Application exists.
+_Avoid_: JobDescription status, Opportunity status, corpus active/archived
+
+**Tracking note**:
+Optional freeform text on an Application for owner micro-status (e.g. interview stage, awaiting response, next action). Does not replace Application status and does not emit Decision Events when edited.
+_Avoid_: interview sub-status enum, second state machine, encoding tracker text as Application status
+
+**Pass**:
+An owner decision not to pursue an Opportunity, recorded without creating an Application (typically via a Decision Event while the Opportunity may remain open).
+_Avoid_: rejected (Application outcome), withdrawn (ambiguous across layers)
+
+**Decision Event**:
+An append-only database record of a meaningful owner action. v3.0 mandatory kinds: opportunity passed; application started; application status changed (with from/to). No Body. Not a substitute for Opportunity or Application status. Distinct offer-response events are out of scope while offer outcomes are Application status transitions.
+_Avoid_: audit log (generic), analytics event, preference score
+
+**Body**:
+The freeform prose document for an Employer, Opportunity, or Application (narrative, pasted listing, prep/debrief writing). Optional until prose exists. Structured graph fields are never authoritative in the Body.
+_Avoid_: frontmatter as source of truth, treating the Body as the join model, requiring a Body on every row
+
+**Current Role Dossier** / **Preference Profile**:
+Deferred past the v3.0 graph + Decision Event rebuild. Not required to ship Employer → Opportunity → Application.
+_Avoid_: treating Canonical CV as the dossier
+
+**Canonical CV** / **JobDescription** / **ScrapeCandidate** / **AnalysisRun** / **CorpusSnapshot** / **LabPublication** / **ThemeLabelOverride**:
+Retired v2 lab concepts. Removed in the v3.0 teardown; not part of the hunting graph.
+_Avoid_: reviving these nouns for Opportunity evidence or Decision Events

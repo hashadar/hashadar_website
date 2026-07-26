@@ -11,28 +11,9 @@ There is **no accidental double-deploy** from GitHub Actions: Actions do not pus
 
 ## Amplify Gen 2 backend
 
-Backend definitions live in `amplify/` (auth, data, storage, and the job-market ingest function for the lab). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the existing frontend `preBuild` (blog sync) and `build`.
+Backend definitions live in `amplify/` (owner Cognito auth plus a minimal data placeholder until Job OS models land). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the existing frontend `preBuild` (blog sync) and `build`.
 
-Script-first JD ingest: with sandbox/Hosting outputs present, `npm run ingest:jd -- path/to/file.md` uploads markdown to the `raw/` prefix; the ingest Lambda upserts `JobDescription` metadata and does not start recompute.
-
-Owner recompute (Cognito email/password, self-sign-up disabled via `allowAdminCreateUserOnly`): authenticated `startJobMarketRecompute` creates a single-flight `AnalysisRun` (refuses above 150 active docs), then asynchronously invokes the analyse worker. The worker reads active markdown from S3, uses Bedrock embeddings with a `embeddings/{contentHash}.json` cache, writes `CorpusSnapshot` + run metrics, and updates `LabPublication` only on success. Guests read aggregates only via `getPublishedJobMarketSnapshot`.
-
-Owner career-page parse (Intake console): authenticated `parseJobListingFromUrl` fetches the listing (fail-fast before Bedrock), extracts structured JD markdown via Bedrock Converse (`BEDROCK_PARSE_MODEL_ID`, default `qwen.qwen3-32b-v1:0` — in-region in `eu-west-2`; override after enabling model access), and enqueues a pending `ScrapeCandidate` under `candidates/*` — never `raw/`. Token/cost fields are logged and returned on the mutation response.
-
-### Minimal CloudWatch cost / alerting path
-
-After the Gen 2 backend is deployed, configure these in the AWS console (names only; no committed secrets):
-
-| Alarm / metric | Where | Suggested use |
-|----------------|--------|----------------|
-| `AWS/Lambda` `Errors` on `job-market-analyse` | CloudWatch alarm | Page on repeated worker failures |
-| `AWS/Lambda` `Duration` / `Throttles` on analyse + recompute | CloudWatch alarm | Catch runaway or concurrency issues |
-| `AWS/Bedrock` `Invocations` / model invocation latency | CloudWatch metrics (region of Bedrock) | Spot unexpected embed or parse volume |
-| `AWS/Lambda` `Errors` / `Duration` on `job-market-parse-listing` | CloudWatch alarm | Catch parse fetch/Bedrock failures |
-| Estimated cost from `AnalysisRun.estimatedCostUsd` | App metric / log filter on analyse success logs | Spot spend anomalies before the next recompute |
-| Parse `estimatedCostUsd` on mutation / CloudWatch logs | Log filter on `job-market-parse-listing` | Spot unexpected parse spend (~$0.01/call typical) |
-
-V1 does not ship a dedicated billing budget in CDK; create a Billing → Budgets alert for Bedrock + Lambda in the account that hosts the Amplify app if spend sensitivity is high. Run-level token/cost fields on `AnalysisRun` are the product-side source of truth for per-recompute cost; parse costs are logged per owner-initiated call.
+Job Signal Lab v2 (pulse corpus, HITL, recompute/analyse/publication Lambdas, and lab storage) has been removed from the deploy surface. Job OS hunting-graph models and Body storage are added in follow-up issues.
 
 | Environment | Outputs file |
 |-------------|----------------|
