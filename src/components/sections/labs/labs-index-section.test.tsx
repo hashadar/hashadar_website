@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 describe('LabsIndexSection', () => {
-  it('renders the Labs stage without advertising a retired lab route', () => {
+  it('renders Job OS as the labs flagship without advertising the retired job-market route', () => {
     render(<LabsIndexSection />);
 
     expect(screen.getByText(labs.brandEyebrow)).toBeInTheDocument();
@@ -17,7 +17,10 @@ describe('LabsIndexSection', () => {
       screen.getByRole('heading', { level: 2, name: labs.flagshipTitle }),
     ).toBeInTheDocument();
     expect(screen.getByText(labs.purposeLine)).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: labs.ctaLabel })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: labs.ctaLabel })).toHaveAttribute(
+      'href',
+      '/labs/job-os',
+    );
     expect(screen.queryByRole('link', { name: /job signal lab/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /job-market/i })).not.toBeInTheDocument();
     expect(screen.getByRole('figure', { name: labs.teaserAriaLabel })).toBeInTheDocument();

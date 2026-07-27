@@ -6,6 +6,7 @@ import {
   assertValidFooter,
   assertValidHomePage,
   assertValidLabsPage,
+  assertValidJobOsPage,
   assertValidLoginPage,
   assertValidNavigation,
   assertValidPortfolioPage,
@@ -17,6 +18,7 @@ import aboutData from '@/data/pages/about.json';
 import blogData from '@/data/pages/blog.json';
 import portfolioData from '@/data/pages/portfolio.json';
 import labsData from '@/data/pages/labs.json';
+import jobOsData from '@/data/pages/job-os.json';
 import loginData from '@/data/pages/login.json';
 import footerData from '@/data/common/footer.json';
 import navigationData from '@/data/common/navigation.json';
@@ -48,6 +50,9 @@ describe('validateDataFile', () => {
     ).not.toThrow();
     expect(() =>
       validateDataFile('pages/labs.json', labsData, assertValidLabsPage),
+    ).not.toThrow();
+    expect(() =>
+      validateDataFile('pages/job-os.json', jobOsData, assertValidJobOsPage),
     ).not.toThrow();
     expect(() =>
       validateDataFile('pages/login.json', loginData, assertValidLoginPage),
