@@ -50,7 +50,9 @@ const schema = a.schema({
       linkedinUrl: a.string(),
       notes: a.string(),
       s3Key: a.string(),
-      isAnon: a.boolean().required(),
+      // Default false so creates that omit the field still persist a value.
+      // Not required: missing DynamoDB attrs must not null out entire list rows.
+      isAnon: a.boolean().default(false),
       opportunities: a.hasMany('Opportunity', 'employerId'),
     })
     .authorization((allow) => [

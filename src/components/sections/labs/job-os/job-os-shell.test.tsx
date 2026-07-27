@@ -94,10 +94,12 @@ describe('JobOsEmployersWorkspace', () => {
     expect(
       await screen.findByRole('heading', { name: jobOs.employers.heading }),
     ).toBeInTheDocument();
-    expect(
-      await screen.findByText(`Anon Employer (${jobOs.employers.anonBadge})`),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('Anon Employer')).toBeInTheDocument();
+    expect(screen.getByText(jobOs.employers.anonBadge)).toBeInTheDocument();
 
+    await user.click(
+      screen.getByRole('button', { name: jobOs.employers.addLabel }),
+    );
     await user.clear(screen.getByLabelText(jobOs.employers.nameLabel));
     await user.type(
       screen.getByLabelText(jobOs.employers.nameLabel),

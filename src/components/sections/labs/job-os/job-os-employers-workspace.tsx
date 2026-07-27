@@ -4,6 +4,15 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Heading, Text } from '@/components/ui';
 import { jobOsFieldClassName } from '@/components/sections/labs/job-os/job-os-field-styles';
+import {
+  JobOsCaptureStrip,
+  JobOsFocusSection,
+  JobOsLedger,
+  JobOsLedgerCell,
+  JobOsLedgerRow,
+  JobOsPill,
+  JobOsWorkspaceIntro,
+} from '@/components/sections/labs/job-os/job-os-ledger';
 import { jobOs } from '@/data';
 import {
   EMPLOYER_PRESTIGE_TIERS,
@@ -12,6 +21,7 @@ import {
   type EmployerRecord,
   type EmployerSizeTier,
   type JobOs,
+  type OpportunityRecord,
 } from '@/lib/job-os';
 import { getDefaultJobOs } from '@/lib/job-os-default';
 
@@ -20,6 +30,8 @@ export type JobOsEmployersWorkspaceProps = {
   selectedId?: string;
 };
 
+type CaptureBeat = 1 | 2;
+
 export function JobOsEmployersWorkspace({
   jobOsClient,
   selectedId,
@@ -27,6 +39,7 @@ export function JobOsEmployersWorkspace({
   const copy = jobOs.employers;
   const [client, setClient] = useState<JobOs | null>(jobOsClient ?? null);
   const [employers, setEmployers] = useState<EmployerRecord[]>([]);
+  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>([]);
   const [selected, setSelected] = useState<EmployerRecord | null>(null);
   const [body, setBody] = useState('');
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
@@ -35,6 +48,9 @@ export function JobOsEmployersWorkspace({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [capturing, setCapturing] = useState(false);
+  const [captureBeat, setCaptureBeat] = useState<CaptureBeat>(1);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   const [name, setName] = useState('');
   const [sizeTier, setSizeTier] = useState<EmployerSizeTier>('startup');
@@ -55,11 +71,15 @@ export function JobOsEmployersWorkspace({
         }
         setClient(resolved);
         await resolved.ensureAnonEmployer();
-        const listed = await resolved.listEmployers();
+        const [listed, listedOpportunities] = await Promise.all([
+          resolved.listEmployers(),
+          resolved.listOpportunities(),
+        ]);
         if (cancelled) {
           return;
         }
         setEmployers(listed);
+        setOpportunities(listedOpportunities);
         setLoadState('ready');
       } catch {
         if (!cancelled) {
@@ -99,9 +119,73 @@ export function JobOsEmployersWorkspace({
     };
   }, [client, selectedId, employers]);
 
+  useEffect(() => {
+    if (selectedId) {
+      return;
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'n' && event.key !== 'N') {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      setName('');
+      setSizeTier('startup');
+      setPrestigeTier('low');
+      setSummary('');
+      setWebsiteUrl('');
+      setLinkedinUrl('');
+      setNotes('');
+      setCaptureBeat(1);
+      setCapturing(true);
+      setMessage(null);
+      setError(null);
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedId]);
+
+  function resetCaptureFields() {
+    setName('');
+    setSizeTier('startup');
+    setPrestigeTier('low');
+    setSummary('');
+    setWebsiteUrl('');
+    setLinkedinUrl('');
+    setNotes('');
+    setCaptureBeat(1);
+  }
+
+  function openCapture() {
+    resetCaptureFields();
+    setCapturing(true);
+    setMessage(null);
+    setError(null);
+  }
+
+  function dismissCapture() {
+    setCapturing(false);
+    resetCaptureFields();
+  }
+
   async function refresh(active: JobOs) {
-    const listed = await active.listEmployers();
+    const [listed, listedOpportunities] = await Promise.all([
+      active.listEmployers(),
+      active.listOpportunities(),
+    ]);
     setEmployers(listed);
+    setOpportunities(listedOpportunities);
   }
 
   async function handleEnsureAnon() {
@@ -142,12 +226,9 @@ export function JobOsEmployersWorkspace({
       return;
     }
     await refresh(client);
+    setHighlightId(result.employer.id);
     setMessage(copy.createdLabel);
-    setName('');
-    setSummary('');
-    setWebsiteUrl('');
-    setLinkedinUrl('');
-    setNotes('');
+    dismissCapture();
   }
 
   async function handleSave() {
@@ -192,6 +273,13 @@ export function JobOsEmployersWorkspace({
     setBusy(false);
   }
 
+  function openCountFor(employerId: string): number {
+    return opportunities.filter(
+      (opportunity) =>
+        opportunity.employerId === employerId && opportunity.status === 'open',
+    ).length;
+  }
+
   if (loadState === 'loading') {
     return <Text variant="muted">{copy.loadingLabel}</Text>;
   }
@@ -202,41 +290,68 @@ export function JobOsEmployersWorkspace({
 
   if (selectedId && selected) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="space-y-2">
-          <Heading size="md" as="h2">
-            {copy.editHeading}
-          </Heading>
+          <div className="flex flex-wrap items-center gap-3">
+            <Heading size="md" as="h2">
+              {selected.name}
+            </Heading>
+            {selected.isAnon ? (
+              <JobOsPill tone="anon">{copy.anonBadge}</JobOsPill>
+            ) : null}
+          </div>
           <Link
             href="/labs/job-os/employers"
-            className="font-body text-sm underline underline-offset-4"
+            className="font-body text-sm text-[var(--mono-500)] underline underline-offset-4"
           >
             {copy.backLabel}
           </Link>
         </div>
-        {selected.isAnon ? (
-          <Text variant="muted">{copy.anonBadge}</Text>
-        ) : null}
-        <EmployerFields
-          copy={copy}
-          name={name}
-          setName={setName}
-          sizeTier={sizeTier}
-          setSizeTier={setSizeTier}
-          prestigeTier={prestigeTier}
-          setPrestigeTier={setPrestigeTier}
-          summary={summary}
-          setSummary={setSummary}
-          websiteUrl={websiteUrl}
-          setWebsiteUrl={setWebsiteUrl}
-          linkedinUrl={linkedinUrl}
-          setLinkedinUrl={setLinkedinUrl}
-          notes={notes}
-          setNotes={setNotes}
-          body={body}
-          setBody={setBody}
-          readOnly={selected.isAnon}
-        />
+
+        <JobOsFocusSection title={copy.focusIdentityHeading}>
+          <EmployerIdentityFields
+            copy={copy}
+            name={name}
+            setName={setName}
+            sizeTier={sizeTier}
+            setSizeTier={setSizeTier}
+            prestigeTier={prestigeTier}
+            setPrestigeTier={setPrestigeTier}
+            readOnly={selected.isAnon}
+          />
+        </JobOsFocusSection>
+
+        <JobOsFocusSection title={copy.focusPresenceHeading}>
+          <EmployerPresenceFields
+            copy={copy}
+            summary={summary}
+            setSummary={setSummary}
+            websiteUrl={websiteUrl}
+            setWebsiteUrl={setWebsiteUrl}
+            linkedinUrl={linkedinUrl}
+            setLinkedinUrl={setLinkedinUrl}
+            notes={notes}
+            setNotes={setNotes}
+            readOnly={selected.isAnon}
+          />
+        </JobOsFocusSection>
+
+        <JobOsFocusSection title={copy.focusBodyHeading}>
+          <label className="block font-body text-sm">
+            <Text variant="muted" className="mb-2 block text-sm">
+              {copy.bodyHint}
+            </Text>
+            <textarea
+              className={jobOsFieldClassName}
+              rows={8}
+              value={body}
+              disabled={selected.isAnon}
+              onChange={(event) => setBody(event.target.value)}
+              placeholder={copy.noBodyLabel}
+            />
+          </label>
+        </JobOsFocusSection>
+
         {!selected.isAnon ? (
           <Button
             type="button"
@@ -254,87 +369,143 @@ export function JobOsEmployersWorkspace({
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <Heading size="md" as="h2">
-          {copy.heading}
-        </Heading>
-        <Text variant="muted">{copy.description}</Text>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={busy}
-          onClick={() => void handleEnsureAnon()}
-        >
-          {busy ? copy.ensuringAnonLabel : copy.ensureAnonLabel}
-        </Button>
-      </div>
-
-      <div className="space-y-4">
-        <Heading size="sm" as="h3">
-          {copy.createHeading}
-        </Heading>
-        <EmployerFields
-          copy={copy}
-          name={name}
-          setName={setName}
-          sizeTier={sizeTier}
-          setSizeTier={setSizeTier}
-          prestigeTier={prestigeTier}
-          setPrestigeTier={setPrestigeTier}
-          summary={summary}
-          setSummary={setSummary}
-          websiteUrl={websiteUrl}
-          setWebsiteUrl={setWebsiteUrl}
-          linkedinUrl={linkedinUrl}
-          setLinkedinUrl={setLinkedinUrl}
-          notes={notes}
-          setNotes={setNotes}
-          body={body}
-          setBody={setBody}
-          showBody={false}
-        />
-        <Button
-          type="button"
-          size="sm"
-          disabled={busy}
-          onClick={() => void handleCreate()}
-        >
-          {busy ? copy.creatingLabel : copy.createLabel}
-        </Button>
-      </div>
-
-      <ul className="space-y-2">
-        {employers.length === 0 ? (
-          <li>
-            <Text variant="muted">{copy.emptyList}</Text>
-          </li>
-        ) : (
-          employers.map((employer) => (
-            <li
-              key={employer.id}
-              className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] py-2"
+    <div className="space-y-6">
+      <JobOsWorkspaceIntro
+        heading={copy.heading}
+        description={copy.description}
+        actions={
+          <>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={busy}
+              onClick={() => void handleEnsureAnon()}
             >
-              <div>
-                <Text>
-                  {employer.name}
-                  {employer.isAnon ? ` (${copy.anonBadge})` : ''}
-                </Text>
+              {busy ? copy.ensuringAnonLabel : copy.ensureAnonLabel}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={busy || capturing}
+              onClick={openCapture}
+            >
+              {copy.addLabel}
+            </Button>
+          </>
+        }
+      />
+
+      <JobOsCaptureStrip
+        open={capturing}
+        title={copy.createHeading}
+        dismissLabel={copy.dismissCaptureLabel}
+        onDismiss={dismissCapture}
+      >
+        <div className="space-y-4">
+          <EmployerIdentityFields
+            copy={copy}
+            name={name}
+            setName={setName}
+            sizeTier={sizeTier}
+            setSizeTier={setSizeTier}
+            prestigeTier={prestigeTier}
+            setPrestigeTier={setPrestigeTier}
+          />
+          {captureBeat >= 2 ? (
+            <EmployerPresenceFields
+              copy={copy}
+              summary={summary}
+              setSummary={setSummary}
+              websiteUrl={websiteUrl}
+              setWebsiteUrl={setWebsiteUrl}
+              linkedinUrl={linkedinUrl}
+              setLinkedinUrl={setLinkedinUrl}
+              notes={notes}
+              setNotes={setNotes}
+            />
+          ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            {captureBeat < 2 ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setCaptureBeat(2)}
+              >
+                {copy.moreFieldsLabel}
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              size="sm"
+              disabled={busy || !name.trim()}
+              onClick={() => void handleCreate()}
+            >
+              {busy ? copy.creatingLabel : copy.createLabel}
+            </Button>
+          </div>
+        </div>
+      </JobOsCaptureStrip>
+
+      <JobOsLedger
+        caption={copy.heading}
+        columns={[
+          copy.columnName,
+          copy.columnSize,
+          copy.columnPrestige,
+          copy.columnOpen,
+          copy.columnBody,
+          copy.columnActions,
+        ]}
+        isEmpty={employers.length === 0}
+        empty={copy.emptyList}
+      >
+        {employers.map((employer) => (
+          <JobOsLedgerRow
+            key={employer.id}
+            highlighted={employer.id === highlightId}
+          >
+            <JobOsLedgerCell>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium">{employer.name}</span>
+                {employer.isAnon ? (
+                  <JobOsPill tone="anon">{copy.anonBadge}</JobOsPill>
+                ) : null}
               </div>
+              {employer.summary ? (
+                <Text
+                  variant="muted"
+                  className="mt-1 line-clamp-1 text-xs"
+                >
+                  {employer.summary}
+                </Text>
+              ) : null}
+            </JobOsLedgerCell>
+            <JobOsLedgerCell>
+              {copy.sizeTierOptions[employer.sizeTier] ?? employer.sizeTier}
+            </JobOsLedgerCell>
+            <JobOsLedgerCell>
+              {copy.prestigeTierOptions[employer.prestigeTier] ??
+                employer.prestigeTier}
+            </JobOsLedgerCell>
+            <JobOsLedgerCell mono>
+              {openCountFor(employer.id)}
+            </JobOsLedgerCell>
+            <JobOsLedgerCell>
+              {employer.s3Key ? copy.hasBodyLabel : copy.noBodyShortLabel}
+            </JobOsLedgerCell>
+            <JobOsLedgerCell>
               <Link
                 href={`/labs/job-os/employers/${employer.id}`}
                 className="font-body text-sm underline underline-offset-4"
               >
                 {copy.openLabel}
               </Link>
-            </li>
-          ))
-        )}
-      </ul>
+            </JobOsLedgerCell>
+          </JobOsLedgerRow>
+        ))}
+      </JobOsLedger>
 
       {message ? <Text>{message}</Text> : null}
       {error ? <Text>{error}</Text> : null}
@@ -342,29 +513,9 @@ export function JobOsEmployersWorkspace({
   );
 }
 
-type EmployerFieldsProps = {
-  copy: (typeof jobOs)['employers'];
-  name: string;
-  setName: (value: string) => void;
-  sizeTier: EmployerSizeTier;
-  setSizeTier: (value: EmployerSizeTier) => void;
-  prestigeTier: EmployerPrestigeTier;
-  setPrestigeTier: (value: EmployerPrestigeTier) => void;
-  summary: string;
-  setSummary: (value: string) => void;
-  websiteUrl: string;
-  setWebsiteUrl: (value: string) => void;
-  linkedinUrl: string;
-  setLinkedinUrl: (value: string) => void;
-  notes: string;
-  setNotes: (value: string) => void;
-  body: string;
-  setBody: (value: string) => void;
-  showBody?: boolean;
-  readOnly?: boolean;
-};
+type EmployerCopy = (typeof jobOs)['employers'];
 
-function EmployerFields({
+function EmployerIdentityFields({
   copy,
   name,
   setName,
@@ -372,22 +523,20 @@ function EmployerFields({
   setSizeTier,
   prestigeTier,
   setPrestigeTier,
-  summary,
-  setSummary,
-  websiteUrl,
-  setWebsiteUrl,
-  linkedinUrl,
-  setLinkedinUrl,
-  notes,
-  setNotes,
-  body,
-  setBody,
-  showBody = true,
   readOnly = false,
-}: EmployerFieldsProps) {
+}: {
+  copy: EmployerCopy;
+  name: string;
+  setName: (value: string) => void;
+  sizeTier: EmployerSizeTier;
+  setSizeTier: (value: EmployerSizeTier) => void;
+  prestigeTier: EmployerPrestigeTier;
+  setPrestigeTier: (value: EmployerPrestigeTier) => void;
+  readOnly?: boolean;
+}) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <label className="block font-body text-sm">
+    <div className="grid gap-3 md:grid-cols-3">
+      <label className="block font-body text-sm md:col-span-1">
         {copy.nameLabel}
         <input
           className={jobOsFieldClassName}
@@ -430,6 +579,35 @@ function EmployerFields({
           ))}
         </select>
       </label>
+    </div>
+  );
+}
+
+function EmployerPresenceFields({
+  copy,
+  summary,
+  setSummary,
+  websiteUrl,
+  setWebsiteUrl,
+  linkedinUrl,
+  setLinkedinUrl,
+  notes,
+  setNotes,
+  readOnly = false,
+}: {
+  copy: EmployerCopy;
+  summary: string;
+  setSummary: (value: string) => void;
+  websiteUrl: string;
+  setWebsiteUrl: (value: string) => void;
+  linkedinUrl: string;
+  setLinkedinUrl: (value: string) => void;
+  notes: string;
+  setNotes: (value: string) => void;
+  readOnly?: boolean;
+}) {
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
       <label className="block font-body text-sm md:col-span-2">
         {copy.summaryLabel}
         <textarea
@@ -468,22 +646,6 @@ function EmployerFields({
           onChange={(event) => setNotes(event.target.value)}
         />
       </label>
-      {showBody ? (
-        <label className="block font-body text-sm md:col-span-2">
-          {copy.bodyLabel}
-          <Text variant="muted" className="mt-1 block text-sm">
-            {copy.bodyHint}
-          </Text>
-          <textarea
-            className={jobOsFieldClassName}
-            rows={6}
-            value={body}
-            disabled={readOnly}
-            onChange={(event) => setBody(event.target.value)}
-            placeholder={copy.noBodyLabel}
-          />
-        </label>
-      ) : null}
     </div>
   );
 }

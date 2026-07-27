@@ -30,7 +30,8 @@ export type AmplifyEmployerRow = {
   linkedinUrl?: string | null;
   notes?: string | null;
   s3Key?: string | null;
-  isAnon: boolean;
+  /** May be null/undefined on legacy rows written before the field existed. */
+  isAnon?: boolean | null;
 };
 
 export type AmplifyOpportunityRow = {
@@ -69,11 +70,14 @@ export type AmplifyDecisionEventRow = {
   occurredAt: string;
 };
 
-type ModelClient<TRow, TCreate = Omit<TRow, 'id'>> = {
+type ModelClient<
+  TRow,
+  TCreate = Omit<TRow, 'id'> & { id?: string },
+> = {
   get: (input: { id: string }) => Promise<AmplifyDataResult<TRow | null>>;
   list: (input?: {
     filter?: Record<string, unknown>;
-  }) => Promise<AmplifyDataResult<TRow[] | null>>;
+  }) => Promise<AmplifyDataResult<Array<TRow | null> | null>>;
   create: (input: TCreate) => Promise<AmplifyDataResult<TRow | null>>;
   update: (input: TRow) => Promise<AmplifyDataResult<TRow | null>>;
 };
@@ -113,8 +117,14 @@ function toEmployerRecord(row: AmplifyEmployerRow): EmployerRecord {
     linkedinUrl: optionalString(row.linkedinUrl),
     notes: optionalString(row.notes),
     s3Key: optionalString(row.s3Key),
-    isAnon: row.isAnon,
+    isAnon: row.isAnon === true,
   };
+}
+
+function isEmployerRow(
+  row: AmplifyEmployerRow | null | undefined,
+): row is AmplifyEmployerRow {
+  return row != null && typeof row.id === 'string' && row.id.length > 0;
 }
 
 function toOpportunityRecord(row: AmplifyOpportunityRow): OpportunityRecord {
@@ -172,7 +182,8 @@ function employerToRow(record: EmployerRecord): AmplifyEmployerRow {
     linkedinUrl: record.linkedinUrl ?? null,
     notes: record.notes ?? null,
     s3Key: record.s3Key ?? null,
-    isAnon: record.isAnon,
+    // Always send a concrete boolean — some clients omit `false`.
+    isAnon: record.isAnon === true,
   };
 }
 
@@ -212,23 +223,34 @@ export function createAmplifyJobOsStore(
   return {
     async listEmployers() {
       const { data, errors } = await client.Employer.list();
-      throwIfErrors(errors);
-      return (data ?? []).map(toEmployerRecord);
+      const rows = (data ?? []).filter(isEmployerRow);
+      // Prefer recoverable rows over failing the whole workspace when some
+      // GraphQL items null out (e.g. legacy missing isAnon under Boolean!).
+      if (rows.length === 0) {
+        throwIfErrors(errors);
+        return [];
+      }
+      return rows.map(toEmployerRecord);
     },
     async getEmployer(id) {
       const { data, errors } = await client.Employer.get({ id });
       throwIfErrors(errors);
-      return data ? toEmployerRecord(data) : null;
+      return data && isEmployerRow(data) ? toEmployerRecord(data) : null;
     },
     async insertEmployer(input) {
-      const { id: _ignored, ...fields } = employerToRow({
+      const row = employerToRow({
         ...input,
         id: input.id ?? '',
       });
-      void _ignored;
-      const { data, errors } = await client.Employer.create(fields);
+      const { id, ...fields } = row;
+      const { data, errors } = await client.Employer.create({
+        ...fields,
+        // Explicit so Amplify persists false (not "unset").
+        isAnon: row.isAnon === true,
+        ...(id ? { id } : {}),
+      });
       throwIfErrors(errors);
-      if (!data) {
+      if (!data || !isEmployerRow(data)) {
         throw new Error('Employer create returned no data');
       }
       return toEmployerRecord(data);
@@ -240,7 +262,9 @@ export function createAmplifyJobOsStore(
     async listOpportunities() {
       const { data, errors } = await client.Opportunity.list();
       throwIfErrors(errors);
-      return (data ?? []).map(toOpportunityRecord);
+      return (data ?? [])
+        .filter((row): row is AmplifyOpportunityRow => row != null)
+        .map(toOpportunityRecord);
     },
     async getOpportunity(id) {
       const { data, errors } = await client.Opportunity.get({ id });
@@ -269,7 +293,9 @@ export function createAmplifyJobOsStore(
     async listApplications() {
       const { data, errors } = await client.Application.list();
       throwIfErrors(errors);
-      return (data ?? []).map(toApplicationRecord);
+      return (data ?? [])
+        .filter((row): row is AmplifyApplicationRow => row != null)
+        .map(toApplicationRecord);
     },
     async getApplication(id) {
       const { data, errors } = await client.Application.get({ id });
@@ -308,7 +334,9 @@ export function createAmplifyJobOsStore(
         filter: { opportunityId: { eq: opportunityId } },
       });
       throwIfErrors(errors);
-      return (data ?? []).map(toDecisionEventRecord);
+      return (data ?? [])
+        .filter((row): row is AmplifyDecisionEventRow => row != null)
+        .map(toDecisionEventRecord);
     },
     async appendDecisionEvent(input) {
       const row = {

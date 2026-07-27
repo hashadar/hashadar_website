@@ -19,7 +19,7 @@ export function JobOsNav() {
 
   return (
     <>
-      <label className="mb-3 block font-body text-sm text-[var(--muted-foreground)] md:hidden">
+      <label className="mb-3 block font-body text-sm text-[var(--mono-500)] md:hidden">
         {nav.mobileLabel}
         <select
           className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-body text-base text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[color-mix(in_oklab,var(--primary)_35%,transparent)]"
