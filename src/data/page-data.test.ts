@@ -6,7 +6,6 @@ import {
   getPageData,
   home,
   labs,
-  jobMarketLab,
   login,
   portfolio,
   footer,
@@ -22,7 +21,6 @@ describe('getPageData', () => {
     expect(getPageData('/blog')).toBe(blog);
     expect(getPageData('/portfolio')).toBe(portfolio);
     expect(getPageData('/labs')).toBe(labs);
-    expect(getPageData('/labs/job-market')).toBe(jobMarketLab);
     expect(getPageData('/login')).toBe(login);
   });
 
@@ -34,9 +32,14 @@ describe('getPageData', () => {
     expect(JSON.stringify(page)).not.toMatch(/create account|register|sign up/i);
   });
 
-  it('returns null for unknown routes', () => {
+  it('returns null for unknown routes including the retired job-market lab', () => {
+    expect(getPageData('/labs/job-market')).toBeNull();
     expect(getPageData('/finance')).toBeNull();
     expect(getPageData('/missing')).toBeNull();
+  });
+
+  it('returns Job OS page data for the authenticated product route', () => {
+    expect(getPageData('/labs/job-os')?.heading).toBe('Job OS');
   });
 });
 

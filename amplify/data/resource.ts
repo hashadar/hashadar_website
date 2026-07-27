@@ -1,174 +1,116 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
-import { jobMarketIngest } from '../functions/job-market-ingest/resource';
-import { jobMarketRecompute } from '../functions/job-market-recompute/resource';
-import { jobMarketAnalyse } from '../functions/job-market-analyse/resource';
-import { jobMarketPublication } from '../functions/job-market-publication/resource';
-import { jobMarketParseListing } from '../functions/job-market-parse-listing/resource';
 
-const schema = a
-  .schema({
-    JobDescriptionStatus: a.enum(['active', 'archived']),
-    ScrapeCandidateStatus: a.enum(['pending', 'accepted', 'rejected']),
-    AnalysisRunStatus: a.enum(['queued', 'running', 'succeeded', 'failed']),
-    EmployerSizeTier: a.enum(['startup', 'scaleup', 'enterprise', 'big4', 'other']),
-    EmployerPrestigeTier: a.enum(['low', 'mid', 'high', 'elite']),
-    JobDescriptionSeniority: a.enum(['junior', 'mid', 'senior', 'lead', 'principal']),
-    JobDescriptionRoleFamily: a.enum([
-      'data_science',
-      'analytics',
-      'engineering',
-      'ml_ops',
-      'product',
-      'other',
+/**
+ * Job OS hunting graph: Employer → Opportunity → Application, plus Decision Events.
+ * Bodies are optional S3 prose keyed from the DB when present.
+ */
+const schema = a.schema({
+  EmployerSizeTier: a.enum(['startup', 'scaleup', 'enterprise', 'big4', 'other']),
+  EmployerPrestigeTier: a.enum(['low', 'mid', 'high', 'elite']),
+  OpportunityStatus: a.enum(['open', 'closed']),
+  OpportunitySeniority: a.enum([
+    'junior',
+    'mid',
+    'senior',
+    'lead',
+    'principal',
+  ]),
+  OpportunityRoleFamily: a.enum([
+    'data_science',
+    'analytics',
+    'engineering',
+    'ml_ops',
+    'product',
+    'other',
+  ]),
+  CompensationPeriod: a.enum(['year', 'month', 'day', 'hour']),
+  CompensationDisclosure: a.enum(['range', 'competitive', 'unknown']),
+  ApplicationStatus: a.enum([
+    'researching',
+    'applied',
+    'interviewing',
+    'offer',
+    'accepted',
+    'rejected',
+    'withdrawn',
+  ]),
+  DecisionEventKind: a.enum([
+    'opportunity_passed',
+    'application_started',
+    'application_status_changed',
+  ]),
+
+  Employer: a
+    .model({
+      name: a.string().required(),
+      sizeTier: a.ref('EmployerSizeTier').required(),
+      prestigeTier: a.ref('EmployerPrestigeTier').required(),
+      summary: a.string(),
+      websiteUrl: a.string(),
+      linkedinUrl: a.string(),
+      notes: a.string(),
+      s3Key: a.string(),
+      // Default false so creates that omit the field still persist a value.
+      // Not required: missing DynamoDB attrs must not null out entire list rows.
+      isAnon: a.boolean().default(false),
+      opportunities: a.hasMany('Opportunity', 'employerId'),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
     ]),
-    CompensationPeriod: a.enum(['year', 'month', 'day', 'hour']),
-    CompensationDisclosure: a.enum(['range', 'competitive', 'unknown']),
 
-    Employer: a
-      .model({
-        name: a.string().required(),
-        sizeTier: a.ref('EmployerSizeTier').required(),
-        prestigeTier: a.ref('EmployerPrestigeTier').required(),
-        jobDescriptions: a.hasMany('JobDescription', 'employerId'),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update', 'delete']),
-      ]),
+  Opportunity: a
+    .model({
+      employerId: a.id().required(),
+      employer: a.belongsTo('Employer', 'employerId'),
+      status: a.ref('OpportunityStatus').required(),
+      title: a.string(),
+      source: a.string(),
+      noticedAt: a.datetime().required(),
+      seniority: a.ref('OpportunitySeniority'),
+      roleFamily: a.ref('OpportunityRoleFamily'),
+      compensationCurrency: a.string(),
+      compensationMin: a.float(),
+      compensationMax: a.float(),
+      compensationPeriod: a.ref('CompensationPeriod'),
+      compensationDisclosure: a.ref('CompensationDisclosure'),
+      technologies: a.string().array(),
+      s3Key: a.string(),
+      application: a.hasOne('Application', 'opportunityId'),
+      decisionEvents: a.hasMany('DecisionEvent', 'opportunityId'),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
 
-    JobDescription: a
-      .model({
-        s3Key: a.string().required(),
-        contentHash: a.string().required(),
-        collectedAt: a.datetime().required(),
-        status: a.ref('JobDescriptionStatus').required(),
-        title: a.string(),
-        seniority: a.ref('JobDescriptionSeniority'),
-        roleFamily: a.ref('JobDescriptionRoleFamily'),
-        source: a.string(),
-        employerId: a.id(),
-        employer: a.belongsTo('Employer', 'employerId'),
-        compensationCurrency: a.string(),
-        compensationMin: a.float(),
-        compensationMax: a.float(),
-        compensationPeriod: a.ref('CompensationPeriod'),
-        compensationDisclosure: a.ref('CompensationDisclosure'),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update', 'delete']),
-      ]),
+  Application: a
+    .model({
+      opportunityId: a.id().required(),
+      opportunity: a.belongsTo('Opportunity', 'opportunityId'),
+      status: a.ref('ApplicationStatus').required(),
+      trackingNote: a.string(),
+      s3Key: a.string(),
+      decisionEvents: a.hasMany('DecisionEvent', 'applicationId'),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
 
-    ScrapeCandidate: a
-      .model({
-        fileName: a.string().required(),
-        body: a.string().required(),
-        status: a.ref('ScrapeCandidateStatus').required(),
-        title: a.string(),
-        source: a.string(),
-        collectedAt: a.datetime(),
-        candidateS3Key: a.string(),
-        employerId: a.id(),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update']),
-      ]),
-
-    AnalysisRun: a
-      .model({
-        status: a.ref('AnalysisRunStatus').required(),
-        docsConsidered: a.integer(),
-        docsEmbedded: a.integer(),
-        docsCacheHit: a.integer(),
-        clusterCount: a.integer(),
-        bedrockInputTokens: a.integer(),
-        estimatedCostUsd: a.float(),
-        errorMessage: a.string(),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update']),
-      ]),
-
-    CorpusSnapshot: a
-      .model({
-        runId: a.id().required(),
-        payload: a.json().required(),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create']),
-      ]),
-
-    LabPublication: a
-      .model({
-        currentSnapshotId: a.id().required(),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update']),
-      ]),
-
-    CanonicalCv: a
-      .model({
-        body: a.string().required(),
-        updatedAt: a.datetime().required(),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update']),
-      ]),
-
-    ThemeLabelOverride: a
-      .model({
-        clusterKey: a.string().required(),
-        label: a.string().required(),
-      })
-      .authorization((allow) => [
-        allow.authenticated().to(['read', 'create', 'update', 'delete']),
-      ]),
-
-    startJobMarketRecompute: a
-      .mutation()
-      .returns(
-        a.customType({
-          status: a.string().required(),
-          runId: a.string(),
-          reason: a.string(),
-        }),
-      )
-      .authorization((allow) => [allow.authenticated()])
-      .handler(a.handler.function(jobMarketRecompute)),
-
-    parseJobListingFromUrl: a
-      .mutation()
-      .arguments({
-        url: a.string().required(),
-        /** When set, skip HTTP fetch and extract from this pasted page text/HTML. */
-        pageText: a.string(),
-      })
-      .returns(
-        a.customType({
-          status: a.string().required(),
-          reason: a.string(),
-          candidateId: a.string(),
-          previewTitle: a.string(),
-          previewExcerpt: a.string(),
-          inputTokens: a.integer(),
-          outputTokens: a.integer(),
-          estimatedCostUsd: a.float(),
-        }),
-      )
-      .authorization((allow) => [allow.authenticated()])
-      .handler(a.handler.function(jobMarketParseListing)),
-
-    getPublishedJobMarketSnapshot: a
-      .query()
-      .returns(a.json())
-      .authorization((allow) => [allow.guest(), allow.authenticated()])
-      .handler(a.handler.function(jobMarketPublication)),
-  })
-  .authorization((allow) => [
-    allow.resource(jobMarketIngest),
-    allow.resource(jobMarketRecompute),
-    allow.resource(jobMarketAnalyse),
-    allow.resource(jobMarketPublication),
-    allow.resource(jobMarketParseListing),
-  ]);
+  DecisionEvent: a
+    .model({
+      kind: a.ref('DecisionEventKind').required(),
+      opportunityId: a.id().required(),
+      opportunity: a.belongsTo('Opportunity', 'opportunityId'),
+      applicationId: a.id(),
+      application: a.belongsTo('Application', 'applicationId'),
+      fromStatus: a.string(),
+      toStatus: a.string(),
+      occurredAt: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create']),
+    ]),
+});
 
 export type Schema = ClientSchema<typeof schema>;
 

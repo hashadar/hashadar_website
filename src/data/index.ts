@@ -3,7 +3,7 @@ import portfolioData from './pages/portfolio.json';
 import aboutData from './pages/about.json';
 import blogData from './pages/blog.json';
 import labsData from './pages/labs.json';
-import jobMarketLabData from './pages/job-market-lab.json';
+import jobOsData from './pages/job-os.json';
 import loginData from './pages/login.json';
 import footerData from './common/footer.json';
 import navigationData from './common/navigation.json';
@@ -16,7 +16,7 @@ import type {
   AboutPageData,
   BlogPageData,
   LabsPageData,
-  JobMarketLabPageData,
+  JobOsPageData,
   LoginPageData,
   CareerProfile,
   FooterData,
@@ -29,7 +29,7 @@ import {
   assertValidCareerProfile,
   assertValidFooter,
   assertValidHomePage,
-  assertValidJobMarketLabPage,
+  assertValidJobOsPage,
   assertValidLabsPage,
   assertValidLoginPage,
   assertValidNavigation,
@@ -43,7 +43,7 @@ validateDataFile('pages/portfolio.json', portfolioData, assertValidPortfolioPage
 validateDataFile('pages/about.json', aboutData, assertValidAboutPage);
 validateDataFile('pages/blog.json', blogData, assertValidBlogPage);
 validateDataFile('pages/labs.json', labsData, assertValidLabsPage);
-validateDataFile('pages/job-market-lab.json', jobMarketLabData, assertValidJobMarketLabPage);
+validateDataFile('pages/job-os.json', jobOsData, assertValidJobOsPage);
 validateDataFile('pages/login.json', loginData, assertValidLoginPage);
 validateDataFile('common/footer.json', footerData, assertValidFooter);
 validateDataFile('common/navigation.json', navigationData, assertValidNavigation);
@@ -55,7 +55,7 @@ export const portfolio = portfolioData as PortfolioPageData;
 export const about = aboutData as AboutPageData;
 export const blog = blogData as BlogPageData;
 export const labs = labsData as LabsPageData;
-export const jobMarketLab = jobMarketLabData as JobMarketLabPageData;
+export const jobOs = jobOsData as JobOsPageData;
 export const login = loginData as LoginPageData;
 export const careerProfile = careerProfileData as CareerProfile;
 
@@ -75,7 +75,7 @@ export function getPageData(route: '/about'): AboutPageData;
 export function getPageData(route: '/blog'): BlogPageData;
 export function getPageData(route: '/portfolio'): PortfolioPageData;
 export function getPageData(route: '/labs'): LabsPageData;
-export function getPageData(route: '/labs/job-market'): JobMarketLabPageData;
+export function getPageData(route: '/labs/job-os'): JobOsPageData;
 export function getPageData(route: '/login'): LoginPageData;
 export function getPageData(
   route: string,
@@ -85,7 +85,7 @@ export function getPageData(
   | BlogPageData
   | PortfolioPageData
   | LabsPageData
-  | JobMarketLabPageData
+  | JobOsPageData
   | LoginPageData
   | null;
 export function getPageData(route: string) {
@@ -101,8 +101,8 @@ export function getPageData(route: string) {
       return about;
     case '/labs':
       return labs;
-    case '/labs/job-market':
-      return jobMarketLab;
+    case '/labs/job-os':
+      return jobOs;
     case '/login':
       return login;
     default:
