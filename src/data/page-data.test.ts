@@ -37,6 +37,10 @@ describe('getPageData', () => {
     expect(getPageData('/finance')).toBeNull();
     expect(getPageData('/missing')).toBeNull();
   });
+
+  it('returns Job OS page data for the authenticated product route', () => {
+    expect(getPageData('/labs/job-os')?.heading).toBe('Job OS');
+  });
 });
 
 describe('getCommonData', () => {

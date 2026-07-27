@@ -2,9 +2,15 @@
   "heading": "Labs",
   "description": "Personal technical labs for exploring AI, data science, and full-stack craft.",
   "brandEyebrow": "Hasha Dar's",
-  "purposeLine": "Personal labs for technical craft. New work is in progress.",
-  "ctaLabel": "Explore Labs",
-  "flagshipTitle": "Work in progress",
+  "purposeLine": "Private Job OS for hunting better roles — employers, opportunities, and applications in one graph.",
+  "ctaLabel": "Open Job OS",
+  "flagshipTitle": "Job OS",
   "teaserAriaLabel": "Decorative motif of signals coalescing into a cluster",
-  "labs": []
+  "labs": [
+    {
+      "title": "Job OS",
+      "description": "Authenticated job-hunting operating system: Employers, Opportunities, and Applications.",
+      "href": "/labs/job-os"
+    }
+  ]
 }

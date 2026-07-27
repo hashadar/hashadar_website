@@ -15,6 +15,11 @@
   "engines": {
     "node": ">=22"
   },
+  "overrides": {
+    "@opentelemetry/core": "2.9.0",
+    "@opentelemetry/resources": "2.9.0",
+    "@opentelemetry/sdk-trace-base": "2.9.0"
+  },
   "dependencies": {
     "@fontsource/zalando-sans-expanded": "^5.2.1",
     "aws-amplify": "^6.18.0",

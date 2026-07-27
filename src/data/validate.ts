@@ -134,6 +134,51 @@ export function assertValidLabsPage(data: unknown): void {
   });
 }
 
+export function assertValidJobOsPage(data: unknown): void {
+  const page = requireRecord(data, 'job-os');
+  requireString(page, 'heading', 'job-os');
+  requireString(page, 'description', 'job-os');
+  requireString(page, 'unauthenticatedHeading', 'job-os');
+  requireString(page, 'unauthenticatedDescription', 'job-os');
+  requireString(page, 'signInLabel', 'job-os');
+  requireString(page, 'checkingSessionLabel', 'job-os');
+
+  const shell = requireRecord(page.shell, 'job-os.shell');
+  requireString(shell, 'heading', 'job-os.shell');
+  requireString(shell, 'description', 'job-os.shell');
+  const nav = requireRecord(shell.nav, 'job-os.shell.nav');
+  requireString(nav, 'ariaLabel', 'job-os.shell.nav');
+  requireString(nav, 'mobileLabel', 'job-os.shell.nav');
+  requireArray(nav.items, 'job-os.shell.nav.items').forEach((item, index) => {
+    const entry = requireRecord(item, `job-os.shell.nav.items[${index}]`);
+    requireString(entry, 'id', `job-os.shell.nav.items[${index}]`);
+    requireString(entry, 'label', `job-os.shell.nav.items[${index}]`);
+    requireString(entry, 'href', `job-os.shell.nav.items[${index}]`);
+  });
+
+  const overview = requireRecord(page.overview, 'job-os.overview');
+  requireString(overview, 'heading', 'job-os.overview');
+  requireString(overview, 'description', 'job-os.overview');
+  requireString(overview, 'employersCta', 'job-os.overview');
+  requireString(overview, 'opportunitiesCta', 'job-os.overview');
+  requireString(overview, 'applicationsCta', 'job-os.overview');
+
+  const employers = requireRecord(page.employers, 'job-os.employers');
+  requireString(employers, 'heading', 'job-os.employers');
+  requireString(employers, 'description', 'job-os.employers');
+  requireString(employers, 'createLabel', 'job-os.employers');
+  requireString(employers, 'ensureAnonLabel', 'job-os.employers');
+
+  const opportunities = requireRecord(page.opportunities, 'job-os.opportunities');
+  requireString(opportunities, 'heading', 'job-os.opportunities');
+  requireString(opportunities, 'passLabel', 'job-os.opportunities');
+  requireString(opportunities, 'pursueLabel', 'job-os.opportunities');
+
+  const applications = requireRecord(page.applications, 'job-os.applications');
+  requireString(applications, 'heading', 'job-os.applications');
+  requireString(applications, 'trackingNoteLabel', 'job-os.applications');
+  requireString(applications, 'saveStatusLabel', 'job-os.applications');
+}
 
 export function assertValidLoginPage(data: unknown): void {
   const page = requireRecord(data, 'login');
