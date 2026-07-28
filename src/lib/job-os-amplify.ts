@@ -268,7 +268,20 @@ export function createAmplifyJobOsStore(
         throwIfErrors(errors);
         return [];
       }
-      return rows.map(toEmployerRecord);
+      const employers = rows.map(toEmployerRecord);
+      // Persist default sector onto legacy rows so DynamoDB attrs catch up.
+      await Promise.all(
+        rows
+          .filter((row) => row.sector == null || row.sector === '')
+          .map(async (row) => {
+            const result = await client.Employer.update({
+              ...employerToRow(toEmployerRecord(row)),
+              sector: 'other',
+            });
+            throwIfErrors(result?.errors);
+          }),
+      );
+      return employers;
     },
     async getEmployer(id) {
       const { data, errors } = await client.Employer.get({ id });
