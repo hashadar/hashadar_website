@@ -344,8 +344,15 @@ const APPLICATION_TRANSITIONS: Record<
   ApplicationStatus,
   ReadonlySet<ApplicationStatus>
 > = {
-  researching: new Set(['applied', 'withdrawn', 'rejected']),
-  applied: new Set(['interviewing', 'rejected', 'withdrawn']),
+  // Forward skips allowed — personal hunt trackers often jump stages.
+  researching: new Set([
+    'applied',
+    'interviewing',
+    'offer',
+    'withdrawn',
+    'rejected',
+  ]),
+  applied: new Set(['interviewing', 'offer', 'rejected', 'withdrawn']),
   interviewing: new Set(['offer', 'rejected', 'withdrawn']),
   offer: new Set(['accepted', 'rejected', 'withdrawn']),
   accepted: new Set(),
