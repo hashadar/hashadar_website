@@ -403,6 +403,17 @@ export function createJobOs(deps: JobOsDeps) {
         ? crypto.randomUUID()
         : `id-${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
+  async function withAdapterRejection<T>(
+    reason: string,
+    operation: () => Promise<T>,
+  ): Promise<T | Rejected> {
+    try {
+      return await operation();
+    } catch {
+      return { status: 'rejected', reason };
+    }
+  }
+
   async function ensureAnonEmployer(): Promise<EmployerRecord> {
     const existing = (await deps.store.listEmployers()).find(
       (employer) => employer.isAnon,
@@ -538,14 +549,16 @@ export function createJobOs(deps: JobOsDeps) {
       return { status: 'rejected', reason: 'Body prose cannot be blank' };
     }
 
-    const { s3Key } = await deps.bodies.putBody({
-      entityKind: 'employer',
-      entityId: id,
-      prose: trimmed,
+    return withAdapterRejection('Could not save Employer Body', async () => {
+      const { s3Key } = await deps.bodies.putBody({
+        entityKind: 'employer',
+        entityId: id,
+        prose: trimmed,
+      });
+      const employer: EmployerRecord = { ...existing, s3Key };
+      await deps.store.persistEmployer(employer);
+      return { status: 'updated' as const, employer, body: trimmed };
     });
-    const employer: EmployerRecord = { ...existing, s3Key };
-    await deps.store.persistEmployer(employer);
-    return { status: 'updated', employer, body: trimmed };
   }
 
   async function getEmployerBody(
@@ -658,14 +671,16 @@ export function createJobOs(deps: JobOsDeps) {
       return { status: 'rejected', reason: 'Body prose cannot be blank' };
     }
 
-    const { s3Key } = await deps.bodies.putBody({
-      entityKind: 'opportunity',
-      entityId: id,
-      prose: trimmed,
+    return withAdapterRejection('Could not save Opportunity Body', async () => {
+      const { s3Key } = await deps.bodies.putBody({
+        entityKind: 'opportunity',
+        entityId: id,
+        prose: trimmed,
+      });
+      const opportunity: OpportunityRecord = { ...existing, s3Key };
+      await deps.store.persistOpportunity(opportunity);
+      return { status: 'updated' as const, opportunity, body: trimmed };
     });
-    const opportunity: OpportunityRecord = { ...existing, s3Key };
-    await deps.store.persistOpportunity(opportunity);
-    return { status: 'updated', opportunity, body: trimmed };
   }
 
   async function getOpportunityBody(
@@ -701,14 +716,16 @@ export function createJobOs(deps: JobOsDeps) {
       return { status: 'not_found' };
     }
 
-    const event = await deps.store.appendDecisionEvent({
-      id: createId(),
-      kind: 'opportunity_passed',
-      opportunityId,
-      occurredAt: now(),
-    });
+    return withAdapterRejection('Could not record Pass decision', async () => {
+      const event = await deps.store.appendDecisionEvent({
+        id: createId(),
+        kind: 'opportunity_passed',
+        opportunityId,
+        occurredAt: now(),
+      });
 
-    return { status: 'passed', opportunity, event };
+      return { status: 'passed' as const, opportunity, event };
+    });
   }
 
   async function listDecisionEvents(
@@ -744,22 +761,24 @@ export function createJobOs(deps: JobOsDeps) {
       };
     }
 
-    const application = await deps.store.insertApplication({
-      id: createId(),
-      opportunityId,
-      status: 'researching',
-    });
+    return withAdapterRejection('Could not start Application', async () => {
+      const application = await deps.store.insertApplication({
+        id: createId(),
+        opportunityId,
+        status: 'researching',
+      });
 
-    const event = await deps.store.appendDecisionEvent({
-      id: createId(),
-      kind: 'application_started',
-      opportunityId,
-      applicationId: application.id,
-      toStatus: 'researching',
-      occurredAt: now(),
-    });
+      const event = await deps.store.appendDecisionEvent({
+        id: createId(),
+        kind: 'application_started',
+        opportunityId,
+        applicationId: application.id,
+        toStatus: 'researching',
+        occurredAt: now(),
+      });
 
-    return { status: 'pursued', application, event };
+      return { status: 'pursued' as const, application, event };
+    });
   }
 
   async function listApplications(): Promise<ApplicationRecord[]> {

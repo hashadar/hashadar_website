@@ -351,33 +351,39 @@ export function JobOsOpportunitiesWorkspace({
     }
     setBusy(true);
     setError(null);
-    const result = await client.updateOpportunity({
-      id: selected.id,
-      ...buildInput(),
-    });
-    if (result.status === 'rejected' || result.status === 'not_found') {
-      setBusy(false);
-      setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
-      return;
-    }
-
-    if (body.trim()) {
-      const bodyResult = await client.updateOpportunityBody(selected.id, body);
-      if (bodyResult.status === 'rejected' || bodyResult.status === 'not_found') {
-        setBusy(false);
-        setError(
-          bodyResult.status === 'rejected' ? bodyResult.reason : copy.errorLabel,
-        );
+    try {
+      const result = await client.updateOpportunity({
+        id: selected.id,
+        ...buildInput(),
+      });
+      if (result.status === 'rejected' || result.status === 'not_found') {
+        setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
         return;
       }
-      setSelected(bodyResult.opportunity);
-    } else {
-      setSelected(result.opportunity);
-    }
 
-    await refresh(client);
-    setMessage(copy.savedLabel);
-    setBusy(false);
+      if (body.trim()) {
+        const bodyResult = await client.updateOpportunityBody(selected.id, body);
+        if (
+          bodyResult.status === 'rejected' ||
+          bodyResult.status === 'not_found'
+        ) {
+          setError(
+            bodyResult.status === 'rejected'
+              ? bodyResult.reason
+              : copy.errorLabel,
+          );
+          return;
+        }
+        setSelected(bodyResult.opportunity);
+      } else {
+        setSelected(result.opportunity);
+      }
+
+      await refresh(client);
+      setMessage(copy.savedLabel);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handlePass(opportunityId: string) {
@@ -386,18 +392,21 @@ export function JobOsOpportunitiesWorkspace({
     }
     setBusyId(opportunityId);
     setError(null);
-    const result = await client.passOpportunity(opportunityId);
-    setBusyId(null);
-    if (result.status !== 'passed') {
-      setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
-      return;
+    try {
+      const result = await client.passOpportunity(opportunityId);
+      if (result.status !== 'passed') {
+        setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
+        return;
+      }
+      if (selected?.id === opportunityId) {
+        setSelected(result.opportunity);
+        setEvents(await client.listDecisionEvents(opportunityId));
+      }
+      await refresh(client);
+      setMessage(copy.passedLabel);
+    } finally {
+      setBusyId(null);
     }
-    if (selected?.id === opportunityId) {
-      setSelected(result.opportunity);
-      setEvents(await client.listDecisionEvents(opportunityId));
-    }
-    await refresh(client);
-    setMessage(copy.passedLabel);
   }
 
   async function handlePursue(opportunityId: string) {
@@ -406,18 +415,21 @@ export function JobOsOpportunitiesWorkspace({
     }
     setBusyId(opportunityId);
     setError(null);
-    const result = await client.pursueOpportunity(opportunityId);
-    setBusyId(null);
-    if (result.status !== 'pursued') {
-      setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
-      return;
+    try {
+      const result = await client.pursueOpportunity(opportunityId);
+      if (result.status !== 'pursued') {
+        setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
+        return;
+      }
+      if (selected?.id === opportunityId) {
+        setHasApplication(true);
+        setEvents(await client.listDecisionEvents(opportunityId));
+      }
+      await refresh(client);
+      setMessage(copy.pursuedLabel);
+    } finally {
+      setBusyId(null);
     }
-    if (selected?.id === opportunityId) {
-      setHasApplication(true);
-      setEvents(await client.listDecisionEvents(opportunityId));
-    }
-    await refresh(client);
-    setMessage(copy.pursuedLabel);
   }
 
   function employerName(id: string): string {

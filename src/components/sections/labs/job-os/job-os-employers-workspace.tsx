@@ -237,40 +237,46 @@ export function JobOsEmployersWorkspace({
     }
     setBusy(true);
     setError(null);
-    const result = await client.updateEmployer({
-      id: selected.id,
-      name,
-      sizeTier,
-      prestigeTier,
-      summary,
-      websiteUrl,
-      linkedinUrl,
-      notes,
-    });
-    if (result.status === 'rejected' || result.status === 'not_found') {
-      setBusy(false);
-      setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
-      return;
-    }
-
-    if (body.trim()) {
-      const bodyResult = await client.updateEmployerBody(selected.id, body);
-      if (bodyResult.status === 'rejected' || bodyResult.status === 'not_found') {
-        setBusy(false);
-        setError(
-          bodyResult.status === 'rejected' ? bodyResult.reason : copy.errorLabel,
-        );
+    try {
+      const result = await client.updateEmployer({
+        id: selected.id,
+        name,
+        sizeTier,
+        prestigeTier,
+        summary,
+        websiteUrl,
+        linkedinUrl,
+        notes,
+      });
+      if (result.status === 'rejected' || result.status === 'not_found') {
+        setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
         return;
       }
-      setSelected(bodyResult.employer);
-      setMessage(copy.bodySavedLabel);
-    } else {
-      setSelected(result.employer);
-      setMessage(copy.savedLabel);
-    }
 
-    await refresh(client);
-    setBusy(false);
+      if (body.trim()) {
+        const bodyResult = await client.updateEmployerBody(selected.id, body);
+        if (
+          bodyResult.status === 'rejected' ||
+          bodyResult.status === 'not_found'
+        ) {
+          setError(
+            bodyResult.status === 'rejected'
+              ? bodyResult.reason
+              : copy.errorLabel,
+          );
+          return;
+        }
+        setSelected(bodyResult.employer);
+        setMessage(copy.bodySavedLabel);
+      } else {
+        setSelected(result.employer);
+        setMessage(copy.savedLabel);
+      }
+
+      await refresh(client);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function openCountFor(employerId: string): number {
