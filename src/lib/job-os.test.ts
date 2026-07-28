@@ -464,7 +464,7 @@ describe('Job OS facade — Applications', () => {
     });
   });
 
-  it('emits application_status_changed on legal transitions and rejects illegal ones', async () => {
+  it('allows free movement between Application statuses', async () => {
     const { jobOs, store } = createTestJobOs();
     const anon = await jobOs.ensureAnonEmployer();
     const created = await jobOs.createOpportunity({
@@ -483,30 +483,24 @@ describe('Job OS facade — Applications', () => {
       return;
     }
 
-    const applied = await jobOs.updateApplicationStatus(
+    const interviewing = await jobOs.updateApplicationStatus(
       pursued.application.id,
-      'applied',
+      'interviewing',
     );
-    expect(applied.status).toBe('updated');
-    if (applied.status !== 'updated') {
+    expect(interviewing.status).toBe('updated');
+    if (interviewing.status !== 'updated') {
       return;
     }
-    expect(applied.event.kind).toBe('application_status_changed');
-    expect(applied.event.fromStatus).toBe('researching');
-    expect(applied.event.toStatus).toBe('applied');
+    expect(interviewing.event.kind).toBe('application_status_changed');
+    expect(interviewing.event.fromStatus).toBe('researching');
+    expect(interviewing.event.toStatus).toBe('interviewing');
 
-    const illegal = await jobOs.updateApplicationStatus(
+    const accepted = await jobOs.updateApplicationStatus(
       pursued.application.id,
       'accepted',
     );
-    expect(illegal.status).toBe('rejected');
-
-    const withdrawn = await jobOs.updateApplicationStatus(
-      pursued.application.id,
-      'withdrawn',
-    );
-    expect(withdrawn.status).toBe('updated');
-    if (withdrawn.status !== 'updated') {
+    expect(accepted.status).toBe('updated');
+    if (accepted.status !== 'updated') {
       return;
     }
 
@@ -514,7 +508,17 @@ describe('Job OS facade — Applications', () => {
       pursued.application.id,
       'researching',
     );
-    expect(resurrect.status).toBe('rejected');
+    expect(resurrect.status).toBe('updated');
+    if (resurrect.status !== 'updated') {
+      return;
+    }
+    expect(resurrect.application.status).toBe('researching');
+
+    const same = await jobOs.updateApplicationStatus(
+      pursued.application.id,
+      'researching',
+    );
+    expect(same.status).toBe('rejected');
 
     const note = await jobOs.updateTrackingNote(
       pursued.application.id,

@@ -334,32 +334,6 @@ export type JobOsDeps = {
 export type Rejected = { status: 'rejected'; reason: string };
 export type NotFound = { status: 'not_found' };
 
-const TERMINAL_APPLICATION_STATUSES: ReadonlySet<ApplicationStatus> = new Set([
-  'accepted',
-  'rejected',
-  'withdrawn',
-]);
-
-const APPLICATION_TRANSITIONS: Record<
-  ApplicationStatus,
-  ReadonlySet<ApplicationStatus>
-> = {
-  // Forward skips allowed — personal hunt trackers often jump stages.
-  researching: new Set([
-    'applied',
-    'interviewing',
-    'offer',
-    'withdrawn',
-    'rejected',
-  ]),
-  applied: new Set(['interviewing', 'offer', 'rejected', 'withdrawn']),
-  interviewing: new Set(['offer', 'rejected', 'withdrawn']),
-  offer: new Set(['accepted', 'rejected', 'withdrawn']),
-  accepted: new Set(),
-  rejected: new Set(),
-  withdrawn: new Set(),
-};
-
 function includesValue<T extends string>(
   allowed: readonly T[],
   value: string,
@@ -519,13 +493,7 @@ export function isApplicationTransitionAllowed(
   from: ApplicationStatus,
   to: ApplicationStatus,
 ): boolean {
-  if (from === to) {
-    return false;
-  }
-  if (TERMINAL_APPLICATION_STATUSES.has(from)) {
-    return false;
-  }
-  return APPLICATION_TRANSITIONS[from].has(to);
+  return from !== to;
 }
 
 export function createJobOs(deps: JobOsDeps) {
