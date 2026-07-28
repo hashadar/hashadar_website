@@ -112,6 +112,44 @@ describe('Job OS facade — Employers', () => {
       reason: 'Anon Employer is reserved; use ensureAnonEmployer',
     });
   });
+
+  it('rejects Employer Body update when body storage fails', async () => {
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies: {
+        ...bodies,
+        putBody: async () => {
+          throw new Error('storage unavailable');
+        },
+      },
+      now: () => '2026-07-27T12:00:00.000Z',
+      createId: (() => {
+        let n = 0;
+        return () => `id-${++n}`;
+      })(),
+    });
+    const created = await jobOs.createEmployer({
+      name: 'Acme Analytics',
+      sizeTier: 'scaleup',
+      prestigeTier: 'mid',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const result = await jobOs.updateEmployerBody(
+      created.employer.id,
+      'Standing notes about the hiring team.',
+    );
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Could not save Employer Body',
+    });
+  });
 });
 
 describe('Job OS facade — Opportunities', () => {
@@ -184,6 +222,45 @@ describe('Job OS facade — Opportunities', () => {
     }
     expect(reopened.opportunity.status).toBe('open');
   });
+
+  it('rejects Opportunity Body update when body storage fails', async () => {
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies: {
+        ...bodies,
+        putBody: async () => {
+          throw new Error('storage unavailable');
+        },
+      },
+      now: () => '2026-07-27T12:00:00.000Z',
+      createId: (() => {
+        let n = 0;
+        return () => `id-${++n}`;
+      })(),
+    });
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-20T09:00:00.000Z',
+      title: 'Staff Data Scientist',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const result = await jobOs.updateOpportunityBody(
+      created.opportunity.id,
+      'Pasted listing prose.',
+    );
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Could not save Opportunity Body',
+    });
+  });
 });
 
 describe('Job OS facade — Pass and Decision Events', () => {
@@ -217,6 +294,42 @@ describe('Job OS facade — Pass and Decision Events', () => {
     expect(timeline).toHaveLength(1);
     expect(timeline[0]?.kind).toBe('opportunity_passed');
   });
+
+  it('rejects Pass when Decision Event persistence fails', async () => {
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store: {
+        ...store,
+        appendDecisionEvent: async () => {
+          throw new Error('AppSync unavailable');
+        },
+      },
+      bodies,
+      now: () => '2026-07-27T15:30:00.000Z',
+      createId: (() => {
+        let n = 0;
+        return () => `id-${++n}`;
+      })(),
+    });
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-22T08:00:00.000Z',
+      title: 'Platform Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const result = await jobOs.passOpportunity(created.opportunity.id);
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Could not record Pass decision',
+    });
+  });
 });
 
 describe('Job OS facade — Applications', () => {
@@ -241,6 +354,42 @@ describe('Job OS facade — Applications', () => {
     expect(pursued.application.status).toBe('researching');
     expect(pursued.event.kind).toBe('application_started');
     expect(pursued.event.toStatus).toBe('researching');
+  });
+
+  it('rejects Pursue when Application persistence fails', async () => {
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store: {
+        ...store,
+        insertApplication: async () => {
+          throw new Error('AppSync unavailable');
+        },
+      },
+      bodies,
+      now: () => '2026-07-27T12:00:00.000Z',
+      createId: (() => {
+        let n = 0;
+        return () => `id-${++n}`;
+      })(),
+    });
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-23T11:00:00.000Z',
+      title: 'Research Scientist',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const result = await jobOs.pursueOpportunity(created.opportunity.id);
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Could not start Application',
+    });
   });
 
   it('rejects a second Application on the same Opportunity', async () => {
