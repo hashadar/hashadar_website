@@ -1,5 +1,10 @@
-import type { BodyEntityKind, JobOsBodyStorage } from '@/lib/job-os';
+import {
+  bodyEntityS3Key,
+  type JobOsBodyStorage,
+} from '@/lib/job-os';
 import { isAmplifyClientConfigured } from '@/lib/is-amplify-client-configured';
+
+export { bodyEntityS3Key };
 
 export const BODY_CLIENT_NOT_CONFIGURED_REASON =
   'Body storage client is not configured';
@@ -23,13 +28,6 @@ function isUnauthenticatedError(message: string): boolean {
     lower.includes('not authenticated') ||
     lower.includes('user is not authenticated')
   );
-}
-
-export function bodyEntityS3Key(
-  entityKind: BodyEntityKind,
-  entityId: string,
-): string {
-  return `bodies/${entityKind}s/${entityId}.md`;
 }
 
 export function proseToBinary(body: string): Uint8Array {

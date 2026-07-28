@@ -70,6 +70,19 @@ export type DecisionEventKind = (typeof DECISION_EVENT_KINDS)[number];
 
 export type BodyEntityKind = 'employer' | 'opportunity' | 'application';
 
+const BODY_ENTITY_PATH_SEGMENTS: Record<BodyEntityKind, string> = {
+  employer: 'employers',
+  opportunity: 'opportunities',
+  application: 'applications',
+};
+
+export function bodyEntityS3Key(
+  entityKind: BodyEntityKind,
+  entityId: string,
+): string {
+  return `bodies/${BODY_ENTITY_PATH_SEGMENTS[entityKind]}/${entityId}.md`;
+}
+
 export type EmployerRecord = {
   id: string;
   name: string;
@@ -940,7 +953,7 @@ export function createMemoryJobOsBodyStorage(): JobOsBodyStorage {
 
   return {
     async putBody({ entityKind, entityId, prose }) {
-      const s3Key = `bodies/${entityKind}s/${entityId}.md`;
+      const s3Key = bodyEntityS3Key(entityKind, entityId);
       bodies.set(s3Key, prose);
       return { s3Key };
     },

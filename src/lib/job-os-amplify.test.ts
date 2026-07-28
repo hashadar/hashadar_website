@@ -59,6 +59,71 @@ function createMockClient(
   return { client, create };
 }
 
+describe('createAmplifyJobOsStore decision events', () => {
+  it('omits applicationId on Pass so DynamoDB GSI keys are never null', async () => {
+    const create = vi.fn(async (input: Record<string, unknown>) => ({
+      data: {
+        id: 'evt-1',
+        kind: 'opportunity_passed' as const,
+        opportunityId: String(input.opportunityId),
+        occurredAt: String(input.occurredAt),
+      },
+      errors: null,
+    }));
+    const { client } = createMockClient({ data: [] });
+    client.DecisionEvent.create = create;
+
+    await createAmplifyJobOsStore(client).appendDecisionEvent({
+      id: 'evt-1',
+      kind: 'opportunity_passed',
+      opportunityId: 'opp-1',
+      occurredAt: '2026-07-28T12:00:00.000Z',
+    });
+
+    expect(create).toHaveBeenCalledTimes(1);
+    const payload = create.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(payload).toEqual({
+      id: 'evt-1',
+      kind: 'opportunity_passed',
+      opportunityId: 'opp-1',
+      occurredAt: '2026-07-28T12:00:00.000Z',
+    });
+    expect(payload).not.toHaveProperty('applicationId');
+  });
+
+  it('includes applicationId when Pursue records application_started', async () => {
+    const create = vi.fn(async (input: Record<string, unknown>) => ({
+      data: {
+        id: 'evt-2',
+        kind: 'application_started' as const,
+        opportunityId: String(input.opportunityId),
+        applicationId: String(input.applicationId),
+        toStatus: String(input.toStatus),
+        occurredAt: String(input.occurredAt),
+      },
+      errors: null,
+    }));
+    const { client } = createMockClient({ data: [] });
+    client.DecisionEvent.create = create;
+
+    await createAmplifyJobOsStore(client).appendDecisionEvent({
+      id: 'evt-2',
+      kind: 'application_started',
+      opportunityId: 'opp-1',
+      applicationId: 'app-1',
+      toStatus: 'researching',
+      occurredAt: '2026-07-28T12:00:00.000Z',
+    });
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        applicationId: 'app-1',
+        toStatus: 'researching',
+      }),
+    );
+  });
+});
+
 describe('createAmplifyJobOsStore employers', () => {
   it('treats missing isAnon as false when listing', async () => {
     const { client } = createMockClient({

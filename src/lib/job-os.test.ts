@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ANON_EMPLOYER_NAME,
+  bodyEntityS3Key,
   createJobOs,
   createMemoryJobOsBodyStorage,
   createMemoryJobOsStore,
@@ -20,6 +21,18 @@ function createTestJobOs(options?: { now?: string }) {
   });
   return { jobOs, store, bodies };
 }
+
+describe('Job OS Body S3 keys', () => {
+  it('uses plural path segments that match storage access rules', () => {
+    expect(bodyEntityS3Key('employer', 'e1')).toBe('bodies/employers/e1.md');
+    expect(bodyEntityS3Key('opportunity', 'o1')).toBe(
+      'bodies/opportunities/o1.md',
+    );
+    expect(bodyEntityS3Key('application', 'a1')).toBe(
+      'bodies/applications/a1.md',
+    );
+  });
+});
 
 describe('Job OS facade — Employers', () => {
   it('bootstraps the reserved Anon Employer once', async () => {

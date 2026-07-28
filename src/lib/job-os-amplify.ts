@@ -339,14 +339,32 @@ export function createAmplifyJobOsStore(
         .map(toDecisionEventRecord);
     },
     async appendDecisionEvent(input) {
-      const row = {
+      const row: {
+        id?: string;
+        kind: typeof input.kind;
+        opportunityId: string;
+        applicationId?: string;
+        fromStatus?: string;
+        toStatus?: string;
+        occurredAt: string;
+      } = {
         kind: input.kind,
         opportunityId: input.opportunityId,
-        applicationId: input.applicationId ?? null,
-        fromStatus: input.fromStatus ?? null,
-        toStatus: input.toStatus ?? null,
         occurredAt: input.occurredAt,
       };
+      // Omit optional GSI keys — DynamoDB rejects NULL on index attributes.
+      if (input.id) {
+        row.id = input.id;
+      }
+      if (input.applicationId) {
+        row.applicationId = input.applicationId;
+      }
+      if (input.fromStatus) {
+        row.fromStatus = input.fromStatus;
+      }
+      if (input.toStatus) {
+        row.toStatus = input.toStatus;
+      }
       const { data, errors } = await client.DecisionEvent.create(row);
       throwIfErrors(errors);
       if (!data) {
