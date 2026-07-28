@@ -5,14 +5,12 @@ import type {
   CompensationPeriod,
   DecisionEventKind,
   DecisionEventRecord,
-  EmployerPrestigeTier,
   EmployerRecord,
-  EmployerSizeTier,
   JobOsStore,
   OpportunityRecord,
-  OpportunityRoleFamily,
-  OpportunitySeniority,
   OpportunityStatus,
+  VocabularyKind,
+  VocabularyTermRecord,
 } from '@/lib/job-os';
 
 type AmplifyDataResult<T> = {
@@ -23,8 +21,10 @@ type AmplifyDataResult<T> = {
 export type AmplifyEmployerRow = {
   id: string;
   name: string;
-  sizeTier: EmployerSizeTier;
-  prestigeTier: EmployerPrestigeTier;
+  sizeTier: string;
+  prestigeTier: string;
+  /** May be missing on rows written before sector existed. */
+  sector?: string | null;
   summary?: string | null;
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
@@ -41,8 +41,8 @@ export type AmplifyOpportunityRow = {
   title?: string | null;
   source?: string | null;
   noticedAt: string;
-  seniority?: OpportunitySeniority | null;
-  roleFamily?: OpportunityRoleFamily | null;
+  seniority?: string | null;
+  roleFamily?: string | null;
   compensationCurrency?: string | null;
   compensationMin?: number | null;
   compensationMax?: number | null;
@@ -70,6 +70,15 @@ export type AmplifyDecisionEventRow = {
   occurredAt: string;
 };
 
+export type AmplifyVocabularyTermRow = {
+  id: string;
+  kind: string;
+  value: string;
+  label: string;
+  sortOrder?: number | null;
+  active?: boolean | null;
+};
+
 type ModelClient<
   TRow,
   TCreate = Omit<TRow, 'id'> & { id?: string },
@@ -87,6 +96,7 @@ export type AmplifyJobOsModelsClient = {
   Opportunity: ModelClient<AmplifyOpportunityRow>;
   Application: ModelClient<AmplifyApplicationRow>;
   DecisionEvent: ModelClient<AmplifyDecisionEventRow>;
+  VocabularyTerm: ModelClient<AmplifyVocabularyTermRow>;
 };
 
 function throwIfErrors(
@@ -112,6 +122,7 @@ function toEmployerRecord(row: AmplifyEmployerRow): EmployerRecord {
     name: row.name,
     sizeTier: row.sizeTier,
     prestigeTier: row.prestigeTier,
+    sector: optionalString(row.sector) ?? 'other',
     summary: optionalString(row.summary),
     websiteUrl: optionalString(row.websiteUrl),
     linkedinUrl: optionalString(row.linkedinUrl),
@@ -135,8 +146,8 @@ function toOpportunityRecord(row: AmplifyOpportunityRow): OpportunityRecord {
     title: optionalString(row.title),
     source: optionalString(row.source),
     noticedAt: row.noticedAt,
-    seniority: row.seniority ?? undefined,
-    roleFamily: row.roleFamily ?? undefined,
+    seniority: optionalString(row.seniority),
+    roleFamily: optionalString(row.roleFamily),
     compensationCurrency: optionalString(row.compensationCurrency),
     compensationMin: row.compensationMin ?? undefined,
     compensationMax: row.compensationMax ?? undefined,
@@ -171,12 +182,26 @@ function toDecisionEventRecord(
   };
 }
 
+function toVocabularyTermRecord(
+  row: AmplifyVocabularyTermRow,
+): VocabularyTermRecord {
+  return {
+    id: row.id,
+    kind: row.kind as VocabularyKind,
+    value: row.value,
+    label: row.label,
+    sortOrder: row.sortOrder ?? undefined,
+    active: row.active !== false,
+  };
+}
+
 function employerToRow(record: EmployerRecord): AmplifyEmployerRow {
   return {
     id: record.id,
     name: record.name,
     sizeTier: record.sizeTier,
     prestigeTier: record.prestigeTier,
+    sector: record.sector,
     summary: record.summary ?? null,
     websiteUrl: record.websiteUrl ?? null,
     linkedinUrl: record.linkedinUrl ?? null,
@@ -214,6 +239,19 @@ function applicationToRow(record: ApplicationRecord): AmplifyApplicationRow {
     status: record.status,
     trackingNote: record.trackingNote ?? null,
     s3Key: record.s3Key ?? null,
+  };
+}
+
+function vocabularyTermToRow(
+  record: VocabularyTermRecord,
+): AmplifyVocabularyTermRow {
+  return {
+    id: record.id,
+    kind: record.kind,
+    value: record.value,
+    label: record.label,
+    sortOrder: record.sortOrder ?? null,
+    active: record.active,
   };
 }
 
@@ -372,6 +410,43 @@ export function createAmplifyJobOsStore(
       }
       return toDecisionEventRecord(data);
     },
+    async listVocabularyTerms(kind) {
+      const { data, errors } = await client.VocabularyTerm.list(
+        kind ? { filter: { kind: { eq: kind } } } : undefined,
+      );
+      throwIfErrors(errors);
+      return (data ?? [])
+        .filter((row): row is AmplifyVocabularyTermRow => row != null)
+        .map(toVocabularyTermRecord);
+    },
+    async getVocabularyTerm(id) {
+      const { data, errors } = await client.VocabularyTerm.get({ id });
+      throwIfErrors(errors);
+      return data ? toVocabularyTermRecord(data) : null;
+    },
+    async insertVocabularyTerm(input) {
+      const row = vocabularyTermToRow({
+        ...input,
+        id: input.id ?? '',
+      });
+      const { id, ...fields } = row;
+      const { data, errors } = await client.VocabularyTerm.create({
+        ...fields,
+        active: row.active !== false,
+        ...(id ? { id } : {}),
+      });
+      throwIfErrors(errors);
+      if (!data) {
+        throw new Error('VocabularyTerm create returned no data');
+      }
+      return toVocabularyTermRecord(data);
+    },
+    async persistVocabularyTerm(record) {
+      const { errors } = await client.VocabularyTerm.update(
+        vocabularyTermToRow(record),
+      );
+      throwIfErrors(errors);
+    },
   };
 }
 
@@ -458,6 +533,24 @@ export function createAmplifyJobOsModelsClient(
       async update(input) {
         const client = await getClient();
         return client.models.DecisionEvent.update(input);
+      },
+    },
+    VocabularyTerm: {
+      async get(input) {
+        const client = await getClient();
+        return client.models.VocabularyTerm.get(input);
+      },
+      async list(input) {
+        const client = await getClient();
+        return client.models.VocabularyTerm.list(input);
+      },
+      async create(input) {
+        const client = await getClient();
+        return client.models.VocabularyTerm.create(input);
+      },
+      async update(input) {
+        const client = await getClient();
+        return client.models.VocabularyTerm.update(input);
       },
     },
   };

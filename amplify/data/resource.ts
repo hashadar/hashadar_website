@@ -3,26 +3,10 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 /**
  * Job OS hunting graph: Employer → Opportunity → Application, plus Decision Events.
  * Bodies are optional S3 prose keyed from the DB when present.
+ * Size/prestige/sector/seniority/role family are strings validated against VocabularyTerm.
  */
 const schema = a.schema({
-  EmployerSizeTier: a.enum(['startup', 'scaleup', 'enterprise', 'big4', 'other']),
-  EmployerPrestigeTier: a.enum(['low', 'mid', 'high', 'elite']),
   OpportunityStatus: a.enum(['open', 'closed']),
-  OpportunitySeniority: a.enum([
-    'junior',
-    'mid',
-    'senior',
-    'lead',
-    'principal',
-  ]),
-  OpportunityRoleFamily: a.enum([
-    'data_science',
-    'analytics',
-    'engineering',
-    'ml_ops',
-    'product',
-    'other',
-  ]),
   CompensationPeriod: a.enum(['year', 'month', 'day', 'hour']),
   CompensationDisclosure: a.enum(['range', 'competitive', 'unknown']),
   ApplicationStatus: a.enum([
@@ -40,11 +24,24 @@ const schema = a.schema({
     'application_status_changed',
   ]),
 
+  VocabularyTerm: a
+    .model({
+      kind: a.string().required(),
+      value: a.string().required(),
+      label: a.string().required(),
+      sortOrder: a.integer(),
+      active: a.boolean().default(true),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
+
   Employer: a
     .model({
       name: a.string().required(),
-      sizeTier: a.ref('EmployerSizeTier').required(),
-      prestigeTier: a.ref('EmployerPrestigeTier').required(),
+      sizeTier: a.string().required(),
+      prestigeTier: a.string().required(),
+      sector: a.string().required(),
       summary: a.string(),
       websiteUrl: a.string(),
       linkedinUrl: a.string(),
@@ -67,8 +64,8 @@ const schema = a.schema({
       title: a.string(),
       source: a.string(),
       noticedAt: a.datetime().required(),
-      seniority: a.ref('OpportunitySeniority'),
-      roleFamily: a.ref('OpportunityRoleFamily'),
+      seniority: a.string(),
+      roleFamily: a.string(),
       compensationCurrency: a.string(),
       compensationMin: a.float(),
       compensationMax: a.float(),

@@ -15,13 +15,13 @@ import {
 } from '@/components/sections/labs/job-os/job-os-ledger';
 import { jobOs } from '@/data';
 import {
-  EMPLOYER_PRESTIGE_TIERS,
-  EMPLOYER_SIZE_TIERS,
   type EmployerPrestigeTier,
   type EmployerRecord,
+  type EmployerSector,
   type EmployerSizeTier,
   type JobOs,
   type OpportunityRecord,
+  type VocabularyTermRecord,
 } from '@/lib/job-os';
 import { getDefaultJobOs } from '@/lib/job-os-default';
 
@@ -32,6 +32,20 @@ export type JobOsEmployersWorkspaceProps = {
 
 type CaptureBeat = 1 | 2;
 
+function vocabularyLabel(
+  terms: VocabularyTermRecord[],
+  value: string,
+): string {
+  return terms.find((term) => term.value === value)?.label ?? value;
+}
+
+function activeTerms(
+  terms: VocabularyTermRecord[],
+  kind: VocabularyTermRecord['kind'],
+): VocabularyTermRecord[] {
+  return terms.filter((term) => term.kind === kind && term.active);
+}
+
 export function JobOsEmployersWorkspace({
   jobOsClient,
   selectedId,
@@ -40,6 +54,7 @@ export function JobOsEmployersWorkspace({
   const [client, setClient] = useState<JobOs | null>(jobOsClient ?? null);
   const [employers, setEmployers] = useState<EmployerRecord[]>([]);
   const [opportunities, setOpportunities] = useState<OpportunityRecord[]>([]);
+  const [vocabulary, setVocabulary] = useState<VocabularyTermRecord[]>([]);
   const [selected, setSelected] = useState<EmployerRecord | null>(null);
   const [body, setBody] = useState('');
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
@@ -56,6 +71,7 @@ export function JobOsEmployersWorkspace({
   const [sizeTier, setSizeTier] = useState<EmployerSizeTier>('startup');
   const [prestigeTier, setPrestigeTier] =
     useState<EmployerPrestigeTier>('low');
+  const [sector, setSector] = useState<EmployerSector>('technology');
   const [summary, setSummary] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
@@ -71,15 +87,17 @@ export function JobOsEmployersWorkspace({
         }
         setClient(resolved);
         await resolved.ensureAnonEmployer();
-        const [listed, listedOpportunities] = await Promise.all([
+        const [listed, listedOpportunities, terms] = await Promise.all([
           resolved.listEmployers(),
           resolved.listOpportunities(),
+          resolved.listVocabularyTerms(),
         ]);
         if (cancelled) {
           return;
         }
         setEmployers(listed);
         setOpportunities(listedOpportunities);
+        setVocabulary(terms);
         setLoadState('ready');
       } catch {
         if (!cancelled) {
@@ -107,6 +125,7 @@ export function JobOsEmployersWorkspace({
       setName(result.employer.name);
       setSizeTier(result.employer.sizeTier);
       setPrestigeTier(result.employer.prestigeTier);
+      setSector(result.employer.sector);
       setSummary(result.employer.summary ?? '');
       setWebsiteUrl(result.employer.websiteUrl ?? '');
       setLinkedinUrl(result.employer.linkedinUrl ?? '');
@@ -160,6 +179,7 @@ export function JobOsEmployersWorkspace({
     setName('');
     setSizeTier('startup');
     setPrestigeTier('low');
+    setSector('technology');
     setSummary('');
     setWebsiteUrl('');
     setLinkedinUrl('');
@@ -180,12 +200,14 @@ export function JobOsEmployersWorkspace({
   }
 
   async function refresh(active: JobOs) {
-    const [listed, listedOpportunities] = await Promise.all([
+    const [listed, listedOpportunities, terms] = await Promise.all([
       active.listEmployers(),
       active.listOpportunities(),
+      active.listVocabularyTerms(),
     ]);
     setEmployers(listed);
     setOpportunities(listedOpportunities);
+    setVocabulary(terms);
   }
 
   async function handleEnsureAnon() {
@@ -215,6 +237,7 @@ export function JobOsEmployersWorkspace({
       name,
       sizeTier,
       prestigeTier,
+      sector,
       summary,
       websiteUrl,
       linkedinUrl,
@@ -243,6 +266,7 @@ export function JobOsEmployersWorkspace({
         name,
         sizeTier,
         prestigeTier,
+        sector,
         summary,
         websiteUrl,
         linkedinUrl,
@@ -323,6 +347,11 @@ export function JobOsEmployersWorkspace({
             setSizeTier={setSizeTier}
             prestigeTier={prestigeTier}
             setPrestigeTier={setPrestigeTier}
+            sector={sector}
+            setSector={setSector}
+            sizeOptions={activeTerms(vocabulary, 'size_tier')}
+            prestigeOptions={activeTerms(vocabulary, 'prestige_tier')}
+            sectorOptions={activeTerms(vocabulary, 'sector')}
             readOnly={selected.isAnon}
           />
         </JobOsFocusSection>
@@ -417,6 +446,11 @@ export function JobOsEmployersWorkspace({
             setSizeTier={setSizeTier}
             prestigeTier={prestigeTier}
             setPrestigeTier={setPrestigeTier}
+            sector={sector}
+            setSector={setSector}
+            sizeOptions={activeTerms(vocabulary, 'size_tier')}
+            prestigeOptions={activeTerms(vocabulary, 'prestige_tier')}
+            sectorOptions={activeTerms(vocabulary, 'sector')}
           />
           {captureBeat >= 2 ? (
             <EmployerPresenceFields
@@ -460,6 +494,7 @@ export function JobOsEmployersWorkspace({
           copy.columnName,
           copy.columnSize,
           copy.columnPrestige,
+          copy.columnSector,
           copy.columnOpen,
           copy.columnBody,
           copy.columnActions,
@@ -489,11 +524,13 @@ export function JobOsEmployersWorkspace({
               ) : null}
             </JobOsLedgerCell>
             <JobOsLedgerCell>
-              {copy.sizeTierOptions[employer.sizeTier] ?? employer.sizeTier}
+              {vocabularyLabel(vocabulary, employer.sizeTier)}
             </JobOsLedgerCell>
             <JobOsLedgerCell>
-              {copy.prestigeTierOptions[employer.prestigeTier] ??
-                employer.prestigeTier}
+              {vocabularyLabel(vocabulary, employer.prestigeTier)}
+            </JobOsLedgerCell>
+            <JobOsLedgerCell>
+              {vocabularyLabel(vocabulary, employer.sector)}
             </JobOsLedgerCell>
             <JobOsLedgerCell mono>
               {openCountFor(employer.id)}
@@ -529,6 +566,11 @@ function EmployerIdentityFields({
   setSizeTier,
   prestigeTier,
   setPrestigeTier,
+  sector,
+  setSector,
+  sizeOptions,
+  prestigeOptions,
+  sectorOptions,
   readOnly = false,
 }: {
   copy: EmployerCopy;
@@ -538,11 +580,16 @@ function EmployerIdentityFields({
   setSizeTier: (value: EmployerSizeTier) => void;
   prestigeTier: EmployerPrestigeTier;
   setPrestigeTier: (value: EmployerPrestigeTier) => void;
+  sector: EmployerSector;
+  setSector: (value: EmployerSector) => void;
+  sizeOptions: VocabularyTermRecord[];
+  prestigeOptions: VocabularyTermRecord[];
+  sectorOptions: VocabularyTermRecord[];
   readOnly?: boolean;
 }) {
   return (
-    <div className="grid gap-3 md:grid-cols-3">
-      <label className="block font-body text-sm md:col-span-1">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+      <label className="block font-body text-sm md:col-span-2 lg:col-span-1">
         {copy.nameLabel}
         <input
           className={jobOsFieldClassName}
@@ -557,13 +604,11 @@ function EmployerIdentityFields({
           className={jobOsFieldClassName}
           value={sizeTier}
           disabled={readOnly}
-          onChange={(event) =>
-            setSizeTier(event.target.value as EmployerSizeTier)
-          }
+          onChange={(event) => setSizeTier(event.target.value)}
         >
-          {EMPLOYER_SIZE_TIERS.map((tier) => (
-            <option key={tier} value={tier}>
-              {copy.sizeTierOptions[tier] ?? tier}
+          {sizeOptions.map((term) => (
+            <option key={term.id} value={term.value}>
+              {term.label}
             </option>
           ))}
         </select>
@@ -574,13 +619,26 @@ function EmployerIdentityFields({
           className={jobOsFieldClassName}
           value={prestigeTier}
           disabled={readOnly}
-          onChange={(event) =>
-            setPrestigeTier(event.target.value as EmployerPrestigeTier)
-          }
+          onChange={(event) => setPrestigeTier(event.target.value)}
         >
-          {EMPLOYER_PRESTIGE_TIERS.map((tier) => (
-            <option key={tier} value={tier}>
-              {copy.prestigeTierOptions[tier] ?? tier}
+          {prestigeOptions.map((term) => (
+            <option key={term.id} value={term.value}>
+              {term.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="block font-body text-sm">
+        {copy.sectorLabel}
+        <select
+          className={jobOsFieldClassName}
+          value={sector}
+          disabled={readOnly}
+          onChange={(event) => setSector(event.target.value)}
+        >
+          {sectorOptions.map((term) => (
+            <option key={term.id} value={term.value}>
+              {term.label}
             </option>
           ))}
         </select>

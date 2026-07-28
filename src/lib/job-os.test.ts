@@ -54,6 +54,7 @@ describe('Job OS facade — Employers', () => {
       name: 'Acme Analytics',
       sizeTier: 'scaleup',
       prestigeTier: 'mid',
+      sector: 'technology',
       summary: 'Data platform shop',
     });
 
@@ -74,6 +75,7 @@ describe('Job OS facade — Employers', () => {
       name: 'Beacon Labs',
       sizeTier: 'startup',
       prestigeTier: 'low',
+      sector: 'technology',
     });
     expect(created.status).toBe('created');
     if (created.status !== 'created') {
@@ -85,6 +87,7 @@ describe('Job OS facade — Employers', () => {
       name: 'Beacon Labs Ltd',
       sizeTier: 'startup',
       prestigeTier: 'mid',
+      sector: 'technology',
       websiteUrl: 'https://beacon.example',
     });
     expect(updated.status).toBe('updated');
@@ -119,6 +122,7 @@ describe('Job OS facade — Employers', () => {
       name: ANON_EMPLOYER_NAME,
       sizeTier: 'other',
       prestigeTier: 'low',
+      sector: 'other',
     });
     expect(result).toEqual({
       status: 'rejected',
@@ -147,6 +151,7 @@ describe('Job OS facade — Employers', () => {
       name: 'Acme Analytics',
       sizeTier: 'scaleup',
       prestigeTier: 'mid',
+      sector: 'technology',
     });
     expect(created.status).toBe('created');
     if (created.status !== 'created') {
@@ -193,6 +198,7 @@ describe('Job OS facade — Opportunities', () => {
       name: 'Northwind',
       sizeTier: 'enterprise',
       prestigeTier: 'high',
+      sector: 'law',
     });
     expect(employer.status).toBe('created');
     if (employer.status !== 'created') {
@@ -503,5 +509,132 @@ describe('Job OS facade — Applications', () => {
       created.opportunity.id,
     );
     expect(eventsAfter).toHaveLength(eventCount);
+  });
+});
+
+describe('Job OS facade — Vocabulary', () => {
+  it('seeds default Vocabulary terms idempotently', async () => {
+    const { jobOs } = createTestJobOs();
+
+    const first = await jobOs.ensureVocabularyDefaults();
+    const second = await jobOs.ensureVocabularyDefaults();
+
+    expect(first.length).toBeGreaterThan(0);
+    expect(second).toHaveLength(first.length);
+    expect(first.map((term) => `${term.kind}:${term.value}`).sort()).toEqual(
+      second.map((term) => `${term.kind}:${term.value}`).sort(),
+    );
+    expect(first.some((term) => term.kind === 'sector' && term.value === 'law')).toBe(
+      true,
+    );
+  });
+
+  it('rejects Employer create with an unknown sector', async () => {
+    const { jobOs } = createTestJobOs();
+    await jobOs.ensureVocabularyDefaults();
+
+    const result = await jobOs.createEmployer({
+      name: 'Mystery Co',
+      sizeTier: 'startup',
+      prestigeTier: 'mid',
+      sector: 'not_a_real_sector',
+    });
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Unrecognised employer sector',
+    });
+  });
+
+  it('creates a Vocabulary term and uses it on an Employer', async () => {
+    const { jobOs } = createTestJobOs();
+    await jobOs.ensureVocabularyDefaults();
+
+    const createdTerm = await jobOs.createVocabularyTerm({
+      kind: 'sector',
+      value: 'Aerospace Defence',
+      label: 'Aerospace & defence',
+    });
+    expect(createdTerm.status).toBe('created');
+    if (createdTerm.status !== 'created') {
+      return;
+    }
+    expect(createdTerm.term.value).toBe('aerospace_defence');
+
+    const employer = await jobOs.createEmployer({
+      name: 'Orbit Systems',
+      sizeTier: 'scaleup',
+      prestigeTier: 'high',
+      sector: 'aerospace_defence',
+    });
+    expect(employer.status).toBe('created');
+    if (employer.status !== 'created') {
+      return;
+    }
+    expect(employer.employer.sector).toBe('aerospace_defence');
+  });
+
+  it('rejects new writes with a deactivated Vocabulary term', async () => {
+    const { jobOs } = createTestJobOs();
+    await jobOs.ensureVocabularyDefaults();
+
+    const created = await jobOs.createEmployer({
+      name: 'Media House',
+      sizeTier: 'enterprise',
+      prestigeTier: 'mid',
+      sector: 'media',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const media = (await jobOs.listVocabularyTerms('sector')).find(
+      (term) => term.value === 'media',
+    );
+    expect(media).toBeDefined();
+    if (!media) {
+      return;
+    }
+
+    const deactivated = await jobOs.updateVocabularyTerm({
+      id: media.id,
+      active: false,
+    });
+    expect(deactivated.status).toBe('updated');
+
+    const loaded = await jobOs.getEmployer(created.employer.id);
+    expect(loaded.status).toBe('ok');
+    if (loaded.status === 'ok') {
+      expect(loaded.employer.sector).toBe('media');
+    }
+
+    const rejected = await jobOs.createEmployer({
+      name: 'Another Media Co',
+      sizeTier: 'startup',
+      prestigeTier: 'low',
+      sector: 'media',
+    });
+    expect(rejected).toEqual({
+      status: 'rejected',
+      reason: 'Unrecognised employer sector',
+    });
+  });
+
+  it('rejects Opportunity seniority that is not an active Vocabulary term', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+
+    const result = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-28T09:00:00.000Z',
+      title: 'Mystery Role',
+      seniority: 'staff_plus',
+    });
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Unrecognised seniority value',
+    });
   });
 });
