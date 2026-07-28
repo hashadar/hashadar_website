@@ -199,4 +199,29 @@ describe('createAmplifyJobOsStore employers', () => {
       expect.objectContaining({ isAnon: false }),
     );
   });
+
+  it('defaults and backfills missing Employer sector on list', async () => {
+    const update = vi.fn(async () => ({ data: null, errors: null }));
+    const { client } = createMockClient({
+      data: [
+        {
+          id: 'emp-legacy',
+          name: 'Legacy Co',
+          sizeTier: 'other',
+          prestigeTier: 'low',
+          isAnon: false,
+        },
+      ],
+    });
+    client.Employer.update = update;
+
+    const employers = await createAmplifyJobOsStore(client).listEmployers();
+
+    expect(employers).toEqual([
+      expect.objectContaining({ id: 'emp-legacy', sector: 'other' }),
+    ]);
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'emp-legacy', sector: 'other' }),
+    );
+  });
 });

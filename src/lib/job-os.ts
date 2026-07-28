@@ -516,6 +516,8 @@ export function createJobOs(deps: JobOsDeps) {
     }
   }
 
+  let vocabularySeedPromise: Promise<VocabularyTermRecord[]> | null = null;
+
   async function hasActiveVocabularyValue(
     kind: VocabularyKind,
     value: string,
@@ -563,40 +565,55 @@ export function createJobOs(deps: JobOsDeps) {
   }
 
   async function ensureVocabularyDefaults(): Promise<VocabularyTermRecord[]> {
-    const existing = await deps.store.listVocabularyTerms();
-    const existingKeys = new Set(
-      existing.map((term) => `${term.kind}:${term.value}`),
-    );
-    for (const seed of VOCABULARY_SEED_DEFAULTS) {
-      const key = `${seed.kind}:${seed.value}`;
-      if (existingKeys.has(key)) {
-        continue;
-      }
-      await deps.store.insertVocabularyTerm({
-        id: createId(),
-        kind: seed.kind,
-        value: seed.value,
-        label: seed.label,
-        sortOrder: seed.sortOrder,
-        active: true,
-      });
-      existingKeys.add(key);
+    if (!vocabularySeedPromise) {
+      vocabularySeedPromise = (async () => {
+        const existing = await deps.store.listVocabularyTerms();
+        const existingKeys = new Set(
+          existing.map((term) => `${term.kind}:${term.value}`),
+        );
+        for (const seed of VOCABULARY_SEED_DEFAULTS) {
+          const key = `${seed.kind}:${seed.value}`;
+          if (existingKeys.has(key)) {
+            continue;
+          }
+          await deps.store.insertVocabularyTerm({
+            id: createId(),
+            kind: seed.kind,
+            value: seed.value,
+            label: seed.label,
+            sortOrder: seed.sortOrder,
+            active: true,
+          });
+          existingKeys.add(key);
+        }
+        return listVocabularyTerms();
+      })();
     }
-    return listVocabularyTerms();
+    return vocabularySeedPromise;
   }
 
   async function listVocabularyTerms(
     kind?: VocabularyKind,
   ): Promise<VocabularyTermRecord[]> {
     const terms = await deps.store.listVocabularyTerms(kind);
-    return [...terms].sort((a, b) => {
+    const deduped: VocabularyTermRecord[] = [];
+    const seen = new Set<string>();
+    for (const term of [...terms].sort((a, b) => {
       const orderA = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
       const orderB = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
       if (orderA !== orderB) {
         return orderA - orderB;
       }
       return a.label.localeCompare(b.label);
-    });
+    })) {
+      const key = `${term.kind}:${term.value}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      deduped.push(term);
+    }
+    return deduped;
   }
 
   async function createVocabularyTerm(

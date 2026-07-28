@@ -41,7 +41,9 @@ const schema = a.schema({
       name: a.string().required(),
       sizeTier: a.string().required(),
       prestigeTier: a.string().required(),
-      sector: a.string().required(),
+      // Not required: legacy Employer rows predate sector and must still list.
+      // Default applies on create; adapter backfills missing DynamoDB attrs.
+      sector: a.string().default('other'),
       summary: a.string(),
       websiteUrl: a.string(),
       linkedinUrl: a.string(),
