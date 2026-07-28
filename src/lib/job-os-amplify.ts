@@ -274,11 +274,11 @@ export function createAmplifyJobOsStore(
         rows
           .filter((row) => row.sector == null || row.sector === '')
           .map(async (row) => {
-            const { errors: updateErrors } = await client.Employer.update({
+            const result = await client.Employer.update({
               ...employerToRow(toEmployerRecord(row)),
               sector: 'other',
             });
-            throwIfErrors(updateErrors);
+            throwIfErrors(result?.errors);
           }),
       );
       return employers;
