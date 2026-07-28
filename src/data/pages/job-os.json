@@ -31,6 +31,11 @@
           "id": "applications",
           "label": "Applications",
           "href": "/labs/job-os/applications"
+        },
+        {
+          "id": "lists",
+          "label": "Lists",
+          "href": "/labs/job-os/lists"
         }
       ]
     }
@@ -56,6 +61,7 @@
     "columnName": "Name",
     "columnSize": "Size",
     "columnPrestige": "Prestige",
+    "columnSector": "Sector",
     "columnOpen": "Open",
     "columnBody": "Body",
     "columnActions": "",
@@ -67,6 +73,7 @@
     "nameLabel": "Name",
     "sizeTierLabel": "Size tier",
     "prestigeTierLabel": "Prestige tier",
+    "sectorLabel": "Sector",
     "summaryLabel": "Summary",
     "websiteUrlLabel": "Website URL",
     "linkedinUrlLabel": "LinkedIn URL",
@@ -86,19 +93,36 @@
     "savedLabel": "Employer saved.",
     "createdLabel": "Employer added to the ledger.",
     "anonReadyLabel": "Anon Employer is ready.",
-    "noBodyLabel": "No Body attached yet.",
-    "sizeTierOptions": {
-      "startup": "Startup",
-      "scaleup": "Scale-up",
-      "enterprise": "Enterprise",
-      "big4": "Big 4",
-      "other": "Other"
-    },
-    "prestigeTierOptions": {
-      "low": "Low",
-      "mid": "Mid",
-      "high": "High",
-      "elite": "Elite"
+    "noBodyLabel": "No Body attached yet."
+  },
+  "lists": {
+    "heading": "Lists",
+    "description": "Manage controlled Vocabulary terms used on Employers and Opportunities. Deactivate instead of deleting so historical rows stay readable.",
+    "loadingLabel": "Loading lists…",
+    "errorLabel": "Lists could not be loaded.",
+    "kindTabsAriaLabel": "Vocabulary kinds",
+    "columnValue": "Value",
+    "columnLabel": "Label",
+    "columnActive": "Active",
+    "columnActions": "",
+    "valueLabel": "Value (slug)",
+    "labelLabel": "Label",
+    "addLabel": "Add term",
+    "addingLabel": "Adding…",
+    "saveLabel": "Save",
+    "savingLabel": "Saving…",
+    "activateLabel": "Activate",
+    "deactivateLabel": "Deactivate",
+    "emptyList": "No terms in this list yet.",
+    "createdLabel": "Vocabulary term added.",
+    "updatedLabel": "Vocabulary term updated.",
+    "inactiveBadge": "Inactive",
+    "kindLabels": {
+      "size_tier": "Size tiers",
+      "prestige_tier": "Prestige tiers",
+      "sector": "Sectors",
+      "seniority": "Seniority",
+      "role_family": "Role families"
     }
   },
   "opportunities": {
@@ -162,21 +186,6 @@
     "statusOptions": {
       "open": "Open",
       "closed": "Closed"
-    },
-    "seniorityOptions": {
-      "junior": "Junior",
-      "mid": "Mid",
-      "senior": "Senior",
-      "lead": "Lead",
-      "principal": "Principal"
-    },
-    "roleFamilyOptions": {
-      "data_science": "Data science",
-      "analytics": "Analytics",
-      "engineering": "Engineering",
-      "ml_ops": "ML Ops",
-      "product": "Product",
-      "other": "Other"
     },
     "compensationDisclosureOptions": {
       "range": "Range",

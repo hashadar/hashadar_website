@@ -14,6 +14,14 @@ _Avoid_: Company (as a model name), organisation record, firm
 The single reserved Employer used when an Opportunity’s company is not yet known. Prevents orphan Opportunities.
 _Avoid_: null employer, unknown company (as a null), unassigned
 
+**Sector**:
+Required Employer classification of industry or market sector for filtering and ledger metrics. Structured field, not Body prose.
+_Avoid_: industry (as the field name), tag, category
+
+**Vocabulary term**:
+Owner-managed allowed value for a controlled list (size tier, prestige tier, sector, seniority, role family). Stable slug value plus display label; inactive terms stay readable on existing rows but are not offered for new writes.
+_Avoid_: enum (as the product concept), tag, dropdown option (UI-only)
+
 **Opportunity**:
 A concrete role or listing under an Employer — the absorbed successor to JobDescription. Holds structured listing evidence (compensation, seniority, technologies, source, and similar) plus an optional Body. May exist with no Application; at most one Application ever. A re-apply is a new Opportunity that captures what changed.
 _Avoid_: Job, listing (as the model name), inbox item, lead, JobDescription (legacy v2 noun)

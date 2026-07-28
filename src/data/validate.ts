@@ -178,6 +178,11 @@ export function assertValidJobOsPage(data: unknown): void {
   requireString(applications, 'heading', 'job-os.applications');
   requireString(applications, 'trackingNoteLabel', 'job-os.applications');
   requireString(applications, 'saveStatusLabel', 'job-os.applications');
+
+  const lists = requireRecord(page.lists, 'job-os.lists');
+  requireString(lists, 'heading', 'job-os.lists');
+  requireString(lists, 'addLabel', 'job-os.lists');
+  requireRecord(lists.kindLabels, 'job-os.lists.kindLabels');
 }
 
 export function assertValidLoginPage(data: unknown): void {

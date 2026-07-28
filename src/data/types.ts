@@ -188,6 +188,7 @@ export interface JobOsPageData {
     columnName: string;
     columnSize: string;
     columnPrestige: string;
+    columnSector: string;
     columnOpen: string;
     columnBody: string;
     columnActions: string;
@@ -199,6 +200,7 @@ export interface JobOsPageData {
     nameLabel: string;
     sizeTierLabel: string;
     prestigeTierLabel: string;
+    sectorLabel: string;
     summaryLabel: string;
     websiteUrlLabel: string;
     linkedinUrlLabel: string;
@@ -219,8 +221,30 @@ export interface JobOsPageData {
     createdLabel: string;
     anonReadyLabel: string;
     noBodyLabel: string;
-    sizeTierOptions: Record<string, string>;
-    prestigeTierOptions: Record<string, string>;
+  };
+  lists: {
+    heading: string;
+    description: string;
+    loadingLabel: string;
+    errorLabel: string;
+    kindTabsAriaLabel: string;
+    columnValue: string;
+    columnLabel: string;
+    columnActive: string;
+    columnActions: string;
+    valueLabel: string;
+    labelLabel: string;
+    addLabel: string;
+    addingLabel: string;
+    saveLabel: string;
+    savingLabel: string;
+    activateLabel: string;
+    deactivateLabel: string;
+    emptyList: string;
+    createdLabel: string;
+    updatedLabel: string;
+    inactiveBadge: string;
+    kindLabels: Record<string, string>;
   };
   opportunities: Record<string, unknown> & {
     heading: string;
@@ -281,8 +305,6 @@ export interface JobOsPageData {
     pursuedLabel: string;
     noBodyLabel: string;
     statusOptions: Record<string, string>;
-    seniorityOptions: Record<string, string>;
-    roleFamilyOptions: Record<string, string>;
     compensationDisclosureOptions: Record<string, string>;
     compensationPeriodOptions: Record<string, string>;
     eventKindLabels: Record<string, string>;

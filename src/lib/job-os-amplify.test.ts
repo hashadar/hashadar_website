@@ -13,6 +13,7 @@ function baseEmployer(
     name: 'Acme',
     sizeTier: 'startup',
     prestigeTier: 'mid',
+    sector: 'technology',
     isAnon: false,
     ...overrides,
   };
@@ -49,6 +50,12 @@ function createMockClient(
       update: vi.fn(),
     },
     DecisionEvent: {
+      get: vi.fn(),
+      list: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    VocabularyTerm: {
       get: vi.fn(),
       list: vi.fn(),
       create: vi.fn(),
@@ -184,6 +191,7 @@ describe('createAmplifyJobOsStore employers', () => {
       name: 'New Co',
       sizeTier: 'startup',
       prestigeTier: 'mid',
+      sector: 'technology',
       isAnon: false,
     });
 

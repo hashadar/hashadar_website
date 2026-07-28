@@ -19,8 +19,6 @@ import { jobOs } from '@/data';
 import {
   COMPENSATION_DISCLOSURES,
   COMPENSATION_PERIODS,
-  OPPORTUNITY_ROLE_FAMILIES,
-  OPPORTUNITY_SENIORITIES,
   OPPORTUNITY_STATUSES,
   type ApplicationRecord,
   type CompensationDisclosure,
@@ -32,6 +30,7 @@ import {
   type OpportunityRoleFamily,
   type OpportunitySeniority,
   type OpportunityStatus,
+  type VocabularyTermRecord,
 } from '@/lib/job-os';
 import { getDefaultJobOs } from '@/lib/job-os-default';
 
@@ -46,6 +45,20 @@ type PursuitState =
   | { kind: 'passed' }
   | { kind: 'application'; status: ApplicationRecord['status'] };
 
+function vocabularyLabel(
+  terms: VocabularyTermRecord[],
+  value: string,
+): string {
+  return terms.find((term) => term.value === value)?.label ?? value;
+}
+
+function activeTerms(
+  terms: VocabularyTermRecord[],
+  kind: VocabularyTermRecord['kind'],
+): VocabularyTermRecord[] {
+  return terms.filter((term) => term.kind === kind && term.active);
+}
+
 export function JobOsOpportunitiesWorkspace({
   jobOsClient,
   selectedId,
@@ -54,6 +67,7 @@ export function JobOsOpportunitiesWorkspace({
   const [client, setClient] = useState<JobOs | null>(jobOsClient ?? null);
   const [employers, setEmployers] = useState<EmployerRecord[]>([]);
   const [opportunities, setOpportunities] = useState<OpportunityRecord[]>([]);
+  const [vocabulary, setVocabulary] = useState<VocabularyTermRecord[]>([]);
   const [pursuitById, setPursuitById] = useState<Record<string, PursuitState>>(
     {},
   );
@@ -101,15 +115,19 @@ export function JobOsOpportunitiesWorkspace({
         }
         setClient(resolved);
         await resolved.ensureAnonEmployer();
-        const [listedEmployers, listedOpportunities] = await Promise.all([
-          resolved.listEmployers(),
-          resolved.listOpportunities(),
-        ]);
+        const [listedEmployers, listedOpportunities, terms] = await Promise.all(
+          [
+            resolved.listEmployers(),
+            resolved.listOpportunities(),
+            resolved.listVocabularyTerms(),
+          ],
+        );
         if (cancelled) {
           return;
         }
         setEmployers(listedEmployers);
         setOpportunities(listedOpportunities);
+        setVocabulary(terms);
         if (!employerId && listedEmployers[0]) {
           setEmployerId(listedEmployers[0].id);
         }
@@ -322,8 +340,12 @@ export function JobOsOpportunitiesWorkspace({
   }
 
   async function refresh(active: JobOs) {
-    const listed = await active.listOpportunities();
+    const [listed, terms] = await Promise.all([
+      active.listOpportunities(),
+      active.listVocabularyTerms(),
+    ]);
     setOpportunities(listed);
+    setVocabulary(terms);
     await refreshPursuit(active, listed);
   }
 
@@ -528,6 +550,8 @@ export function JobOsOpportunitiesWorkspace({
             setSeniority={setSeniority}
             roleFamily={roleFamily}
             setRoleFamily={setRoleFamily}
+            seniorityOptions={activeTerms(vocabulary, 'seniority')}
+            roleFamilyOptions={activeTerms(vocabulary, 'role_family')}
             compensationDisclosure={compensationDisclosure}
             setCompensationDisclosure={setCompensationDisclosure}
             compensationCurrency={compensationCurrency}
@@ -638,6 +662,8 @@ export function JobOsOpportunitiesWorkspace({
               setSeniority={setSeniority}
               roleFamily={roleFamily}
               setRoleFamily={setRoleFamily}
+              seniorityOptions={activeTerms(vocabulary, 'seniority')}
+              roleFamilyOptions={activeTerms(vocabulary, 'role_family')}
               compensationDisclosure={compensationDisclosure}
               setCompensationDisclosure={setCompensationDisclosure}
               compensationCurrency={compensationCurrency}
@@ -718,12 +744,10 @@ export function JobOsOpportunitiesWorkspace({
                   >
                     {[
                       opportunity.seniority
-                        ? (copy.seniorityOptions[opportunity.seniority] ??
-                          opportunity.seniority)
+                        ? vocabularyLabel(vocabulary, opportunity.seniority)
                         : null,
                       opportunity.roleFamily
-                        ? (copy.roleFamilyOptions[opportunity.roleFamily] ??
-                          opportunity.roleFamily)
+                        ? vocabularyLabel(vocabulary, opportunity.roleFamily)
                         : null,
                     ]
                       .filter(Boolean)
@@ -882,6 +906,8 @@ function OpportunityEvidenceFields({
   setSeniority,
   roleFamily,
   setRoleFamily,
+  seniorityOptions,
+  roleFamilyOptions,
   compensationDisclosure,
   setCompensationDisclosure,
   compensationCurrency,
@@ -902,6 +928,8 @@ function OpportunityEvidenceFields({
   setSeniority: (value: OpportunitySeniority | '') => void;
   roleFamily: OpportunityRoleFamily | '';
   setRoleFamily: (value: OpportunityRoleFamily | '') => void;
+  seniorityOptions: VocabularyTermRecord[];
+  roleFamilyOptions: VocabularyTermRecord[];
   compensationDisclosure: CompensationDisclosure;
   setCompensationDisclosure: (value: CompensationDisclosure) => void;
   compensationCurrency: string;
@@ -935,9 +963,9 @@ function OpportunityEvidenceFields({
           }
         >
           <option value="">—</option>
-          {OPPORTUNITY_SENIORITIES.map((value) => (
-            <option key={value} value={value}>
-              {copy.seniorityOptions[value] ?? value}
+          {seniorityOptions.map((term) => (
+            <option key={term.id} value={term.value}>
+              {term.label}
             </option>
           ))}
         </select>
@@ -952,9 +980,9 @@ function OpportunityEvidenceFields({
           }
         >
           <option value="">—</option>
-          {OPPORTUNITY_ROLE_FAMILIES.map((value) => (
-            <option key={value} value={value}>
-              {copy.roleFamilyOptions[value] ?? value}
+          {roleFamilyOptions.map((term) => (
+            <option key={term.id} value={term.value}>
+              {term.label}
             </option>
           ))}
         </select>
