@@ -375,6 +375,38 @@ describe('Job OS facade — Applications', () => {
     expect(pursued.event.toStatus).toBe('researching');
   });
 
+  it('allows skipping from researching to interviewing', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-25T12:00:00.000Z',
+      title: 'Staff Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      return;
+    }
+
+    const interviewing = await jobOs.updateApplicationStatus(
+      pursued.application.id,
+      'interviewing',
+    );
+    expect(interviewing.status).toBe('updated');
+    if (interviewing.status !== 'updated') {
+      return;
+    }
+    expect(interviewing.application.status).toBe('interviewing');
+    expect(interviewing.event.fromStatus).toBe('researching');
+    expect(interviewing.event.toStatus).toBe('interviewing');
+  });
+
   it('rejects Pursue when Application persistence fails', async () => {
     const store = createMemoryJobOsStore();
     const bodies = createMemoryJobOsBodyStorage();
