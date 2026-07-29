@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      production-patch:
+        dependency-type: production
+        update-types:
+          - patch
+      amplify-backend:
+        patterns:
+          - '@aws-amplify/*'
+          - aws-amplify
+          - aws-cdk
+          - aws-cdk-lib
+          - constructs
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3

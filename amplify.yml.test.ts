@@ -23,4 +23,10 @@ describe('amplify.yml Hosting blog-sync contract', () => {
     expect(amplifyYml).toMatch(/\$AWS_BRANCH/);
     expect(amplifyYml).toMatch(/\$AWS_APP_ID/);
   });
+
+  it('reuses backend node_modules on the frontend when present', () => {
+    expect(amplifyYml).toMatch(/Reusing node_modules from backend phase/);
+    expect(amplifyYml).toMatch(/npm config set cache \.npm/);
+    expect(amplifyYml).toMatch(/\.npm\/\*\*\/\*/);
+  });
 });
