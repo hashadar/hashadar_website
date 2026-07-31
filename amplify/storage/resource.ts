@@ -17,3 +17,29 @@ export const storage = defineStorage({
     ],
   }),
 });
+
+/**
+ * Public Site Content: portfolio Photos, Home Photo, and blog Posts
+ * (manifests, markdown, WebPs). Distinct from Job OS Body storage —
+ * guest/public read, authenticated write.
+ *
+ * Amplify requires every defineStorage() call to live in this file
+ * (amplify/storage/resource.ts); subdirectory resources fail assembly.
+ */
+export const siteContentStorage = defineStorage({
+  name: 'siteContent',
+  access: (allow) => ({
+    'portfolio/*': [
+      allow.guest.to(['read']),
+      allow.authenticated.to(['read', 'write', 'delete']),
+    ],
+    'blog/*': [
+      allow.guest.to(['read']),
+      allow.authenticated.to(['read', 'write', 'delete']),
+    ],
+    'home/*': [
+      allow.guest.to(['read']),
+      allow.authenticated.to(['read', 'write', 'delete']),
+    ],
+  }),
+});

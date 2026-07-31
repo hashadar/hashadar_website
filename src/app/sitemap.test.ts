@@ -6,17 +6,13 @@ import { getAllBlogPosts } from '@/lib/blog';
 import { buildSitemap } from '@/lib/sitemap';
 import { site } from '@/data';
 
-vi.mock('@/lib/site-content', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/site-content')>(
-    '@/lib/site-content',
-  );
+vi.mock('@/lib/site-content/server', async () => {
   const fixturesDir = path.join(
     path.dirname(fileURLToPath(import.meta.url)),
     '../test/fixtures/blog',
   );
   const { getAllBlogPosts: getFixturePosts } = await import('@/lib/blog');
   return {
-    ...actual,
     getAllBlogPostsFromSiteContent: async () => getFixturePosts(fixturesDir),
   };
 });

@@ -362,6 +362,7 @@ export interface AdminPageData {
   description: string;
   postsHeading: string;
   photosHeading: string;
+  homePhotoHeading: string;
   signOutLabel: string;
   checkingSessionLabel: string;
   unauthenticatedHeading: string;
@@ -400,6 +401,20 @@ export interface AdminPageData {
     reorderHint: string;
     moveUpLabel: string;
     moveDownLabel: string;
+    errorLabel: string;
+  };
+  homePhoto: {
+    description: string;
+    titleLabel: string;
+    altLabel: string;
+    categoryLabel: string;
+    locationLabel: string;
+    imageLabel: string;
+    saveLabel: string;
+    clearLabel: string;
+    emptyLabel: string;
+    savedLabel: string;
+    clearedLabel: string;
     errorLabel: string;
   };
 }

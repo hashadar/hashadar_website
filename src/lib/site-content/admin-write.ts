@@ -1,11 +1,14 @@
 import {
   BLOG_INDEX_KEY,
+  HOME_PHOTO_MANIFEST_KEY,
   PORTFOLIO_MANIFEST_KEY,
   blogHeroKey,
   blogPostKey,
+  homeImageKey,
   portfolioImageKey,
   type BlogIndex,
   type BlogIndexEntry,
+  type HomePhotoManifest,
   type PortfolioManifest,
   type PortfolioManifestEntry,
 } from '@/lib/site-content/paths';
@@ -17,6 +20,7 @@ import {
   type SiteContentStorage,
 } from '@/lib/site-content/storage';
 import { readBlogIndex } from '@/lib/site-content/blog';
+import { readHomePhotoManifest } from '@/lib/site-content/home-photo';
 import { readPortfolioManifest } from '@/lib/site-content/portfolio';
 
 const JSON_TYPE = 'application/json';
@@ -52,6 +56,18 @@ export async function savePortfolioManifest(
   );
 }
 
+export async function saveHomePhotoManifest(
+  manifest: HomePhotoManifest,
+  storage: SiteContentStorage,
+): Promise<void> {
+  await uploadSiteContentText(
+    HOME_PHOTO_MANIFEST_KEY,
+    `${JSON.stringify(manifest, null, 2)}\n`,
+    JSON_TYPE,
+    storage.uploadData,
+  );
+}
+
 export async function saveBlogIndex(
   index: BlogIndex,
   storage: SiteContentStorage,
@@ -62,6 +78,56 @@ export async function saveBlogIndex(
     JSON_TYPE,
     storage.uploadData,
   );
+}
+
+export async function upsertHomePhoto(input: {
+  storage: SiteContentStorage;
+  title: string;
+  alt: string;
+  category?: string;
+  location?: string;
+  file?: File | null;
+}): Promise<HomePhotoManifest> {
+  const existing = await readHomePhotoManifest(input.storage);
+
+  let imageKey = existing?.imageKey;
+  if (input.file) {
+    assertWebp(input.file);
+    imageKey = homeImageKey('photography.webp');
+    await uploadSiteContentBlob(
+      imageKey,
+      input.file,
+      WEBP_TYPE,
+      input.storage.uploadData,
+    );
+  }
+
+  if (!imageKey) {
+    throw new Error('A WebP image is required for the Home Photo.');
+  }
+
+  const manifest: HomePhotoManifest = {
+    title: input.title.trim(),
+    alt: input.alt.trim(),
+    category: input.category?.trim() || undefined,
+    location: input.location?.trim() || undefined,
+    imageKey,
+  };
+
+  await saveHomePhotoManifest(manifest, input.storage);
+  return manifest;
+}
+
+export async function clearHomePhoto(
+  storage: SiteContentStorage,
+): Promise<void> {
+  const existing = await readHomePhotoManifest(storage);
+  if (!existing) {
+    return;
+  }
+
+  await removeSiteContent(existing.imageKey, storage.remove);
+  await removeSiteContent(HOME_PHOTO_MANIFEST_KEY, storage.remove);
 }
 
 export async function upsertPhoto(input: {

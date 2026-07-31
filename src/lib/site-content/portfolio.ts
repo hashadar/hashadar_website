@@ -1,5 +1,4 @@
 import type { PhotoItem } from '@/data/types';
-import { ensureSiteAmplifyFromOutputs } from '@/lib/ensure-site-amplify-from-outputs';
 import {
   emptyPortfolioManifest,
   PORTFOLIO_MANIFEST_KEY,
@@ -59,7 +58,6 @@ export async function resolvePhotoItem(
 export async function getPortfolioPhotos(
   storage?: SiteContentStorage | null,
 ): Promise<PhotoItem[]> {
-  ensureSiteAmplifyFromOutputs();
   const client = storage ?? (await createDefaultSiteContentStorage());
   if (!client) {
     return [];
@@ -69,11 +67,4 @@ export async function getPortfolioPhotos(
   return Promise.all(
     manifest.photos.map((entry) => resolvePhotoItem(entry, client)),
   );
-}
-
-export async function getHomePhotographyTeaser(
-  storage?: SiteContentStorage | null,
-): Promise<PhotoItem | null> {
-  const photos = await getPortfolioPhotos(storage);
-  return photos[0] ?? null;
 }

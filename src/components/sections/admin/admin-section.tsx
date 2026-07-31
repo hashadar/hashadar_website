@@ -12,15 +12,19 @@ import {
   createDefaultSiteContentStorage,
   frontmatterFromMarkdown,
   readBlogIndex,
+  readHomePhotoManifest,
   readPortfolioManifest,
   type BlogIndexEntry,
+  type HomePhotoManifest,
   type PortfolioManifestEntry,
   type SiteContentStorage,
 } from '@/lib/site-content';
 import {
+  clearHomePhoto,
   deletePhoto,
   deletePost,
   reorderPhoto,
+  upsertHomePhoto,
   upsertPhoto,
   upsertPost,
 } from '@/lib/site-content/admin-write';
@@ -45,18 +49,21 @@ export function AdminSection() {
 function AdminWorkspace() {
   const [storage, setStorage] = useState<SiteContentStorage | null>(null);
   const [photos, setPhotos] = useState<PortfolioManifestEntry[]>([]);
+  const [homePhoto, setHomePhoto] = useState<HomePhotoManifest | null>(null);
   const [posts, setPosts] = useState<BlogIndexEntry[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async (client: SiteContentStorage) => {
-    const [manifest, index] = await Promise.all([
+    const [manifest, index, home] = await Promise.all([
       readPortfolioManifest(client),
       readBlogIndex(client),
+      readHomePhotoManifest(client),
     ]);
     setPhotos(manifest.photos);
     setPosts(index.posts);
+    setHomePhoto(home);
   }, []);
 
   useEffect(() => {
@@ -146,6 +153,26 @@ function AdminWorkspace() {
         ) : null}
 
         <div className="grid gap-16 lg:grid-cols-2">
+          <HomePhotoPanel
+            homePhoto={homePhoto}
+            onSave={(input) =>
+              withClient(
+                (client) =>
+                  upsertHomePhoto({ ...input, storage: client }).then(
+                    () => undefined,
+                  ),
+                admin.homePhoto.savedLabel,
+                admin.homePhoto.errorLabel,
+              )
+            }
+            onClear={() =>
+              withClient(
+                (client) => clearHomePhoto(client),
+                admin.homePhoto.clearedLabel,
+                admin.homePhoto.errorLabel,
+              )
+            }
+          />
           <PhotosPanel
             photos={photos}
             onSave={(input) =>
@@ -196,6 +223,129 @@ function AdminWorkspace() {
         </p>
       </Container>
     </Section>
+  );
+}
+
+function HomePhotoPanel(props: {
+  homePhoto: HomePhotoManifest | null;
+  onSave: (input: {
+    title: string;
+    alt: string;
+    category?: string;
+    location?: string;
+    file?: File | null;
+  }) => Promise<void>;
+  onClear: () => Promise<void>;
+}) {
+  const formKey = props.homePhoto
+    ? `${props.homePhoto.imageKey}:${props.homePhoto.title}:${props.homePhoto.alt}:${props.homePhoto.category ?? ''}:${props.homePhoto.location ?? ''}`
+    : 'empty';
+
+  return (
+    <HomePhotoForm
+      key={formKey}
+      homePhoto={props.homePhoto}
+      onSave={props.onSave}
+      onClear={props.onClear}
+    />
+  );
+}
+
+function HomePhotoForm(props: {
+  homePhoto: HomePhotoManifest | null;
+  onSave: (input: {
+    title: string;
+    alt: string;
+    category?: string;
+    location?: string;
+    file?: File | null;
+  }) => Promise<void>;
+  onClear: () => Promise<void>;
+}) {
+  const [title, setTitle] = useState(props.homePhoto?.title ?? '');
+  const [alt, setAlt] = useState(props.homePhoto?.alt ?? '');
+  const [category, setCategory] = useState(props.homePhoto?.category ?? '');
+  const [location, setLocation] = useState(props.homePhoto?.location ?? '');
+  const [file, setFile] = useState<File | null>(null);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    await props.onSave({
+      title,
+      alt,
+      category,
+      location,
+      file,
+    });
+  }
+
+  return (
+    <div className="space-y-6 lg:col-span-2">
+      <Heading size="sm" as="h2">
+        {admin.homePhotoHeading}
+      </Heading>
+      <Text variant="muted" size="sm">
+        {admin.homePhoto.description}
+      </Text>
+
+      {props.homePhoto ? (
+        <Text>
+          {props.homePhoto.title}{' '}
+          <span className="text-[var(--foreground)]/60">
+            ({props.homePhoto.imageKey})
+          </span>
+        </Text>
+      ) : (
+        <Text variant="muted">{admin.homePhoto.emptyLabel}</Text>
+      )}
+
+      <form className="space-y-4" onSubmit={(event) => void handleSubmit(event)}>
+        <Field
+          label={admin.homePhoto.titleLabel}
+          value={title}
+          onChange={setTitle}
+          required
+        />
+        <Field
+          label={admin.homePhoto.altLabel}
+          value={alt}
+          onChange={setAlt}
+          required
+        />
+        <Field
+          label={admin.homePhoto.categoryLabel}
+          value={category}
+          onChange={setCategory}
+        />
+        <Field
+          label={admin.homePhoto.locationLabel}
+          value={location}
+          onChange={setLocation}
+        />
+        <div>
+          <label className="font-body text-sm">{admin.homePhoto.imageLabel}</label>
+          <input
+            type="file"
+            accept="image/webp,.webp"
+            className={fieldClassName}
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            required={!props.homePhoto}
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit">{admin.homePhoto.saveLabel}</Button>
+          {props.homePhoto ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void props.onClear()}
+            >
+              {admin.homePhoto.clearLabel}
+            </Button>
+          ) : null}
+        </div>
+      </form>
+    </div>
   );
 }
 

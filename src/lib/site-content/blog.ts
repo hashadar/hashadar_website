@@ -2,7 +2,6 @@ import matter from 'gray-matter';
 import type { BlogPost, BlogPostFrontmatter } from '@/data/types';
 import { processMarkdown } from '@/lib/blog-markdown';
 import { BLOG_FALLBACK_IMAGE } from '@/lib/blog-presentation';
-import { ensureSiteAmplifyFromOutputs } from '@/lib/ensure-site-amplify-from-outputs';
 import {
   BLOG_INDEX_KEY,
   blogPostKey,
@@ -106,7 +105,6 @@ export function frontmatterFromMarkdown(markdown: string): BlogPostFrontmatter {
 export async function getAllBlogPostsFromSiteContent(
   storage?: SiteContentStorage | null,
 ): Promise<BlogPost[]> {
-  ensureSiteAmplifyFromOutputs();
   const client = storage ?? (await createDefaultSiteContentStorage());
   if (!client) {
     return [];
@@ -136,7 +134,6 @@ export async function getRecentBlogPostsFromSiteContent(
   limit: number,
   storage?: SiteContentStorage | null,
 ): Promise<BlogPost[]> {
-  ensureSiteAmplifyFromOutputs();
   const client = storage ?? (await createDefaultSiteContentStorage());
   if (!client) {
     return [];
@@ -161,7 +158,6 @@ export async function getBlogPostBySlugFromSiteContent(
   slug: string,
   storage?: SiteContentStorage | null,
 ): Promise<BlogPost | null> {
-  ensureSiteAmplifyFromOutputs();
   const client = storage ?? (await createDefaultSiteContentStorage());
   if (!client) {
     return null;
@@ -194,7 +190,6 @@ export async function getBlogPostBySlugFromSiteContent(
 export async function getAllBlogSlugsFromSiteContent(
   storage?: SiteContentStorage | null,
 ): Promise<string[]> {
-  ensureSiteAmplifyFromOutputs();
   const client = storage ?? (await createDefaultSiteContentStorage());
   if (!client) {
     return [];

@@ -15,7 +15,7 @@ The site-wide authentication experience at `/login` that establishes a Site Admi
 _Avoid_: Owner sign in, Lab login, login as a Lab-owned flow, footer sign-out on marketing chrome
 
 **Admin**:
-The Site Admin’s content workspace at `/admin` for Posts and Photos. Not a Lab. Marketing page copy in the repo data layer is out of scope for Admin v1.
+The Site Admin’s content workspace at `/admin` for Posts, portfolio Photos, and the Home Photo. Not a Lab. Marketing page copy in the repo data layer is out of scope for Admin v1.
 _Avoid_: Labs admin, CMS (as the product name), owner console, page-copy CMS (v1)
 
 **Lab**:
@@ -25,7 +25,7 @@ _Avoid_: treating Admin as a Lab, treating Labs as the auth hub
 ### Content
 
 **Site Content**:
-Public blog and portfolio material managed via Admin (and optional storage-console escape hatch), stored in the Site content store. Public pages read it live (not only at deploy time). Absence of content is a valid state (empty public lists).
+Public blog, portfolio, and home photography material managed via Admin (and optional storage-console escape hatch), stored in the Site content store. Public pages read it live (not only at deploy time). Absence of content is a valid state (empty public lists / no Home Photo).
 _Avoid_: Job OS Body, vault sync as the source of truth, deploy-gated publishing as the only path, committing production Posts/Photos to the site repo
 
 **Post**:
@@ -45,9 +45,13 @@ The URL key for a Post (`/blog/{slug}`). The Site Admin may change it when the t
 _Avoid_: filename as a distinct public concept, id-only URLs for v1, slug redirect, slug history
 
 **Photo**:
-A portfolio photograph entry: display metadata plus a single WebP image object. The Site Admin may add, replace, reorder, edit metadata, or delete Photos. Manifest order is significant: the first Photo is the home photography teaser.
-_Avoid_: MediaAsset as the public noun (implementation detail), Body, multi-format originals in Site Content, derived variant pipeline (v1), separate featured flag (v1)
+A portfolio photograph entry: display metadata plus a single WebP image object. The Site Admin may add, replace, reorder, edit metadata, or delete Photos. Manifest order is the public portfolio display order only.
+_Avoid_: MediaAsset as the public noun (implementation detail), Body, multi-format originals in Site Content, derived variant pipeline (v1), treating the first Photo as the home teaser
+
+**Home Photo**:
+The single photograph shown in the home photography section. Distinct Site Content from portfolio Photos — not derived from portfolio order or identity. Optional; when absent the home photography section has no image.
+_Avoid_: featured portfolio Photo, first Photo as teaser, Fallback image (that is for Posts only)
 
 **WebP**:
-The only image format accepted into Site Content (portfolio Photos and Post heroes).
+The only image format accepted into Site Content (portfolio Photos, Home Photo, and Post heroes).
 _Avoid_: JPEG/PNG uploads as first-class Site Content, automatic transcode pipeline (v1)
