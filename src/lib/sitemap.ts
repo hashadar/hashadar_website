@@ -1,11 +1,11 @@
 import type { MetadataRoute } from 'next';
 import { getCommonData } from '@/data';
-import { getAllBlogPosts } from '@/lib/blog';
+import { getAllBlogPostsFromSiteContent } from '@/lib/site-content';
 
-export function buildSitemap(blogDirectory?: string): MetadataRoute.Sitemap {
+export async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
   const { site } = getCommonData();
   const baseUrl = site.metadata.siteUrl;
-  const blogPosts = getAllBlogPosts(blogDirectory);
+  const blogPosts = await getAllBlogPostsFromSiteContent();
   const lastModified = new Date();
   const blogListingLastModified =
     blogPosts.length > 0 ? new Date(blogPosts[0].frontmatter.date) : lastModified;
@@ -40,12 +40,6 @@ export function buildSitemap(blogDirectory?: string): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified,
-      changeFrequency: 'yearly',
-      priority: 0.3,
     },
     ...blogPosts.map((post) => ({
       url: `${baseUrl}/blog/${post.slug}`,

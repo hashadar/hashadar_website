@@ -1,8 +1,14 @@
 # Job OS
 
-Private job-hunting operating system for the site owner. The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the v3.0 hunting-graph rebuild. The authenticated product lives at `/labs/job-os`, entered from the labs index; there is no public pulse page in v3.0.
+Private job-hunting operating system for the **Site Admin** (see [Site context](./docs/site/CONTEXT.md)). The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the v3.0 hunting-graph rebuild. The authenticated product lives at `/labs/job-os`, entered from the labs index; there is no public pulse page in v3.0. Sign-in is site-wide — Job OS does not own auth or Admin.
 
 ## Language
+
+### Operator
+
+**Site Admin**:
+The authenticated human operating Job OS; identity is defined in the Site context. Same person as site Sign-in / Admin.
+_Avoid_: Owner (as the person noun), user (unqualified)
 
 ### Hunting hierarchy
 

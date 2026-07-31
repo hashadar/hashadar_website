@@ -213,9 +213,21 @@ export function assertValidFooter(data: unknown): void {
   const social = requireRecord(contact.social, 'footer.contact.social');
   requireString(social, 'github', 'footer.contact.social');
   requireString(social, 'linkedin', 'footer.contact.social');
-  const ownerSignIn = requireRecord(contact.ownerSignIn, 'footer.contact.ownerSignIn');
-  requireString(ownerSignIn, 'label', 'footer.contact.ownerSignIn');
-  requireString(ownerSignIn, 'href', 'footer.contact.ownerSignIn');
+}
+
+export function assertValidAdminPage(data: unknown): void {
+  const page = requireRecord(data, 'admin');
+  requireString(page, 'heading', 'admin');
+  requireString(page, 'description', 'admin');
+  requireString(page, 'postsHeading', 'admin');
+  requireString(page, 'photosHeading', 'admin');
+  requireString(page, 'signOutLabel', 'admin');
+  requireString(page, 'checkingSessionLabel', 'admin');
+  requireString(page, 'unauthenticatedHeading', 'admin');
+  requireString(page, 'unauthenticatedDescription', 'admin');
+  requireString(page, 'signInLabel', 'admin');
+  requireRecord(page.posts, 'admin.posts');
+  requireRecord(page.photos, 'admin.photos');
 }
 
 export function assertValidNavigation(data: unknown): void {

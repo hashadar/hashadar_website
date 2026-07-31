@@ -6,6 +6,7 @@ import { defineStorage } from '@aws-amplify/backend';
  */
 export const storage = defineStorage({
   name: 'jobOsBodies',
+  isDefault: true,
   access: (allow) => ({
     'bodies/employers/*': [allow.authenticated.to(['read', 'write', 'delete'])],
     'bodies/opportunities/*': [

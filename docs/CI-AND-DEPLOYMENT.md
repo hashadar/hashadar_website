@@ -5,23 +5,21 @@
 | Concern | Where | Notes |
 |---------|--------|--------|
 | **PR and push checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, production `npm audit` (critical), lint, typecheck, tests, `next build`. **Does not deploy.** Does not require live AWS or `amplify_outputs.json`. |
-| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (Gen 2 `ampx pipeline-deploy`, blog clone, `sync-blogs`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
+| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (Gen 2 `ampx pipeline-deploy`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
 
 There is **no accidental double-deploy** from GitHub Actions: Actions do not push artefacts or run Amplify CLI deploy in the baseline setup.
 
 ## Amplify Gen 2 backend
 
-Backend definitions live in `amplify/` (owner Cognito auth plus a minimal data placeholder until Job OS models land). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the existing frontend `preBuild` (blog sync) and `build`.
-
-Job Signal Lab v2 (pulse corpus, HITL, recompute/analyse/publication Lambdas, and lab storage) has been removed from the deploy surface. Job OS hunting-graph models and Body storage are added in follow-up issues.
+Backend definitions live in `amplify/` (Cognito Site Admin auth, Job OS data/storage, and **Site Content** storage for Posts/Photos). Hosting deploys them via `npx ampx pipeline-deploy` in the `backend` phase of `amplify.yml`, then runs the frontend `preBuild` and `build`.
 
 | Environment | Outputs file |
 |-------------|----------------|
-| **GitHub Actions / marketing-only local** | `amplify_outputs.json` is absent (gitignored). `readAmplifyOutputs()` returns null; `configureSiteAmplify` no-ops so public pages stay up. |
+| **GitHub Actions / marketing-only local** | `amplify_outputs.json` is absent (gitignored). `readAmplifyOutputs()` returns null; `configureSiteAmplify` no-ops so public pages stay up (empty Site Content lists). |
 | **Local sandbox** | `npm run sandbox` (`npx ampx sandbox`) writes `amplify_outputs.json` at the repo root. |
 | **Amplify Hosting** | `pipeline-deploy` generates outputs for the frontend build. |
 
-Contract tests in `amplify.yml.test.ts` lock blog-sync steps and Gen 2 `pipeline-deploy` into CI.
+Contract tests in `amplify.yml.test.ts` lock Gen 2 `pipeline-deploy` into CI and assert the retired blog-repo sync is absent.
 
 ## Node.js versions
 
@@ -29,13 +27,13 @@ Contract tests in `amplify.yml.test.ts` lock blog-sync steps and Gen 2 `pipeline
 |--------|----------------|
 | **Local / CI** | Repository root **`.nvmrc`** (`22`). GitHub Actions uses `actions/setup-node` with `node-version-file: '.nvmrc'`. |
 | **`package.json`** | `"engines": { "node": ">=22" }` — run `npm ci` on Node 22 or newer. |
-| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of backend `build` and frontend `preBuild` so `ampx pipeline-deploy`, `node scripts/sync-blogs.js`, install, and `npm run build` all use Node 22. |
+| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of backend `build` and frontend `preBuild` so `ampx pipeline-deploy`, install, and `npm run build` all use Node 22. |
 
 ### Amplify install and cache
 
 - Backend `npm ci` installs the lockfile (needed for `ampx pipeline-deploy`).
 - Frontend reuses that `node_modules` when the backend phase left it in place; otherwise it runs `npm ci` (frontend-only rebuilds).
-- Cache paths: `.npm/**/*` (npm download cache), `node_modules/**/*`, and `temp-blog-repo/**/*`.
+- Cache paths: `.npm/**/*` (npm download cache), `node_modules/**/*`.
 
 **Check in the AWS Amplify console**
 
@@ -50,27 +48,13 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 - **CI audit gate**: `npm audit --omit=dev --audit-level=critical` fails the quality job on production criticals.
 - Photos stay on `images.unoptimized: true` without a direct `sharp` dependency until an image CDN / optimisation pipeline is added.
 
-## Amplify environment variables (names only)
+## Amplify environment variables
 
-These are configured in the Amplify console, not committed:
+Site Content no longer requires private blog-repo SSH secrets. Remove obsolete `SSH_PRIVATE_KEY` / `BLOG_REPO_*` console variables when convenient.
 
-| Variable | Role |
-|----------|------|
-| `SSH_PRIVATE_KEY` | SSH key (base64) for cloning the private blog repository |
-| `BLOG_REPO_URL` | Git URL of the blog content repository |
-| `BLOG_REPO_BRANCH` | Optional branch to check out when cloning the blog repo |
+## CI vs Site Content
 
-## CI vs blog content
-
-GitHub Actions **does not** clone the private blog repo. `getAllBlogPosts()` returns an empty list when `public/blog` is missing, so `next build` in CI can succeed **without** validating real blog markdown.
-
-| Environment | Blog validation |
-|-------------|-----------------|
-| **GitHub Actions** | Build passes with an empty blog directory; `processMarkdown` is tested in isolation via Vitest. |
-| **Amplify** | Clones the private blog repo (secrets above), runs `sync-blogs`, then builds with real posts. |
-| **Local** | Run `node scripts/sync-blogs.js` when you need real posts; otherwise the site builds without them. |
-
-Blog correctness in production therefore depends on the **Amplify** build plus manual checks. In-repo fixture tests for the full read-and-normalise path are tracked in [#16](https://github.com/hashadar/hashadar_website/issues/16).
+GitHub Actions builds without `amplify_outputs.json`. Public blog/portfolio readers return **empty** lists; Vitest covers markdown processing and fixtures. Production Posts/Photos are uploaded via **Admin** after deploy.
 
 ## Branch protection (repository owner)
 
@@ -86,7 +70,5 @@ AI agents cannot apply this in the UI; use the checklist above.
 - `amplify.yml` — Amplify build phases
 - `.github/workflows/ci.yml` — GitHub Actions quality checks
 - `.github/dependabot.yml` — weekly npm / monthly Actions update PRs
-- [#16](https://github.com/hashadar/hashadar_website/issues/16) — deepen blog reader and CI fixture coverage
+- [docs/adr/0003-site-content-and-admin.md](./adr/0003-site-content-and-admin.md) — Site Content + Admin vs Labs
 - [#113](https://github.com/hashadar/hashadar_website/issues/113) — re-enable Next image optimisation with sharp
-- [#114](https://github.com/hashadar/hashadar_website/issues/114) — major dependency upgrades (date-fns / Vitest / KaTeX / ESLint)
-- [#115](https://github.com/hashadar/hashadar_website/issues/115) — Amplify OpenTelemetry override cleanup

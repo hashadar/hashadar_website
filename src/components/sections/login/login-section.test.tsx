@@ -1,13 +1,23 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LoginSection } from '@/components/sections/login/login-section';
 import { SiteAuthProvider } from '@/hooks/use-site-auth';
 import { login } from '@/data';
 import { createMemorySiteAuth } from '@/lib/site-auth';
 
+const replace = vi.fn();
+const push = vi.fn();
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ replace, push }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 afterEach(() => {
   cleanup();
+  replace.mockClear();
+  push.mockClear();
 });
 
 function renderLogin(auth = createMemorySiteAuth()) {
@@ -40,13 +50,8 @@ describe('LoginSection', () => {
     await user.click(screen.getByRole('button', { name: login.submitLabel }));
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: login.signedInHeading })).toBeInTheDocument();
+      expect(replace).toHaveBeenCalledWith('/admin');
     });
-    expect(
-      screen.getByText(login.signedInDescription.replace('{email}', 'owner@example.com')),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: login.signOutLabel })).toBeInTheDocument();
-    expect(screen.queryByLabelText(login.passwordLabel)).not.toBeInTheDocument();
   });
 
   it('returns to the sign-in form after sign-out', async () => {
@@ -60,8 +65,7 @@ describe('LoginSection', () => {
     await user.click(await screen.findByRole('button', { name: login.signOutLabel }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText(login.passwordLabel)).toBeInTheDocument();
+      expect(replace).toHaveBeenCalledWith('/');
     });
-    expect(screen.queryByRole('button', { name: login.signOutLabel })).not.toBeInTheDocument();
   });
 });

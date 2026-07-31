@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Button,
   Container,
@@ -10,16 +11,21 @@ import {
 } from '@/components/ui';
 import { login } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
+import { safeReturnPath } from '@/lib/safe-return-path';
 
 const fieldClassName =
   'mt-2 w-full border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]';
 
 export function LoginSection() {
   const { session, isLoading, signIn, signOut } = useSiteAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const nextPath = safeReturnPath(searchParams.get('next'));
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,11 +46,13 @@ export function LoginSection() {
     }
 
     setPassword('');
+    router.replace(nextPath);
   }
 
   async function handleSignOut() {
     setError(null);
     await signOut();
+    router.replace('/');
   }
 
   if (isLoading || session === null) {
@@ -68,9 +76,14 @@ export function LoginSection() {
             <Text>
               {login.signedInDescription.replace('{email}', session.email)}
             </Text>
-            <Button type="button" variant="outline" onClick={() => void handleSignOut()}>
-              {login.signOutLabel}
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" onClick={() => router.push(nextPath)}>
+                Continue
+              </Button>
+              <Button type="button" variant="outline" onClick={() => void handleSignOut()}>
+                {login.signOutLabel}
+              </Button>
+            </div>
           </div>
         </Container>
       </Section>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   about,
+  admin,
   blog,
   getCommonData,
   getPageData,
@@ -22,11 +23,12 @@ describe('getPageData', () => {
     expect(getPageData('/portfolio')).toBe(portfolio);
     expect(getPageData('/labs')).toBe(labs);
     expect(getPageData('/login')).toBe(login);
+    expect(getPageData('/admin')).toBe(admin);
   });
 
-  it('returns British English owner sign-in copy without registration', () => {
+  it('returns British English Sign-in copy without registration', () => {
     const page = getPageData('/login');
-    expect(page?.heading).toBe('Owner sign in');
+    expect(page?.heading).toBe('Sign in');
     expect(page?.submitLabel).toBe('Sign in');
     expect(page?.signOutLabel).toBe('Sign out');
     expect(JSON.stringify(page)).not.toMatch(/create account|register|sign up/i);
@@ -52,10 +54,8 @@ describe('getCommonData', () => {
     expect(navigation.links).toContainEqual({ label: 'Labs', href: '/labs' });
   });
 
-  it('includes a discreet owner sign-in link in the footer', () => {
-    expect(footer.contact.ownerSignIn).toEqual({
-      label: 'Owner sign in',
-      href: '/login',
-    });
+  it('includes an unobtrusive Admin navigation link and no footer sign-in', () => {
+    expect(navigation.links).toContainEqual({ label: 'Admin', href: '/admin' });
+    expect(footer.contact).not.toHaveProperty('ownerSignIn');
   });
 });
