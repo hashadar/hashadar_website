@@ -14,15 +14,7 @@
   "photography": {
     "heading": "Photography",
     "description": "Moments captured in portraiture, travel, and theatre.",
-    "images": [
-      {
-        "src": "/img/mangrove_beach.webp",
-        "alt": "Mangrove beach at sunset",
-        "title": "Mangrove Beach",
-        "category": "Travel",
-        "location": "UAE"
-      }
-    ]
+    "images": []
   },
   "blog": {
     "heading": "Blog",

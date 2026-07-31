@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { SitePage } from '@/components/layout/site-page';
 import { LoginSection } from '@/components/sections/login/login-section';
+import { Container, Section, Text } from '@/components/ui';
 import { getPageData, site } from '@/data';
 
 const login = getPageData('/login');
@@ -23,7 +25,17 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <SitePage mainClassName="min-h-screen pt-20">
-      <LoginSection />
+      <Suspense
+        fallback={
+          <Section className="py-20">
+            <Container>
+              <Text variant="muted">Checking session…</Text>
+            </Container>
+          </Section>
+        }
+      >
+        <LoginSection />
+      </Suspense>
     </SitePage>
   );
 }

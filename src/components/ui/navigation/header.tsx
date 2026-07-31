@@ -38,14 +38,18 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium transition-colors relative ${
-                  isActive(link.href)
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--foreground)] hover:text-[var(--primary)]"
+                  link.href === '/admin'
+                    ? isActive(link.href)
+                      ? 'text-[var(--foreground)]/70'
+                      : 'text-[var(--foreground)]/45 hover:text-[var(--foreground)]/70'
+                    : isActive(link.href)
+                      ? 'text-[var(--primary)]'
+                      : 'text-[var(--foreground)] hover:text-[var(--primary)]'
                 }`}
-                aria-current={isActive(link.href) ? "page" : undefined}
+                aria-current={isActive(link.href) ? 'page' : undefined}
               >
                 {link.label}
-                {isActive(link.href) && (
+                {isActive(link.href) && link.href !== '/admin' && (
                   <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[var(--primary)]" />
                 )}
               </Link>

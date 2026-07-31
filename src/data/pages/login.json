@@ -1,6 +1,6 @@
 {
-  "heading": "Owner sign in",
-  "description": "Sign in with the email and password for your invited owner account. Self-registration is not available.",
+  "heading": "Sign in",
+  "description": "Sign in with the email and password for your Site Admin account. Self-registration is not available.",
   "emailLabel": "Email",
   "passwordLabel": "Password",
   "submitLabel": "Sign in",

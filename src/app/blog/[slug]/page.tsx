@@ -4,7 +4,10 @@ import Image from "next/image";
 import "katex/dist/katex.min.css";
 import { Container, Section, Breadcrumb, Heading, Text } from "@/components/ui";
 import { SitePage } from "@/components/layout/site-page";
-import { getBlogPostBySlug, getAllBlogSlugs } from "@/lib/blog";
+import {
+  getBlogPostBySlugFromSiteContent,
+  getAllBlogSlugsFromSiteContent,
+} from "@/lib/site-content";
 import {
   formatBlogArticleDate,
   hasBlogPostHeroImage,
@@ -12,12 +15,14 @@ import {
 } from "@/lib/blog-presentation";
 import { site } from "@/data";
 
+export const revalidate = 60;
+
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const slugs = getAllBlogSlugs();
+  const slugs = await getAllBlogSlugsFromSiteContent();
   return slugs.map((slug) => ({
     slug,
   }));
@@ -27,7 +32,7 @@ export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getBlogPostBySlugFromSiteContent(slug);
 
   if (!post) {
     return {
@@ -58,7 +63,7 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getBlogPostBySlugFromSiteContent(slug);
 
   if (!post) {
     notFound();

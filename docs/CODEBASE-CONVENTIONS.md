@@ -8,7 +8,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript.
 - **Styling:** Tailwind CSS v4, CSS variables for theming (light/dark), custom utilities in `tailwind.config.ts`.
-- **Content:** Page and common content in `src/data` (JSON + TypeScript types); blog posts as Markdown in `public/blog` with sync from an external repo via `scripts/sync-blogs.js`.
+- **Content:** Page and common content in `src/data` (JSON + TypeScript types). Blog Posts and portfolio Photos live in Amplify **Site Content** storage (manifests, markdown, WebPs), managed via `/admin`. A blog hero fallback WebP remains under `public/img/`.
 - **Motion:** Framer Motion, with respect for `prefers-reduced-motion` everywhere.
 
 ---
@@ -60,24 +60,12 @@ This document defines how to work in this codebase so that new and changed code 
 - **New page content:** Add a JSON file under `src/data/pages/`, define the type in `src/data/types.ts`, export from `src/data/index.ts`, and extend `getPageData(route)` if the route should be resolvable by that helper.
 - **New shared content:** Add JSON under `src/data/common/`, type in `types.ts`, export from `src/data/index.ts`.
 
-### 4.3 Blog
+### 4.3 Blog and portfolio (Site Content)
 
-- **Source of truth:** Markdown in `public/blog/*.md` (synced via `scripts/sync-blogs.js`). Directory reads and frontmatter assembly are in `src/lib/blog.ts`; **markdown string → HTML** for tests and reuse is in `src/lib/blog-markdown.ts` (`processMarkdown`).
-- **Types:** Use `BlogPost` and `BlogPostFrontmatter` from `@/data/types`. Frontmatter keys: prefer a single canonical key per field; document if both kebab-case and camelCase are supported for legacy reasons.
-- **Sitemap:** `src/lib/sitemap.ts` (`buildSitemap`) derives blog URLs and `lastModified` dates from `getAllBlogPosts` so sitemap entries stay consistent with the reader module. `getAllBlogSlugs` remains available for static generation (`generateStaticParams`).
-
-#### `sync-blogs` contract
-
-Obsidian → private Git repo → Amplify build → `node scripts/sync-blogs.js` → `public/blog` and `public/img`. The script behaviour is defined in `scripts/sync-blogs.js`; this section documents the contract only.
-
-| Aspect | Detail |
-|--------|--------|
-| **Inputs** | Private blog repo path (`BLOG_REPO_PATH`, default `temp-blog-repo` locally). Markdown under `{BLOG_REPO_PATH}/{BLOGS_FOLDER_NAME}/` (default folder name `Blog`), searched recursively. Images from `{BLOG_REPO_PATH}/Images/`. |
-| **Outputs** | One `.md` file per post in `public/blog/{slug}.md`. Image files copied flat into `public/img/` (portfolio images may also live there; orphaned blog images are not deleted). |
-| **Slug rules** | URL-safe lowercase slug from the filename. Posts directly under `Blog/` use the filename (without `.md`). Posts in subfolders use `{folder-path}-{filename}` with path segments joined by hyphens. Duplicate slugs get a numeric suffix (`-1`, `-2`, …). |
-| **Validation** | Each source file must start with YAML frontmatter (`---`). Invalid or unreadable files are reported; the script exits non-zero on errors after sync. |
-| **Cleanup** | Orphaned `.md` files in `public/blog` (no longer present in the source repo) are removed. Image cleanup is skipped so committed portfolio assets in `public/img` are preserved. |
-| **When it runs** | Amplify `preBuild` (see `amplify.yml` and `docs/CI-AND-DEPLOYMENT.md`). Locally, run `node scripts/sync-blogs.js` when you need real posts; CI does not clone the private repo. |
+- **Source of truth:** Amplify Storage bucket `siteContent` — `blog/index.json` + `blog/posts/{slug}.md` (+ optional hero WebPs), and `portfolio/manifest.json` + `portfolio/images/*`. Readers live under `src/lib/site-content/`. Markdown → HTML remains in `src/lib/blog-markdown.ts` (`processMarkdown`). Filesystem helpers in `src/lib/blog.ts` are for Vitest fixtures only.
+- **Admin:** Site Admin manages Posts and Photos at `/admin` (not under Labs). Sign-in is site-wide at `/login`.
+- **Types:** Use `BlogPost` / `BlogPostFrontmatter` / `PhotoItem` from `@/data/types`. List metadata for Posts is authoritative in `blog/index.json`.
+- **Sitemap:** `src/lib/sitemap.ts` (`buildSitemap`) derives blog URLs from Site Content readers. `/login` and `/admin` are omitted (noindex).
 
 ---
 

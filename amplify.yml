@@ -15,34 +15,6 @@ frontend:
         # Pin Node 22+ for SSR (Amplify AL2023 supports 20/22/24; default on AL2023 is 22).
         # Use Amazon Linux 2023 build image in the Amplify console if you still see older Node.
         - nvm use 22
-        # Setup SSH for private repo access
-        - mkdir -p ~/.ssh
-        - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
-        - chmod 600 ~/.ssh/id_rsa
-        - ssh-keyscan github.com >> ~/.ssh/known_hosts
-        
-        # Clone blog repository (use default branch if BLOG_REPO_BRANCH not set)
-        - |
-          if [ -d "temp-blog-repo" ]; then
-            cd temp-blog-repo
-            git fetch origin
-            if [ -n "$BLOG_REPO_BRANCH" ]; then
-              git checkout -B $BLOG_REPO_BRANCH origin/$BLOG_REPO_BRANCH || git pull origin $BLOG_REPO_BRANCH
-            else
-              git pull
-            fi
-            cd ..
-          else
-            if [ -n "$BLOG_REPO_BRANCH" ]; then
-              git clone --depth 1 -b $BLOG_REPO_BRANCH $BLOG_REPO_URL temp-blog-repo
-            else
-              git clone --depth 1 $BLOG_REPO_URL temp-blog-repo
-            fi
-          fi
-        
-        # Run blog sync script
-        - node scripts/sync-blogs.js
-        
         # Reuse backend-phase install when present; otherwise install for frontend-only rebuilds.
         - npm config set cache .npm
         - |
@@ -62,4 +34,3 @@ frontend:
     paths:
       - .npm/**/*
       - node_modules/**/*
-      - temp-blog-repo/**/*

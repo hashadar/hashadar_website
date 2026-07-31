@@ -5,6 +5,7 @@ import blogData from './pages/blog.json';
 import labsData from './pages/labs.json';
 import jobOsData from './pages/job-os.json';
 import loginData from './pages/login.json';
+import adminData from './pages/admin.json';
 import footerData from './common/footer.json';
 import navigationData from './common/navigation.json';
 import siteData from './common/site.json';
@@ -18,6 +19,7 @@ import type {
   LabsPageData,
   JobOsPageData,
   LoginPageData,
+  AdminPageData,
   CareerProfile,
   FooterData,
   NavigationData,
@@ -25,6 +27,7 @@ import type {
 } from './types';
 import {
   assertValidAboutPage,
+  assertValidAdminPage,
   assertValidBlogPage,
   assertValidCareerProfile,
   assertValidFooter,
@@ -45,6 +48,7 @@ validateDataFile('pages/blog.json', blogData, assertValidBlogPage);
 validateDataFile('pages/labs.json', labsData, assertValidLabsPage);
 validateDataFile('pages/job-os.json', jobOsData, assertValidJobOsPage);
 validateDataFile('pages/login.json', loginData, assertValidLoginPage);
+validateDataFile('pages/admin.json', adminData, assertValidAdminPage);
 validateDataFile('common/footer.json', footerData, assertValidFooter);
 validateDataFile('common/navigation.json', navigationData, assertValidNavigation);
 validateDataFile('common/site.json', siteData, assertValidSite);
@@ -57,6 +61,7 @@ export const blog = blogData as BlogPageData;
 export const labs = labsData as LabsPageData;
 export const jobOs = jobOsData as JobOsPageData;
 export const login = loginData as LoginPageData;
+export const admin = adminData as AdminPageData;
 export const careerProfile = careerProfileData as CareerProfile;
 
 export { getHomeExperienceView, getAboutExperienceView } from './profile/experience-slices';
@@ -77,6 +82,7 @@ export function getPageData(route: '/portfolio'): PortfolioPageData;
 export function getPageData(route: '/labs'): LabsPageData;
 export function getPageData(route: '/labs/job-os'): JobOsPageData;
 export function getPageData(route: '/login'): LoginPageData;
+export function getPageData(route: '/admin'): AdminPageData;
 export function getPageData(
   route: string,
 ):
@@ -87,6 +93,7 @@ export function getPageData(
   | LabsPageData
   | JobOsPageData
   | LoginPageData
+  | AdminPageData
   | null;
 export function getPageData(route: string) {
   switch (route) {
@@ -105,6 +112,8 @@ export function getPageData(route: string) {
       return jobOs;
     case '/login':
       return login;
+    case '/admin':
+      return admin;
     default:
       return null;
   }
