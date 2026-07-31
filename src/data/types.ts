@@ -357,6 +357,68 @@ export interface LoginPageData {
   errors: LoginPageErrors;
 }
 
+export interface AdminPageData {
+  heading: string;
+  description: string;
+  postsHeading: string;
+  photosHeading: string;
+  homePhotoHeading: string;
+  signOutLabel: string;
+  checkingSessionLabel: string;
+  unauthenticatedHeading: string;
+  unauthenticatedDescription: string;
+  signInLabel: string;
+  posts: {
+    addLabel: string;
+    saveLabel: string;
+    deleteLabel: string;
+    slugLabel: string;
+    titleLabel: string;
+    dateLabel: string;
+    excerptLabel: string;
+    categoryLabel: string;
+    tagsLabel: string;
+    authorLabel: string;
+    markdownLabel: string;
+    heroLabel: string;
+    emptyLabel: string;
+    savedLabel: string;
+    deletedLabel: string;
+    errorLabel: string;
+  };
+  photos: {
+    addLabel: string;
+    saveLabel: string;
+    deleteLabel: string;
+    titleLabel: string;
+    altLabel: string;
+    categoryLabel: string;
+    locationLabel: string;
+    imageLabel: string;
+    emptyLabel: string;
+    savedLabel: string;
+    deletedLabel: string;
+    reorderHint: string;
+    moveUpLabel: string;
+    moveDownLabel: string;
+    errorLabel: string;
+  };
+  homePhoto: {
+    description: string;
+    titleLabel: string;
+    altLabel: string;
+    categoryLabel: string;
+    locationLabel: string;
+    imageLabel: string;
+    saveLabel: string;
+    clearLabel: string;
+    emptyLabel: string;
+    savedLabel: string;
+    clearedLabel: string;
+    errorLabel: string;
+  };
+}
+
 // Common/shared types
 export interface SocialLinks {
   github: string;
@@ -371,7 +433,6 @@ export interface ContactInfo {
   email: string;
   social: SocialLinks;
   copyright: string;
-  ownerSignIn: NavLink;
 }
 
 export interface FooterData {

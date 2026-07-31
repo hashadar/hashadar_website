@@ -2,16 +2,17 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-describe('amplify.yml Hosting blog-sync contract', () => {
+describe('amplify.yml Hosting contract', () => {
   const amplifyYml = readFileSync(
     path.join(process.cwd(), 'amplify.yml'),
     'utf8',
   );
 
-  it('keeps private blog clone and sync in Amplify preBuild', () => {
-    expect(amplifyYml).toMatch(/SSH_PRIVATE_KEY/);
-    expect(amplifyYml).toMatch(/BLOG_REPO_URL/);
-    expect(amplifyYml).toMatch(/sync-blogs\.js/);
+  it('does not clone a private blog repo or run sync-blogs', () => {
+    expect(amplifyYml).not.toMatch(/SSH_PRIVATE_KEY/);
+    expect(amplifyYml).not.toMatch(/BLOG_REPO_URL/);
+    expect(amplifyYml).not.toMatch(/sync-blogs\.js/);
+    expect(amplifyYml).not.toMatch(/temp-blog-repo/);
   });
 
   it('pins Node 22 for SSR build steps', () => {

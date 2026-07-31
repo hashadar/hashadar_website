@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/lib/blog', () => ({
-  getBlogPostBySlug: vi.fn(),
-  getAllBlogSlugs: vi.fn(() => []),
+vi.mock('@/lib/site-content/server', () => ({
+  getBlogPostBySlugFromSiteContent: vi.fn(),
+  getAllBlogSlugsFromSiteContent: vi.fn(async () => []),
 }));
 
-import { getBlogPostBySlug } from '@/lib/blog';
+import { getBlogPostBySlugFromSiteContent } from '@/lib/site-content/server';
 import { generateMetadata } from '@/app/blog/[slug]/page';
 import { site } from '@/data';
 import type { BlogPost } from '@/data/types';
@@ -27,7 +27,7 @@ const basePost: BlogPost = {
 
 describe('blog post page metadata', () => {
   it('uses the shared fallback image in openGraph when the post has no hero image', async () => {
-    vi.mocked(getBlogPostBySlug).mockReturnValue(basePost);
+    vi.mocked(getBlogPostBySlugFromSiteContent).mockResolvedValue(basePost);
 
     const metadata = await generateMetadata({
       params: Promise.resolve({ slug: 'test-post' }),
@@ -42,7 +42,7 @@ describe('blog post page metadata', () => {
   });
 
   it('uses the resolved post image in openGraph when a hero image is set', async () => {
-    vi.mocked(getBlogPostBySlug).mockReturnValue({
+    vi.mocked(getBlogPostBySlugFromSiteContent).mockResolvedValue({
       ...basePost,
       frontmatter: {
         ...basePost.frontmatter,
@@ -63,7 +63,7 @@ describe('blog post page metadata', () => {
   });
 
   it('keeps title and article fields derived from the loaded post', async () => {
-    vi.mocked(getBlogPostBySlug).mockReturnValue(basePost);
+    vi.mocked(getBlogPostBySlugFromSiteContent).mockResolvedValue(basePost);
 
     const metadata = await generateMetadata({
       params: Promise.resolve({ slug: 'test-post' }),

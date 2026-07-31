@@ -33,7 +33,7 @@ export function JobOsShell({ children }: JobOsShellProps) {
             </SectionHeader>
             <Text variant="muted">{jobOs.unauthenticatedDescription}</Text>
             <Link
-              href="/login"
+              href={`/login?next=${encodeURIComponent('/labs/job-os')}`}
               className="inline-flex font-body text-base text-[var(--foreground)] underline underline-offset-4"
             >
               {jobOs.signInLabel}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   assertValidAboutPage,
+  assertValidAdminPage,
   assertValidBlogPage,
   assertValidCareerProfile,
   assertValidFooter,
@@ -20,6 +21,7 @@ import portfolioData from '@/data/pages/portfolio.json';
 import labsData from '@/data/pages/labs.json';
 import jobOsData from '@/data/pages/job-os.json';
 import loginData from '@/data/pages/login.json';
+import adminData from '@/data/pages/admin.json';
 import footerData from '@/data/common/footer.json';
 import navigationData from '@/data/common/navigation.json';
 import siteData from '@/data/common/site.json';
@@ -56,6 +58,9 @@ describe('validateDataFile', () => {
     ).not.toThrow();
     expect(() =>
       validateDataFile('pages/login.json', loginData, assertValidLoginPage),
+    ).not.toThrow();
+    expect(() =>
+      validateDataFile('pages/admin.json', adminData, assertValidAdminPage),
     ).not.toThrow();
     expect(() =>
       validateDataFile('common/footer.json', footerData, assertValidFooter),
