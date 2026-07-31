@@ -1,3 +1,4 @@
+import 'server-only';
 import { Amplify } from 'aws-amplify';
 import { configureSiteAmplify } from './configure-site-amplify';
 import { readAmplifyOutputs } from './read-amplify-outputs';

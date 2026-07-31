@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getCommonData } from '@/data';
-import { getAllBlogPostsFromSiteContent } from '@/lib/site-content';
+import { getAllBlogPostsFromSiteContent } from '@/lib/site-content/server';
 
 export async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
   const { site } = getCommonData();

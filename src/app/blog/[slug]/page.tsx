@@ -7,7 +7,7 @@ import { SitePage } from "@/components/layout/site-page";
 import {
   getBlogPostBySlugFromSiteContent,
   getAllBlogSlugsFromSiteContent,
-} from "@/lib/site-content";
+} from "@/lib/site-content/server";
 import {
   formatBlogArticleDate,
   hasBlogPostHeroImage,

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { SitePage } from "@/components/layout/site-page";
 import { BlogGrid } from "@/components/sections/blog/blog-grid";
-import { getAllBlogPostsFromSiteContent } from "@/lib/site-content";
+import { getAllBlogPostsFromSiteContent } from "@/lib/site-content/server";
 import { site, blog } from "@/data";
 
 export const revalidate = 60;

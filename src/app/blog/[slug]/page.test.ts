@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/lib/site-content', () => ({
+vi.mock('@/lib/site-content/server', () => ({
   getBlogPostBySlugFromSiteContent: vi.fn(),
   getAllBlogSlugsFromSiteContent: vi.fn(async () => []),
 }));
 
-import { getBlogPostBySlugFromSiteContent } from '@/lib/site-content';
+import { getBlogPostBySlugFromSiteContent } from '@/lib/site-content/server';
 import { generateMetadata } from '@/app/blog/[slug]/page';
 import { site } from '@/data';
 import type { BlogPost } from '@/data/types';

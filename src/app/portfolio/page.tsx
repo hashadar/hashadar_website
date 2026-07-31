@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { SitePage } from "@/components/layout/site-page";
 import { PortfolioGrid } from "@/components/sections/portfolio/portfolio-grid";
 import { getPageData, site } from "@/data";
-import { getPortfolioPhotos } from "@/lib/site-content";
+import { getPortfolioPhotos } from "@/lib/site-content/server";
 
 export const revalidate = 60;
 

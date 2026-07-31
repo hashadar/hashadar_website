@@ -1,8 +1,9 @@
 {
   "heading": "Admin",
-  "description": "Manage Posts and Photos for the public site.",
+  "description": "Manage Posts, portfolio Photos, and the Home Photo for the public site.",
   "postsHeading": "Posts",
   "photosHeading": "Photos",
+  "homePhotoHeading": "Home Photo",
   "signOutLabel": "Sign out",
   "checkingSessionLabel": "Checking session…",
   "unauthenticatedHeading": "Sign in required",
@@ -38,9 +39,23 @@
     "emptyLabel": "No photos yet.",
     "savedLabel": "Photo saved.",
     "deletedLabel": "Photo deleted.",
-    "reorderHint": "Use Move up / Move down to set order. The first photo is the home teaser.",
+    "reorderHint": "Use Move up / Move down to set portfolio display order.",
     "moveUpLabel": "Move up",
     "moveDownLabel": "Move down",
     "errorLabel": "Unable to save photo. Check you are signed in and try again."
+  },
+  "homePhoto": {
+    "description": "Shown on the home photography section. Separate from portfolio Photos.",
+    "titleLabel": "Title",
+    "altLabel": "Alt text",
+    "categoryLabel": "Category",
+    "locationLabel": "Location",
+    "imageLabel": "WebP image",
+    "saveLabel": "Save Home Photo",
+    "clearLabel": "Clear Home Photo",
+    "emptyLabel": "No Home Photo set.",
+    "savedLabel": "Home Photo saved.",
+    "clearedLabel": "Home Photo cleared.",
+    "errorLabel": "Unable to save Home Photo. Check you are signed in and try again."
   }
 }

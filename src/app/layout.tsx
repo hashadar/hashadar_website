@@ -55,12 +55,17 @@ export default function RootLayout({
   const amplifyOutputs = readAmplifyOutputs();
 
   return (
-    <html lang="en" className="scroll-smooth">
+    <html
+      lang="en"
+      className="scroll-smooth"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <head>
-        <ThemeScript />
         <StructuredData />
       </head>
       <body className="antialiased">
+        <ThemeScript />
         <AmplifyProvider outputs={amplifyOutputs}>
           <SiteAuthRoot outputs={amplifyOutputs}>{children}</SiteAuthRoot>
         </AmplifyProvider>

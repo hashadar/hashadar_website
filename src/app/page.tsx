@@ -2,8 +2,8 @@ import dynamic from "next/dynamic";
 import { SitePage } from "@/components/layout/site-page";
 import { HeroSection } from "@/components/sections/homepage/hero-section";
 import { home, careerProfile, getHomeExperienceView } from "@/data";
-import { getRecentBlogPostsFromSiteContent } from "@/lib/site-content";
-import { getHomePhotographyTeaser } from "@/lib/site-content";
+import { getRecentBlogPostsFromSiteContent } from "@/lib/site-content/server";
+import { getHomePhotographyTeaser } from "@/lib/site-content/server";
 
 export const revalidate = 60;
 

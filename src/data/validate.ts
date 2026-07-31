@@ -221,6 +221,7 @@ export function assertValidAdminPage(data: unknown): void {
   requireString(page, 'description', 'admin');
   requireString(page, 'postsHeading', 'admin');
   requireString(page, 'photosHeading', 'admin');
+  requireString(page, 'homePhotoHeading', 'admin');
   requireString(page, 'signOutLabel', 'admin');
   requireString(page, 'checkingSessionLabel', 'admin');
   requireString(page, 'unauthenticatedHeading', 'admin');
@@ -228,6 +229,7 @@ export function assertValidAdminPage(data: unknown): void {
   requireString(page, 'signInLabel', 'admin');
   requireRecord(page.posts, 'admin.posts');
   requireRecord(page.photos, 'admin.photos');
+  requireRecord(page.homePhoto, 'admin.homePhoto');
 }
 
 export function assertValidNavigation(data: unknown): void {

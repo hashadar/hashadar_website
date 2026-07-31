@@ -3,9 +3,14 @@ export const SITE_CONTENT_BUCKET = 'siteContent';
 
 export const PORTFOLIO_MANIFEST_KEY = 'portfolio/manifest.json';
 export const BLOG_INDEX_KEY = 'blog/index.json';
+export const HOME_PHOTO_MANIFEST_KEY = 'home/photography.json';
 
 export function portfolioImageKey(filename: string): string {
   return `portfolio/images/${filename}`;
+}
+
+export function homeImageKey(filename: string): string {
+  return `home/images/${filename}`;
 }
 
 export function blogPostKey(slug: string): string {
@@ -28,6 +33,15 @@ export type PortfolioManifestEntry = {
 
 export type PortfolioManifest = {
   photos: PortfolioManifestEntry[];
+};
+
+/** Single home photography section image — not a portfolio Photo. */
+export type HomePhotoManifest = {
+  title: string;
+  alt: string;
+  category?: string;
+  location?: string;
+  imageKey: string;
 };
 
 export type BlogIndexEntry = {
