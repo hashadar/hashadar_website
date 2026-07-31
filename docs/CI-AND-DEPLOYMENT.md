@@ -4,8 +4,8 @@
 
 | Concern | Where | Notes |
 |---------|--------|--------|
-| **PR and push checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, lint, typecheck, tests, `next build`. **Does not deploy.** Does not require live AWS or `amplify_outputs.json`. |
-| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (Gen 2 `ampx pipeline-deploy`, blog clone, `sync-blogs`, `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
+| **PR and push checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, production `npm audit` (critical), lint, typecheck, tests, `next build`. **Does not deploy.** Does not require live AWS or `amplify_outputs.json`. |
+| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (Gen 2 `ampx pipeline-deploy`, blog clone, `sync-blogs`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
 
 There is **no accidental double-deploy** from GitHub Actions: Actions do not push artefacts or run Amplify CLI deploy in the baseline setup.
 
@@ -29,7 +29,13 @@ Contract tests in `amplify.yml.test.ts` lock blog-sync steps and Gen 2 `pipeline
 |--------|----------------|
 | **Local / CI** | Repository root **`.nvmrc`** (`22`). GitHub Actions uses `actions/setup-node` with `node-version-file: '.nvmrc'`. |
 | **`package.json`** | `"engines": { "node": ">=22" }` — run `npm ci` on Node 22 or newer. |
-| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of backend `build` and frontend `preBuild` so `ampx pipeline-deploy`, `node scripts/sync-blogs.js`, `npm ci`, and `npm run build` all use Node 22. |
+| **Amplify** | **`amplify.yml`** runs **`nvm use 22`** at the start of backend `build` and frontend `preBuild` so `ampx pipeline-deploy`, `node scripts/sync-blogs.js`, install, and `npm run build` all use Node 22. |
+
+### Amplify install and cache
+
+- Backend `npm ci` installs the lockfile (needed for `ampx pipeline-deploy`).
+- Frontend reuses that `node_modules` when the backend phase left it in place; otherwise it runs `npm ci` (frontend-only rebuilds).
+- Cache paths: `.npm/**/*` (npm download cache), `node_modules/**/*`, and `temp-blog-repo/**/*`.
 
 **Check in the AWS Amplify console**
 
@@ -37,6 +43,12 @@ Contract tests in `amplify.yml.test.ts` lock blog-sync steps and Gen 2 `pipeline
 2. **Live package updates:** If you set Node there, remember that **`nvm use` in `amplify.yml` overrides** live package updates for the shell that runs your commands.
 
 If `nvm use 22` fails on the build image (version not installed), add a line before it: `nvm install 22` (then keep `nvm use 22`).
+
+## Dependency updates
+
+- **Dependabot**: `.github/dependabot.yml` opens weekly npm PRs (grouped production patches and Amplify-related packages) and monthly GitHub Actions PRs.
+- **CI audit gate**: `npm audit --omit=dev --audit-level=critical` fails the quality job on production criticals.
+- Photos stay on `images.unoptimized: true` without a direct `sharp` dependency until an image CDN / optimisation pipeline is added.
 
 ## Amplify environment variables (names only)
 
@@ -73,4 +85,8 @@ AI agents cannot apply this in the UI; use the checklist above.
 
 - `amplify.yml` — Amplify build phases
 - `.github/workflows/ci.yml` — GitHub Actions quality checks
+- `.github/dependabot.yml` — weekly npm / monthly Actions update PRs
 - [#16](https://github.com/hashadar/hashadar_website/issues/16) — deepen blog reader and CI fixture coverage
+- [#113](https://github.com/hashadar/hashadar_website/issues/113) — re-enable Next image optimisation with sharp
+- [#114](https://github.com/hashadar/hashadar_website/issues/114) — major dependency upgrades (date-fns / Vitest / KaTeX / ESLint)
+- [#115](https://github.com/hashadar/hashadar_website/issues/115) — Amplify OpenTelemetry override cleanup

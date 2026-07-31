@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Amplify Hosting serves static/SSR without Next image optimisation; keep
+    // unoptimised and omit the sharp dependency until a CDN/image pipeline lands.
     unoptimized: true,
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
