@@ -5,14 +5,20 @@ import {
   createJobOs,
   createMemoryJobOsBodyStorage,
   createMemoryJobOsStore,
+  HUNT_PROFILE_SINGLETON_ID,
 } from '@/lib/job-os';
+import { createFakeFitAnalyser } from '@/lib/job-os-fit-analyser';
 
-function createTestJobOs(options?: { now?: string }) {
+function createTestJobOs(options?: {
+  now?: string;
+  fitAnalyser?: ReturnType<typeof createFakeFitAnalyser>;
+}) {
   const store = createMemoryJobOsStore();
   const bodies = createMemoryJobOsBodyStorage();
   const jobOs = createJobOs({
     store,
     bodies,
+    fitAnalyser: options?.fitAnalyser,
     now: () => options?.now ?? '2026-07-27T12:00:00.000Z',
     createId: (() => {
       let n = 0;
@@ -30,6 +36,9 @@ describe('Job OS Body S3 keys', () => {
     );
     expect(bodyEntityS3Key('application', 'a1')).toBe(
       'bodies/applications/a1.md',
+    );
+    expect(bodyEntityS3Key('huntProfile', 'hunt-profile')).toBe(
+      'bodies/hunt-profiles/hunt-profile.md',
     );
   });
 });
@@ -672,5 +681,222 @@ describe('Job OS facade — Vocabulary', () => {
       status: 'rejected',
       reason: 'Unrecognised seniority value',
     });
+  });
+});
+
+describe('Job OS facade — Hunt Profile', () => {
+  it('creates the singleton once and updates in place', async () => {
+    const { jobOs, store } = createTestJobOs();
+
+    const created = await jobOs.upsertHuntProfile({
+      targetSeniority: 'senior',
+      targetRoleFamily: 'engineering',
+      locationFlexibility: 'Hybrid London',
+      compensationFloor: 95000,
+      compensationCurrency: 'GBP',
+      compensationPeriod: 'year',
+      mustHaveTags: ['TypeScript'],
+      dealBreakerTags: ['On-call nights'],
+      escapePains: ['Politics'],
+      seekDesires: ['Ownership'],
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+    expect(created.profile.id).toBe(HUNT_PROFILE_SINGLETON_ID);
+
+    const updated = await jobOs.upsertHuntProfile({
+      targetSeniority: 'lead',
+      targetRoleFamily: 'engineering',
+      compensationFloor: 110000,
+      compensationCurrency: 'GBP',
+      compensationPeriod: 'year',
+      mustHaveTags: ['TypeScript', 'AWS'],
+    });
+    expect(updated.status).toBe('updated');
+    if (updated.status !== 'updated') {
+      return;
+    }
+    expect(updated.profile.targetSeniority).toBe('lead');
+    expect(await store.getHuntProfile()).toEqual(updated.profile);
+
+    const listed = await jobOs.getHuntProfile();
+    expect(listed.profile?.id).toBe(HUNT_PROFILE_SINGLETON_ID);
+  });
+
+  it('stores Hunt Profile Body separately from Site careerProfile', async () => {
+    const { jobOs, bodies } = createTestJobOs();
+    await jobOs.upsertHuntProfile({
+      targetSeniority: 'senior',
+      seekDesires: ['Craft'],
+    });
+
+    const withBody = await jobOs.updateHuntProfileBody(
+      'Narrative CV and projects — not Site careerProfile.',
+    );
+    expect(withBody.status).toBe('updated');
+    if (withBody.status !== 'updated') {
+      return;
+    }
+    expect(withBody.profile.s3Key).toBe(
+      'bodies/hunt-profiles/hunt-profile.md',
+    );
+    expect(await bodies.getBody(withBody.profile.s3Key!)).toContain(
+      'not Site careerProfile',
+    );
+
+    const read = await jobOs.getHuntProfileBody();
+    expect(read.body).toContain('not Site careerProfile');
+  });
+});
+
+describe('Job OS facade — Structural checklist', () => {
+  it('exposes core five rows through the facade without Decision Events', async () => {
+    const { jobOs, store } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    await jobOs.upsertHuntProfile({
+      targetSeniority: 'senior',
+      targetRoleFamily: 'engineering',
+      compensationFloor: 100000,
+      compensationCurrency: 'GBP',
+      compensationPeriod: 'year',
+      mustHaveTags: ['typescript'],
+      dealBreakerTags: ['php'],
+    });
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-28T09:00:00.000Z',
+      title: 'Platform engineer',
+      seniority: 'senior',
+      roleFamily: 'engineering',
+      compensationDisclosure: 'range',
+      compensationCurrency: 'GBP',
+      compensationPeriod: 'year',
+      compensationMin: 90000,
+      compensationMax: 120000,
+      technologies: ['typescript', 'aws'],
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const result = await jobOs.getStructuralChecklist(created.opportunity.id);
+    expect(result.status).toBe('ok');
+    if (result.status !== 'ok') {
+      return;
+    }
+    expect(result.checklist.rows).toHaveLength(5);
+    expect(
+      result.checklist.rows.every((row) =>
+        ['pass', 'fail', 'unknown'].includes(row.verdict),
+      ),
+    ).toBe(true);
+    expect(
+      await store.listDecisionEventsForOpportunity(created.opportunity.id),
+    ).toHaveLength(0);
+  });
+});
+
+describe('Job OS facade — Fit Insight', () => {
+  it('rejects analyse when Hunt Profile is unusable', async () => {
+    const { jobOs } = createTestJobOs({
+      fitAnalyser: createFakeFitAnalyser(),
+    });
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-28T09:00:00.000Z',
+      title: 'Role',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const result = await jobOs.analyseOpportunityFit(created.opportunity.id);
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'A usable Hunt Profile is required before analysing fit',
+    });
+  });
+
+  it('persists latest-wins Fit Insight via fake analyser without Decision Events', async () => {
+    let clock = '2026-08-01T10:00:00.000Z';
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies,
+      fitAnalyser: createFakeFitAnalyser({
+        summary: 'Strong platform fit',
+        advantages: ['Stack match'],
+        disadvantages: ['Comp uncertainty'],
+        fitNotes: ['Hybrid aligns'],
+        gaps: ['No ML ownership signal'],
+      }),
+      now: () => clock,
+      createId: (() => {
+        let n = 0;
+        return () => `fit-${++n}`;
+      })(),
+    });
+
+    const anon = await jobOs.ensureAnonEmployer();
+    await jobOs.upsertHuntProfile({
+      targetSeniority: 'senior',
+      seekDesires: ['Ownership'],
+    });
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-28T09:00:00.000Z',
+      title: 'Platform engineer',
+      seniority: 'senior',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const analysed = await jobOs.analyseOpportunityFit(created.opportunity.id);
+    expect(analysed.status).toBe('ok');
+    if (analysed.status !== 'ok') {
+      return;
+    }
+    expect(analysed.insight.summary).toBe('Strong platform fit');
+    expect(analysed.insight.stale).toBe(false);
+    expect(
+      await store.listDecisionEventsForOpportunity(created.opportunity.id),
+    ).toHaveLength(0);
+
+    clock = '2026-08-01T11:00:00.000Z';
+    await jobOs.updateOpportunity({
+      id: created.opportunity.id,
+      employerId: anon.id,
+      noticedAt: created.opportunity.noticedAt,
+      title: 'Staff platform engineer',
+      seniority: 'senior',
+    });
+
+    const staleView = await jobOs.getFitInsight(created.opportunity.id);
+    expect(staleView.status).toBe('ok');
+    if (staleView.status !== 'ok' || !staleView.insight) {
+      return;
+    }
+    expect(staleView.insight.stale).toBe(true);
+
+    clock = '2026-08-01T12:00:00.000Z';
+    const rerun = await jobOs.analyseOpportunityFit(created.opportunity.id);
+    expect(rerun.status).toBe('ok');
+    if (rerun.status !== 'ok') {
+      return;
+    }
+    expect(rerun.insight.stale).toBe(false);
+    const persisted = await store.getFitInsightByOpportunityId(
+      created.opportunity.id,
+    );
+    expect(persisted?.id).toBe(analysed.insight.id);
+    expect(persisted?.analysedAt).toBe('2026-08-01T12:00:00.000Z');
   });
 });

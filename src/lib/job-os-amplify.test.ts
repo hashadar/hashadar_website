@@ -61,6 +61,18 @@ function createMockClient(
       create: vi.fn(),
       update: vi.fn(),
     },
+    HuntProfile: {
+      get: vi.fn(),
+      list: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    FitInsight: {
+      get: vi.fn(),
+      list: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
   } satisfies AmplifyJobOsModelsClient;
 
   return { client, create };

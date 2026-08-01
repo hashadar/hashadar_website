@@ -61,13 +61,27 @@ An append-only database record of a meaningful owner action. v3.0 mandatory kind
 _Avoid_: audit log (generic), analytics event, preference score
 
 **Body**:
-The freeform prose document for an Employer, Opportunity, or Application (narrative, pasted listing, prep/debrief writing). Optional until prose exists. Structured graph fields are never authoritative in the Body.
+The freeform prose document for an Employer, Opportunity, Application, or Hunt Profile (narrative, pasted listing, prep/debrief writing, CV/projects/aspirations prose). Optional until prose exists. Structured graph fields are never authoritative in the Body.
 _Avoid_: frontmatter as source of truth, treating the Body as the join model, requiring a Body on every row
 
-**Current Role Dossier** / **Preference Profile**:
-Deferred past the v3.0 graph + Decision Event rebuild. Not required to ship Employer → Opportunity → Application.
-_Avoid_: treating Canonical CV as the dossier
+### Fit (v3.1)
+
+**Hunt Profile**:
+The singleton private substrate for fit analysis: structured hunt targets and constraints (seniority, role family, location/flexibility, compensation floor, must-haves, deal-breakers, escape pains, seek desires) plus an optional Body for narrative experience, projects, and aspirations. Distinct from Site career marketing content.
+_Avoid_: Canonical CV, Current Role Dossier, Preference Profile, Owner Profile, treating Site careerProfile as the substrate
+
+**Structural checklist**:
+A pure, always-on comparison of Hunt Profile structured fields to an Opportunity (compensation, seniority, role family, must-haves, deal-breakers), each row pass, fail, or unknown. Not an LLM output and not a Decision Event.
+_Avoid_: Fit Insight, scorecard weights, preference score
+
+**Fit Insight**:
+The latest structured analysis of an Opportunity against the Hunt Profile (summary, advantages, disadvantages, fit notes, gaps), produced on demand. Owner-only; analysing does not emit a Decision Event.
+_Avoid_: Preference Profile scorecard, learned ranker, treating analyse as Pass or Pursue
+
+**Current Role Dossier** / **Preference Profile** (stated Layer-1 scorecard):
+Cancelled product path. Superseded by Hunt Profile, Structural checklist, and Fit Insight.
+_Avoid_: reviving these nouns; treating them as synonyms for Hunt Profile or Fit Insight
 
 **Canonical CV** / **JobDescription** / **ScrapeCandidate** / **AnalysisRun** / **CorpusSnapshot** / **LabPublication** / **ThemeLabelOverride**:
 Retired v2 lab concepts. Removed in the v3.0 teardown; not part of the hunting graph.
-_Avoid_: reviving these nouns for Opportunity evidence or Decision Events
+_Avoid_: reviving these nouns for Opportunity evidence, Decision Events, or Hunt Profile

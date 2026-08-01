@@ -1,9 +1,19 @@
 /**
- * Job OS facade — sole read/write seam for Employer → Opportunity → Application
- * and Decision Events. Persistence and Body storage are injected adapters.
+ * Job OS facade — sole read/write seam for Employer → Opportunity → Application,
+ * Decision Events, Hunt Profile, Structural checklist, and Fit Insight.
+ * Persistence, Body storage, and FitAnalyser are injected adapters.
  */
 
+import {
+  evaluateStructuralChecklist,
+  type StructuralChecklist,
+} from '@/lib/job-os-structural-checklist';
+import type { FitAnalyser } from '@/lib/job-os-fit-analyser';
+
 export const ANON_EMPLOYER_NAME = 'Anon Employer';
+
+/** Fixed id for the singleton Hunt Profile row. */
+export const HUNT_PROFILE_SINGLETON_ID = 'hunt-profile';
 
 export const VOCABULARY_KINDS = [
   'size_tier',
@@ -97,12 +107,17 @@ export type CompensationDisclosure = (typeof COMPENSATION_DISCLOSURES)[number];
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 export type DecisionEventKind = (typeof DECISION_EVENT_KINDS)[number];
 
-export type BodyEntityKind = 'employer' | 'opportunity' | 'application';
+export type BodyEntityKind =
+  | 'employer'
+  | 'opportunity'
+  | 'application'
+  | 'huntProfile';
 
 const BODY_ENTITY_PATH_SEGMENTS: Record<BodyEntityKind, string> = {
   employer: 'employers',
   opportunity: 'opportunities',
   application: 'applications',
+  huntProfile: 'hunt-profiles',
 };
 
 export function bodyEntityS3Key(
@@ -209,6 +224,8 @@ export type OpportunityRecord = {
   title?: string;
   source?: string;
   noticedAt: string;
+  /** Stamp for Fit Insight stale detection; set on create/update/Body write. */
+  contentUpdatedAt: string;
   seniority?: OpportunitySeniority;
   roleFamily?: OpportunityRoleFamily;
   compensationCurrency?: string;
@@ -218,6 +235,50 @@ export type OpportunityRecord = {
   compensationDisclosure?: CompensationDisclosure;
   technologies?: string[];
   s3Key?: string;
+};
+
+export type HuntProfileRecord = {
+  id: string;
+  targetSeniority?: OpportunitySeniority;
+  targetRoleFamily?: OpportunityRoleFamily;
+  locationFlexibility?: string;
+  compensationFloor?: number;
+  compensationCurrency?: string;
+  compensationPeriod?: CompensationPeriod;
+  mustHaveTags?: string[];
+  dealBreakerTags?: string[];
+  escapePains?: string[];
+  seekDesires?: string[];
+  s3Key?: string;
+  contentUpdatedAt: string;
+};
+
+export type UpsertHuntProfileInput = {
+  targetSeniority?: OpportunitySeniority;
+  targetRoleFamily?: OpportunityRoleFamily;
+  locationFlexibility?: string;
+  compensationFloor?: number;
+  compensationCurrency?: string;
+  compensationPeriod?: CompensationPeriod;
+  mustHaveTags?: string[];
+  dealBreakerTags?: string[];
+  escapePains?: string[];
+  seekDesires?: string[];
+};
+
+export type FitInsightRecord = {
+  id: string;
+  opportunityId: string;
+  summary: string;
+  advantages: string[];
+  disadvantages: string[];
+  fitNotes: string[];
+  gaps: string[];
+  analysedAt: string;
+};
+
+export type FitInsightView = FitInsightRecord & {
+  stale: boolean;
 };
 
 export type ApplicationRecord = {
@@ -313,6 +374,20 @@ export type JobOsStore = {
     input: Omit<VocabularyTermRecord, 'id'> & { id?: string },
   ) => Promise<VocabularyTermRecord>;
   persistVocabularyTerm: (record: VocabularyTermRecord) => Promise<void>;
+
+  getHuntProfile: () => Promise<HuntProfileRecord | null>;
+  insertHuntProfile: (
+    input: Omit<HuntProfileRecord, 'id'> & { id?: string },
+  ) => Promise<HuntProfileRecord>;
+  persistHuntProfile: (record: HuntProfileRecord) => Promise<void>;
+
+  getFitInsightByOpportunityId: (
+    opportunityId: string,
+  ) => Promise<FitInsightRecord | null>;
+  insertFitInsight: (
+    input: Omit<FitInsightRecord, 'id'> & { id?: string },
+  ) => Promise<FitInsightRecord>;
+  persistFitInsight: (record: FitInsightRecord) => Promise<void>;
 };
 
 export type JobOsBodyStorage = {
@@ -327,6 +402,7 @@ export type JobOsBodyStorage = {
 export type JobOsDeps = {
   store: JobOsStore;
   bodies: JobOsBodyStorage;
+  fitAnalyser?: FitAnalyser;
   now?: () => string;
   createId?: () => string;
 };
@@ -357,6 +433,39 @@ function optionalTrim(value: string | undefined): string | undefined {
   }
   const trimmed = value.trim();
   return trimmed ? trimmed : undefined;
+}
+
+function normaliseTagList(values: string[] | undefined): string[] | undefined {
+  if (values === undefined) {
+    return undefined;
+  }
+  const tags = values.map((value) => value.trim()).filter(Boolean);
+  return tags.length > 0 ? tags : undefined;
+}
+
+export function isHuntProfileUsable(profile: HuntProfileRecord): boolean {
+  return Boolean(
+    profile.targetSeniority?.trim() ||
+      profile.targetRoleFamily?.trim() ||
+      profile.locationFlexibility?.trim() ||
+      profile.compensationFloor != null ||
+      (profile.mustHaveTags?.length ?? 0) > 0 ||
+      (profile.dealBreakerTags?.length ?? 0) > 0 ||
+      (profile.escapePains?.length ?? 0) > 0 ||
+      (profile.seekDesires?.length ?? 0) > 0 ||
+      profile.s3Key,
+  );
+}
+
+export function isFitInsightStale(input: {
+  insight: FitInsightRecord;
+  huntProfile: HuntProfileRecord;
+  opportunity: OpportunityRecord;
+}): boolean {
+  return (
+    input.insight.analysedAt < input.huntProfile.contentUpdatedAt ||
+    input.insight.analysedAt < input.opportunity.contentUpdatedAt
+  );
 }
 
 function resolveCompensationDisclosure(input: {
@@ -458,9 +567,30 @@ function validateOpportunityShape(
   return { status: 'valid' };
 }
 
+function validateHuntProfileShape(
+  input: UpsertHuntProfileInput,
+): { status: 'valid' } | Rejected {
+  if (
+    input.compensationPeriod !== undefined &&
+    !includesValue(COMPENSATION_PERIODS, input.compensationPeriod)
+  ) {
+    return { status: 'rejected', reason: 'Unrecognised compensation period' };
+  }
+  if (input.compensationFloor != null && input.compensationFloor < 0) {
+    return {
+      status: 'rejected',
+      reason: 'Compensation floor cannot be negative',
+    };
+  }
+  return { status: 'valid' };
+}
+
 function buildOpportunityFields(
   input: CreateOpportunityInput,
-): Omit<OpportunityRecord, 'id' | 'employerId' | 'noticedAt' | 'status'> & {
+): Omit<
+  OpportunityRecord,
+  'id' | 'employerId' | 'noticedAt' | 'status' | 'contentUpdatedAt' | 's3Key'
+> & {
   status: OpportunityStatus;
   noticedAt: string;
 } {
@@ -885,6 +1015,7 @@ export function createJobOs(deps: JobOsDeps) {
     const opportunity = await deps.store.insertOpportunity({
       id: createId(),
       employerId: input.employerId,
+      contentUpdatedAt: now(),
       ...fields,
     });
 
@@ -940,6 +1071,7 @@ export function createJobOs(deps: JobOsDeps) {
       ...existing,
       employerId: input.employerId,
       ...fields,
+      contentUpdatedAt: now(),
     };
     await deps.store.persistOpportunity(opportunity);
     return { status: 'updated', opportunity };
@@ -969,7 +1101,11 @@ export function createJobOs(deps: JobOsDeps) {
         entityId: id,
         prose: trimmed,
       });
-      const opportunity: OpportunityRecord = { ...existing, s3Key };
+      const opportunity: OpportunityRecord = {
+        ...existing,
+        s3Key,
+        contentUpdatedAt: now(),
+      };
       await deps.store.persistOpportunity(opportunity);
       return { status: 'updated' as const, opportunity, body: trimmed };
     });
@@ -1199,6 +1335,271 @@ export function createJobOs(deps: JobOsDeps) {
     return { status: 'ok', body, application: existing };
   }
 
+  async function getHuntProfile(): Promise<
+    { status: 'ok'; profile: HuntProfileRecord | null }
+  > {
+    const profile = await deps.store.getHuntProfile();
+    return { status: 'ok', profile };
+  }
+
+  async function upsertHuntProfile(
+    input: UpsertHuntProfileInput,
+  ): Promise<
+    | { status: 'created' | 'updated'; profile: HuntProfileRecord }
+    | Rejected
+  > {
+    await ensureVocabularyDefaults();
+    const shape = validateHuntProfileShape(input);
+    if (shape.status === 'rejected') {
+      return shape;
+    }
+    if (
+      input.targetSeniority !== undefined &&
+      input.targetSeniority.trim() &&
+      !(await hasActiveVocabularyValue('seniority', input.targetSeniority))
+    ) {
+      return { status: 'rejected', reason: 'Unrecognised seniority value' };
+    }
+    if (
+      input.targetRoleFamily !== undefined &&
+      input.targetRoleFamily.trim() &&
+      !(await hasActiveVocabularyValue('role_family', input.targetRoleFamily))
+    ) {
+      return { status: 'rejected', reason: 'Unrecognised role family value' };
+    }
+
+    const existing = await deps.store.getHuntProfile();
+    const fields: Omit<HuntProfileRecord, 'id' | 's3Key' | 'contentUpdatedAt'> =
+      {
+        targetSeniority: optionalTrim(input.targetSeniority),
+        targetRoleFamily: optionalTrim(input.targetRoleFamily),
+        locationFlexibility: optionalTrim(input.locationFlexibility),
+        compensationFloor: input.compensationFloor,
+        compensationCurrency: optionalTrim(input.compensationCurrency),
+        compensationPeriod: input.compensationPeriod,
+        mustHaveTags: normaliseTagList(input.mustHaveTags),
+        dealBreakerTags: normaliseTagList(input.dealBreakerTags),
+        escapePains: normaliseTagList(input.escapePains),
+        seekDesires: normaliseTagList(input.seekDesires),
+      };
+
+    if (!existing) {
+      const profile = await deps.store.insertHuntProfile({
+        id: HUNT_PROFILE_SINGLETON_ID,
+        ...fields,
+        contentUpdatedAt: now(),
+      });
+      return { status: 'created', profile };
+    }
+
+    const profile: HuntProfileRecord = {
+      ...existing,
+      ...fields,
+      contentUpdatedAt: now(),
+    };
+    await deps.store.persistHuntProfile(profile);
+    return { status: 'updated', profile };
+  }
+
+  async function updateHuntProfileBody(
+    prose: string,
+  ): Promise<
+    | { status: 'updated'; profile: HuntProfileRecord; body: string }
+    | NotFound
+    | Rejected
+  > {
+    const existing = await deps.store.getHuntProfile();
+    if (!existing) {
+      return { status: 'not_found' };
+    }
+    const trimmed = prose.trim();
+    if (!trimmed) {
+      return { status: 'rejected', reason: 'Body prose cannot be blank' };
+    }
+    return withAdapterRejection('Could not save Hunt Profile Body', async () => {
+      const { s3Key } = await deps.bodies.putBody({
+        entityKind: 'huntProfile',
+        entityId: existing.id,
+        prose: trimmed,
+      });
+      const profile: HuntProfileRecord = {
+        ...existing,
+        s3Key,
+        contentUpdatedAt: now(),
+      };
+      await deps.store.persistHuntProfile(profile);
+      return { status: 'updated' as const, profile, body: trimmed };
+    });
+  }
+
+  async function getHuntProfileBody(): Promise<
+    | { status: 'ok'; body: string | null; profile: HuntProfileRecord | null }
+  > {
+    const existing = await deps.store.getHuntProfile();
+    if (!existing) {
+      return { status: 'ok', body: null, profile: null };
+    }
+    if (!existing.s3Key) {
+      return { status: 'ok', body: null, profile: existing };
+    }
+    const body = await deps.bodies.getBody(existing.s3Key);
+    return { status: 'ok', body, profile: existing };
+  }
+
+  async function getStructuralChecklist(
+    opportunityId: string,
+  ): Promise<
+    | {
+        status: 'ok';
+        checklist: StructuralChecklist;
+        profile: HuntProfileRecord | null;
+        opportunity: OpportunityRecord;
+      }
+    | NotFound
+  > {
+    const opportunity = await deps.store.getOpportunity(opportunityId);
+    if (!opportunity) {
+      return { status: 'not_found' };
+    }
+    const profile = await deps.store.getHuntProfile();
+    if (!profile) {
+      return {
+        status: 'ok',
+        checklist: {
+          rows: [
+            { dimension: 'compensation', verdict: 'unknown' },
+            { dimension: 'seniority', verdict: 'unknown' },
+            { dimension: 'role_family', verdict: 'unknown' },
+            { dimension: 'must_haves', verdict: 'unknown' },
+            { dimension: 'deal_breakers', verdict: 'unknown' },
+          ],
+        },
+        profile: null,
+        opportunity,
+      };
+    }
+    return {
+      status: 'ok',
+      checklist: evaluateStructuralChecklist(profile, opportunity),
+      profile,
+      opportunity,
+    };
+  }
+
+  async function getFitInsight(
+    opportunityId: string,
+  ): Promise<
+    | {
+        status: 'ok';
+        insight: FitInsightView | null;
+      }
+    | NotFound
+  > {
+    const opportunity = await deps.store.getOpportunity(opportunityId);
+    if (!opportunity) {
+      return { status: 'not_found' };
+    }
+    const insight = await deps.store.getFitInsightByOpportunityId(opportunityId);
+    if (!insight) {
+      return { status: 'ok', insight: null };
+    }
+    const profile = await deps.store.getHuntProfile();
+    const stale = profile
+      ? isFitInsightStale({ insight, huntProfile: profile, opportunity })
+      : true;
+    return { status: 'ok', insight: { ...insight, stale } };
+  }
+
+  async function analyseOpportunityFit(
+    opportunityId: string,
+  ): Promise<
+    | { status: 'ok'; insight: FitInsightView }
+    | NotFound
+    | Rejected
+  > {
+    if (!deps.fitAnalyser) {
+      return {
+        status: 'rejected',
+        reason: 'FitAnalyser is not configured',
+      };
+    }
+
+    const opportunity = await deps.store.getOpportunity(opportunityId);
+    if (!opportunity) {
+      return { status: 'not_found' };
+    }
+
+    const profile = await deps.store.getHuntProfile();
+    if (!profile || !isHuntProfileUsable(profile)) {
+      return {
+        status: 'rejected',
+        reason: 'A usable Hunt Profile is required before analysing fit',
+      };
+    }
+
+    const employer = await deps.store.getEmployer(opportunity.employerId);
+    if (!employer) {
+      return { status: 'rejected', reason: 'Employer not found' };
+    }
+
+    return withAdapterRejection('Could not analyse Opportunity fit', async () => {
+      const [huntProfileBody, opportunityBody, employerBody] = await Promise.all([
+        profile.s3Key ? deps.bodies.getBody(profile.s3Key) : Promise.resolve(null),
+        opportunity.s3Key
+          ? deps.bodies.getBody(opportunity.s3Key)
+          : Promise.resolve(null),
+        employer.s3Key
+          ? deps.bodies.getBody(employer.s3Key)
+          : Promise.resolve(null),
+      ]);
+
+      const analysed = await deps.fitAnalyser!.analyse({
+        huntProfile: profile,
+        huntProfileBody,
+        opportunity,
+        opportunityBody,
+        employer,
+        employerBody,
+      });
+
+      const analysedAt = now();
+      const existing =
+        await deps.store.getFitInsightByOpportunityId(opportunityId);
+      const record: FitInsightRecord = existing
+        ? {
+            ...existing,
+            summary: analysed.summary,
+            advantages: analysed.advantages,
+            disadvantages: analysed.disadvantages,
+            fitNotes: analysed.fitNotes,
+            gaps: analysed.gaps,
+            analysedAt,
+          }
+        : await deps.store.insertFitInsight({
+            id: createId(),
+            opportunityId,
+            summary: analysed.summary,
+            advantages: analysed.advantages,
+            disadvantages: analysed.disadvantages,
+            fitNotes: analysed.fitNotes,
+            gaps: analysed.gaps,
+            analysedAt,
+          });
+
+      if (existing) {
+        await deps.store.persistFitInsight(record);
+      }
+
+      return {
+        status: 'ok' as const,
+        insight: {
+          ...record,
+          stale: false,
+        },
+      };
+    });
+  }
+
   return {
     ensureAnonEmployer,
     ensureVocabularyDefaults,
@@ -1226,6 +1627,13 @@ export function createJobOs(deps: JobOsDeps) {
     updateTrackingNote,
     updateApplicationBody,
     getApplicationBody,
+    getHuntProfile,
+    upsertHuntProfile,
+    updateHuntProfileBody,
+    getHuntProfileBody,
+    getStructuralChecklist,
+    getFitInsight,
+    analyseOpportunityFit,
   };
 }
 
@@ -1252,6 +1660,8 @@ export function createMemoryJobOsStore(): JobOsStore {
   const applications = new Map<string, ApplicationRecord>();
   const vocabulary = new Map<string, VocabularyTermRecord>();
   const events: DecisionEventRecord[] = [];
+  let huntProfile: HuntProfileRecord | null = null;
+  const fitInsights = new Map<string, FitInsightRecord>();
   let seq = 0;
   const nextId = () => `mem-${++seq}`;
 
@@ -1335,6 +1745,37 @@ export function createMemoryJobOsStore(): JobOsStore {
     },
     async persistVocabularyTerm(record) {
       vocabulary.set(record.id, record);
+    },
+    async getHuntProfile() {
+      return huntProfile;
+    },
+    async insertHuntProfile(input) {
+      if (huntProfile) {
+        throw new Error('Hunt Profile singleton already exists');
+      }
+      const id = input.id ?? HUNT_PROFILE_SINGLETON_ID;
+      const record: HuntProfileRecord = { ...input, id };
+      huntProfile = record;
+      return record;
+    },
+    async persistHuntProfile(record) {
+      huntProfile = record;
+    },
+    async getFitInsightByOpportunityId(opportunityId) {
+      return (
+        [...fitInsights.values()].find(
+          (insight) => insight.opportunityId === opportunityId,
+        ) ?? null
+      );
+    },
+    async insertFitInsight(input) {
+      const id = input.id ?? nextId();
+      const record: FitInsightRecord = { ...input, id };
+      fitInsights.set(id, record);
+      return record;
+    },
+    async persistFitInsight(record) {
+      fitInsights.set(record.id, record);
     },
   };
 }
