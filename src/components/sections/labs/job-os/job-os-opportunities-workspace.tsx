@@ -26,6 +26,7 @@ import {
   type ApplicationRecord,
   type CompensationDisclosure,
   type CompensationPeriod,
+  type CreateOpportunityInput,
   type DecisionEventRecord,
   type EmployerRecord,
   type FitInsightView,
@@ -35,6 +36,7 @@ import {
   type OpportunityRoleFamily,
   type OpportunitySeniority,
   type OpportunityStatus,
+  type UpdateOpportunityInput,
   type VocabularyTermRecord,
 } from '@/lib/job-os';
 import type { StructuralChecklist } from '@/lib/job-os-structural-checklist';
@@ -320,8 +322,19 @@ export function JobOsOpportunitiesWorkspace({
     setPursuitById(next);
   }
 
-  function buildInput(mode: 'create' | 'update') {
-    const shared = {
+  function buildCreateInput(): CreateOpportunityInput {
+    return {
+      ...buildSharedInput(),
+      noticedAt: fromDatetimeLocalValue(noticedAt),
+    };
+  }
+
+  function buildUpdateInput(): Omit<UpdateOpportunityInput, 'id'> {
+    return buildSharedInput();
+  }
+
+  function buildSharedInput() {
+    return {
       employerId,
       title,
       source,
@@ -338,13 +351,6 @@ export function JobOsOpportunitiesWorkspace({
         .map((tech) => tech.trim())
         .filter(Boolean),
     };
-    if (mode === 'create') {
-      return {
-        ...shared,
-        noticedAt: fromDatetimeLocalValue(noticedAt),
-      };
-    }
-    return shared;
   }
 
   function resetCaptureFields() {
@@ -394,7 +400,7 @@ export function JobOsOpportunitiesWorkspace({
     }
     setBusy(true);
     setError(null);
-    const result = await client.createOpportunity(buildInput('create'));
+    const result = await client.createOpportunity(buildCreateInput());
     setBusy(false);
     if (result.status === 'rejected') {
       setError(result.reason);
@@ -415,7 +421,7 @@ export function JobOsOpportunitiesWorkspace({
     try {
       const result = await client.updateOpportunity({
         id: selected.id,
-        ...buildInput('update'),
+        ...buildUpdateInput(),
       });
       if (result.status === 'rejected' || result.status === 'not_found') {
         setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
