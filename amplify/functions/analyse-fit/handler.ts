@@ -4,7 +4,9 @@ import {
 } from '@aws-sdk/client-bedrock-runtime';
 import type { Schema } from '../../data/resource';
 
-const client = new BedrockRuntimeClient({});
+const client = new BedrockRuntimeClient({
+  region: process.env.BEDROCK_REGION ?? process.env.AWS_REGION,
+});
 
 const SYSTEM_PROMPT = `You are analysing job-hunt fit for a private Site Admin.
 Given a Hunt Profile (structured targets/constraints plus optional Body), an Opportunity (structured listing evidence plus optional Body), and an Employer (structured fields plus optional Body), return ONLY valid JSON with this shape:
@@ -32,7 +34,7 @@ export const handler: Schema['analyseFitWithBedrock']['functionHandler'] =
   async (event) => {
     const modelId =
       process.env.BEDROCK_MODEL_ID ??
-      'anthropic.claude-3-haiku-20240307-v1:0';
+      'us.meta.llama3-3-70b-instruct-v1:0';
     const contextJson = event.arguments.contextJson;
 
     const response = await client.send(

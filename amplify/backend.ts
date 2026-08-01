@@ -16,12 +16,20 @@ const backend = defineBackend({
 // Owner-only Cognito: disable self-sign-up (admin invite / AdminCreateUser only).
 const { cfnUserPool } = backend.auth.resources.cfnResources;
 cfnUserPool.adminCreateUserConfig = {
-  adminCreateUserOnly: true,
+  allowAdminCreateUserOnly: true,
 };
 
+// Open-weight Bedrock models (e.g. Meta Llama) need invoke on foundation
+// models and inference profiles; no Marketplace subscription required.
 backend.analyseFit.resources.lambda.addToRolePolicy(
   new PolicyStatement({
-    actions: ['bedrock:InvokeModel'],
-    resources: ['arn:aws:bedrock:*::foundation-model/*'],
+    actions: [
+      'bedrock:InvokeModel',
+      'bedrock:InvokeModelWithResponseStream',
+    ],
+    resources: [
+      'arn:aws:bedrock:*::foundation-model/*',
+      'arn:aws:bedrock:*:*:inference-profile/*',
+    ],
   }),
 );

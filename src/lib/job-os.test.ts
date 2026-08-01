@@ -227,7 +227,6 @@ describe('Job OS facade — Opportunities', () => {
     const closed = await jobOs.updateOpportunity({
       id: created.opportunity.id,
       employerId: employer.employer.id,
-      noticedAt: created.opportunity.noticedAt,
       title: 'ML Engineer',
       status: 'closed',
     });
@@ -240,7 +239,6 @@ describe('Job OS facade — Opportunities', () => {
     const reopened = await jobOs.updateOpportunity({
       id: created.opportunity.id,
       employerId: employer.employer.id,
-      noticedAt: created.opportunity.noticedAt,
       title: 'ML Engineer',
       status: 'open',
     });
@@ -249,6 +247,43 @@ describe('Job OS facade — Opportunities', () => {
       return;
     }
     expect(reopened.opportunity.status).toBe('open');
+  });
+
+  it('preserves noticedAt when an Opportunity is updated', async () => {
+    const { jobOs } = createTestJobOs();
+    const employer = await jobOs.createEmployer({
+      name: 'Northwind',
+      sizeTier: 'enterprise',
+      prestigeTier: 'high',
+      sector: 'law',
+    });
+    expect(employer.status).toBe('created');
+    if (employer.status !== 'created') {
+      return;
+    }
+
+    const created = await jobOs.createOpportunity({
+      employerId: employer.employer.id,
+      noticedAt: '2026-07-21T10:00:00.000Z',
+      title: 'ML Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const updated = await jobOs.updateOpportunity({
+      id: created.opportunity.id,
+      employerId: employer.employer.id,
+      title: 'Staff ML Engineer',
+      status: 'open',
+    });
+    expect(updated.status).toBe('updated');
+    if (updated.status !== 'updated') {
+      return;
+    }
+    expect(updated.opportunity.noticedAt).toBe('2026-07-21T10:00:00.000Z');
+    expect(updated.opportunity.title).toBe('Staff ML Engineer');
   });
 
   it('rejects Opportunity Body update when body storage fails', async () => {
@@ -874,7 +909,6 @@ describe('Job OS facade — Fit Insight', () => {
     await jobOs.updateOpportunity({
       id: created.opportunity.id,
       employerId: anon.id,
-      noticedAt: created.opportunity.noticedAt,
       title: 'Staff platform engineer',
       seniority: 'senior',
     });
