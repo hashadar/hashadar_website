@@ -5,7 +5,8 @@ export const analyseFit = defineFunction({
   entry: './handler.ts',
   timeoutSeconds: 60,
   environment: {
-    BEDROCK_MODEL_ID:
-      'anthropic.claude-3-haiku-20240307-v1:0',
+    // Open-weight Meta model; US geo profile (no Marketplace subscription).
+    BEDROCK_MODEL_ID: 'us.meta.llama3-3-70b-instruct-v1:0',
+    BEDROCK_REGION: 'us-east-1',
   },
 });

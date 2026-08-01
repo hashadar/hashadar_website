@@ -7,6 +7,7 @@ import { jobOsFieldClassName } from '@/components/sections/labs/job-os/job-os-fi
 import {
   formatCompensation,
   formatNoticedAge,
+  fromDatetimeLocalValue,
   JobOsCaptureStrip,
   JobOsFocusSection,
   JobOsLedger,
@@ -14,6 +15,7 @@ import {
   JobOsLedgerRow,
   JobOsPill,
   JobOsWorkspaceIntro,
+  toDatetimeLocalValue,
 } from '@/components/sections/labs/job-os/job-os-ledger';
 import { jobOs } from '@/data';
 import {
@@ -99,8 +101,8 @@ export function JobOsOpportunitiesWorkspace({
   const [employerId, setEmployerId] = useState('');
   const [title, setTitle] = useState('');
   const [source, setSource] = useState('');
-  const [noticedAt, setNoticedAt] = useState(
-    () => new Date().toISOString().slice(0, 16),
+  const [noticedAt, setNoticedAt] = useState(() =>
+    toDatetimeLocalValue(new Date()),
   );
   const [status, setStatus] = useState<OpportunityStatus>('open');
   const [seniority, setSeniority] = useState<OpportunitySeniority | ''>('');
@@ -181,7 +183,7 @@ export function JobOsOpportunitiesWorkspace({
       setEmployerId(opportunity.employerId);
       setTitle(opportunity.title ?? '');
       setSource(opportunity.source ?? '');
-      setNoticedAt(opportunity.noticedAt.slice(0, 16));
+      setNoticedAt(toDatetimeLocalValue(new Date(opportunity.noticedAt)));
       setStatus(opportunity.status);
       setSeniority(opportunity.seniority ?? '');
       setRoleFamily(opportunity.roleFamily ?? '');
@@ -262,7 +264,7 @@ export function JobOsOpportunitiesWorkspace({
       event.preventDefault();
       setTitle('');
       setSource('');
-      setNoticedAt(new Date().toISOString().slice(0, 16));
+      setNoticedAt(toDatetimeLocalValue(new Date()));
       setStatus('open');
       setSeniority('');
       setRoleFamily('');
@@ -318,20 +320,11 @@ export function JobOsOpportunitiesWorkspace({
     setPursuitById(next);
   }
 
-  function toIsoNoticedAt(value: string): string {
-    const asDate = new Date(value);
-    if (Number.isNaN(asDate.getTime())) {
-      return new Date().toISOString();
-    }
-    return asDate.toISOString();
-  }
-
-  function buildInput() {
-    return {
+  function buildInput(mode: 'create' | 'update') {
+    const shared = {
       employerId,
       title,
       source,
-      noticedAt: toIsoNoticedAt(noticedAt),
       status,
       seniority: seniority || undefined,
       roleFamily: roleFamily || undefined,
@@ -345,12 +338,19 @@ export function JobOsOpportunitiesWorkspace({
         .map((tech) => tech.trim())
         .filter(Boolean),
     };
+    if (mode === 'create') {
+      return {
+        ...shared,
+        noticedAt: fromDatetimeLocalValue(noticedAt),
+      };
+    }
+    return shared;
   }
 
   function resetCaptureFields() {
     setTitle('');
     setSource('');
-    setNoticedAt(new Date().toISOString().slice(0, 16));
+    setNoticedAt(toDatetimeLocalValue(new Date()));
     setStatus('open');
     setSeniority('');
     setRoleFamily('');
@@ -394,7 +394,7 @@ export function JobOsOpportunitiesWorkspace({
     }
     setBusy(true);
     setError(null);
-    const result = await client.createOpportunity(buildInput());
+    const result = await client.createOpportunity(buildInput('create'));
     setBusy(false);
     if (result.status === 'rejected') {
       setError(result.reason);
@@ -415,7 +415,7 @@ export function JobOsOpportunitiesWorkspace({
     try {
       const result = await client.updateOpportunity({
         id: selected.id,
-        ...buildInput(),
+        ...buildInput('update'),
       });
       if (result.status === 'rejected' || result.status === 'not_found') {
         setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
@@ -610,8 +610,7 @@ export function JobOsOpportunitiesWorkspace({
             setEmployerId={setEmployerId}
             title={title}
             setTitle={setTitle}
-            noticedAt={noticedAt}
-            setNoticedAt={setNoticedAt}
+            noticedAtDisplay={formatNoticedAge(selected.noticedAt)}
             status={status}
             setStatus={setStatus}
           />
@@ -1014,6 +1013,7 @@ function OpportunityListingFields({
   setTitle,
   noticedAt,
   setNoticedAt,
+  noticedAtDisplay,
   status,
   setStatus,
 }: {
@@ -1023,8 +1023,9 @@ function OpportunityListingFields({
   setEmployerId: (value: string) => void;
   title: string;
   setTitle: (value: string) => void;
-  noticedAt: string;
-  setNoticedAt: (value: string) => void;
+  noticedAt?: string;
+  setNoticedAt?: (value: string) => void;
+  noticedAtDisplay?: string;
   status: OpportunityStatus;
   setStatus: (value: OpportunityStatus) => void;
 }) {
@@ -1054,12 +1055,16 @@ function OpportunityListingFields({
       </label>
       <label className="block font-body text-sm">
         {copy.noticedAtLabel}
-        <input
-          type="datetime-local"
-          className={jobOsFieldClassName}
-          value={noticedAt}
-          onChange={(event) => setNoticedAt(event.target.value)}
-        />
+        {setNoticedAt && noticedAt != null ? (
+          <input
+            type="datetime-local"
+            className={jobOsFieldClassName}
+            value={noticedAt}
+            onChange={(event) => setNoticedAt(event.target.value)}
+          />
+        ) : (
+          <Text className="mt-1 block">{noticedAtDisplay ?? '—'}</Text>
+        )}
       </label>
       <label className="block font-body text-sm">
         {copy.statusLabel}

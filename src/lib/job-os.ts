@@ -330,7 +330,7 @@ export type CreateOpportunityInput = {
   technologies?: string[];
 };
 
-export type UpdateOpportunityInput = CreateOpportunityInput & {
+export type UpdateOpportunityInput = Omit<CreateOpportunityInput, 'noticedAt'> & {
   id: string;
 };
 
@@ -1052,11 +1052,17 @@ export function createJobOs(deps: JobOsDeps) {
     }
 
     await ensureVocabularyDefaults();
-    const shape = validateOpportunityShape(input);
+    const shape = validateOpportunityShape({
+      ...input,
+      noticedAt: existing.noticedAt,
+    });
     if (shape.status === 'rejected') {
       return shape;
     }
-    const validation = await validateOpportunityVocabulary(input);
+    const validation = await validateOpportunityVocabulary({
+      ...input,
+      noticedAt: existing.noticedAt,
+    });
     if (validation.status === 'rejected') {
       return validation;
     }
@@ -1066,11 +1072,15 @@ export function createJobOs(deps: JobOsDeps) {
       return { status: 'rejected', reason: 'Employer not found' };
     }
 
-    const fields = buildOpportunityFields(input);
+    const fields = buildOpportunityFields({
+      ...input,
+      noticedAt: existing.noticedAt,
+    });
     const opportunity: OpportunityRecord = {
       ...existing,
       employerId: input.employerId,
       ...fields,
+      noticedAt: existing.noticedAt,
       contentUpdatedAt: now(),
     };
     await deps.store.persistOpportunity(opportunity);
