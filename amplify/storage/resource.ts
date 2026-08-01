@@ -15,6 +15,9 @@ export const storage = defineStorage({
     'bodies/applications/*': [
       allow.authenticated.to(['read', 'write', 'delete']),
     ],
+    'bodies/hunt-profiles/*': [
+      allow.authenticated.to(['read', 'write', 'delete']),
+    ],
   }),
 });
 

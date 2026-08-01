@@ -73,6 +73,10 @@ describe('JobOsShell', () => {
       'href',
       '/labs/job-os/applications',
     );
+    expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute(
+      'href',
+      '/labs/job-os/profile',
+    );
   });
 });
 

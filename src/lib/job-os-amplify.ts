@@ -6,12 +6,15 @@ import type {
   DecisionEventKind,
   DecisionEventRecord,
   EmployerRecord,
+  FitInsightRecord,
+  HuntProfileRecord,
   JobOsStore,
   OpportunityRecord,
   OpportunityStatus,
   VocabularyKind,
   VocabularyTermRecord,
 } from '@/lib/job-os';
+import { HUNT_PROFILE_SINGLETON_ID } from '@/lib/job-os';
 
 type AmplifyDataResult<T> = {
   data: T;
@@ -41,6 +44,7 @@ export type AmplifyOpportunityRow = {
   title?: string | null;
   source?: string | null;
   noticedAt: string;
+  contentUpdatedAt?: string | null;
   seniority?: string | null;
   roleFamily?: string | null;
   compensationCurrency?: string | null;
@@ -50,6 +54,33 @@ export type AmplifyOpportunityRow = {
   compensationDisclosure?: CompensationDisclosure | null;
   technologies?: string[] | null;
   s3Key?: string | null;
+};
+
+export type AmplifyHuntProfileRow = {
+  id: string;
+  targetSeniority?: string | null;
+  targetRoleFamily?: string | null;
+  locationFlexibility?: string | null;
+  compensationFloor?: number | null;
+  compensationCurrency?: string | null;
+  compensationPeriod?: CompensationPeriod | null;
+  mustHaveTags?: string[] | null;
+  dealBreakerTags?: string[] | null;
+  escapePains?: string[] | null;
+  seekDesires?: string[] | null;
+  s3Key?: string | null;
+  contentUpdatedAt: string;
+};
+
+export type AmplifyFitInsightRow = {
+  id: string;
+  opportunityId: string;
+  summary: string;
+  advantages?: string[] | null;
+  disadvantages?: string[] | null;
+  fitNotes?: string[] | null;
+  gaps?: string[] | null;
+  analysedAt: string;
 };
 
 export type AmplifyApplicationRow = {
@@ -97,6 +128,8 @@ export type AmplifyJobOsModelsClient = {
   Application: ModelClient<AmplifyApplicationRow>;
   DecisionEvent: ModelClient<AmplifyDecisionEventRow>;
   VocabularyTerm: ModelClient<AmplifyVocabularyTermRow>;
+  HuntProfile: ModelClient<AmplifyHuntProfileRow>;
+  FitInsight: ModelClient<AmplifyFitInsightRow>;
 };
 
 function throwIfErrors(
@@ -146,6 +179,7 @@ function toOpportunityRecord(row: AmplifyOpportunityRow): OpportunityRecord {
     title: optionalString(row.title),
     source: optionalString(row.source),
     noticedAt: row.noticedAt,
+    contentUpdatedAt: optionalString(row.contentUpdatedAt) ?? row.noticedAt,
     seniority: optionalString(row.seniority),
     roleFamily: optionalString(row.roleFamily),
     compensationCurrency: optionalString(row.compensationCurrency),
@@ -155,6 +189,37 @@ function toOpportunityRecord(row: AmplifyOpportunityRow): OpportunityRecord {
     compensationDisclosure: row.compensationDisclosure ?? undefined,
     technologies: row.technologies ?? undefined,
     s3Key: optionalString(row.s3Key),
+  };
+}
+
+function toHuntProfileRecord(row: AmplifyHuntProfileRow): HuntProfileRecord {
+  return {
+    id: row.id,
+    targetSeniority: optionalString(row.targetSeniority),
+    targetRoleFamily: optionalString(row.targetRoleFamily),
+    locationFlexibility: optionalString(row.locationFlexibility),
+    compensationFloor: row.compensationFloor ?? undefined,
+    compensationCurrency: optionalString(row.compensationCurrency),
+    compensationPeriod: row.compensationPeriod ?? undefined,
+    mustHaveTags: row.mustHaveTags ?? undefined,
+    dealBreakerTags: row.dealBreakerTags ?? undefined,
+    escapePains: row.escapePains ?? undefined,
+    seekDesires: row.seekDesires ?? undefined,
+    s3Key: optionalString(row.s3Key),
+    contentUpdatedAt: row.contentUpdatedAt,
+  };
+}
+
+function toFitInsightRecord(row: AmplifyFitInsightRow): FitInsightRecord {
+  return {
+    id: row.id,
+    opportunityId: row.opportunityId,
+    summary: row.summary,
+    advantages: row.advantages ?? [],
+    disadvantages: row.disadvantages ?? [],
+    fitNotes: row.fitNotes ?? [],
+    gaps: row.gaps ?? [],
+    analysedAt: row.analysedAt,
   };
 }
 
@@ -220,6 +285,7 @@ function opportunityToRow(record: OpportunityRecord): AmplifyOpportunityRow {
     title: record.title ?? null,
     source: record.source ?? null,
     noticedAt: record.noticedAt,
+    contentUpdatedAt: record.contentUpdatedAt,
     seniority: record.seniority ?? null,
     roleFamily: record.roleFamily ?? null,
     compensationCurrency: record.compensationCurrency ?? null,
@@ -229,6 +295,37 @@ function opportunityToRow(record: OpportunityRecord): AmplifyOpportunityRow {
     compensationDisclosure: record.compensationDisclosure ?? null,
     technologies: record.technologies ?? null,
     s3Key: record.s3Key ?? null,
+  };
+}
+
+function huntProfileToRow(record: HuntProfileRecord): AmplifyHuntProfileRow {
+  return {
+    id: record.id,
+    targetSeniority: record.targetSeniority ?? null,
+    targetRoleFamily: record.targetRoleFamily ?? null,
+    locationFlexibility: record.locationFlexibility ?? null,
+    compensationFloor: record.compensationFloor ?? null,
+    compensationCurrency: record.compensationCurrency ?? null,
+    compensationPeriod: record.compensationPeriod ?? null,
+    mustHaveTags: record.mustHaveTags ?? null,
+    dealBreakerTags: record.dealBreakerTags ?? null,
+    escapePains: record.escapePains ?? null,
+    seekDesires: record.seekDesires ?? null,
+    s3Key: record.s3Key ?? null,
+    contentUpdatedAt: record.contentUpdatedAt,
+  };
+}
+
+function fitInsightToRow(record: FitInsightRecord): AmplifyFitInsightRow {
+  return {
+    id: record.id,
+    opportunityId: record.opportunityId,
+    summary: record.summary,
+    advantages: record.advantages,
+    disadvantages: record.disadvantages,
+    fitNotes: record.fitNotes,
+    gaps: record.gaps,
+    analysedAt: record.analysedAt,
   };
 }
 
@@ -460,6 +557,65 @@ export function createAmplifyJobOsStore(
       );
       throwIfErrors(errors);
     },
+    async getHuntProfile() {
+      const byId = await client.HuntProfile.get({
+        id: HUNT_PROFILE_SINGLETON_ID,
+      });
+      throwIfErrors(byId.errors);
+      if (byId.data) {
+        return toHuntProfileRecord(byId.data);
+      }
+      const listed = await client.HuntProfile.list();
+      throwIfErrors(listed.errors);
+      const row = (listed.data ?? []).find((item) => item != null);
+      return row ? toHuntProfileRecord(row) : null;
+    },
+    async insertHuntProfile(input) {
+      const row = huntProfileToRow({
+        ...input,
+        id: input.id ?? HUNT_PROFILE_SINGLETON_ID,
+      });
+      const { data, errors } = await client.HuntProfile.create(row);
+      throwIfErrors(errors);
+      if (!data) {
+        throw new Error('Hunt Profile create returned no data');
+      }
+      return toHuntProfileRecord(data);
+    },
+    async persistHuntProfile(record) {
+      const { errors } = await client.HuntProfile.update(
+        huntProfileToRow(record),
+      );
+      throwIfErrors(errors);
+    },
+    async getFitInsightByOpportunityId(opportunityId) {
+      const { data, errors } = await client.FitInsight.list({
+        filter: { opportunityId: { eq: opportunityId } },
+      });
+      throwIfErrors(errors);
+      const row = data?.[0];
+      return row ? toFitInsightRecord(row) : null;
+    },
+    async insertFitInsight(input) {
+      const row = fitInsightToRow({
+        ...input,
+        id: input.id ?? '',
+      });
+      const { id, ...fields } = row;
+      const { data, errors } = await client.FitInsight.create({
+        ...fields,
+        ...(id ? { id } : {}),
+      });
+      throwIfErrors(errors);
+      if (!data) {
+        throw new Error('Fit Insight create returned no data');
+      }
+      return toFitInsightRecord(data);
+    },
+    async persistFitInsight(record) {
+      const { errors } = await client.FitInsight.update(fitInsightToRow(record));
+      throwIfErrors(errors);
+    },
   };
 }
 
@@ -564,6 +720,42 @@ export function createAmplifyJobOsModelsClient(
       async update(input) {
         const client = await getClient();
         return client.models.VocabularyTerm.update(input);
+      },
+    },
+    HuntProfile: {
+      async get(input) {
+        const client = await getClient();
+        return client.models.HuntProfile.get(input);
+      },
+      async list(input) {
+        const client = await getClient();
+        return client.models.HuntProfile.list(input);
+      },
+      async create(input) {
+        const client = await getClient();
+        return client.models.HuntProfile.create(input);
+      },
+      async update(input) {
+        const client = await getClient();
+        return client.models.HuntProfile.update(input);
+      },
+    },
+    FitInsight: {
+      async get(input) {
+        const client = await getClient();
+        return client.models.FitInsight.get(input);
+      },
+      async list(input) {
+        const client = await getClient();
+        return client.models.FitInsight.list(input);
+      },
+      async create(input) {
+        const client = await getClient();
+        return client.models.FitInsight.create(input);
+      },
+      async update(input) {
+        const client = await getClient();
+        return client.models.FitInsight.update(input);
       },
     },
   };
