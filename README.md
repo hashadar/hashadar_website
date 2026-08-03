@@ -1,33 +1,54 @@
-# Hasha Dar Portfolio
+# hashadar.com
 
-Modern portfolio website built with Next.js 16, featuring photography work.
+Personal site for [Hasha Dar](https://hashadar.com): public marketing pages, Site Admin content management, and gated Labs products.
 
-## Tech Stack
+This is a production system I design, ship, and operate — not a static brochure repo.
 
-- **Next.js 16** with App Router and React Compiler
-- **TypeScript** for type safety
-- **Tailwind CSS** for styling
-- **Framer Motion** for animations
-- **Optimised images** with WebP/AVIF support
+## What it demonstrates
 
-## Development
+- **Public site** — portfolio photography, blog, and page content driven from a data layer + live Site Content storage
+- **Site Admin** — authenticated CMS for Posts, portfolio Photos, and the Home Photo (`/admin`)
+- **Labs** — separate gated products under `/labs` that reuse site-wide sign-in; currently **Job OS**, a private job-hunting graph (Employer → Opportunity → Application) with fit analysis behind a facade
+- **Cloud backend** — AWS Amplify Gen 2 (Cognito auth, Amplify Data, Storage, and Functions such as Bedrock-backed fit analysis)
+- **Engineering hygiene** — TypeScript throughout, Vitest, GitHub Actions CI, Amplify Hosting CD, domain language in `CONTEXT.md` / ADRs
+
+## Stack
+
+| Layer | Choice |
+|-------|--------|
+| App | Next.js (App Router), React, TypeScript, Tailwind CSS |
+| Motion / UI | Framer Motion, site design tokens |
+| Backend | AWS Amplify Gen 2 (`amplify/`) |
+| CI | GitHub Actions — lint, typecheck, tests, production build |
+| CD | Amplify Hosting autobuild (`amplify.yml`) only |
+
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view locally.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Production
+Public marketing pages run without `amplify_outputs.json`. For a live backend:
 
 ```bash
-npm run build
-npm start
+npm run sandbox
 ```
 
-Optimised for deployment on AWS Amplify Gen 2 (backend in `amplify/`, Hosting via `amplify.yml`). Public marketing pages run without `amplify_outputs.json`; use `npm run sandbox` locally when you need a live backend. See **[docs/CI-AND-DEPLOYMENT.md](docs/CI-AND-DEPLOYMENT.md)**.
+## Quality checks
 
-## CI and deployment
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
 
-Pull requests and pushes to `main` run **GitHub Actions** (lint, typecheck, tests, production build). **Deployment** is **AWS Amplify** autobuild only (`amplify.yml` at the repo root); Actions do not deploy. Environment variable names used on Amplify and branch protection expectations are in **[docs/CI-AND-DEPLOYMENT.md](docs/CI-AND-DEPLOYMENT.md)**.
+## Docs
+
+- [CI and deployment](docs/CI-AND-DEPLOYMENT.md)
+- [Codebase conventions](docs/CODEBASE-CONVENTIONS.md)
+- Site domain language: `docs/site/CONTEXT.md`
+- Job OS domain language: `CONTEXT.md` + `docs/adr/`
