@@ -1,7 +1,9 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { analyseFit } from '../functions/analyse-fit/resource';
 
 /**
  * Job OS hunting graph: Employer → Opportunity → Application, plus Decision Events.
+ * Fit Insight v3.1: Hunt Profile singleton + Fit Insight (latest-wins per Opportunity).
  * Bodies are optional S3 prose keyed from the DB when present.
  * Size/prestige/sector/seniority/role family are strings validated against VocabularyTerm.
  */
@@ -66,6 +68,8 @@ const schema = a.schema({
       title: a.string(),
       source: a.string(),
       noticedAt: a.datetime().required(),
+      // Owner-managed stamp for Fit Insight stale detection (legacy rows may omit).
+      contentUpdatedAt: a.datetime(),
       seniority: a.string(),
       roleFamily: a.string(),
       compensationCurrency: a.string(),
@@ -77,6 +81,7 @@ const schema = a.schema({
       s3Key: a.string(),
       application: a.hasOne('Application', 'opportunityId'),
       decisionEvents: a.hasMany('DecisionEvent', 'opportunityId'),
+      fitInsight: a.hasOne('FitInsight', 'opportunityId'),
     })
     .authorization((allow) => [
       allow.authenticated().to(['read', 'create', 'update', 'delete']),
@@ -109,6 +114,49 @@ const schema = a.schema({
     .authorization((allow) => [
       allow.authenticated().to(['read', 'create']),
     ]),
+
+  HuntProfile: a
+    .model({
+      targetSeniority: a.string(),
+      targetRoleFamily: a.string(),
+      locationFlexibility: a.string(),
+      compensationFloor: a.float(),
+      compensationCurrency: a.string(),
+      compensationPeriod: a.ref('CompensationPeriod'),
+      mustHaveTags: a.string().array(),
+      dealBreakerTags: a.string().array(),
+      escapePains: a.string().array(),
+      seekDesires: a.string().array(),
+      s3Key: a.string(),
+      contentUpdatedAt: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
+
+  FitInsight: a
+    .model({
+      opportunityId: a.id().required(),
+      opportunity: a.belongsTo('Opportunity', 'opportunityId'),
+      summary: a.string().required(),
+      advantages: a.string().array().required(),
+      disadvantages: a.string().array().required(),
+      fitNotes: a.string().array().required(),
+      gaps: a.string().array().required(),
+      analysedAt: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
+
+  analyseFitWithBedrock: a
+    .query()
+    .arguments({
+      contextJson: a.string().required(),
+    })
+    .returns(a.string())
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(analyseFit)),
 });
 
 export type Schema = ClientSchema<typeof schema>;

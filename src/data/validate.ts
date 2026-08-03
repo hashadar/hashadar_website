@@ -183,6 +183,18 @@ export function assertValidJobOsPage(data: unknown): void {
   requireString(lists, 'heading', 'job-os.lists');
   requireString(lists, 'addLabel', 'job-os.lists');
   requireRecord(lists.kindLabels, 'job-os.lists.kindLabels');
+
+  const profile = requireRecord(page.profile, 'job-os.profile');
+  requireString(profile, 'heading', 'job-os.profile');
+  requireString(profile, 'saveLabel', 'job-os.profile');
+  requireString(profile, 'bodyLabel', 'job-os.profile');
+
+  requireString(opportunities, 'focusChecklistHeading', 'job-os.opportunities');
+  requireString(opportunities, 'analyseLabel', 'job-os.opportunities');
+  requireRecord(
+    opportunities.checklistDimensionLabels,
+    'job-os.opportunities.checklistDimensionLabels',
+  );
 }
 
 export function assertValidLoginPage(data: unknown): void {

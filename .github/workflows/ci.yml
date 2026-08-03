@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       # v5+ uses Node 24 for the action runtime (avoids runner deprecation of Node 20 for actions).
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Use Node.js (same as .nvmrc / Amplify)
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version-file: '.nvmrc'
           cache: npm

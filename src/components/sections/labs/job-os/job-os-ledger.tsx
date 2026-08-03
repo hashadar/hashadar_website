@@ -212,6 +212,24 @@ export function JobOsFocusSection({
   );
 }
 
+/** Local wall-clock value for `<input type="datetime-local">` (no timezone suffix). */
+export function toDatetimeLocalValue(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/** Parse a datetime-local value as local time and return UTC ISO. */
+export function fromDatetimeLocalValue(
+  value: string,
+  fallback: () => Date = () => new Date(),
+): string {
+  const asDate = new Date(value);
+  if (Number.isNaN(asDate.getTime())) {
+    return fallback().toISOString();
+  }
+  return asDate.toISOString();
+}
+
 export function formatNoticedAge(iso: string, now = Date.now()): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) {

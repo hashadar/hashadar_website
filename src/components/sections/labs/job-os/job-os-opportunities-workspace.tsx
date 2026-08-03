@@ -7,6 +7,7 @@ import { jobOsFieldClassName } from '@/components/sections/labs/job-os/job-os-fi
 import {
   formatCompensation,
   formatNoticedAge,
+  fromDatetimeLocalValue,
   JobOsCaptureStrip,
   JobOsFocusSection,
   JobOsLedger,
@@ -14,24 +15,31 @@ import {
   JobOsLedgerRow,
   JobOsPill,
   JobOsWorkspaceIntro,
+  toDatetimeLocalValue,
 } from '@/components/sections/labs/job-os/job-os-ledger';
 import { jobOs } from '@/data';
 import {
   COMPENSATION_DISCLOSURES,
   COMPENSATION_PERIODS,
+  isHuntProfileUsable,
   OPPORTUNITY_STATUSES,
   type ApplicationRecord,
   type CompensationDisclosure,
   type CompensationPeriod,
+  type CreateOpportunityInput,
   type DecisionEventRecord,
   type EmployerRecord,
+  type FitInsightView,
+  type HuntProfileRecord,
   type JobOs,
   type OpportunityRecord,
   type OpportunityRoleFamily,
   type OpportunitySeniority,
   type OpportunityStatus,
+  type UpdateOpportunityInput,
   type VocabularyTermRecord,
 } from '@/lib/job-os';
+import type { StructuralChecklist } from '@/lib/job-os-structural-checklist';
 import { getDefaultJobOs } from '@/lib/job-os-default';
 
 export type JobOsOpportunitiesWorkspaceProps = {
@@ -75,6 +83,12 @@ export function JobOsOpportunitiesWorkspace({
   const [events, setEvents] = useState<DecisionEventRecord[]>([]);
   const [body, setBody] = useState('');
   const [hasApplication, setHasApplication] = useState(false);
+  const [checklist, setChecklist] = useState<StructuralChecklist | null>(null);
+  const [huntProfile, setHuntProfile] = useState<HuntProfileRecord | null>(
+    null,
+  );
+  const [fitInsight, setFitInsight] = useState<FitInsightView | null>(null);
+  const [analysing, setAnalysing] = useState(false);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   );
@@ -89,8 +103,8 @@ export function JobOsOpportunitiesWorkspace({
   const [employerId, setEmployerId] = useState('');
   const [title, setTitle] = useState('');
   const [source, setSource] = useState('');
-  const [noticedAt, setNoticedAt] = useState(
-    () => new Date().toISOString().slice(0, 16),
+  const [noticedAt, setNoticedAt] = useState(() =>
+    toDatetimeLocalValue(new Date()),
   );
   const [status, setStatus] = useState<OpportunityStatus>('open');
   const [seniority, setSeniority] = useState<OpportunitySeniority | ''>('');
@@ -171,7 +185,7 @@ export function JobOsOpportunitiesWorkspace({
       setEmployerId(opportunity.employerId);
       setTitle(opportunity.title ?? '');
       setSource(opportunity.source ?? '');
-      setNoticedAt(opportunity.noticedAt.slice(0, 16));
+      setNoticedAt(toDatetimeLocalValue(new Date(opportunity.noticedAt)));
       setStatus(opportunity.status);
       setSeniority(opportunity.seniority ?? '');
       setRoleFamily(opportunity.roleFamily ?? '');
@@ -194,12 +208,41 @@ export function JobOsOpportunitiesWorkspace({
       setBody(detail.body ?? '');
       setEvents(timeline);
       setHasApplication(Boolean(application));
+
+      const [checklistResult, insightResult] = await Promise.all([
+        client.getStructuralChecklist(selectedId),
+        client.getFitInsight(selectedId),
+      ]);
+      if (cancelled) {
+        return;
+      }
+      if (checklistResult.status === 'ok') {
+        setChecklist(checklistResult.checklist);
+        setHuntProfile(checklistResult.profile);
+      }
+      if (insightResult.status === 'ok') {
+        setFitInsight(insightResult.insight);
+      }
     })();
 
     return () => {
       cancelled = true;
     };
   }, [client, selectedId, opportunities]);
+
+  async function refreshFitSurfaces(active: JobOs, opportunityId: string) {
+    const [checklistResult, insightResult] = await Promise.all([
+      active.getStructuralChecklist(opportunityId),
+      active.getFitInsight(opportunityId),
+    ]);
+    if (checklistResult.status === 'ok') {
+      setChecklist(checklistResult.checklist);
+      setHuntProfile(checklistResult.profile);
+    }
+    if (insightResult.status === 'ok') {
+      setFitInsight(insightResult.insight);
+    }
+  }
 
   useEffect(() => {
     if (selectedId) {
@@ -223,7 +266,7 @@ export function JobOsOpportunitiesWorkspace({
       event.preventDefault();
       setTitle('');
       setSource('');
-      setNoticedAt(new Date().toISOString().slice(0, 16));
+      setNoticedAt(toDatetimeLocalValue(new Date()));
       setStatus('open');
       setSeniority('');
       setRoleFamily('');
@@ -279,20 +322,22 @@ export function JobOsOpportunitiesWorkspace({
     setPursuitById(next);
   }
 
-  function toIsoNoticedAt(value: string): string {
-    const asDate = new Date(value);
-    if (Number.isNaN(asDate.getTime())) {
-      return new Date().toISOString();
-    }
-    return asDate.toISOString();
+  function buildCreateInput(): CreateOpportunityInput {
+    return {
+      ...buildSharedInput(),
+      noticedAt: fromDatetimeLocalValue(noticedAt),
+    };
   }
 
-  function buildInput() {
+  function buildUpdateInput(): Omit<UpdateOpportunityInput, 'id'> {
+    return buildSharedInput();
+  }
+
+  function buildSharedInput() {
     return {
       employerId,
       title,
       source,
-      noticedAt: toIsoNoticedAt(noticedAt),
       status,
       seniority: seniority || undefined,
       roleFamily: roleFamily || undefined,
@@ -311,7 +356,7 @@ export function JobOsOpportunitiesWorkspace({
   function resetCaptureFields() {
     setTitle('');
     setSource('');
-    setNoticedAt(new Date().toISOString().slice(0, 16));
+    setNoticedAt(toDatetimeLocalValue(new Date()));
     setStatus('open');
     setSeniority('');
     setRoleFamily('');
@@ -355,7 +400,7 @@ export function JobOsOpportunitiesWorkspace({
     }
     setBusy(true);
     setError(null);
-    const result = await client.createOpportunity(buildInput());
+    const result = await client.createOpportunity(buildCreateInput());
     setBusy(false);
     if (result.status === 'rejected') {
       setError(result.reason);
@@ -376,7 +421,7 @@ export function JobOsOpportunitiesWorkspace({
     try {
       const result = await client.updateOpportunity({
         id: selected.id,
-        ...buildInput(),
+        ...buildUpdateInput(),
       });
       if (result.status === 'rejected' || result.status === 'not_found') {
         setError(result.status === 'rejected' ? result.reason : copy.errorLabel);
@@ -402,6 +447,9 @@ export function JobOsOpportunitiesWorkspace({
       }
 
       await refresh(client);
+      if (selectedId) {
+        await refreshFitSurfaces(client, selectedId);
+      }
       setMessage(copy.savedLabel);
     } finally {
       setBusy(false);
@@ -452,6 +500,40 @@ export function JobOsOpportunitiesWorkspace({
     } finally {
       setBusyId(null);
     }
+  }
+
+  async function handleAnalyseFit() {
+    if (!client || !selected) {
+      return;
+    }
+    setAnalysing(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const result = await client.analyseOpportunityFit(selected.id);
+      if (result.status === 'rejected') {
+        setError(result.reason);
+        return;
+      }
+      if (result.status === 'not_found') {
+        setError(copy.errorLabel);
+        return;
+      }
+      setFitInsight(result.insight);
+      setMessage(copy.analysedLabel);
+    } finally {
+      setAnalysing(false);
+    }
+  }
+
+  function checklistVerdictLabel(verdict: string): string {
+    if (verdict === 'pass') {
+      return copy.checklistVerdictPass;
+    }
+    if (verdict === 'fail') {
+      return copy.checklistVerdictFail;
+    }
+    return copy.checklistVerdictUnknown;
   }
 
   function employerName(id: string): string {
@@ -534,8 +616,7 @@ export function JobOsOpportunitiesWorkspace({
             setEmployerId={setEmployerId}
             title={title}
             setTitle={setTitle}
-            noticedAt={noticedAt}
-            setNoticedAt={setNoticedAt}
+            noticedAtDisplay={formatNoticedAge(selected.noticedAt)}
             status={status}
             setStatus={setStatus}
           />
@@ -580,6 +661,113 @@ export function JobOsOpportunitiesWorkspace({
               placeholder={copy.noBodyLabel}
             />
           </label>
+        </JobOsFocusSection>
+
+        <JobOsFocusSection title={copy.focusChecklistHeading}>
+          {!huntProfile ? (
+            <Text variant="muted">{copy.checklistEmptyProfile}</Text>
+          ) : checklist ? (
+            <ul className="space-y-2">
+              {checklist.rows.map((row) => (
+                <li
+                  key={row.dimension}
+                  className="flex flex-wrap items-center gap-3"
+                >
+                  <Text className="min-w-[8rem]">
+                    {copy.checklistDimensionLabels[row.dimension] ??
+                      row.dimension}
+                  </Text>
+                  <JobOsPill
+                    tone={
+                      row.verdict === 'pass'
+                        ? 'open'
+                        : row.verdict === 'fail'
+                          ? 'closed'
+                          : 'passed'
+                    }
+                  >
+                    {checklistVerdictLabel(row.verdict)}
+                  </JobOsPill>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </JobOsFocusSection>
+
+        <JobOsFocusSection title={copy.focusFitInsightHeading}>
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={
+                  analysing ||
+                  busy ||
+                  !huntProfile ||
+                  !isHuntProfileUsable(huntProfile)
+                }
+                onClick={() => void handleAnalyseFit()}
+              >
+                {analysing
+                  ? copy.analysingLabel
+                  : fitInsight
+                    ? copy.reanalyseLabel
+                    : copy.analyseLabel}
+              </Button>
+              {!huntProfile || !isHuntProfileUsable(huntProfile) ? (
+                <Text variant="muted" className="text-sm">
+                  {copy.analyseBlockedLabel}
+                </Text>
+              ) : null}
+            </div>
+            {fitInsight?.stale ? (
+              <Text variant="muted">{copy.fitInsightStaleLabel}</Text>
+            ) : null}
+            {!fitInsight ? (
+              <Text variant="muted">{copy.fitInsightEmpty}</Text>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <Text className="font-medium">
+                    {copy.fitInsightSummaryHeading}
+                  </Text>
+                  <Text className="mt-1">{fitInsight.summary}</Text>
+                </div>
+                {(
+                  [
+                    [
+                      copy.fitInsightAdvantagesHeading,
+                      fitInsight.advantages,
+                    ],
+                    [
+                      copy.fitInsightDisadvantagesHeading,
+                      fitInsight.disadvantages,
+                    ],
+                    [copy.fitInsightFitNotesHeading, fitInsight.fitNotes],
+                    [copy.fitInsightGapsHeading, fitInsight.gaps],
+                  ] as const
+                ).map(([heading, items]) => (
+                  <div key={heading}>
+                    <Text className="font-medium">{heading}</Text>
+                    {items.length === 0 ? (
+                      <Text variant="muted" className="mt-1">
+                        —
+                      </Text>
+                    ) : (
+                      <ul className="mt-1 list-disc space-y-1 pl-5">
+                        {items.map((item) => (
+                          <li key={`${heading}-${item}`}>
+                            <Text>{item}</Text>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </JobOsFocusSection>
 
         <JobOsFocusSection title={copy.timelineHeading}>
@@ -831,6 +1019,7 @@ function OpportunityListingFields({
   setTitle,
   noticedAt,
   setNoticedAt,
+  noticedAtDisplay,
   status,
   setStatus,
 }: {
@@ -840,8 +1029,9 @@ function OpportunityListingFields({
   setEmployerId: (value: string) => void;
   title: string;
   setTitle: (value: string) => void;
-  noticedAt: string;
-  setNoticedAt: (value: string) => void;
+  noticedAt?: string;
+  setNoticedAt?: (value: string) => void;
+  noticedAtDisplay?: string;
   status: OpportunityStatus;
   setStatus: (value: OpportunityStatus) => void;
 }) {
@@ -871,12 +1061,16 @@ function OpportunityListingFields({
       </label>
       <label className="block font-body text-sm">
         {copy.noticedAtLabel}
-        <input
-          type="datetime-local"
-          className={jobOsFieldClassName}
-          value={noticedAt}
-          onChange={(event) => setNoticedAt(event.target.value)}
-        />
+        {setNoticedAt && noticedAt != null ? (
+          <input
+            type="datetime-local"
+            className={jobOsFieldClassName}
+            value={noticedAt}
+            onChange={(event) => setNoticedAt(event.target.value)}
+          />
+        ) : (
+          <Text className="mt-1 block">{noticedAtDisplay ?? '—'}</Text>
+        )}
       </label>
       <label className="block font-body text-sm">
         {copy.statusLabel}
