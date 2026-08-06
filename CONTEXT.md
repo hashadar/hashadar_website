@@ -41,7 +41,7 @@ A pursuit of a specific Opportunity: process state, contacts, prep, and debrief.
 _Avoid_: Pursuit (synonym only), candidacy, pipeline item
 
 **Opportunity status**:
-Lifecycle of the listing as a market object: `open` or `closed`. Not whether the owner applied or passed.
+Lifecycle of the listing as a market object: `open` or `closed`. Not whether the owner applied or passed. Terminal Application outcomes (`accepted`, `rejected`, `withdrawn`) close the Opportunity; Pass does not; leaving a terminal Application status does not reopen it.
 _Avoid_: active/archived as pursuit state, Application status, withdrawn (use closed)
 
 **Application status**:
@@ -71,12 +71,12 @@ The singleton private substrate for fit analysis: structured hunt targets and co
 _Avoid_: Canonical CV, Current Role Dossier, Preference Profile, Owner Profile, treating Site careerProfile as the substrate
 
 **Structural checklist**:
-A pure, always-on comparison of Hunt Profile structured fields to an Opportunity (compensation, seniority, role family, must-haves, deal-breakers), each row pass, fail, or unknown. Not an LLM output and not a Decision Event.
+A pure, always-on comparison of Hunt Profile structured fields to an Opportunity (compensation, seniority, role family, must-haves, deal-breakers), each row pass, fail, or unknown. Shown beside the Opportunity evidence fields that feed it. Not an LLM output and not a Decision Event.
 _Avoid_: Fit Insight, scorecard weights, preference score
 
 **Fit Insight**:
-The latest structured analysis of an Opportunity against the Hunt Profile (summary, advantages, disadvantages, fit notes, gaps), produced on demand. Owner-only; analysing does not emit a Decision Event.
-_Avoid_: Preference Profile scorecard, learned ranker, treating analyse as Pass or Pursue
+The latest structured analysis of an Opportunity against the Hunt Profile (summary, advantages, disadvantages, fit notes, gaps), produced on demand. Uses Hunt Profile, Opportunity, Employer (including Bodies), and structural checklist context; may apply well-established public knowledge about a named Employer when it changes the judgment. Owner-only; analysing does not emit a Decision Event.
+_Avoid_: Preference Profile scorecard, learned ranker, treating analyse as Pass or Pursue, live web enrichment as the Employer source of truth
 
 **Current Role Dossier** / **Preference Profile** (stated Layer-1 scorecard):
 Cancelled product path. Superseded by Hunt Profile, Structural checklist, and Fit Insight.
