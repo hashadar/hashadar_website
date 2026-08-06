@@ -1,11 +1,25 @@
-# CI only: lint, typecheck, tests, build. Deploy stays on AWS Amplify (amplify.yml).
+# CI only: lint, typecheck, tests; next build on main pushes. Deploy stays on AWS Amplify (amplify.yml).
 # Pin app Node via .nvmrc (kept in sync with Amplify amplify.yml); see docs/CI-AND-DEPLOYMENT.md.
 name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.cursor/**'
+      - '.agents/**'
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.cursor/**'
+      - '.agents/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -26,4 +40,6 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
-      - run: npm run build
+      - name: Build (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npm run build
