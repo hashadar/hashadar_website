@@ -85,15 +85,13 @@ GitHub Actions builds without `amplify_outputs.json`. Public blog/portfolio read
 
 ## Branch protection (repository owner)
 
-Full squash / ruleset / sync-bot checklist: [BRANCHING.md — Owner checklist](./BRANCHING.md#owner-checklist-github-ui).
+Canonical settings live in [BRANCHING.md](./BRANCHING.md) (squash-only, **do not** enable delete-head-on-merge, slim rulesets for `main` / `develop`).
 
-Minimum after CI is green:
+Minimum for CI:
 
-1. GitHub → **Settings** → **Rules** (rulesets) or **Branches** → protect `main` and `develop`.
-2. Require the **CI** workflow (job `quality` / check name as shown on PRs) to pass before merge.
-3. Allow `github-actions[bot]` to force-push **`develop`** for the sync workflow.
-
-AI agents cannot apply this in the UI; use the checklist above.
+1. Protect `main`: require PR + check name **`quality`**.
+2. Protect `develop`: block deletion and force-push (admin bypass OK for sync).
+3. Actions workflow permissions: **Read and write** so `sync-develop` can push.
 
 ## Related
 

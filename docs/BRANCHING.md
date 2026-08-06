@@ -1,63 +1,67 @@
 # Branching, releases, and hotfixes
 
-Linear history via **squash-only** merges. Long-lived branches: `develop` (integration) and `main` (production).
+Simple two-branch flow. Linear history via **squash-only** merges.
 
-## Branch roles
+## Branches
 
 | Branch | Role | Deploy |
 |--------|------|--------|
-| `main` | Production | AWS Amplify only |
-| `develop` | Default integration | No Amplify branch in the baseline setup |
-| `feature/*`, `cursor/*` | Day-to-day work | None |
-| `hotfix/*` | Prod fixes | None until merged to `main` |
+| `main` | Production | AWS Amplify |
+| `develop` | Pre-prod / integration — test here locally, then promote | No Amplify branch |
+| `feature/*`, `fix/*`, `chore/*`, `docs/*`, `cursor/*` | Day-to-day work | None |
+| `hotfix/*` | Urgent prod fix | None until merged to `main` |
 
-Default GitHub branch stays `main`. **Day-to-day PRs target `develop`.**
+Default GitHub branch is **`main`**. Day-to-day PRs target **`develop`**.
 
-## Merge style
+There is **no** intermediate `release/*` branch. When `develop` looks good, open a PR **`develop` → `main`**.
 
-Repository setting: **allow squash merging only** (disable merge commits and rebase-and-merge). Enable **delete branch on merge**.
+## Flow
 
-| PR | Squash commit title |
-|----|---------------------|
-| Feature → `develop` | Meaningful summary (issue/PR title) |
-| `develop` → `main` | `Release: …` (`vX.Y.Z`) |
-| `hotfix/*` → `main` | `Hotfix: …` (`vX.Y.Z`) |
+### Feature work
 
-## Normal flow
+1. Branch from `develop`.
+2. PR → `develop` (CI `quality` should pass).
+3. Squash-merge.
 
-1. Branch from **`develop`**.
-2. Open PR → **`develop`** (CI must pass). Prefer `closes #N` in the body.
-3. Squash-merge into `develop`.
+### Promote to prod
 
-## Release flow (`develop` → `main`)
-
-1. Open PR **`develop` → `main`** when ready to ship.
-2. Squash-merge as `Release: …`.
+1. Open PR **`develop` → `main`**.
+2. Squash-merge as `Release: …` (optional `vX.Y.Z` in the title).
 3. Amplify deploys from `main`.
-4. Cut the GitHub Release / tag (see [RELEASES.md](./RELEASES.md)).
-5. **Sync workflow** aligns `develop` to `main` (see below). Do not merge `main` back into `develop` by hand.
+4. Tag / GitHub Release per [RELEASES.md](./RELEASES.md).
+5. Sync workflow aligns `develop` to `main` (same tree after a full promote; see below).
 
-## Hotfix flow
+### Hotfix
 
-1. Branch `hotfix/…` from **`main`** (not from `develop`).
-2. PR → **`main`** (CI must pass).
-3. Squash-merge; Amplify deploys.
-4. Cut a patch release tag (e.g. `v2.0.1`).
-5. Sync workflow brings the fix onto `develop`.
+1. Branch `hotfix/…` from **`main`**.
+2. PR → `main`, squash-merge, deploy, tag.
+3. Sync brings the fix onto `develop`.
 
 Never land a prod hotfix on `develop` first.
 
+## Repo settings (intentional)
+
+| Setting | Value | Why |
+|---------|--------|-----|
+| Squash merge only | On | Linear history |
+| Delete head branches on merge | **Off** | Must stay off — a `develop` → `main` PR would otherwise delete long-lived `develop` |
+| Protect `main` | No delete, no force-push, PR required, CI `quality` required | Prod guardrail |
+| Protect `develop` | No delete, no force-push | Keeps the pre-prod branch alive |
+
+After merging a **feature** PR, delete the feature branch yourself (GitHub UI “Delete branch”, or `git push origin --delete <branch>`).
+
 ## Sync: `main` → `develop`
 
-Workflow: `.github/workflows/sync-develop.yml` (runs on every push to `main`).
+Workflow: `.github/workflows/sync-develop.yml` (on push to `main`, or manual dispatch).
 
-Because releases are **squashed**, commit graphs diverge even when trees match. The job:
+Squash merges rewrite history, so graphs diverge even when trees match. The job:
 
-1. If `develop` and `main` have the **same tree** → reset `develop` to `main` (`--force-with-lease`).
-2. If `develop` has **different content** (unreleased work) → rebase `develop` onto `main` and force-with-lease.
-3. If rebase conflicts → open a `ready-for-human` issue; do not push a broken sync.
+1. If `develop` is missing → recreate from `main`.
+2. If trees match → reset `develop` to `main`.
+3. If `develop` has unreleased commits → rebase onto `main`.
+4. If rebase conflicts → open a `ready-for-human` issue.
 
-### After a sync (local clones)
+After a sync locally:
 
 ```bash
 git fetch origin
@@ -65,45 +69,9 @@ git checkout develop
 git reset --hard origin/develop
 ```
 
-Rebase any open feature branches onto the updated `develop`.
-
-## Agent / cloud base branches
-
-| Work | Base branch | PR target |
-|------|-------------|-----------|
-| Feature / chore / docs | `develop` | `develop` |
-| Prod hotfix | `main` | `main` |
-| Cut a release | open PR `develop` → `main` | `main` |
-
 ## Dependabot
 
-Dependabot PRs target **`develop`** (see `.github/dependabot.yml`).
-
-## Owner checklist (GitHub UI)
-
-Agents cannot always apply these. Do once after this model lands:
-
-1. **Settings → General → Pull Requests**
-   - Allow squash merging only
-   - Delete head branches on merge
-2. **Settings → Rules → Rulesets** (or classic branch protection)
-   - **`main`:** PRs required; CI `quality` required; restrict pushes; allow PR heads from `develop` and `hotfix/*` where the UI supports it; no force-push
-   - **`develop`:** PRs required; CI `quality` required; allow force-push for `github-actions[bot]` (sync workflow) or bypass for Actions
-3. **Projects:** one board with columns matching triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`)
-4. **Milestones (optional):** e.g. “Next release”
-
-## Jira → GitHub (thin mapping)
-
-| Jira-ish idea | Here |
-|---------------|------|
-| Backlog item | GitHub Issue |
-| Status | Triage labels + Project columns |
-| In progress | Open PR linked to the issue |
-| Epic / theme | Milestone (or a parent issue) |
-| Release | `develop` → `main` + semver tag |
-| Sprint / points | Not used |
-
-See [agents/triage-labels.md](./agents/triage-labels.md) and [agents/issue-tracker.md](./agents/issue-tracker.md).
+Targets **`develop`** (see `.github/dependabot.yml`).
 
 ## Related
 
