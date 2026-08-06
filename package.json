@@ -55,7 +55,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "constructs": "^10.6.0",
     "esbuild": "^0.28.1",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "16.2.12",
     "jsdom": "^30.0.1",
     "tailwindcss": "^4",
