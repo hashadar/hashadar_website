@@ -14,7 +14,7 @@ There is **no accidental double-deploy** from GitHub Actions: Actions do not pus
 ### Actions concurrency and path filters
 
 - **Concurrency:** new pushes to the same PR/ref cancel in-progress CI runs (`cancel-in-progress: true`).
-- **Path filters:** the quality job is skipped when the diff is only docs/agent paths (`docs/**`, `**/*.md`, `.cursor/**`, `.agents/**`). Pure documentation or agent-config commits run **no** Actions checks. Changes to product code, `amplify/`, workflows, `package*.json`, or other config still run the full suite.
+- **Required check:** `quality` is required by branch rulesets. The workflow therefore runs on **every** `pull_request` (no `paths-ignore` on that event) so the check is never left pending. Optional `workflow_dispatch` can re-run CI on a branch.
 
 ## Amplify Gen 2 backend
 
