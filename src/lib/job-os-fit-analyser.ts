@@ -3,6 +3,7 @@ import type {
   HuntProfileRecord,
   OpportunityRecord,
 } from '@/lib/job-os';
+import type { StructuralChecklist } from '@/lib/job-os-structural-checklist';
 
 export type FitAnalyserContext = {
   huntProfile: HuntProfileRecord;
@@ -11,6 +12,8 @@ export type FitAnalyserContext = {
   opportunityBody: string | null;
   employer: EmployerRecord;
   employerBody: string | null;
+  /** Deterministic hard-match verdicts; do not narrate these in prose. */
+  structuralChecklist: StructuralChecklist;
 };
 
 export type FitAnalyserResult = {

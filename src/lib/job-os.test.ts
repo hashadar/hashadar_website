@@ -358,6 +358,52 @@ describe('Job OS facade — Pass and Decision Events', () => {
     expect(timeline[0]?.kind).toBe('opportunity_passed');
   });
 
+  it('rejects a second Pass on the same Opportunity', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-22T08:00:00.000Z',
+      title: 'Platform Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const first = await jobOs.passOpportunity(created.opportunity.id);
+    expect(first.status).toBe('passed');
+
+    const second = await jobOs.passOpportunity(created.opportunity.id);
+    expect(second).toEqual({
+      status: 'rejected',
+      reason: 'Opportunity already passed',
+    });
+  });
+
+  it('rejects Pass when an Application already exists', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-22T08:00:00.000Z',
+      title: 'Platform Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+
+    const passed = await jobOs.passOpportunity(created.opportunity.id);
+    expect(passed).toEqual({
+      status: 'rejected',
+      reason: 'Opportunity already has an Application',
+    });
+  });
+
   it('rejects Pass when Decision Event persistence fails', async () => {
     const store = createMemoryJobOsStore();
     const bodies = createMemoryJobOsBodyStorage();
@@ -589,6 +635,114 @@ describe('Job OS facade — Applications', () => {
       created.opportunity.id,
     );
     expect(eventsAfter).toHaveLength(eventCount);
+  });
+
+  it('closes the Opportunity when Application moves to a terminal status', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+
+    async function pursueOpenOpportunity(title: string) {
+      const created = await jobOs.createOpportunity({
+        employerId: anon.id,
+        noticedAt: '2026-07-25T11:00:00.000Z',
+        title,
+      });
+      expect(created.status).toBe('created');
+      if (created.status !== 'created') {
+        throw new Error('expected created');
+      }
+      expect(created.opportunity.status).toBe('open');
+
+      const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+      expect(pursued.status).toBe('pursued');
+      if (pursued.status !== 'pursued') {
+        throw new Error('expected pursued');
+      }
+      return {
+        opportunityId: created.opportunity.id,
+        applicationId: pursued.application.id,
+      };
+    }
+
+    for (const terminal of ['withdrawn', 'rejected', 'accepted'] as const) {
+      const { opportunityId, applicationId } = await pursueOpenOpportunity(
+        `Role ${terminal}`,
+      );
+      await jobOs.updateApplicationStatus(applicationId, 'interviewing');
+      const updated = await jobOs.updateApplicationStatus(
+        applicationId,
+        terminal,
+      );
+      expect(updated.status).toBe('updated');
+
+      const opportunity = await jobOs.getOpportunity(opportunityId);
+      expect(opportunity.status).toBe('ok');
+      if (opportunity.status !== 'ok') {
+        return;
+      }
+      expect(opportunity.opportunity.status).toBe('closed');
+    }
+  });
+
+  it('does not reopen a closed Opportunity when Application leaves a terminal status', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-25T11:00:00.000Z',
+      title: 'Reopened pursuit candidate',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      return;
+    }
+
+    await jobOs.updateApplicationStatus(pursued.application.id, 'withdrawn');
+    await jobOs.updateApplicationStatus(pursued.application.id, 'researching');
+
+    const opportunity = await jobOs.getOpportunity(created.opportunity.id);
+    expect(opportunity.status).toBe('ok');
+    if (opportunity.status !== 'ok') {
+      return;
+    }
+    expect(opportunity.opportunity.status).toBe('closed');
+  });
+
+  it('leaves Opportunity open for non-terminal Application status changes', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-25T11:00:00.000Z',
+      title: 'Still in play',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      return;
+    }
+
+    await jobOs.updateApplicationStatus(pursued.application.id, 'applied');
+    await jobOs.updateApplicationStatus(pursued.application.id, 'interviewing');
+    await jobOs.updateApplicationStatus(pursued.application.id, 'offer');
+
+    const opportunity = await jobOs.getOpportunity(created.opportunity.id);
+    expect(opportunity.status).toBe('ok');
+    if (opportunity.status !== 'ok') {
+      return;
+    }
+    expect(opportunity.opportunity.status).toBe('open');
   });
 });
 
