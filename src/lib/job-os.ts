@@ -90,6 +90,13 @@ export const APPLICATION_STATUSES = [
   'withdrawn',
 ] as const;
 
+/** Pursuit outcomes that close the linked Opportunity listing. */
+export const TERMINAL_APPLICATION_STATUSES = [
+  'accepted',
+  'rejected',
+  'withdrawn',
+] as const;
+
 export const DECISION_EVENT_KINDS = [
   'opportunity_passed',
   'application_started',
@@ -105,6 +112,8 @@ export type OpportunityRoleFamily = string;
 export type CompensationPeriod = (typeof COMPENSATION_PERIODS)[number];
 export type CompensationDisclosure = (typeof COMPENSATION_DISCLOSURES)[number];
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
+export type TerminalApplicationStatus =
+  (typeof TERMINAL_APPLICATION_STATUSES)[number];
 export type DecisionEventKind = (typeof DECISION_EVENT_KINDS)[number];
 
 export type BodyEntityKind =
@@ -624,6 +633,12 @@ export function isApplicationTransitionAllowed(
   to: ApplicationStatus,
 ): boolean {
   return from !== to;
+}
+
+export function isTerminalApplicationStatus(
+  status: ApplicationStatus,
+): status is TerminalApplicationStatus {
+  return includesValue(TERMINAL_APPLICATION_STATUSES, status);
 }
 
 export function createJobOs(deps: JobOsDeps) {
@@ -1154,6 +1169,24 @@ export function createJobOs(deps: JobOsDeps) {
       return { status: 'not_found' };
     }
 
+    const existingApplication =
+      await deps.store.getApplicationByOpportunityId(opportunityId);
+    if (existingApplication) {
+      return {
+        status: 'rejected',
+        reason: 'Opportunity already has an Application',
+      };
+    }
+
+    const events =
+      await deps.store.listDecisionEventsForOpportunity(opportunityId);
+    if (events.some((event) => event.kind === 'opportunity_passed')) {
+      return {
+        status: 'rejected',
+        reason: 'Opportunity already passed',
+      };
+    }
+
     return withAdapterRejection('Could not record Pass decision', async () => {
       const event = await deps.store.appendDecisionEvent({
         id: createId(),
@@ -1263,6 +1296,18 @@ export function createJobOs(deps: JobOsDeps) {
 
     const application: ApplicationRecord = { ...existing, status: toStatus };
     await deps.store.persistApplication(application);
+
+    if (isTerminalApplicationStatus(toStatus)) {
+      const opportunity = await deps.store.getOpportunity(
+        existing.opportunityId,
+      );
+      if (opportunity && opportunity.status !== 'closed') {
+        await deps.store.persistOpportunity({
+          ...opportunity,
+          status: 'closed',
+        });
+      }
+    }
 
     const event = await deps.store.appendDecisionEvent({
       id: createId(),
@@ -1570,6 +1615,7 @@ export function createJobOs(deps: JobOsDeps) {
         opportunityBody,
         employer,
         employerBody,
+        structuralChecklist: evaluateStructuralChecklist(profile, opportunity),
       });
 
       const analysedAt = now();

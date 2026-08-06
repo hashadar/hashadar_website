@@ -336,6 +336,8 @@ export interface JobOsPageData {
     technologiesLabel: string;
     bodyLabel: string;
     bodyHint: string;
+    editBodyLabel: string;
+    previewBodyLabel: string;
     saveLabel: string;
     savingLabel: string;
     createLabel: string;
@@ -352,6 +354,10 @@ export interface JobOsPageData {
     savedLabel: string;
     createdLabel: string;
     passedLabel: string;
+    alreadyPassedLabel: string;
+    reopenLabel: string;
+    reopeningLabel: string;
+    reopenedLabel: string;
     pursuedLabel: string;
     noBodyLabel: string;
     statusOptions: Record<string, string>;
@@ -365,6 +371,14 @@ export interface JobOsPageData {
     loadingLabel: string;
     emptyList: string;
     errorLabel: string;
+    columnStatus: string;
+    columnRole: string;
+    columnEmployer: string;
+    columnTracking: string;
+    columnBody: string;
+    columnActions: string;
+    hasBodyLabel: string;
+    noBodyShortLabel: string;
     openLabel: string;
     backLabel: string;
     statusLabel: string;
