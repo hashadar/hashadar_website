@@ -65,6 +65,7 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 - **Dependabot**: `.github/dependabot.yml` opens weekly npm PRs (grouped production patches and Amplify-related packages) and monthly GitHub Actions PRs.
 - **CI audit gate**: `npm audit --omit=dev --audit-level=critical` fails the quality job on production criticals.
 - Photos stay on `images.unoptimized: true` without a direct `sharp` dependency until an image CDN / optimisation pipeline is added.
+- **Amplify OpenTelemetry `npm ls` warnings:** Nested `@aws-amplify/data-construct` / `graphql-api-construct` trees still report `invalid` peer ranges for `@opentelemetry/core` (mixed `2.0.0` / `2.8.0` / `2.9.0`). Root `overrides` did not unify that tree and were removed; install, typecheck, and `ampx` still succeed. Treat remaining `npm ls` noise as an upstream Amplify limitation until those packages align their OTEL peers.
 
 ## Amplify environment variables
 
@@ -91,4 +92,4 @@ AI agents cannot apply this in the UI; use the checklist above.
 - `.github/dependabot.yml` — weekly npm / monthly Actions update PRs
 - [docs/adr/0003-site-content-and-admin.md](./adr/0003-site-content-and-admin.md) — Site Content + Admin vs Labs
 - [#113](https://github.com/hashadar/hashadar_website/issues/113) — re-enable Next image optimisation with sharp
-- [#136](https://github.com/hashadar/hashadar_website/issues/136) — CI/CD speed and Amplify cost
+- [#136](https://github.com/hashadar/hashadar_website/issues/136) — CI/CD speed and Amplify cost (**shipped** via PRs [#138](https://github.com/hashadar/hashadar_website/pull/138)/[#139](https://github.com/hashadar/hashadar_website/pull/139); remaining Amplify console checklist above is still human-owned)

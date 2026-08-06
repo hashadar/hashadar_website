@@ -17,7 +17,7 @@ Personal site for [Hasha Dar](https://hashadar.com)
 | App | Next.js (App Router), React, TypeScript, Tailwind CSS |
 | Motion / UI | Framer Motion, site design tokens |
 | Backend | AWS Amplify Gen 2 (`amplify/`) |
-| CI | GitHub Actions — lint, typecheck, tests, production build |
+| CI | GitHub Actions — lint, typecheck, tests on PRs; `next build` on `main` |
 | CD | Amplify Hosting autobuild (`amplify.yml`) only |
 
 ## Local development
