@@ -10,7 +10,7 @@ Prefer the **Task** issue form (`.github/ISSUE_TEMPLATE/task.yml`) so acceptance
 |------|------------------|
 | Normal implementation | `develop` |
 | Production hotfix | `main` (`hotfix/*` branch) |
-| Ship to production | PR `develop` → `main`, then tag (see `docs/RELEASES.md`) |
+| Ship to production | PR `develop` → `main` (Amplify deploys; no tag required) |
 
 Do not open feature PRs against `main`. Details: `docs/BRANCHING.md`.
 
