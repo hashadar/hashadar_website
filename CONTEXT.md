@@ -1,6 +1,6 @@
 # Job OS
 
-Private job-hunting operating system for the **Site Admin** (see [Site context](./docs/site/CONTEXT.md)). The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the v3.0 hunting-graph rebuild. The authenticated product lives at `/labs/job-os`, entered from the labs index; there is no public pulse page in v3.0. Sign-in is site-wide — Job OS does not own auth or Admin.
+Private job-hunting operating system for the **Site Admin** (see [Site context](./docs/site/CONTEXT.md)). The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the hunting-graph product. The authenticated product lives at `/labs/job-os`, entered from the labs index; no public Job OS publication is planned. Sign-in is site-wide — Job OS does not own auth or Admin.
 
 ## Language
 
@@ -33,8 +33,8 @@ A concrete role or listing under an Employer — the absorbed successor to JobDe
 _Avoid_: Job, listing (as the model name), inbox item, lead, JobDescription (legacy v2 noun)
 
 **Market pulse**:
-The former public themes/tech publication pipeline (embeddings, clustering, guest snapshot). Out of scope for the v3.0 hunting-graph rebuild; not a synonym for Opportunity evidence.
-_Avoid_: corpus recompute, LabPublication (as a v3.0 requirement)
+The former public themes/tech publication pipeline (embeddings, clustering, guest snapshot). Not planned for Job OS — the graph is personal hunt evidence, not a market corpus; not a synonym for Opportunity evidence.
+_Avoid_: corpus recompute, LabPublication (as a Job OS requirement), treating pulse as deferred work
 
 **Application**:
 A pursuit of a specific Opportunity: process state, contacts, prep, and debrief. Requires an Opportunity. At most one Application per Opportunity; created when pursuit begins, not automatically with the Opportunity.

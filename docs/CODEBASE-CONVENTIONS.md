@@ -148,7 +148,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ## 11. Reference
 
-- **Deferred work and technical debt:** Tracked in [GitHub Issues](https://github.com/hashadar/hashadar_website/issues). Current open deferred items include [#113](https://github.com/hashadar/hashadar_website/issues/113) (images/sharp) and [#104](https://github.com/hashadar/hashadar_website/issues/104) (market pulse; ready-for-human). Do not fix unless asked or the issue is in scope; when implementing, align with this document and close or update the relevant issue.
+- **Deferred work and technical debt:** Tracked in [GitHub Issues](https://github.com/hashadar/hashadar_website/issues). Current open deferred items include [#113](https://github.com/hashadar/hashadar_website/issues/113) (images/sharp). Do not fix unless asked or the issue is in scope; when implementing, align with this document and close or update the relevant issue.
 - **Data structure and adding pages:** See `src/data/README.md`.
 - **Agent workflow (issues, triage):** See `docs/agents/` and `AGENTS.md`.
 
