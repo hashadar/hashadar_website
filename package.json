@@ -21,6 +21,7 @@
     "@opentelemetry/sdk-trace-base": "2.9.0"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1104.0",
     "@fontsource/zalando-sans-expanded": "^5.2.1",
     "aws-amplify": "^6.18.0",
     "clsx": "^2.1.1",
