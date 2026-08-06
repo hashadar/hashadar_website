@@ -19,8 +19,10 @@ describe('amplify.yml Hosting contract', () => {
     expect(amplifyYml).toMatch(/nvm use 22/);
   });
 
-  it('deploys the Gen 2 backend via pipeline-deploy before the frontend build', () => {
+  it('gates Gen 2 backend deploy and falls back to generate outputs', () => {
+    expect(amplifyYml).toMatch(/scripts\/amplify-backend-changed\.ts/);
     expect(amplifyYml).toMatch(/ampx pipeline-deploy/);
+    expect(amplifyYml).toMatch(/ampx generate outputs/);
     expect(amplifyYml).toMatch(/\$AWS_BRANCH/);
     expect(amplifyYml).toMatch(/\$AWS_APP_ID/);
   });
@@ -29,5 +31,9 @@ describe('amplify.yml Hosting contract', () => {
     expect(amplifyYml).toMatch(/Reusing node_modules from backend phase/);
     expect(amplifyYml).toMatch(/npm config set cache \.npm/);
     expect(amplifyYml).toMatch(/\.npm\/\*\*\/\*/);
+  });
+
+  it('caches the Next.js build cache on Amplify', () => {
+    expect(amplifyYml).toMatch(/\.next\/cache\/\*\*\/\*/);
   });
 });

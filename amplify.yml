@@ -7,7 +7,16 @@ backend:
         # Local npm cache speeds reinstalls; keep path relative for Amplify cache.
         - npm config set cache .npm
         - npm ci
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+        # Skip pipeline-deploy when amplify/ and Amplify/CDK deps are unchanged.
+        # Script exit 0 = redeploy; exit 1 = generate outputs only.
+        - |
+          if npx tsx scripts/amplify-backend-changed.ts; then
+            echo "Backend changed; running pipeline-deploy"
+            npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+          else
+            echo "Backend unchanged; generating amplify_outputs.json only"
+            npx ampx generate outputs --branch $AWS_BRANCH --app-id $AWS_APP_ID
+          fi
 frontend:
   phases:
     preBuild:
@@ -34,3 +43,4 @@ frontend:
     paths:
       - .npm/**/*
       - node_modules/**/*
+      - .next/cache/**/*
