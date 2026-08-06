@@ -18,6 +18,11 @@ updates:
           - aws-cdk
           - aws-cdk-lib
           - constructs
+    ignore:
+      # eslint-config-next still bundles eslint-plugin-react that crashes on ESLint 10
+      # (context.getFilename removed). Revisit when Next ships ESLint 10 support.
+      - dependency-name: eslint
+        versions: ['>=10']
 
   - package-ecosystem: github-actions
     directory: /
