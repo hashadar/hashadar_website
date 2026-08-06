@@ -4,12 +4,11 @@
 
 | Concern | Where | Notes |
 |---------|--------|--------|
-| **PR checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, production `npm audit` (critical), lint, typecheck, tests. **No `next build` on PRs.** Does not deploy. Does not require live AWS or `amplify_outputs.json`. |
-| **Push to `develop`** | GitHub Actions | Same quality suite as PRs (no `next build`). Still does not deploy. |
-| **Push to `main`** | GitHub Actions | Same quality suite **plus** `next build` as a cheap safety net. Still does not deploy. |
+| **PR checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, production `npm audit` (critical), lint, typecheck, tests. **No `next build` on PRs** (except see main push below). Does not deploy. Does not require live AWS or `amplify_outputs.json`. This is the required merge gate. |
+| **Push to `main`** | GitHub Actions | Same quality suite **plus** `next build` as a cheap post-ship safety net. Still does not deploy. |
 | **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (conditional Gen 2 `ampx pipeline-deploy` or `ampx generate outputs`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. Prefer **`main` only** for Amplify autobuild. |
 
-There is **no accidental double-deploy** from GitHub Actions: Actions do not push artefacts or run Amplify CLI deploy in the baseline setup.
+There is **no** Actions CI on push to `develop` — that would duplicate the PR `quality` run after every squash-merge.
 
 ### Actions concurrency and path filters
 
@@ -66,7 +65,7 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 - Day-to-day integration branch: **`develop`**. Production: **`main`**.
 - Squash-only merges; hotfixes branch from `main`. Details: [BRANCHING.md](./BRANCHING.md).
 - After every push to `main`, `.github/workflows/sync-develop.yml` resets or rebases `develop` onto `main` (force-with-lease).
-- Semver tags + GitHub Releases: [RELEASES.md](./RELEASES.md).
+- No GitHub Releases / tags as ship process: [RELEASES.md](./RELEASES.md).
 
 ## Dependency updates
 
@@ -96,7 +95,7 @@ Minimum for CI:
 ## Related
 
 - [BRANCHING.md](./BRANCHING.md) — `develop` / `main`, hotfixes, sync
-- [RELEASES.md](./RELEASES.md) — semver tags and GitHub Releases
+- [RELEASES.md](./RELEASES.md) — why we skip tags / GitHub Releases
 - `amplify.yml` — Amplify build phases
 - `scripts/amplify-backend-changed.ts` — backend redeploy gate
 - `.github/workflows/ci.yml` — GitHub Actions quality checks

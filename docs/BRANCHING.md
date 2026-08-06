@@ -26,15 +26,14 @@ There is **no** intermediate `release/*` branch. When `develop` looks good, open
 ### Promote to prod
 
 1. Open PR **`develop` → `main`**.
-2. Squash-merge as `Release: …` (optional `vX.Y.Z` in the title).
-3. Amplify deploys from `main`.
-4. Tag / GitHub Release per [RELEASES.md](./RELEASES.md).
-5. Sync workflow aligns `develop` to `main` (same tree after a full promote; see below).
+2. Squash-merge as `Release: …`.
+3. Amplify deploys from `main` — that is the ship (no tags / GitHub Releases; see [RELEASES.md](./RELEASES.md)).
+4. Sync workflow aligns `develop` to `main` (same tree after a full promote; see below).
 
 ### Hotfix
 
 1. Branch `hotfix/…` from **`main`**.
-2. PR → `main`, squash-merge, deploy, tag.
+2. PR → `main`, squash-merge, deploy.
 3. Sync brings the fix onto `develop`.
 
 Never land a prod hotfix on `develop` first.
@@ -75,7 +74,7 @@ Targets **`develop`** (see `.github/dependabot.yml`).
 
 ## Related
 
-- [RELEASES.md](./RELEASES.md) — tags and GitHub Releases
+- [RELEASES.md](./RELEASES.md) — why we skip tags / GitHub Releases
 - [CI-AND-DEPLOYMENT.md](./CI-AND-DEPLOYMENT.md) — Actions vs Amplify
 - `.github/workflows/sync-develop.yml`
 - `.github/workflows/ci.yml`
