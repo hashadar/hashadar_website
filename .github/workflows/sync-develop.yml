@@ -1,0 +1,78 @@
+# Keep develop aligned with main after squash merges / hotfixes.
+# Same tree → reset develop to main. Different tree → rebase develop onto main.
+# See docs/BRANCHING.md.
+name: Sync develop from main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sync-develop
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Align develop with main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          if ! git rev-parse --verify origin/develop >/dev/null 2>&1; then
+            git branch develop origin/main
+            git push -u origin develop
+            echo "Created develop from main."
+            exit 0
+          fi
+          git fetch origin develop
+
+          if [ "$(git rev-parse origin/main)" = "$(git rev-parse origin/develop)" ]; then
+            echo "develop already matches main."
+            exit 0
+          fi
+
+          if git diff --quiet origin/main origin/develop; then
+            echo "Trees match; resetting develop to main."
+            git checkout -B develop origin/main
+            git push --force-with-lease origin develop
+            exit 0
+          fi
+
+          echo "Trees differ; rebasing develop onto main."
+          git checkout -B develop origin/develop
+          if git rebase origin/main; then
+            git push --force-with-lease origin develop
+            exit 0
+          fi
+
+          git rebase --abort || true
+          BODY="$(printf '%s\n' \
+            'Automatic sync of \`develop\` onto \`main\` failed (rebase conflict).' \
+            '' \
+            "Main: \`$(git rev-parse --short origin/main)\`" \
+            "Develop: \`$(git rev-parse --short origin/develop)\`" \
+            '' \
+            'Resolve locally, then push \`develop\`, or reset \`develop\` to \`main\` if the release already included all develop work. See \`docs/BRANCHING.md\`.' \
+            '' \
+            "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}")"
+          gh issue create \
+            --title "Sync develop from main failed" \
+            --label "ready-for-human" \
+            --body "$BODY"
+          echo "Opened ready-for-human issue after rebase conflict."
+          exit 1

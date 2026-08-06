@@ -10,7 +10,7 @@ on:
       - '.cursor/**'
       - '.agents/**'
   push:
-    branches: [main]
+    branches: [main, develop]
     paths-ignore:
       - 'docs/**'
       - '**/*.md'
