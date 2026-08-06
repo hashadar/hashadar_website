@@ -19,7 +19,7 @@ This is a production system I design, ship, and operate — not a static brochur
 | App | Next.js (App Router), React, TypeScript, Tailwind CSS |
 | Motion / UI | Framer Motion, site design tokens |
 | Backend | AWS Amplify Gen 2 (`amplify/`) |
-| CI | GitHub Actions — lint, typecheck, tests, production build |
+| CI | GitHub Actions — lint, typecheck, tests on PRs; `next build` on `main` |
 | CD | Amplify Hosting autobuild (`amplify.yml`) only |
 
 ## Local development
