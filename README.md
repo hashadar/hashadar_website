@@ -1,8 +1,6 @@
 # hashadar.com
 
-Personal site for [Hasha Dar](https://hashadar.com): public marketing pages, Site Admin content management, and gated Labs products.
-
-This is a production system I design, ship, and operate — not a static brochure repo.
+Personal site for [Hasha Dar](https://hashadar.com)
 
 ## What it demonstrates
 
