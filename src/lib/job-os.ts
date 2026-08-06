@@ -107,6 +107,13 @@ export type CompensationDisclosure = (typeof COMPENSATION_DISCLOSURES)[number];
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 export type DecisionEventKind = (typeof DECISION_EVENT_KINDS)[number];
 
+/** Application outcomes that end pursuit of the listing — Opportunity closes. */
+export const APPLICATION_STATUSES_THAT_CLOSE_OPPORTUNITY = [
+  'accepted',
+  'rejected',
+  'withdrawn',
+] as const satisfies ReadonlyArray<ApplicationStatus>;
+
 export type BodyEntityKind =
   | 'employer'
   | 'opportunity'
@@ -1263,6 +1270,21 @@ export function createJobOs(deps: JobOsDeps) {
 
     const application: ApplicationRecord = { ...existing, status: toStatus };
     await deps.store.persistApplication(application);
+
+    if (
+      includesValue(APPLICATION_STATUSES_THAT_CLOSE_OPPORTUNITY, toStatus)
+    ) {
+      const opportunity = await deps.store.getOpportunity(
+        existing.opportunityId,
+      );
+      if (opportunity && opportunity.status !== 'closed') {
+        await deps.store.persistOpportunity({
+          ...opportunity,
+          status: 'closed',
+          contentUpdatedAt: now(),
+        });
+      }
+    }
 
     const event = await deps.store.appendDecisionEvent({
       id: createId(),

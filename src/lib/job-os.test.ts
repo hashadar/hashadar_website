@@ -451,6 +451,87 @@ describe('Job OS facade — Applications', () => {
     expect(interviewing.event.toStatus).toBe('interviewing');
   });
 
+  it('closes the Opportunity when Application moves to withdrawn', async () => {
+    const { jobOs, store } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-25T13:00:00.000Z',
+      title: 'Staff Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      return;
+    }
+
+    const interviewing = await jobOs.updateApplicationStatus(
+      pursued.application.id,
+      'interviewing',
+    );
+    expect(interviewing.status).toBe('updated');
+    if (interviewing.status !== 'updated') {
+      return;
+    }
+
+    const stillOpen = await store.getOpportunity(created.opportunity.id);
+    expect(stillOpen?.status).toBe('open');
+
+    const withdrawn = await jobOs.updateApplicationStatus(
+      pursued.application.id,
+      'withdrawn',
+    );
+    expect(withdrawn.status).toBe('updated');
+    if (withdrawn.status !== 'updated') {
+      return;
+    }
+    expect(withdrawn.application.status).toBe('withdrawn');
+
+    const opportunity = await store.getOpportunity(created.opportunity.id);
+    expect(opportunity?.status).toBe('closed');
+  });
+
+  it.each(['accepted', 'rejected'] as const)(
+    'closes the Opportunity when Application moves to %s',
+    async (toStatus) => {
+      const { jobOs, store } = createTestJobOs();
+      const anon = await jobOs.ensureAnonEmployer();
+      const created = await jobOs.createOpportunity({
+        employerId: anon.id,
+        noticedAt: '2026-07-25T14:00:00.000Z',
+        title: 'Staff Engineer',
+      });
+      expect(created.status).toBe('created');
+      if (created.status !== 'created') {
+        return;
+      }
+
+      const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+      expect(pursued.status).toBe('pursued');
+      if (pursued.status !== 'pursued') {
+        return;
+      }
+
+      const updated = await jobOs.updateApplicationStatus(
+        pursued.application.id,
+        toStatus,
+      );
+      expect(updated.status).toBe('updated');
+      if (updated.status !== 'updated') {
+        return;
+      }
+      expect(updated.application.status).toBe(toStatus);
+
+      const opportunity = await store.getOpportunity(created.opportunity.id);
+      expect(opportunity?.status).toBe('closed');
+    },
+  );
+
   it('rejects Pursue when Application persistence fails', async () => {
     const store = createMemoryJobOsStore();
     const bodies = createMemoryJobOsBodyStorage();
