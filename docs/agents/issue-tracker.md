@@ -2,6 +2,18 @@
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
+Prefer the **Task** issue form (`.github/ISSUE_TEMPLATE/task.yml`) so acceptance criteria are present before `ready-for-agent`.
+
+## Branch targets for implementation
+
+| Work | Base / PR target |
+|------|------------------|
+| Normal implementation | `develop` |
+| Production hotfix | `main` (`hotfix/*` branch) |
+| Ship to production | PR `develop` → `main`, then tag (see `docs/RELEASES.md`) |
+
+Do not open feature PRs against `main`. Details: `docs/BRANCHING.md`.
+
 ## Conventions
 
 - **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.

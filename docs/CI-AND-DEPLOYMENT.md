@@ -5,15 +5,16 @@
 | Concern | Where | Notes |
 |---------|--------|--------|
 | **PR checks** | [GitHub Actions](https://docs.github.com/en/actions) | Workflow: `.github/workflows/ci.yml` — `npm ci`, production `npm audit` (critical), lint, typecheck, tests. **No `next build` on PRs.** Does not deploy. Does not require live AWS or `amplify_outputs.json`. |
+| **Push to `develop`** | GitHub Actions | Same quality suite as PRs (no `next build`). Still does not deploy. |
 | **Push to `main`** | GitHub Actions | Same quality suite **plus** `next build` as a cheap safety net. Still does not deploy. |
-| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (conditional Gen 2 `ampx pipeline-deploy` or `ampx generate outputs`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. |
+| **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (conditional Gen 2 `ampx pipeline-deploy` or `ampx generate outputs`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. Prefer **`main` only** for Amplify autobuild. |
 
 There is **no accidental double-deploy** from GitHub Actions: Actions do not push artefacts or run Amplify CLI deploy in the baseline setup.
 
 ### Actions concurrency and path filters
 
 - **Concurrency:** new pushes to the same PR/ref cancel in-progress CI runs (`cancel-in-progress: true`).
-- **Path filters:** the quality job is skipped when the diff is only docs/agent paths (`docs/**`, `**/*.md`, `.cursor/**`, `.agents/**`). Pure documentation or agent-config commits run **no** Actions checks. Changes to product code, `amplify/`, workflows, `package*.json`, or other config still run the full suite.
+- **Required check:** `quality` is required by branch rulesets. The workflow therefore runs on **every** `pull_request` (no `paths-ignore` on that event) so the check is never left pending. Optional `workflow_dispatch` can re-run CI on a branch.
 
 ## Amplify Gen 2 backend
 
@@ -60,9 +61,16 @@ Contract tests in `amplify.yml.test.ts` lock the gated Gen 2 deploy / generate-o
 
 If `nvm use 22` fails on the build image (version not installed), add a line before it: `nvm install 22` (then keep `nvm use 22`).
 
+## Branching and releases
+
+- Day-to-day integration branch: **`develop`**. Production: **`main`**.
+- Squash-only merges; hotfixes branch from `main`. Details: [BRANCHING.md](./BRANCHING.md).
+- After every push to `main`, `.github/workflows/sync-develop.yml` resets or rebases `develop` onto `main` (force-with-lease).
+- Semver tags + GitHub Releases: [RELEASES.md](./RELEASES.md).
+
 ## Dependency updates
 
-- **Dependabot**: `.github/dependabot.yml` opens weekly npm PRs (grouped production patches and Amplify-related packages) and monthly GitHub Actions PRs.
+- **Dependabot**: `.github/dependabot.yml` opens weekly npm PRs (grouped production patches and Amplify-related packages) and monthly GitHub Actions PRs, targeting **`develop`**.
 - **CI audit gate**: `npm audit --omit=dev --audit-level=critical` fails the quality job on production criticals.
 - Photos stay on `images.unoptimized: true` without a direct `sharp` dependency until an image CDN / optimisation pipeline is added.
 - **Amplify OpenTelemetry `npm ls` warnings:** Nested `@aws-amplify/data-construct` / `graphql-api-construct` trees still report `invalid` peer ranges for `@opentelemetry/core` (mixed `2.0.0` / `2.8.0` / `2.9.0`). Root `overrides` did not unify that tree and were removed; install, typecheck, and `ampx` still succeed. Treat remaining `npm ls` noise as an upstream Amplify limitation until those packages align their OTEL peers.
@@ -77,19 +85,25 @@ GitHub Actions builds without `amplify_outputs.json`. Public blog/portfolio read
 
 ## Branch protection (repository owner)
 
-After CI is merged and green on `main`:
+Full squash / ruleset / sync-bot checklist: [BRANCHING.md — Owner checklist](./BRANCHING.md#owner-checklist-github-ui).
 
-1. GitHub → **Settings** → **Rules** (rulesets) or **Branches** → branch protection for `main`.
+Minimum after CI is green:
+
+1. GitHub → **Settings** → **Rules** (rulesets) or **Branches** → protect `main` and `develop`.
 2. Require the **CI** workflow (job `quality` / check name as shown on PRs) to pass before merge.
+3. Allow `github-actions[bot]` to force-push **`develop`** for the sync workflow.
 
 AI agents cannot apply this in the UI; use the checklist above.
 
 ## Related
 
+- [BRANCHING.md](./BRANCHING.md) — `develop` / `main`, hotfixes, sync
+- [RELEASES.md](./RELEASES.md) — semver tags and GitHub Releases
 - `amplify.yml` — Amplify build phases
 - `scripts/amplify-backend-changed.ts` — backend redeploy gate
 - `.github/workflows/ci.yml` — GitHub Actions quality checks
-- `.github/dependabot.yml` — weekly npm / monthly Actions update PRs
+- `.github/workflows/sync-develop.yml` — align `develop` after `main` updates
+- `.github/dependabot.yml` — weekly npm / monthly Actions update PRs → `develop`
 - [docs/adr/0003-site-content-and-admin.md](./adr/0003-site-content-and-admin.md) — Site Content + Admin vs Labs
 - [#113](https://github.com/hashadar/hashadar_website/issues/113) — re-enable Next image optimisation with sharp
 - [#136](https://github.com/hashadar/hashadar_website/issues/136) — CI/CD speed and Amplify cost (**shipped** via PRs [#138](https://github.com/hashadar/hashadar_website/pull/138)/[#139](https://github.com/hashadar/hashadar_website/pull/139); remaining Amplify console checklist above is still human-owned)

@@ -1,0 +1,54 @@
+name: Task
+description: Feature, chore, or bug — shaped for triage and AFK agents
+title: ""
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill this in so triage can move the issue to `ready-for-agent` or `ready-for-human`.
+        See `docs/BRANCHING.md` and `docs/agents/triage-labels.md`.
+  - type: dropdown
+    id: work_type
+    attributes:
+      label: Type
+      options:
+        - Feature
+        - Bug
+        - Chore / docs
+        - Hotfix (prod)
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should be true when this is done?
+      placeholder: e.g. Site Admin can close an Opportunity when an Application reaches a terminal status.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checklist the implementer (human or agent) must satisfy.
+      placeholder: |
+        - [ ] …
+        - [ ] …
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: What this issue explicitly does not include.
+      placeholder: e.g. No Amplify staging branch; no UI redesign.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / pointers
+      description: Relevant paths, ADRs, screenshots, or related issues.
+    validations:
+      required: false
