@@ -15,7 +15,7 @@ The Site Admin’s spreadsheet that remains the system of record for Accounts, C
 _Avoid_: CMS, lab editor, dual source of truth, ad-hoc extra tabs as part of the v1 contract, depending on formatted £/date strings from the API
 
 **Snapshot**:
-A point-in-time copy of Workbook data held in private lab storage for the lab to display, with a known as-of time. Used so the dashboard can show last-good data without editing the Workbook and without depending on a live Google call every view.
+A point-in-time copy of Workbook data held in private lab storage for the lab to display, with a known as-of time. Used so the dashboard can show last-good data without editing the Workbook and without depending on a live Google call every view. Object keys and bucket: [snapshot-storage.md](./snapshot-storage.md).
 _Avoid_: backup, export (as the product noun), live-only read with no retained copy, Site Content (public) as the Snapshot home
 
 ### Portfolio structure

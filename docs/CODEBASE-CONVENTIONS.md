@@ -63,6 +63,7 @@ This document defines how to work in this codebase so that new and changed code 
 ### 4.3 Blog and portfolio (Site Content)
 
 - **Source of truth:** Amplify Storage bucket `siteContent` — `blog/index.json` + `blog/posts/{slug}.md` (+ optional hero WebPs), `portfolio/manifest.json` + `portfolio/images/*`, and `home/photography.json` + `home/images/*` for the Home Photo. Readers live under `src/lib/site-content/` (server loaders in `server.ts`). Markdown → HTML remains in `src/lib/blog-markdown.ts` (`processMarkdown`). Filesystem helpers in `src/lib/blog.ts` are for Vitest fixtures only.
+- **WMW Snapshots:** Private Amplify Storage bucket `wmwSnapshots` (authenticated Site Admin only) holds last-good Snapshot JSON + as-of metadata. Keys and env wiring: `docs/wmw/snapshot-storage.md`; facade under `src/lib/wmw/`.
 - **Admin:** Site Admin manages Posts and Photos at `/admin` (not under Labs). Sign-in is site-wide at `/login`.
 - **Types:** Use `BlogPost` / `BlogPostFrontmatter` / `PhotoItem` from `@/data/types`. List metadata for Posts is authoritative in `blog/index.json`.
 - **Sitemap:** `src/lib/sitemap.ts` (`buildSitemap`) derives blog URLs from Site Content readers. `/login` and `/admin` are omitted (noindex).

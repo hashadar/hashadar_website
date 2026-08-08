@@ -1,7 +1,81 @@
-﻿/**
- * WMW pure calculation modules (Net Worth + Paired Accounts).
- * Snapshot types are shared with storage (#182), ingest (#183), and MWR (#185).
+/**
+ * WMW (What's My Worth) — Workbook ingest, Snapshot facade, and pure calcs.
+ * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182/#184/#185).
  */
+
+export {
+  createWmw,
+  type CreateWmwOptions,
+  type WmwFacade,
+  type WmwRefreshResult,
+} from '@/lib/wmw/facade';
+
+export {
+  parseWorkbook,
+  type ParseWorkbookInput,
+  type ParseWorkbookResult,
+} from '@/lib/wmw/parse-workbook';
+
+export {
+  cellToIsoDate,
+  sheetsSerialToIsoDate,
+} from '@/lib/wmw/sheets-serial-date';
+
+export {
+  createFixtureWorkbookSource,
+  createGoogleSheetsWorkbookSource,
+  mapBatchGetToRaw,
+  type CreateGoogleSheetsWorkbookSourceOptions,
+  type SheetsAccessTokenProvider,
+  type SheetsValuesBatchGetResponse,
+  type WmwWorkbookSource,
+} from '@/lib/wmw/workbook-source';
+
+export {
+  createDefaultWmwSnapshotStore,
+  createMemoryWmwSnapshotStore,
+  createSnapshotStoreFromJsonStorage,
+  type WmwSnapshotStore,
+} from '@/lib/wmw/snapshot-store';
+
+export {
+  createDefaultWmwSnapshotStorage,
+  createMemoryWmwSnapshotStorage,
+  createWmwSnapshotStorage,
+  type WmwLastGoodSnapshot,
+  type WmwSnapshotStorage,
+} from '@/lib/wmw/snapshot-storage';
+
+export {
+  getWmwConfig,
+  WMW_GOOGLE_SA_SECRET_NAME_ENV,
+  WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER,
+  WMW_SPREADSHEET_ID_ENV,
+  type WmwConfig,
+} from '@/lib/wmw/config';
+
+export {
+  WMW_LAST_GOOD_META_KEY,
+  WMW_LAST_GOOD_SNAPSHOT_KEY,
+  WMW_SNAPSHOTS_BUCKET,
+  type WmwSnapshotMeta,
+} from '@/lib/wmw/paths';
+
+export {
+  WMW_SNAPSHOT_CACHE_TTL_MS,
+  createMemoryWmwSnapshotCache,
+  type CreateMemoryWmwSnapshotCacheOptions,
+  type WmwSnapshotCache,
+} from '@/lib/wmw/cache';
+
+export {
+  createSampleWorkbookRaw,
+  createWorkbookMissingBalanceColumn,
+  SERIAL_2024_01_15,
+  SERIAL_2024_02_01,
+  SERIAL_2024_03_01,
+  SERIAL_2024_06_15,
+} from '@/lib/wmw/fixtures/sample-workbook';
 
 export {
   WMW_ACCOUNT_COLUMNS,
@@ -12,22 +86,19 @@ export {
   WMW_INVESTABLE_CATEGORY_IDS,
   WMW_SUPPORTED_CURRENCY,
   WMW_WORKBOOK_TABS,
-} from '@/lib/wmw/types';
-
-export type {
-  CalendarMonth,
-  WmwAccount,
-  WmwBalance,
-  WmwCashflow,
-  WmwCashflowTransactionType,
-  WmwCashflowType,
-  WmwCategory,
-  WmwInvestableCategoryId,
-  WmwRefreshWarning,
-  WmwRefreshWarningCode,
-  WmwSnapshot,
-  WmwWorkbookRaw,
-  WmwWorkbookTab,
+  type CalendarMonth,
+  type WmwAccount,
+  type WmwBalance,
+  type WmwCashflow,
+  type WmwCashflowTransactionType,
+  type WmwCashflowType,
+  type WmwCategory,
+  type WmwInvestableCategoryId,
+  type WmwRefreshWarning,
+  type WmwRefreshWarningCode,
+  type WmwSnapshot,
+  type WmwWorkbookRaw,
+  type WmwWorkbookTab,
 } from '@/lib/wmw/types';
 
 export {
