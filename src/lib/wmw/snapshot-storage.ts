@@ -6,6 +6,8 @@ import {
   type WmwSnapshotMeta,
 } from '@/lib/wmw/paths';
 
+/** JSON body shape for `snapshots/last-good.json` — see `@/lib/wmw/types`. */
+export type { WmwSnapshot } from '@/lib/wmw/types';
 export type { WmwSnapshotMeta };
 
 /** No charset — browsers rewrite string Content-Types and break SigV4. */
