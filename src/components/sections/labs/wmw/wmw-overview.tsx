@@ -44,17 +44,15 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
   const [period, setPeriod] = useState<MwrPeriod>('YTD');
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
-  const [client, setClient] = useState<WmwFacade | null>(wmwClient ?? null);
+  const [defaultClient, setDefaultClient] = useState<WmwFacade | null>(null);
+  const client = wmwClient ?? defaultClient;
 
   useEffect(() => {
-    if (wmwClient) {
-      setClient(wmwClient);
-      return;
-    }
+    if (wmwClient) return;
     let cancelled = false;
     void (async () => {
       const resolved = await getDefaultWmw();
-      if (!cancelled) setClient(resolved);
+      if (!cancelled) setDefaultClient(resolved);
     })();
     return () => {
       cancelled = true;
