@@ -4,6 +4,8 @@ Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all op
 
 Prefer the **Task** issue form (`.github/ISSUE_TEMPLATE/task.yml`) so acceptance criteria are present before `ready-for-agent`.
 
+Board Status and workflows: [issue-board.md](./issue-board.md).
+
 ## Branch targets for implementation
 
 | Work | Base / PR target |
