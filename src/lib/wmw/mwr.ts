@@ -1,13 +1,15 @@
-import type { WmwBalance, WmwCashflow, WmwSnapshot } from '@/lib/wmw/types';
+import {
+  WMW_INVESTABLE_CATEGORY_IDS,
+  type WmwBalance,
+  type WmwCashflow,
+  type WmwInvestableCategoryId,
+  type WmwSnapshot,
+} from '@/lib/wmw/types';
 
 /** Investable = Category allow-list only (not cash / vehicle / loan). */
-export const INVESTABLE_CATEGORY_IDS = [
-  'CAT_BROKERAGE',
-  'CAT_PENSION',
-  'CAT_CRYPTO',
-] as const;
+export const INVESTABLE_CATEGORY_IDS = WMW_INVESTABLE_CATEGORY_IDS;
 
-export type InvestableCategoryId = (typeof INVESTABLE_CATEGORY_IDS)[number];
+export type InvestableCategoryId = WmwInvestableCategoryId;
 
 export type MwrPeriod = 'YTD' | '1Y' | 'Max';
 

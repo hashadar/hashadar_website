@@ -73,6 +73,7 @@ function snapshot(partial: {
     categories: CATEGORIES,
     balances: partial.balances,
     cashflows: partial.cashflows ?? [],
+    warnings: [],
   };
 }
 
