@@ -203,6 +203,7 @@ export function buildSampleSnapshot(
     categories: SAMPLE_CATEGORIES,
     balances: SAMPLE_BALANCES,
     cashflows: [],
+    warnings: [],
     ...overrides,
   };
 }
