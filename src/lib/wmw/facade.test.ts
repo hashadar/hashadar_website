@@ -3,9 +3,11 @@ import { createWmw } from '@/lib/wmw/facade';
 import { createMemoryWmwSnapshotCache } from '@/lib/wmw/cache';
 import { createSampleWorkbookRaw } from '@/lib/wmw/fixtures/sample-workbook';
 import {
+  createDefaultWmwSnapshotStore,
   createMemoryWmwSnapshotStore,
   createSnapshotStoreFromJsonStorage,
 } from '@/lib/wmw/snapshot-store';
+import { createMemoryWmwSnapshotStorage } from '@/lib/wmw/snapshot-storage';
 import {
   createFixtureWorkbookSource,
   createGoogleSheetsWorkbookSource,
@@ -92,23 +94,8 @@ describe('WMW facade — Refresh and Snapshot', () => {
     ).toBe(true);
   });
 
-  it('adapts #182-shaped JSON Snapshot storage without owning Amplify', async () => {
-    type Stored = { snapshotJson: string; meta: { asOf: string } };
-    let stored: Stored | null = null;
-    const jsonStorage = {
-      async putLastGoodSnapshot(input: {
-        snapshotJson: string;
-        asOf: string;
-      }) {
-        stored = {
-          snapshotJson: input.snapshotJson,
-          meta: { asOf: input.asOf },
-        };
-      },
-      async getLastGoodSnapshot(): Promise<Stored | null> {
-        return stored;
-      },
-    };
+  it('persists last-good Snapshot through #182 JSON storage (memory Amplify fake)', async () => {
+    const jsonStorage = createMemoryWmwSnapshotStorage();
 
     const wmw = createWmw({
       workbookSource: createFixtureWorkbookSource(createSampleWorkbookRaw()),
@@ -119,10 +106,16 @@ describe('WMW facade — Refresh and Snapshot', () => {
     await wmw.refresh();
     const loaded = await wmw.getSnapshot();
     expect(loaded?.asOf).toBe('2024-07-01T12:00:00.000Z');
-    expect(stored).not.toBeNull();
-    expect(stored!.meta.asOf).toBe('2024-07-01T12:00:00.000Z');
+
+    const stored = await jsonStorage.getLastGoodSnapshot();
+    expect(stored?.meta.asOf).toBe('2024-07-01T12:00:00.000Z');
     const parsed = JSON.parse(stored!.snapshotJson) as WmwSnapshot;
     expect(parsed.accounts[0]?.accountId).toBe('ACC_ISA');
+    expect(Array.isArray(parsed.warnings)).toBe(true);
+  });
+
+  it('createDefaultWmwSnapshotStore is null without Amplify (CI-safe)', async () => {
+    await expect(createDefaultWmwSnapshotStore()).resolves.toBeNull();
   });
 
   it('does not expose a write path on the Workbook source', () => {

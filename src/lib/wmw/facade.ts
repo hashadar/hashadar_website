@@ -29,8 +29,8 @@ export type WmwFacade = {
 export type CreateWmwOptions = {
   workbookSource: WmwWorkbookSource;
   /**
-   * Typed Snapshot store. Wire #182 Amplify storage via
-   * `createSnapshotStoreFromJsonStorage(...)` when that PR is available.
+   * Typed Snapshot store. Production: `createDefaultWmwSnapshotStore()`
+   * (Amplify `wmwSnapshots` via #182). CI/tests: `createMemoryWmwSnapshotStore()`.
    */
   snapshotStore?: WmwSnapshotStore;
   cache?: WmwSnapshotCache;

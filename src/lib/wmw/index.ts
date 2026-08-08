@@ -33,11 +33,34 @@ export {
 } from '@/lib/wmw/workbook-source';
 
 export {
+  createDefaultWmwSnapshotStore,
   createMemoryWmwSnapshotStore,
   createSnapshotStoreFromJsonStorage,
-  type WmwJsonSnapshotStorage,
   type WmwSnapshotStore,
 } from '@/lib/wmw/snapshot-store';
+
+export {
+  createDefaultWmwSnapshotStorage,
+  createMemoryWmwSnapshotStorage,
+  createWmwSnapshotStorage,
+  type WmwLastGoodSnapshot,
+  type WmwSnapshotStorage,
+} from '@/lib/wmw/snapshot-storage';
+
+export {
+  getWmwConfig,
+  WMW_GOOGLE_SA_SECRET_NAME_ENV,
+  WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER,
+  WMW_SPREADSHEET_ID_ENV,
+  type WmwConfig,
+} from '@/lib/wmw/config';
+
+export {
+  WMW_LAST_GOOD_META_KEY,
+  WMW_LAST_GOOD_SNAPSHOT_KEY,
+  WMW_SNAPSHOTS_BUCKET,
+  type WmwSnapshotMeta,
+} from '@/lib/wmw/paths';
 
 export {
   WMW_SNAPSHOT_CACHE_TTL_MS,

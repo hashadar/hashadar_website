@@ -1,29 +1,17 @@
 /**
  * Typed Snapshot persistence seam for ingest/Refresh.
  *
- * Amplify private bucket + JSON keys land in #182 (`WmwSnapshotStorage` with
- * `snapshotJson` + as-of meta). This module owns the typed Snapshot interface
- * ingest needs, plus a memory adapter and a thin adapter over the #182 JSON API
- * so Refresh can ship without waiting for that PR to merge.
+ * #182 owns JSON blob + as-of meta (`WmwSnapshotStorage` / Amplify `wmwSnapshots`).
+ * This module adapts that into a typed `WmwSnapshot` store for the facade.
  */
 
 import type { WmwSnapshot } from '@/lib/wmw/types';
+import type { WmwSnapshotStorage } from '@/lib/wmw/snapshot-storage';
+import { createDefaultWmwSnapshotStorage } from '@/lib/wmw/snapshot-storage';
 
 export type WmwSnapshotStore = {
   loadLatest(): Promise<WmwSnapshot | null>;
   save(snapshot: WmwSnapshot): Promise<void>;
-};
-
-/** #182-shaped JSON storage (duck-typed so this PR does not own Amplify). */
-export type WmwJsonSnapshotStorage = {
-  putLastGoodSnapshot(input: {
-    snapshotJson: string;
-    asOf: string;
-  }): Promise<void>;
-  getLastGoodSnapshot(): Promise<{
-    snapshotJson: string;
-    meta: { asOf: string };
-  } | null>;
 };
 
 /** In-memory last-good Snapshot for Vitest and offline Refresh wiring. */
@@ -41,12 +29,9 @@ export function createMemoryWmwSnapshotStore(
   };
 }
 
-/**
- * Adapt #182 `WmwSnapshotStorage` (JSON blob + meta) into the typed store.
- * TODO(#182): prefer `createDefaultWmwSnapshotStorage()` once that PR lands.
- */
+/** Adapt #182 `WmwSnapshotStorage` (JSON blob + meta) into the typed store. */
 export function createSnapshotStoreFromJsonStorage(
-  storage: WmwJsonSnapshotStorage,
+  storage: WmwSnapshotStorage,
 ): WmwSnapshotStore {
   return {
     async loadLatest() {
@@ -69,6 +54,16 @@ export function createSnapshotStoreFromJsonStorage(
       });
     },
   };
+}
+
+/**
+ * Production path: Amplify private `wmwSnapshots` when the client is configured.
+ * Returns null in CI / marketing builds — inject `createMemoryWmwSnapshotStore` for tests.
+ */
+export async function createDefaultWmwSnapshotStore(): Promise<WmwSnapshotStore | null> {
+  const storage = await createDefaultWmwSnapshotStorage();
+  if (!storage) return null;
+  return createSnapshotStoreFromJsonStorage(storage);
 }
 
 function isWmwSnapshot(value: unknown): value is WmwSnapshot {
