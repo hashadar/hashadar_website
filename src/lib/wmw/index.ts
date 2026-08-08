@@ -140,10 +140,20 @@ export {
 } from '@/lib/wmw/overview-view';
 
 export {
+  buildWmwAccountDetailView,
+  type WmwAccountBalancePoint,
+  type WmwAccountDetailView,
+  type WmwAccountQuantityPoint,
+} from '@/lib/wmw/account-detail-view';
+
+export {
   formatAnnualisedRate,
   formatAsOf,
   formatCalendarMonth,
   formatGbp,
+  formatIsoDate,
+  formatMileage,
+  formatQuantity,
 } from '@/lib/wmw/format';
 
 export {
