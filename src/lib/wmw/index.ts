@@ -9,6 +9,7 @@ export type {
   WmwBalance,
   WmwCashflow,
   WmwCashflowTransactionType,
+  WmwCashflowType,
   WmwCategory,
   WmwSnapshot,
 } from '@/lib/wmw/types';

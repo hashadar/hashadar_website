@@ -1,6 +1,7 @@
-﻿/**
- * Normalised WMW Snapshot contract (Workbook tabs after ingest).
- * Column sets match epic #179 / ADR 0010; dates are calendar ISO strings.
+/**
+ * WMW Snapshot domain types — mirror the frozen Workbook contract from epic #179 /
+ * ADR 0010. Dates are ISO calendar days (YYYY-MM-DD) after ingest parses Sheet serials.
+ * Amounts are GBP; Cashflow Amounts are account-perspective (into Account positive).
  */
 
 export type WmwAccount = {
@@ -19,7 +20,7 @@ export type WmwCategory = {
   /** Workbook Type, e.g. Asset | Liability. */
   type: string;
   class: string;
-  /** +1 asset, -1 liability when rolling into Net Worth. */
+  /** +1 asset, −1 liability when rolling into Net Worth. */
   sign: number;
 };
 
@@ -32,25 +33,32 @@ export type WmwBalance = {
   mileage: number | null;
 };
 
-/** v1 known Types; unknown strings may appear before ingest filtering. */
+/**
+ * v1 known Transaction_Type values. Unknown strings are allowed (open union) but
+ * ignored for MWR; ingest may filter before Snapshot persist.
+ */
 export type WmwCashflowTransactionType =
   | 'Contribution'
   | 'Withdrawal'
-  | 'Loan Repayment';
+  | 'Loan Repayment'
+  | (string & {});
+
+/** Alias kept so MWR and Net Worth call sites share one vocabulary. */
+export type WmwCashflowType = WmwCashflowTransactionType;
 
 export type WmwCashflow = {
   /** Calendar date YYYY-MM-DD. */
   date: string;
   accountId: string;
-  /** Account-perspective signed Amount. */
+  /** Account-perspective: into Account positive, out negative. */
   amount: number;
-  transactionType: WmwCashflowTransactionType | string;
+  transactionType: WmwCashflowTransactionType;
   description: string;
 };
 
 /** Point-in-time copy of Workbook facts held for the lab. */
 export type WmwSnapshot = {
-  /** ISO timestamp when the Snapshot was taken. */
+  /** ISO timestamp when the Snapshot was taken (as-of). */
   asOf: string;
   accounts: WmwAccount[];
   categories: WmwCategory[];
