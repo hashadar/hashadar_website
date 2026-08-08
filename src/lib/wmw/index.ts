@@ -1,6 +1,6 @@
 /**
- * WMW (What's My Worth) — Workbook ingest + Snapshot facade.
- * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182/#184/#185).
+ * WMW (What's My Worth) — Workbook ingest, Snapshot facade, and pure calcs.
+ * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182–#185).
  */
 
 export {
@@ -86,17 +86,48 @@ export {
   WMW_INVESTABLE_CATEGORY_IDS,
   WMW_SUPPORTED_CURRENCY,
   WMW_WORKBOOK_TABS,
-  type CalendarMonth,
-  type WmwAccount,
-  type WmwBalance,
-  type WmwCashflow,
-  type WmwCashflowTransactionType,
-  type WmwCashflowType,
-  type WmwCategory,
-  type WmwInvestableCategoryId,
-  type WmwRefreshWarning,
-  type WmwRefreshWarningCode,
-  type WmwSnapshot,
-  type WmwWorkbookRaw,
-  type WmwWorkbookTab,
 } from '@/lib/wmw/types';
+
+export type {
+  CalendarMonth,
+  WmwAccount,
+  WmwBalance,
+  WmwCashflow,
+  WmwCashflowTransactionType,
+  WmwCashflowType,
+  WmwCategory,
+  WmwInvestableCategoryId,
+  WmwRefreshWarning,
+  WmwRefreshWarningCode,
+  WmwSnapshot,
+  WmwWorkbookRaw,
+  WmwWorkbookTab,
+} from '@/lib/wmw/types';
+
+export {
+  calendarMonthFromDate,
+  compareIsoKeys,
+  isCalendarMonth,
+} from '@/lib/wmw/calendar-month';
+
+export {
+  computeNetWorth,
+  computeNetWorthForMonth,
+  type AccountNetWorthRow,
+  type ClassNetWorthRow,
+  type NetWorthMonth,
+  type NetWorthResult,
+} from '@/lib/wmw/net-worth';
+
+export {
+  computePairEquity,
+  type PairEquity,
+  type PairLeg,
+} from '@/lib/wmw/paired-accounts';
+
+export {
+  SAMPLE_ACCOUNTS,
+  SAMPLE_BALANCES,
+  SAMPLE_CATEGORIES,
+  buildSampleSnapshot,
+} from '@/lib/wmw/fixtures/sample-snapshot';
