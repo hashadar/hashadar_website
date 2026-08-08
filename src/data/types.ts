@@ -170,9 +170,25 @@ export interface JobOsPageData {
   overview: {
     heading: string;
     description: string;
-    employersCta: string;
-    opportunitiesCta: string;
-    applicationsCta: string;
+    loadingLabel: string;
+    errorLabel: string;
+    emptyList: string;
+    emptyOpportunitiesCta: string;
+    columnEmployer: string;
+    columnOpportunity: string;
+    columnStatus: string;
+    columnTracking: string;
+    noTrackingNoteLabel: string;
+    untitledOpportunityLabel: string;
+    statusOptions: {
+      researching: string;
+      applied: string;
+      interviewing: string;
+      offer: string;
+    };
+    statusHints: {
+      researching: string;
+    };
   };
   employers: Record<string, unknown> & {
     heading: string;
