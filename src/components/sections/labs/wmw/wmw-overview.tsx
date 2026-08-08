@@ -49,17 +49,15 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
   const [period, setPeriod] = useState<MwrPeriod>('YTD');
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
-  const [client, setClient] = useState<WmwFacade | null>(wmwClient ?? null);
+  const [defaultClient, setDefaultClient] = useState<WmwFacade | null>(null);
+  const client = wmwClient ?? defaultClient;
 
   useEffect(() => {
-    if (wmwClient) {
-      setClient(wmwClient);
-      return;
-    }
+    if (wmwClient) return;
     let cancelled = false;
     void (async () => {
       const resolved = await getDefaultWmw();
-      if (!cancelled) setClient(resolved);
+      if (!cancelled) setDefaultClient(resolved);
     })();
     return () => {
       cancelled = true;
@@ -299,10 +297,10 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                 <JobOsLedgerRow key={pair.pairId}>
                   <JobOsLedgerCell mono>{pair.pairId}</JobOsLedgerCell>
                   <JobOsLedgerCell>
-                    {pair.asset?.accountName ?? '—'}
+                    {pair.asset?.accountName ?? 'ÔÇö'}
                   </JobOsLedgerCell>
                   <JobOsLedgerCell>
-                    {pair.liability?.accountName ?? '—'}
+                    {pair.liability?.accountName ?? 'ÔÇö'}
                   </JobOsLedgerCell>
                   <JobOsLedgerCell mono>
                     {formatGbp(pair.equity)}
