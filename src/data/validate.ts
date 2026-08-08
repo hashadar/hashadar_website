@@ -126,6 +126,8 @@ export function assertValidLabsPage(data: unknown): void {
   requireString(page, 'ctaLabel', 'labs');
   requireString(page, 'flagshipTitle', 'labs');
   requireString(page, 'teaserAriaLabel', 'labs');
+  requireString(page, 'catalogueHeading', 'labs');
+  requireString(page, 'catalogueAriaLabel', 'labs');
   requireArray(page.labs, 'labs.labs').forEach((lab, index) => {
     const item = requireRecord(lab, `labs.labs[${index}]`);
     requireString(item, 'title', `labs.labs[${index}]`);

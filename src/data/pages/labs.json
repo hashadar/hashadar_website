@@ -6,11 +6,18 @@
   "ctaLabel": "Open Job OS",
   "flagshipTitle": "Job OS",
   "teaserAriaLabel": "Decorative motif of signals coalescing into a cluster",
+  "catalogueHeading": "Also available",
+  "catalogueAriaLabel": "Labs catalogue",
   "labs": [
     {
       "title": "Job OS",
       "description": "Authenticated job-hunting operating system: Employers, Opportunities, and Applications.",
       "href": "/labs/job-os"
+    },
+    {
+      "title": "What's My Worth",
+      "description": "Private Net Worth and annualised Account returns from the equity Workbook Snapshot.",
+      "href": "/labs/wmw"
     }
   ]
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Button, Container, Heading, Text } from '@/components/ui';
 import { labs } from '@/data';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
@@ -7,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const flagship = labs.labs[0];
+const catalogueLabs = labs.labs.filter((lab) => lab.href !== flagship?.href);
 
 const springEnter = { type: 'spring' as const, damping: 25, stiffness: 80 };
 
@@ -198,6 +200,49 @@ export function LabsIndexSection() {
             prefersReducedMotion={prefersReducedMotion}
             className={showCta ? undefined : 'mt-4 sm:mt-6'}
           />
+
+          {catalogueLabs.length > 0 ? (
+            <motion.nav
+              className="mt-14 w-full max-w-xl border-t border-[var(--border)] pt-10 sm:mt-16"
+              aria-label={labs.catalogueAriaLabel}
+              initial={
+                prefersReducedMotion
+                  ? { opacity: 1 }
+                  : { opacity: 0, y: 20 }
+              }
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { ...springEnter, delay: 1.35, duration: 0.7 }
+              }
+            >
+              <Heading
+                size="sm"
+                as="h2"
+                className="mb-6 text-[var(--foreground)]"
+              >
+                {labs.catalogueHeading}
+              </Heading>
+              <ul className="space-y-6 text-left">
+                {catalogueLabs.map((lab) => (
+                  <li key={lab.href} className="space-y-2">
+                    <Heading size="sm" as="h3">
+                      <Link
+                        href={lab.href}
+                        className="text-[var(--foreground)] underline-offset-4 transition-colors hover:text-[var(--primary)] hover:underline"
+                      >
+                        {lab.title}
+                      </Link>
+                    </Heading>
+                    <Text className="text-[var(--mono-500)]">
+                      {lab.description}
+                    </Text>
+                  </li>
+                ))}
+              </ul>
+            </motion.nav>
+          ) : null}
         </div>
       </Container>
     </section>

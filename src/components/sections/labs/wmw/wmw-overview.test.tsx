@@ -118,4 +118,33 @@ describe('WmwOverview', () => {
     expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel)).toBeInTheDocument();
   });
+
+  it('surfaces Refresh warnings for unknown Transaction_Type to the Site Admin', async () => {
+    const warningMessage =
+      'Excluded Cashflow with unknown Transaction_Type "Dividend" from MWR inputs.';
+    const client = createClient({
+      initialSnapshot: buildSampleSnapshot({
+        warnings: [
+          {
+            code: 'unknown_transaction_type',
+            message: warningMessage,
+            tab: 'fact_Cashflows',
+            row: 2,
+            details: {
+              accountId: 'IBKR_ISA',
+              date: '2026-02-01',
+              transactionType: 'Dividend',
+              amount: 100,
+            },
+          },
+        ],
+      }),
+    });
+    render(<WmwOverview wmwClient={client} />);
+
+    expect(
+      await screen.findByRole('heading', { name: wmw.overview.warningsLabel }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(warningMessage)).toBeInTheDocument();
+  });
 });
