@@ -13,3 +13,5 @@ The skills speak in terms of five canonical triage roles. This file maps those r
 When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
 
 Edit the right-hand column to match whatever vocabulary you actually use.
+
+Issue labels are the source of truth for triage. The [hashadar.com Issue Board](https://github.com/users/hashadar/projects/3) Status field mirrors these five plus `in progress` and `done` for delivery — keep Status aligned after triage (see [issue-board.md](./issue-board.md)).
