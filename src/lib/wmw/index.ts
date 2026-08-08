@@ -1,7 +1,6 @@
 /**
  * WMW (What's My Worth) — Workbook ingest + Snapshot facade.
- * Net Worth (#184) and MWR (#185) should import types/Snapshot from here,
- * not own parse modules.
+ * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182/#184/#185).
  */
 
 export {
@@ -87,10 +86,12 @@ export {
   WMW_INVESTABLE_CATEGORY_IDS,
   WMW_SUPPORTED_CURRENCY,
   WMW_WORKBOOK_TABS,
+  type CalendarMonth,
   type WmwAccount,
   type WmwBalance,
   type WmwCashflow,
   type WmwCashflowTransactionType,
+  type WmwCashflowType,
   type WmwCategory,
   type WmwInvestableCategoryId,
   type WmwRefreshWarning,

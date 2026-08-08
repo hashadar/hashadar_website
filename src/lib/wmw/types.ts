@@ -1,6 +1,9 @@
 /**
- * WMW Snapshot and Workbook contract types (ADR 0009 / epic #179).
- * Shared with Net Worth (#184) and MWR (#185) — keep shape stable.
+ * WMW Snapshot domain types — frozen Workbook contract from epic #179 /
+ * ADR 0009 / ADR 0010. Shared across storage (#182), ingest (#183), Net Worth
+ * (#184), and MWR (#185). Dates are ISO calendar days (YYYY-MM-DD) after ingest
+ * parses Sheet serials. Amounts are GBP; Cashflow Amounts are account-perspective
+ * (into Account positive).
  */
 
 export const WMW_WORKBOOK_TABS = [
@@ -44,16 +47,25 @@ export const WMW_CASHFLOW_COLUMNS = [
   'Description',
 ] as const;
 
+/** v1 known Transaction_Type values (epic #179 / ADR 0010). */
 export const WMW_CASHFLOW_TRANSACTION_TYPES = [
   'Contribution',
   'Withdrawal',
   'Loan Repayment',
 ] as const;
 
+/**
+ * Open union: known Types plus unknown Sheet strings. MWR ignores unknowns;
+ * ingest may filter before Snapshot persist and warn on Refresh.
+ */
 export type WmwCashflowTransactionType =
-  (typeof WMW_CASHFLOW_TRANSACTION_TYPES)[number];
+  | (typeof WMW_CASHFLOW_TRANSACTION_TYPES)[number]
+  | (string & {});
 
-/** Category allow-list for Investable Accounts (MWR); stored for downstream use. */
+/** Alias so MWR and Net Worth call sites share one vocabulary. */
+export type WmwCashflowType = WmwCashflowTransactionType;
+
+/** Category allow-list for Investable Accounts (MWR). */
 export const WMW_INVESTABLE_CATEGORY_IDS = [
   'CAT_BROKERAGE',
   'CAT_PENSION',
@@ -70,20 +82,23 @@ export type WmwAccount = {
   accountName: string;
   platform: string;
   categoryId: string;
-  currency: typeof WMW_SUPPORTED_CURRENCY;
-  /** Empty Workbook Pair_ID becomes null (unpaired). */
+  /** v1 is GBP-only; ingest excludes non-GBP Accounts. */
+  currency: string;
+  /** Empty / null means unpaired. */
   pairId: string | null;
 };
 
 export type WmwCategory = {
   categoryId: string;
+  /** Workbook Type, e.g. Asset | Liability. */
   type: string;
   class: string;
+  /** +1 asset, −1 liability when rolling into Net Worth. */
   sign: number;
 };
 
 export type WmwBalance = {
-  /** Calendar date YYYY-MM-DD (from Sheets serial). */
+  /** Calendar date YYYY-MM-DD. */
   date: string;
   accountId: string;
   balance: number;
@@ -92,6 +107,7 @@ export type WmwBalance = {
 };
 
 export type WmwCashflow = {
+  /** Calendar date YYYY-MM-DD. */
   date: string;
   accountId: string;
   /** Account-perspective: into Account positive, out negative. */
@@ -116,18 +132,20 @@ export type WmwRefreshWarning = {
 
 /**
  * Point-in-time Workbook copy for the lab (private storage, not Site Content).
- * `cashflows` holds only v1 Transaction_Types; unknowns are omitted + warned on Refresh.
+ * Ingest retains Refresh warnings on last-good; calc fixtures use [].
  */
 export type WmwSnapshot = {
-  /** ISO datetime of the Snapshot as-of. */
+  /** ISO timestamp when the Snapshot was taken (as-of). */
   asOf: string;
   accounts: WmwAccount[];
   categories: WmwCategory[];
   balances: WmwBalance[];
   cashflows: WmwCashflow[];
-  /** Refresh-time warnings retained with last-good copy for UI surfacing. */
   warnings: WmwRefreshWarning[];
 };
 
 /** Unformatted Sheets matrices (header row + data rows). */
 export type WmwWorkbookRaw = Record<WmwWorkbookTab, unknown[][]>;
+
+/** Calendar month key YYYY-MM. */
+export type CalendarMonth = string;
