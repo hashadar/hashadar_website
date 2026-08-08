@@ -19,7 +19,9 @@ Keys are relative to the `wmwSnapshots` bucket:
 | `snapshots/last-good.json` | Last-good Snapshot payload (normalised Workbook tabs; ingest shape lands in #183). |
 | `snapshots/last-good.meta.json` | As-of metadata for that Snapshot (`asOf` ISO-8601 timestamp, and any small ingest notes). |
 
-Helpers: `src/lib/wmw/paths.ts`. Facade: `src/lib/wmw/snapshot-storage.ts`.
+Helpers: `src/lib/wmw/paths.ts`. JSON facade: `src/lib/wmw/snapshot-storage.ts`.
+
+Typed ingest store: `createSnapshotStoreFromJsonStorage` / `createDefaultWmwSnapshotStore` in `src/lib/wmw/snapshot-store.ts` (Refresh persist path for #183). Vitest uses `createMemoryWmwSnapshotStorage` or `createMemoryWmwSnapshotStore` — no live AWS.
 
 ## App config / secrets
 
