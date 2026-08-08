@@ -97,6 +97,14 @@ export const TERMINAL_APPLICATION_STATUSES = [
   'withdrawn',
 ] as const;
 
+/** Non-terminal Application statuses shown on the Overview attention surface. */
+export const OVERVIEW_ATTENTION_STATUSES = [
+  'researching',
+  'applied',
+  'interviewing',
+  'offer',
+] as const;
+
 export const DECISION_EVENT_KINDS = [
   'opportunity_passed',
   'application_started',
@@ -114,7 +122,18 @@ export type CompensationDisclosure = (typeof COMPENSATION_DISCLOSURES)[number];
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 export type TerminalApplicationStatus =
   (typeof TERMINAL_APPLICATION_STATUSES)[number];
+export type OverviewAttentionStatus =
+  (typeof OVERVIEW_ATTENTION_STATUSES)[number];
 export type DecisionEventKind = (typeof DECISION_EVENT_KINDS)[number];
+
+/** Urgency rank for Overview attention (lower = higher priority). */
+const OVERVIEW_ATTENTION_URGENCY_RANK: Record<OverviewAttentionStatus, number> =
+  {
+    offer: 0,
+    interviewing: 1,
+    applied: 2,
+    researching: 3,
+  };
 
 export type BodyEntityKind =
   | 'employer'
@@ -296,6 +315,15 @@ export type ApplicationRecord = {
   status: ApplicationStatus;
   trackingNote?: string;
   s3Key?: string;
+};
+
+/** Joined row for the Overview attention list (facade-assembled). */
+export type OverviewAttentionRow = {
+  applicationId: string;
+  employerName: string;
+  opportunityTitle: string;
+  status: OverviewAttentionStatus;
+  trackingNote?: string;
 };
 
 export type DecisionEventRecord = {
@@ -639,6 +667,12 @@ export function isTerminalApplicationStatus(
   status: ApplicationStatus,
 ): status is TerminalApplicationStatus {
   return includesValue(TERMINAL_APPLICATION_STATUSES, status);
+}
+
+export function isOverviewAttentionStatus(
+  status: ApplicationStatus,
+): status is OverviewAttentionStatus {
+  return includesValue(OVERVIEW_ATTENTION_STATUSES, status);
 }
 
 export function createJobOs(deps: JobOsDeps) {
@@ -1256,6 +1290,90 @@ export function createJobOs(deps: JobOsDeps) {
     return deps.store.listApplications();
   }
 
+  async function listOverviewAttention(): Promise<OverviewAttentionRow[]> {
+    const [applications, opportunities, employers] = await Promise.all([
+      deps.store.listApplications(),
+      deps.store.listOpportunities(),
+      deps.store.listEmployers(),
+    ]);
+
+    const opportunityById = new Map(
+      opportunities.map((opportunity) => [opportunity.id, opportunity]),
+    );
+    const employerById = new Map(
+      employers.map((employer) => [employer.id, employer]),
+    );
+
+    const attentionApps = applications.filter((application) =>
+      isOverviewAttentionStatus(application.status),
+    );
+
+    const opportunityIds = [
+      ...new Set(attentionApps.map((application) => application.opportunityId)),
+    ];
+    const eventsByOpportunityId = new Map(
+      await Promise.all(
+        opportunityIds.map(async (opportunityId) => {
+          const events =
+            await deps.store.listDecisionEventsForOpportunity(opportunityId);
+          return [opportunityId, events] as const;
+        }),
+      ),
+    );
+
+    type RankedRow = OverviewAttentionRow & {
+      urgency: number;
+      activityAt: string;
+    };
+
+    const ranked: RankedRow[] = [];
+    for (const application of attentionApps) {
+      if (!isOverviewAttentionStatus(application.status)) {
+        continue;
+      }
+      const opportunity = opportunityById.get(application.opportunityId);
+      if (!opportunity) {
+        continue;
+      }
+      const employer = employerById.get(opportunity.employerId);
+      const events = eventsByOpportunityId.get(application.opportunityId) ?? [];
+      const latestForApplication = events
+        .filter((event) => event.applicationId === application.id)
+        .reduce<string | null>((latest, event) => {
+          if (!latest || event.occurredAt > latest) {
+            return event.occurredAt;
+          }
+          return latest;
+        }, null);
+
+      ranked.push({
+        applicationId: application.id,
+        employerName: employer?.name ?? '',
+        opportunityTitle: opportunity.title ?? '',
+        status: application.status,
+        ...(application.trackingNote
+          ? { trackingNote: application.trackingNote }
+          : {}),
+        urgency: OVERVIEW_ATTENTION_URGENCY_RANK[application.status],
+        activityAt: latestForApplication ?? opportunity.noticedAt,
+      });
+    }
+
+    ranked.sort((a, b) => {
+      if (a.urgency !== b.urgency) {
+        return a.urgency - b.urgency;
+      }
+      if (a.activityAt !== b.activityAt) {
+        return b.activityAt.localeCompare(a.activityAt);
+      }
+      return a.applicationId.localeCompare(b.applicationId);
+    });
+
+    return ranked.map(
+      ({ urgency: _urgency, activityAt: _activityAt, ...row }) => row,
+    );
+  }
+
   async function getApplication(
     id: string,
   ): Promise<{ status: 'ok'; application: ApplicationRecord } | NotFound> {
@@ -1678,6 +1796,7 @@ export function createJobOs(deps: JobOsDeps) {
     listDecisionEvents,
     pursueOpportunity,
     listApplications,
+    listOverviewAttention,
     getApplication,
     updateApplicationStatus,
     updateTrackingNote,

@@ -83,10 +83,26 @@
   },
   "overview": {
     "heading": "Overview",
-    "description": "Start with Employers, capture Opportunities as they appear, then pursue or pass. Applications track pursuit state without overloading listing status.",
-    "employersCta": "Open Employers",
-    "opportunitiesCta": "Open Opportunities",
-    "applicationsCta": "Open Applications"
+    "description": "Active pursuits that need attention next, ordered by urgency.",
+    "loadingLabel": "Loading overview…",
+    "errorLabel": "Overview could not be loaded.",
+    "emptyList": "No active pursuits yet. Pursue an Opportunity to bring it here.",
+    "emptyOpportunitiesCta": "Open Opportunities",
+    "columnEmployer": "Employer",
+    "columnOpportunity": "Opportunity",
+    "columnStatus": "Status",
+    "columnTracking": "Tracking note",
+    "noTrackingNoteLabel": "—",
+    "untitledOpportunityLabel": "Untitled opportunity",
+    "statusOptions": {
+      "researching": "Researching (pre-apply)",
+      "applied": "Applied",
+      "interviewing": "Interviewing",
+      "offer": "Offer"
+    },
+    "statusHints": {
+      "researching": "Active pursuit before a formal application is submitted."
+    }
   },
   "employers": {
     "heading": "Employers",

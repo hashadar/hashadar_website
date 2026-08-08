@@ -46,7 +46,14 @@ npm run build
 
 ## Docs
 
-- [CI and deployment](docs/CI-AND-DEPLOYMENT.md)
-- [Codebase conventions](docs/CODEBASE-CONVENTIONS.md)
-- Site domain language: `docs/site/CONTEXT.md`
-- Job OS domain language: `CONTEXT.md` + `docs/adr/`
+| Doc | Purpose |
+|-----|---------|
+| [Wiki changelogs](https://github.com/hashadar/hashadar_website/wiki) | Product changelogs (Site + per Lab), ASD-STE100 |
+| [CONTEXT-MAP.md](CONTEXT-MAP.md) | Domain contexts (Site, Job OS) |
+| [Codebase conventions](docs/CODEBASE-CONVENTIONS.md) | Imports, data layer, design system, Next.js |
+| [Branching](docs/BRANCHING.md) | `develop` / `main`, hotfixes, sync |
+| [CI and deployment](docs/CI-AND-DEPLOYMENT.md) | GitHub Actions + Amplify |
+| [AGENTS.md](AGENTS.md) | Agent entry: issues, triage, domain, branching |
+| `docs/adr/` | Architectural decisions |
+| `docs/research/` | Parked research notes (not product docs) |
+| `docs/agents/` | Issue tracker and triage label detail |

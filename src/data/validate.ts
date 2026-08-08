@@ -159,9 +159,37 @@ export function assertValidJobOsPage(data: unknown): void {
   const overview = requireRecord(page.overview, 'job-os.overview');
   requireString(overview, 'heading', 'job-os.overview');
   requireString(overview, 'description', 'job-os.overview');
-  requireString(overview, 'employersCta', 'job-os.overview');
-  requireString(overview, 'opportunitiesCta', 'job-os.overview');
-  requireString(overview, 'applicationsCta', 'job-os.overview');
+  requireString(overview, 'loadingLabel', 'job-os.overview');
+  requireString(overview, 'errorLabel', 'job-os.overview');
+  requireString(overview, 'emptyList', 'job-os.overview');
+  requireString(overview, 'emptyOpportunitiesCta', 'job-os.overview');
+  requireString(overview, 'columnEmployer', 'job-os.overview');
+  requireString(overview, 'columnOpportunity', 'job-os.overview');
+  requireString(overview, 'columnStatus', 'job-os.overview');
+  requireString(overview, 'columnTracking', 'job-os.overview');
+  requireString(overview, 'noTrackingNoteLabel', 'job-os.overview');
+  requireString(overview, 'untitledOpportunityLabel', 'job-os.overview');
+  const overviewStatusOptions = requireRecord(
+    overview.statusOptions,
+    'job-os.overview.statusOptions',
+  );
+  requireString(overviewStatusOptions, 'researching', 'job-os.overview.statusOptions');
+  requireString(overviewStatusOptions, 'applied', 'job-os.overview.statusOptions');
+  requireString(
+    overviewStatusOptions,
+    'interviewing',
+    'job-os.overview.statusOptions',
+  );
+  requireString(overviewStatusOptions, 'offer', 'job-os.overview.statusOptions');
+  const overviewStatusHints = requireRecord(
+    overview.statusHints,
+    'job-os.overview.statusHints',
+  );
+  requireString(
+    overviewStatusHints,
+    'researching',
+    'job-os.overview.statusHints',
+  );
 
   const employers = requireRecord(page.employers, 'job-os.employers');
   requireString(employers, 'heading', 'job-os.employers');

@@ -1,6 +1,6 @@
 # Job OS
 
-Private job-hunting operating system for the **Site Admin** (see [Site context](./docs/site/CONTEXT.md)). The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the v3.0 hunting-graph rebuild. The authenticated product lives at `/labs/job-os`, entered from the labs index; there is no public pulse page in v3.0. Sign-in is site-wide — Job OS does not own auth or Admin.
+Private job-hunting operating system for the **Site Admin** (see [Site context](./docs/site/CONTEXT.md)). The core data model is Employer → Opportunity → Application. Listing evidence lives on Opportunity; the former JobDescription noun and the market-pulse publication pipeline are not part of the hunting-graph product. The authenticated product lives at `/labs/job-os` (Overview attention surface plus Employers | Opportunities | Applications | Profile | Lists); no public Job OS publication is planned. Sign-in is site-wide — Job OS does not own auth or Admin.
 
 ## Language
 
@@ -33,8 +33,8 @@ A concrete role or listing under an Employer — the absorbed successor to JobDe
 _Avoid_: Job, listing (as the model name), inbox item, lead, JobDescription (legacy v2 noun)
 
 **Market pulse**:
-The former public themes/tech publication pipeline (embeddings, clustering, guest snapshot). Out of scope for the v3.0 hunting-graph rebuild; not a synonym for Opportunity evidence.
-_Avoid_: corpus recompute, LabPublication (as a v3.0 requirement)
+The former public themes/tech publication pipeline (embeddings, clustering, guest snapshot). Not planned for Job OS — the graph is personal hunt evidence, not a market corpus; not a synonym for Opportunity evidence.
+_Avoid_: corpus recompute, LabPublication (as a Job OS requirement), treating pulse as deferred work
 
 **Application**:
 A pursuit of a specific Opportunity: process state, contacts, prep, and debrief. Requires an Opportunity. At most one Application per Opportunity; created when pursuit begins, not automatically with the Opportunity.
@@ -45,11 +45,11 @@ Lifecycle of the listing as a market object: `open` or `closed`. Not whether the
 _Avoid_: active/archived as pursuit state, Application status, withdrawn (use closed)
 
 **Application status**:
-Lifecycle of a pursuit: researching, applied, interviewing, offer, accepted, rejected, withdrawn. Exists only when an Application exists.
-_Avoid_: JobDescription status, Opportunity status, corpus active/archived
+Lifecycle of a pursuit: researching, applied, interviewing, offer, accepted, rejected, withdrawn. Exists only when an Application exists. `researching` is active pursuit before a formal application is submitted (e.g. recruiter contact, screening, process before interviews); `applied` is the formal submit.
+_Avoid_: JobDescription status, Opportunity status, corpus active/archived, a separate pre-application status outside Application
 
 **Tracking note**:
-Optional freeform text on an Application for owner micro-status (e.g. interview stage, awaiting response, next action). Does not replace Application status and does not emit Decision Events when edited.
+Optional freeform text on an Application for owner micro-status (e.g. interview stage, awaiting response, next action, recruiter screen). Does not replace Application status and does not emit Decision Events when edited.
 _Avoid_: interview sub-status enum, second state machine, encoding tracker text as Application status
 
 **Pass**:
@@ -85,3 +85,13 @@ _Avoid_: reviving these nouns; treating them as synonyms for Hunt Profile or Fit
 **Canonical CV** / **JobDescription** / **ScrapeCandidate** / **AnalysisRun** / **CorpusSnapshot** / **LabPublication** / **ThemeLabelOverride**:
 Retired v2 lab concepts. Removed in the v3.0 teardown; not part of the hunting graph.
 _Avoid_: reviving these nouns for Opportunity evidence, Decision Events, or Hunt Profile
+
+### Surfaces (v3.2+)
+
+**Overview**:
+The Job OS landing attention surface: what needs the Site Admin next. Rows are non-terminal Applications only (`researching`, `applied`, `interviewing`, `offer`). Each row shows Employer, Opportunity title, Application status, and Tracking note; ordered by pursuit urgency (`offer` → `interviewing` → `applied` → `researching`), then within a status by latest Decision Event for that Application (fallback: Opportunity `noticedAt`). Page composition is heading, one-line description, and that list only (plus empty state linking to Opportunities). No KPI strip, secondary feeds, or inline edits — row opens the Application detail. Undecided open Opportunities (not yet Pursue/Pass) stay on the Opportunities ledger. Not a metrics or funnel view.
+_Avoid_: dashboard (unqualified), Status map, KPI tiles as the Overview’s job, bare Opportunities or Employer-only rows as Overview content
+
+**Status map**:
+A separate surface for where-the-hunt-stands aggregates (counts, funnels, breakdowns). Distinct from Overview; not part of the Overview attention job.
+_Avoid_: Overview, treating Overview as the metrics home

@@ -3,12 +3,16 @@
 #
 # Do not use paths-ignore on pull_request while `quality` is a required ruleset check —
 # a skipped workflow leaves the check pending forever and blocks merge.
+#
+# Triggers: pull_request is the merge gate (required). Push to main re-runs quality plus
+# `next build` as a post-ship safety net. Do not also push-trigger on develop — that
+# duplicates the PR run after every squash-merge.
 name: CI
 
 on:
   pull_request:
   push:
-    branches: [main, develop]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:

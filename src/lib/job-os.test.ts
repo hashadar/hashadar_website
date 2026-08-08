@@ -1088,3 +1088,281 @@ describe('Job OS facade — Fit Insight', () => {
     expect(persisted?.analysedAt).toBe('2026-08-01T12:00:00.000Z');
   });
 });
+
+describe('Job OS facade — Overview attention', () => {
+  async function seedPursuit(
+    jobOs: ReturnType<typeof createJobOs>,
+    options: {
+      employerName: string;
+      title: string;
+      noticedAt: string;
+      status?: 'researching' | 'applied' | 'interviewing' | 'offer';
+      trackingNote?: string;
+    },
+  ) {
+    const employer = await jobOs.createEmployer({
+      name: options.employerName,
+      sizeTier: 'scaleup',
+      prestigeTier: 'mid',
+      sector: 'technology',
+    });
+    expect(employer.status).toBe('created');
+    if (employer.status !== 'created') {
+      throw new Error('expected employer');
+    }
+
+    const opportunity = await jobOs.createOpportunity({
+      employerId: employer.employer.id,
+      noticedAt: options.noticedAt,
+      title: options.title,
+    });
+    expect(opportunity.status).toBe('created');
+    if (opportunity.status !== 'created') {
+      throw new Error('expected opportunity');
+    }
+
+    const pursued = await jobOs.pursueOpportunity(opportunity.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      throw new Error('expected pursuit');
+    }
+
+    if (options.status && options.status !== 'researching') {
+      const updated = await jobOs.updateApplicationStatus(
+        pursued.application.id,
+        options.status,
+      );
+      expect(updated.status).toBe('updated');
+    }
+
+    if (options.trackingNote) {
+      const note = await jobOs.updateTrackingNote(
+        pursued.application.id,
+        options.trackingNote,
+      );
+      expect(note.status).toBe('updated');
+    }
+
+    return pursued.application.id;
+  }
+
+  it('filters to non-terminal Applications and joins employer/title/note', async () => {
+    const { jobOs } = createTestJobOs();
+    const activeId = await seedPursuit(jobOs, {
+      employerName: 'Acme',
+      title: 'Data scientist',
+      noticedAt: '2026-07-20T09:00:00.000Z',
+      status: 'applied',
+      trackingNote: 'Awaiting screen',
+    });
+    const terminalId = await seedPursuit(jobOs, {
+      employerName: 'Beacon',
+      title: 'Closed role',
+      noticedAt: '2026-07-21T09:00:00.000Z',
+    });
+    await jobOs.updateApplicationStatus(terminalId, 'rejected');
+
+    const rows = await jobOs.listOverviewAttention();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual({
+      applicationId: activeId,
+      employerName: 'Acme',
+      opportunityTitle: 'Data scientist',
+      status: 'applied',
+      trackingNote: 'Awaiting screen',
+    });
+  });
+
+  it('orders by urgency offer → interviewing → applied → researching', async () => {
+    let clock = '2026-08-01T10:00:00.000Z';
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies,
+      now: () => clock,
+      createId: (() => {
+        let n = 0;
+        return () => `att-${++n}`;
+      })(),
+    });
+
+    const researchingId = await seedPursuit(jobOs, {
+      employerName: 'Research Co',
+      title: 'Researching role',
+      noticedAt: '2026-07-10T09:00:00.000Z',
+    });
+    clock = '2026-08-01T11:00:00.000Z';
+    const appliedId = await seedPursuit(jobOs, {
+      employerName: 'Applied Co',
+      title: 'Applied role',
+      noticedAt: '2026-07-11T09:00:00.000Z',
+      status: 'applied',
+    });
+    clock = '2026-08-01T12:00:00.000Z';
+    const interviewingId = await seedPursuit(jobOs, {
+      employerName: 'Interview Co',
+      title: 'Interviewing role',
+      noticedAt: '2026-07-12T09:00:00.000Z',
+      status: 'interviewing',
+    });
+    clock = '2026-08-01T13:00:00.000Z';
+    const offerId = await seedPursuit(jobOs, {
+      employerName: 'Offer Co',
+      title: 'Offer role',
+      noticedAt: '2026-07-13T09:00:00.000Z',
+      status: 'offer',
+    });
+
+    const rows = await jobOs.listOverviewAttention();
+    expect(rows.map((row) => row.applicationId)).toEqual([
+      offerId,
+      interviewingId,
+      appliedId,
+      researchingId,
+    ]);
+  });
+
+  it('breaks ties within a status by latest Decision Event for the Application', async () => {
+    let clock = '2026-08-01T10:00:00.000Z';
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies,
+      now: () => clock,
+      createId: (() => {
+        let n = 0;
+        return () => `tie-${++n}`;
+      })(),
+    });
+
+    const olderId = await seedPursuit(jobOs, {
+      employerName: 'Older Applied',
+      title: 'Older',
+      noticedAt: '2026-07-20T09:00:00.000Z',
+      status: 'applied',
+    });
+    clock = '2026-08-01T12:00:00.000Z';
+    const newerId = await seedPursuit(jobOs, {
+      employerName: 'Newer Applied',
+      title: 'Newer',
+      noticedAt: '2026-07-01T09:00:00.000Z',
+      status: 'applied',
+    });
+
+    const rows = await jobOs.listOverviewAttention();
+    expect(rows.map((row) => row.applicationId)).toEqual([newerId, olderId]);
+  });
+
+  it('falls back to Opportunity noticedAt when no Application Decision Events exist', async () => {
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies,
+      now: () => '2026-08-01T10:00:00.000Z',
+      createId: (() => {
+        let n = 0;
+        return () => `fb-${++n}`;
+      })(),
+    });
+
+    const earlyEmployer = await jobOs.createEmployer({
+      name: 'Early',
+      sizeTier: 'startup',
+      prestigeTier: 'low',
+      sector: 'technology',
+    });
+    const lateEmployer = await jobOs.createEmployer({
+      name: 'Late',
+      sizeTier: 'startup',
+      prestigeTier: 'low',
+      sector: 'technology',
+    });
+    expect(earlyEmployer.status).toBe('created');
+    expect(lateEmployer.status).toBe('created');
+    if (
+      earlyEmployer.status !== 'created' ||
+      lateEmployer.status !== 'created'
+    ) {
+      return;
+    }
+
+    const earlyOpp = await jobOs.createOpportunity({
+      employerId: earlyEmployer.employer.id,
+      noticedAt: '2026-07-01T09:00:00.000Z',
+      title: 'Early notice',
+    });
+    const lateOpp = await jobOs.createOpportunity({
+      employerId: lateEmployer.employer.id,
+      noticedAt: '2026-07-20T09:00:00.000Z',
+      title: 'Late notice',
+    });
+    expect(earlyOpp.status).toBe('created');
+    expect(lateOpp.status).toBe('created');
+    if (earlyOpp.status !== 'created' || lateOpp.status !== 'created') {
+      return;
+    }
+
+    const earlyApp = await store.insertApplication({
+      id: 'app-early',
+      opportunityId: earlyOpp.opportunity.id,
+      status: 'researching',
+    });
+    const lateApp = await store.insertApplication({
+      id: 'app-late',
+      opportunityId: lateOpp.opportunity.id,
+      status: 'researching',
+    });
+
+    const rows = await jobOs.listOverviewAttention();
+    expect(rows.map((row) => row.applicationId)).toEqual([
+      lateApp.id,
+      earlyApp.id,
+    ]);
+  });
+
+  it('does not reshuffle when only the Tracking note changes', async () => {
+    let clock = '2026-08-01T10:00:00.000Z';
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies,
+      now: () => clock,
+      createId: (() => {
+        let n = 0;
+        return () => `note-${++n}`;
+      })(),
+    });
+
+    const firstId = await seedPursuit(jobOs, {
+      employerName: 'First',
+      title: 'First role',
+      noticedAt: '2026-07-10T09:00:00.000Z',
+      status: 'applied',
+    });
+    clock = '2026-08-01T11:00:00.000Z';
+    const secondId = await seedPursuit(jobOs, {
+      employerName: 'Second',
+      title: 'Second role',
+      noticedAt: '2026-07-11T09:00:00.000Z',
+      status: 'applied',
+    });
+
+    const before = (await jobOs.listOverviewAttention()).map(
+      (row) => row.applicationId,
+    );
+    expect(before).toEqual([secondId, firstId]);
+
+    clock = '2026-08-01T20:00:00.000Z';
+    await jobOs.updateTrackingNote(firstId, 'Edited tracker only');
+
+    const after = await jobOs.listOverviewAttention();
+    expect(after.map((row) => row.applicationId)).toEqual(before);
+    expect(after.find((row) => row.applicationId === firstId)?.trackingNote).toBe(
+      'Edited tracker only',
+    );
+  });
+});
