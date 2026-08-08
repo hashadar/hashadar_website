@@ -3,13 +3,18 @@ import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { auth } from './auth/resource.js';
 import { data } from './data/resource.js';
 import { analyseFit } from './functions/analyse-fit/resource.js';
-import { siteContentStorage, storage } from './storage/resource.js';
+import {
+  siteContentStorage,
+  storage,
+  wmwSnapshotsStorage,
+} from './storage/resource.js';
 
 const backend = defineBackend({
   auth,
   data,
   storage,
   siteContentStorage,
+  wmwSnapshotsStorage,
   analyseFit,
 });
 
