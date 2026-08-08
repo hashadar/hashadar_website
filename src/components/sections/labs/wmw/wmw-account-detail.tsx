@@ -42,17 +42,15 @@ export function WmwAccountDetail({
   const copy = wmw.accountDetail;
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [view, setView] = useState<WmwAccountDetailView | null>(null);
-  const [client, setClient] = useState<WmwFacade | null>(wmwClient ?? null);
+  const [defaultClient, setDefaultClient] = useState<WmwFacade | null>(null);
+  const client = wmwClient ?? defaultClient;
 
   useEffect(() => {
-    if (wmwClient) {
-      setClient(wmwClient);
-      return;
-    }
+    if (wmwClient) return;
     let cancelled = false;
     void (async () => {
       const resolved = await getDefaultWmw();
-      if (!cancelled) setClient(resolved);
+      if (!cancelled) setDefaultClient(resolved);
     })();
     return () => {
       cancelled = true;

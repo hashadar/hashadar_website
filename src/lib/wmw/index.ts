@@ -86,22 +86,19 @@ export {
   WMW_INVESTABLE_CATEGORY_IDS,
   WMW_SUPPORTED_CURRENCY,
   WMW_WORKBOOK_TABS,
-} from '@/lib/wmw/types';
-
-export type {
-  CalendarMonth,
-  WmwAccount,
-  WmwBalance,
-  WmwCashflow,
-  WmwCashflowTransactionType,
-  WmwCashflowType,
-  WmwCategory,
-  WmwInvestableCategoryId,
-  WmwRefreshWarning,
-  WmwRefreshWarningCode,
-  WmwSnapshot,
-  WmwWorkbookRaw,
-  WmwWorkbookTab,
+  type CalendarMonth,
+  type WmwAccount,
+  type WmwBalance,
+  type WmwCashflow,
+  type WmwCashflowTransactionType,
+  type WmwCashflowType,
+  type WmwCategory,
+  type WmwInvestableCategoryId,
+  type WmwRefreshWarning,
+  type WmwRefreshWarningCode,
+  type WmwSnapshot,
+  type WmwWorkbookRaw,
+  type WmwWorkbookTab,
 } from '@/lib/wmw/types';
 
 export {
