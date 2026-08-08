@@ -48,7 +48,7 @@ npm run build
 
 | Doc | Purpose |
 |-----|---------|
-| [Wiki changelogs](https://github.com/hashadar/hashadar_website/wiki) | Product history (Site + per Lab) |
+| [Wiki changelogs](https://github.com/hashadar/hashadar_website/wiki) | Product changelogs (Site + per Lab), ASD-STE100 |
 | [CONTEXT-MAP.md](CONTEXT-MAP.md) | Domain contexts (Site, Job OS) |
 | [Codebase conventions](docs/CODEBASE-CONVENTIONS.md) | Imports, data layer, design system, Next.js |
 | [Branching](docs/BRANCHING.md) | `develop` / `main`, hotfixes, sync |
