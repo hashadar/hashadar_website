@@ -1,6 +1,6 @@
 /**
  * WMW (What's My Worth) — Workbook ingest, Snapshot facade, and pure calcs.
- * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182/#184/#185).
+ * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182–#185).
  */
 
 export {
@@ -121,6 +121,30 @@ export {
   type PairEquity,
   type PairLeg,
 } from '@/lib/wmw/paired-accounts';
+
+export {
+  INVESTABLE_CATEGORY_IDS,
+  computeAccountAnnualisedMwr,
+  computeInvestableAccountsAnnualisedMwr,
+  isInvestableAccount,
+  isInvestableCategoryId,
+  type AccountAnnualisedMwr,
+  type InvestableCategoryId,
+  type MwrPeriod,
+  type MwrUnavailableReason,
+} from '@/lib/wmw/mwr';
+
+export {
+  buildWmwOverviewView,
+  type WmwOverviewView,
+} from '@/lib/wmw/overview-view';
+
+export {
+  formatAnnualisedRate,
+  formatAsOf,
+  formatCalendarMonth,
+  formatGbp,
+} from '@/lib/wmw/format';
 
 export {
   SAMPLE_ACCOUNTS,

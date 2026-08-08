@@ -134,6 +134,45 @@ export function assertValidLabsPage(data: unknown): void {
   });
 }
 
+export function assertValidWmwPage(data: unknown): void {
+  const page = requireRecord(data, 'wmw');
+  requireString(page, 'heading', 'wmw');
+  requireString(page, 'description', 'wmw');
+  requireString(page, 'unauthenticatedHeading', 'wmw');
+  requireString(page, 'unauthenticatedDescription', 'wmw');
+  requireString(page, 'signInLabel', 'wmw');
+  requireString(page, 'checkingSessionLabel', 'wmw');
+
+  const shell = requireRecord(page.shell, 'wmw.shell');
+  requireString(shell, 'heading', 'wmw.shell');
+  requireString(shell, 'description', 'wmw.shell');
+
+  const overview = requireRecord(page.overview, 'wmw.overview');
+  requireString(overview, 'heading', 'wmw.overview');
+  requireString(overview, 'description', 'wmw.overview');
+  requireString(overview, 'loadingLabel', 'wmw.overview');
+  requireString(overview, 'errorLabel', 'wmw.overview');
+  requireString(overview, 'emptyHeading', 'wmw.overview');
+  requireString(overview, 'emptyDescription', 'wmw.overview');
+  requireString(overview, 'refreshLabel', 'wmw.overview');
+  requireString(overview, 'refreshingLabel', 'wmw.overview');
+  requireString(overview, 'asOfLabel', 'wmw.overview');
+  requireString(overview, 'asOfUnknownLabel', 'wmw.overview');
+  requireString(overview, 'refreshErrorLabel', 'wmw.overview');
+  requireString(overview, 'netWorthHeading', 'wmw.overview');
+  requireString(overview, 'historyHeading', 'wmw.overview');
+  requireString(overview, 'classHeading', 'wmw.overview');
+  requireString(overview, 'accountHeading', 'wmw.overview');
+  requireString(overview, 'pairsHeading', 'wmw.overview');
+  requireString(overview, 'mwrHeading', 'wmw.overview');
+  requireString(overview, 'periodYtd', 'wmw.overview');
+  requireString(overview, 'period1y', 'wmw.overview');
+  requireString(overview, 'periodMax', 'wmw.overview');
+  const mwrReasons = requireRecord(overview.mwrReasons, 'wmw.overview.mwrReasons');
+  requireString(mwrReasons, 'no-usable-cashflows', 'wmw.overview.mwrReasons');
+  requireString(mwrReasons, 'irr-failed', 'wmw.overview.mwrReasons');
+}
+
 export function assertValidJobOsPage(data: unknown): void {
   const page = requireRecord(data, 'job-os');
   requireString(page, 'heading', 'job-os');

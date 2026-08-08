@@ -43,6 +43,10 @@ describe('getPageData', () => {
   it('returns Job OS page data for the authenticated product route', () => {
     expect(getPageData('/labs/job-os')?.heading).toBe('Job OS');
   });
+
+  it('returns WMW page data for the authenticated product route', () => {
+    expect(getPageData('/labs/wmw')?.heading).toBe("What's My Worth");
+  });
 });
 
 describe('getCommonData', () => {

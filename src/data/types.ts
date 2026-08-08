@@ -151,6 +151,70 @@ export interface JobOsNavItem {
   href: string;
 }
 
+export interface WmwPageData {
+  heading: string;
+  description: string;
+  unauthenticatedHeading: string;
+  unauthenticatedDescription: string;
+  signInLabel: string;
+  checkingSessionLabel: string;
+  shell: {
+    heading: string;
+    description: string;
+  };
+  overview: {
+    heading: string;
+    description: string;
+    loadingLabel: string;
+    errorLabel: string;
+    emptyHeading: string;
+    emptyDescription: string;
+    refreshLabel: string;
+    refreshingLabel: string;
+    asOfLabel: string;
+    asOfUnknownLabel: string;
+    refreshErrorLabel: string;
+    warningsLabel: string;
+    netWorthHeading: string;
+    netWorthEmptyLabel: string;
+    historyHeading: string;
+    historyEmptyLabel: string;
+    historyChartAriaLabel: string;
+    classHeading: string;
+    accountHeading: string;
+    columnClass: string;
+    columnAccount: string;
+    columnCategory: string;
+    columnContribution: string;
+    columnBalance: string;
+    pairsHeading: string;
+    pairsEmptyLabel: string;
+    columnPairId: string;
+    columnAsset: string;
+    columnLiability: string;
+    columnEquity: string;
+    mwrHeading: string;
+    mwrDescription: string;
+    mwrEmptyLabel: string;
+    mwrUnavailableLabel: string;
+    columnPeriod: string;
+    columnMwr: string;
+    periodYtd: string;
+    period1y: string;
+    periodMax: string;
+    periodControlAriaLabel: string;
+    mwrReasons: {
+      'not-investable': string;
+      'account-not-found': string;
+      'no-opening-balance': string;
+      'no-closing-balance': string;
+      'no-usable-cashflows': string;
+      'invalid-period': string;
+      'irr-failed': string;
+    };
+  };
+}
+
 export interface JobOsPageData {
   heading: string;
   description: string;
