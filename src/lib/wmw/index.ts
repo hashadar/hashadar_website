@@ -1,5 +1,5 @@
 /**
- * WMW (What's My Worth) — Workbook ingest + Snapshot facade.
+ * WMW (What's My Worth) — Workbook ingest, Snapshot facade, and pure calcs.
  * Shared Snapshot types live in `@/lib/wmw/types` (aligned with #182/#184/#185).
  */
 
@@ -100,3 +100,31 @@ export {
   type WmwWorkbookRaw,
   type WmwWorkbookTab,
 } from '@/lib/wmw/types';
+
+export {
+  calendarMonthFromDate,
+  compareIsoKeys,
+  isCalendarMonth,
+} from '@/lib/wmw/calendar-month';
+
+export {
+  computeNetWorth,
+  computeNetWorthForMonth,
+  type AccountNetWorthRow,
+  type ClassNetWorthRow,
+  type NetWorthMonth,
+  type NetWorthResult,
+} from '@/lib/wmw/net-worth';
+
+export {
+  computePairEquity,
+  type PairEquity,
+  type PairLeg,
+} from '@/lib/wmw/paired-accounts';
+
+export {
+  SAMPLE_ACCOUNTS,
+  SAMPLE_BALANCES,
+  SAMPLE_CATEGORIES,
+  buildSampleSnapshot,
+} from '@/lib/wmw/fixtures/sample-snapshot';
