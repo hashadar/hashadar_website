@@ -213,6 +213,41 @@ export interface WmwPageData {
       'irr-failed': string;
     };
   };
+  accountDetail: {
+    heading: string;
+    description: string;
+    loadingLabel: string;
+    errorLabel: string;
+    notFoundHeading: string;
+    notFoundDescription: string;
+    backToOverviewLabel: string;
+    metadataHeading: string;
+    columnField: string;
+    columnValue: string;
+    fieldPlatform: string;
+    fieldCategory: string;
+    fieldClass: string;
+    fieldType: string;
+    fieldPair: string;
+    pairNoneLabel: string;
+    classUnknownLabel: string;
+    typeUnknownLabel: string;
+    balanceHeading: string;
+    balanceEmptyLabel: string;
+    balanceChartAriaLabel: string;
+    cashflowsHeading: string;
+    cashflowsEmptyLabel: string;
+    columnDate: string;
+    columnType: string;
+    columnDescription: string;
+    columnAmount: string;
+    unitsHeading: string;
+    unitsChartAriaLabel: string;
+    mileageHeading: string;
+    mileageChartAriaLabel: string;
+    mwrHeading: string;
+    mwrDescription: string;
+  };
 }
 
 export interface JobOsPageData {

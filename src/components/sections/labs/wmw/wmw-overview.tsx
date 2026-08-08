@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Heading, Text } from '@/components/ui';
 import {
@@ -26,6 +27,10 @@ import {
 import { getDefaultWmw } from '@/lib/wmw-default';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+
+function accountHref(accountId: string): string {
+  return `/labs/wmw/accounts/${encodeURIComponent(accountId)}`;
+}
 
 export type WmwOverviewProps = {
   /** Injectable facade for Vitest; defaults to Amplify-backed client. */
@@ -255,7 +260,14 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
             >
               {(view.headline?.byAccount ?? []).map((row) => (
                 <JobOsLedgerRow key={row.accountId}>
-                  <JobOsLedgerCell>{row.accountName}</JobOsLedgerCell>
+                  <JobOsLedgerCell>
+                    <Link
+                      href={accountHref(row.accountId)}
+                      className="underline underline-offset-4"
+                    >
+                      {row.accountName}
+                    </Link>
+                  </JobOsLedgerCell>
                   <JobOsLedgerCell>{row.class}</JobOsLedgerCell>
                   <JobOsLedgerCell mono>
                     {formatGbp(row.balance)}
@@ -349,7 +361,14 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                   view.accountNames.get(row.accountId) ?? row.accountId;
                 return (
                   <JobOsLedgerRow key={`${row.accountId}-${row.period}`}>
-                    <JobOsLedgerCell>{name}</JobOsLedgerCell>
+                    <JobOsLedgerCell>
+                      <Link
+                        href={accountHref(row.accountId)}
+                        className="underline underline-offset-4"
+                      >
+                        {name}
+                      </Link>
+                    </JobOsLedgerCell>
                     <JobOsLedgerCell>{periodLabel(row.period)}</JobOsLedgerCell>
                     <JobOsLedgerCell mono>
                       {row.status === 'available'

@@ -81,6 +81,9 @@ describe('WmwOverview', () => {
     expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(screen.getAllByText('Porsche Taycan').length).toBeGreaterThan(0);
     expect(
+      screen.getByRole('link', { name: 'Porsche Taycan' }),
+    ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
+    expect(
       screen.getByRole('group', { name: wmw.overview.periodControlAriaLabel }),
     ).toBeInTheDocument();
 

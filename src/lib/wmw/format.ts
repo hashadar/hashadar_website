@@ -1,4 +1,4 @@
-/** British English GBP / rate formatting for WMW Overview. */
+/** British English GBP / rate formatting for WMW Overview and Account detail. */
 
 const gbp = new Intl.NumberFormat('en-GB', {
   style: 'currency',
@@ -18,9 +18,24 @@ const percent = new Intl.NumberFormat('en-GB', {
   maximumFractionDigits: 1,
 });
 
+const quantity = new Intl.NumberFormat('en-GB', {
+  maximumFractionDigits: 4,
+});
+
+const integer = new Intl.NumberFormat('en-GB', {
+  maximumFractionDigits: 0,
+});
+
 const asOfFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
   timeStyle: 'short',
+  timeZone: 'UTC',
+});
+
+const isoDateFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
   timeZone: 'UTC',
 });
 
@@ -39,6 +54,16 @@ export function formatAsOf(iso: string): string {
   return `${asOfFormatter.format(ms)} UTC`;
 }
 
+/** Calendar day YYYY-MM-DD → en-GB short date. */
+export function formatIsoDate(isoDate: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  if (!match) return isoDate;
+  const date = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  );
+  return isoDateFormatter.format(date);
+}
+
 export function formatCalendarMonth(month: string): string {
   const [year, mon] = month.split('-');
   if (!year || !mon) return month;
@@ -48,4 +73,12 @@ export function formatCalendarMonth(month: string): string {
     year: 'numeric',
     timeZone: 'UTC',
   }).format(date);
+}
+
+export function formatQuantity(value: number): string {
+  return quantity.format(value);
+}
+
+export function formatMileage(value: number): string {
+  return integer.format(value);
 }

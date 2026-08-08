@@ -171,6 +171,21 @@ export function assertValidWmwPage(data: unknown): void {
   const mwrReasons = requireRecord(overview.mwrReasons, 'wmw.overview.mwrReasons');
   requireString(mwrReasons, 'no-usable-cashflows', 'wmw.overview.mwrReasons');
   requireString(mwrReasons, 'irr-failed', 'wmw.overview.mwrReasons');
+
+  const accountDetail = requireRecord(page.accountDetail, 'wmw.accountDetail');
+  requireString(accountDetail, 'heading', 'wmw.accountDetail');
+  requireString(accountDetail, 'description', 'wmw.accountDetail');
+  requireString(accountDetail, 'loadingLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'errorLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'notFoundHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'notFoundDescription', 'wmw.accountDetail');
+  requireString(accountDetail, 'backToOverviewLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'metadataHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'balanceHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'unitsHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'mileageHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'mwrHeading', 'wmw.accountDetail');
 }
 
 export function assertValidJobOsPage(data: unknown): void {

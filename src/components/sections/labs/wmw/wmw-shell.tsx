@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
 import { wmw } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
@@ -11,6 +12,7 @@ export type WmwShellProps = {
 
 export function WmwShell({ children }: WmwShellProps) {
   const { session, isLoading } = useSiteAuth();
+  const pathname = usePathname() || '/labs/wmw';
 
   if (isLoading) {
     return (
@@ -32,7 +34,7 @@ export function WmwShell({ children }: WmwShellProps) {
             </SectionHeader>
             <Text variant="muted">{wmw.unauthenticatedDescription}</Text>
             <Link
-              href={`/login?next=${encodeURIComponent('/labs/wmw')}`}
+              href={`/login?next=${encodeURIComponent(pathname)}`}
               className="inline-flex font-body text-base text-[var(--foreground)] underline underline-offset-4"
             >
               {wmw.signInLabel}
