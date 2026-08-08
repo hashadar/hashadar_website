@@ -67,7 +67,7 @@ jobs:
             "Main: \`$(git rev-parse --short origin/main)\`" \
             "Develop: \`$(git rev-parse --short origin/develop)\`" \
             '' \
-            'Resolve locally, then push \`develop\`, or reset \`develop\` to \`main\` if the release already included all develop work. See \`docs/BRANCHING.md\`.' \
+            'Resolve locally, then push \`develop\`, or reset \`develop\` to \`main\` if the promote already included all develop work. See \`docs/BRANCHING.md\`.' \
             '' \
             "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}")"
           gh issue create \

@@ -60,12 +60,11 @@ Contract tests in `amplify.yml.test.ts` lock the gated Gen 2 deploy / generate-o
 
 If `nvm use 22` fails on the build image (version not installed), add a line before it: `nvm install 22` (then keep `nvm use 22`).
 
-## Branching and releases
+## Branching
 
 - Day-to-day integration branch: **`develop`**. Production: **`main`**.
 - Squash-only merges; hotfixes branch from `main`. Details: [BRANCHING.md](./BRANCHING.md).
 - After every push to `main`, `.github/workflows/sync-develop.yml` resets or rebases `develop` onto `main` (force-with-lease).
-- No GitHub Releases / tags as ship process: [RELEASES.md](./RELEASES.md).
 
 ## Dependency updates
 
@@ -95,7 +94,6 @@ Minimum for CI:
 ## Related
 
 - [BRANCHING.md](./BRANCHING.md) — `develop` / `main`, hotfixes, sync
-- [RELEASES.md](./RELEASES.md) — why we skip tags / GitHub Releases
 - `amplify.yml` — Amplify build phases
 - `scripts/amplify-backend-changed.ts` — backend redeploy gate
 - `.github/workflows/ci.yml` — GitHub Actions quality checks

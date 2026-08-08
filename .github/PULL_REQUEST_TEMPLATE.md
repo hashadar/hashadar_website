@@ -4,11 +4,11 @@
 
 ## Type
 
-<!-- Feature | Bugfix | Hotfix | Release | Chore -->
+<!-- Feature | Bugfix | Hotfix | Chore | Docs -->
 
 ## Base branch
 
-<!-- develop (default) | main (hotfix / release only) -->
+<!-- develop (default) | main (hotfix only) -->
 
 ## Test plan
 
