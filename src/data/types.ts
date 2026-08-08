@@ -142,6 +142,8 @@ export interface LabsPageData {
   ctaLabel: string;
   flagshipTitle: string;
   teaserAriaLabel: string;
+  catalogueHeading: string;
+  catalogueAriaLabel: string;
   labs: LabIndexItem[];
 }
 
