@@ -126,6 +126,30 @@ export {
 } from '@/lib/wmw/paired-accounts';
 
 export {
+  INVESTABLE_CATEGORY_IDS,
+  computeAccountAnnualisedMwr,
+  computeInvestableAccountsAnnualisedMwr,
+  isInvestableAccount,
+  isInvestableCategoryId,
+  type AccountAnnualisedMwr,
+  type InvestableCategoryId,
+  type MwrPeriod,
+  type MwrUnavailableReason,
+} from '@/lib/wmw/mwr';
+
+export {
+  buildWmwOverviewView,
+  type WmwOverviewView,
+} from '@/lib/wmw/overview-view';
+
+export {
+  formatAnnualisedRate,
+  formatAsOf,
+  formatCalendarMonth,
+  formatGbp,
+} from '@/lib/wmw/format';
+
+export {
   SAMPLE_ACCOUNTS,
   SAMPLE_BALANCES,
   SAMPLE_CATEGORIES,
