@@ -1,0 +1,3 @@
+# WMW v1 domain scope: Net Worth, Account MWR, Paired Accounts
+
+WMW v1 is a Site Admin Lab at `/labs/wmw` for monthly Net Worth (missing Account that month = £0), Class/Account breakdown, financed pairs via `Pair_ID`, Account detail (including Units/Mileage), and annualised per-Account MWR (YTD / 1Y / Max) on Category allow-list investables only (brokerage, pension, crypto — not cash, vehicle, or loans). Cashflows use account-perspective signed Amounts and Types Contribution | Withdrawal | Loan Repayment. Explicitly out of v1: budgeting, household/Class MWR rollups, TWR, FX, Transfer type, mortgage-specific modelling beyond pairs, loan amortisation, in-lab editor, and public access.

@@ -1,0 +1,3 @@
+# WMW reads a Google Sheets Workbook; lab does not edit it
+
+WMW’s system of record is the Site Admin’s equity Workbook (four frozen tabs). The lab is read-only: it pulls via a Google service account with the Sheet shared read-only, requests unformatted cell values (numeric money and date serials — Sheet date/currency display formatting is for humans only), keeps a last-good Snapshot in private lab storage (not Site Content), serves through a server data cache with a **24-hour TTL**, and exposes manual Refresh plus an as-of time. Rejected for v1: in-lab editing, dual-write sync, OAuth-as-user access, ephemeral-only cache, classic page ISR for the authenticated lab, and publishing finance data as Site Content.
