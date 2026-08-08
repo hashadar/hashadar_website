@@ -10,8 +10,8 @@ Five canonical roles mapped to matching GitHub label strings (`needs-triage`, `n
 
 ### Domain docs
 
-Single-context layout — `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Multi-context — start at `CONTEXT-MAP.md`. See `docs/agents/domain.md`.
 
 ### Branching
 
-Feature work targets **`develop`**; production is **`main`**; hotfixes branch from `main`. See `docs/BRANCHING.md` and `docs/RELEASES.md`.
+Feature work targets **`develop`**; production is **`main`**; hotfixes branch from `main`. See `docs/BRANCHING.md`.

@@ -1,4 +1,4 @@
-# Branching, releases, and hotfixes
+# Branching and hotfixes
 
 Simple two-branch flow. Linear history via **squash-only** merges.
 
@@ -13,7 +13,7 @@ Simple two-branch flow. Linear history via **squash-only** merges.
 
 Default GitHub branch is **`main`**. Day-to-day PRs target **`develop`**.
 
-There is **no** intermediate `release/*` branch. When `develop` looks good, open a PR **`develop` → `main`**.
+When `develop` looks good, open a PR **`develop` → `main`**. There is no intermediate branch.
 
 ## Flow
 
@@ -26,8 +26,8 @@ There is **no** intermediate `release/*` branch. When `develop` looks good, open
 ### Promote to prod
 
 1. Open PR **`develop` → `main`**.
-2. Squash-merge as `Release: …`.
-3. Amplify deploys from `main` — that is the ship (no tags / GitHub Releases; see [RELEASES.md](./RELEASES.md)).
+2. Squash-merge.
+3. Amplify deploys from `main`.
 4. Sync workflow aligns `develop` to `main` (same tree after a full promote; see below).
 
 ### Hotfix
@@ -57,7 +57,7 @@ Squash merges rewrite history, so graphs diverge even when trees match. The job:
 
 1. If `develop` is missing → recreate from `main`.
 2. If trees match → reset `develop` to `main`.
-3. If `develop` has unreleased commits → rebase onto `main`.
+3. If `develop` has commits not yet on `main` → rebase onto `main`.
 4. If rebase conflicts → open a `ready-for-human` issue.
 
 After a sync locally:
@@ -74,7 +74,6 @@ Targets **`develop`** (see `.github/dependabot.yml`).
 
 ## Related
 
-- [RELEASES.md](./RELEASES.md) — why we skip tags / GitHub Releases
 - [CI-AND-DEPLOYMENT.md](./CI-AND-DEPLOYMENT.md) — Actions vs Amplify
 - `.github/workflows/sync-develop.yml`
 - `.github/workflows/ci.yml`
