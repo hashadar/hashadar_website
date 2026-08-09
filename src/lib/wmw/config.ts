@@ -1,0 +1,37 @@
+/**
+ * WMW app config from environment.
+ * Spreadsheet ID + SA secret name (#181). SA JSON itself is resolved server-side
+ * via `resolveGoogleServiceAccountCredentials` (never NEXT_PUBLIC_).
+ */
+export type WmwConfig = {
+  spreadsheetId: string | null;
+  /** Host/Amplify secret name that holds the Google service account JSON. */
+  googleServiceAccountSecretName: string | null;
+};
+
+export const WMW_SPREADSHEET_ID_ENV = 'WMW_SPREADSHEET_ID';
+export const WMW_GOOGLE_SA_SECRET_NAME_ENV = 'WMW_GOOGLE_SA_SECRET_NAME';
+
+/** Default Amplify secret name in `.env.example` (not a credential). Must match `[a-zA-Z0-9_.-]+`. */
+export const WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER = 'wmw.google-service-account';
+
+/** Shared error copy when spreadsheet ID / SA credentials are missing (#181). */
+export const WMW_WORKBOOK_NOT_CONFIGURED_REASON =
+  'WMW Workbook source is not configured (see #181). Set WMW_SPREADSHEET_ID and WMW_GOOGLE_SERVICE_ACCOUNT_JSON (or FILE / Amplify secrets).';
+
+type EnvLike = Record<string, string | undefined>;
+
+function readTrimmed(env: EnvLike, key: string): string | null {
+  const value = env[key]?.trim();
+  return value ? value : null;
+}
+
+export function getWmwConfig(env: EnvLike = process.env): WmwConfig {
+  return {
+    spreadsheetId: readTrimmed(env, WMW_SPREADSHEET_ID_ENV),
+    googleServiceAccountSecretName: readTrimmed(
+      env,
+      WMW_GOOGLE_SA_SECRET_NAME_ENV,
+    ),
+  };
+}

@@ -58,6 +58,17 @@ describe('sitemap', () => {
     expect(jobMarketUrls).toEqual([]);
   });
 
+  it('omits private lab product routes from the sitemap', async () => {
+    const entries = await sitemap();
+    const urls = entries.map((entry) => entry.url);
+
+    expect(urls).not.toContain(`${site.metadata.siteUrl}/labs/job-os`);
+    expect(urls).not.toContain(`${site.metadata.siteUrl}/labs/wmw`);
+    expect(
+      urls.some((url) => url.includes('/labs/wmw/')),
+    ).toBe(false);
+  });
+
   it('omits Sign-in and Admin from the sitemap', async () => {
     const entries = await sitemap();
     expect(entries.find((entry) => entry.url === `${site.metadata.siteUrl}/login`)).toBeUndefined();

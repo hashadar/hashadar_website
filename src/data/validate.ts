@@ -123,15 +123,98 @@ export function assertValidLabsPage(data: unknown): void {
   requireString(page, 'description', 'labs');
   requireString(page, 'brandEyebrow', 'labs');
   requireString(page, 'purposeLine', 'labs');
-  requireString(page, 'ctaLabel', 'labs');
-  requireString(page, 'flagshipTitle', 'labs');
-  requireString(page, 'teaserAriaLabel', 'labs');
+  requireString(page, 'catalogueAriaLabel', 'labs');
   requireArray(page.labs, 'labs.labs').forEach((lab, index) => {
     const item = requireRecord(lab, `labs.labs[${index}]`);
     requireString(item, 'title', `labs.labs[${index}]`);
+    requireString(item, 'lede', `labs.labs[${index}]`);
     requireString(item, 'description', `labs.labs[${index}]`);
     requireString(item, 'href', `labs.labs[${index}]`);
+    requireString(item, 'ctaLabel', `labs.labs[${index}]`);
   });
+}
+
+export function assertValidWmwPage(data: unknown): void {
+  const page = requireRecord(data, 'wmw');
+  requireString(page, 'heading', 'wmw');
+  requireString(page, 'description', 'wmw');
+  requireString(page, 'unauthenticatedHeading', 'wmw');
+  requireString(page, 'unauthenticatedDescription', 'wmw');
+  requireString(page, 'signInLabel', 'wmw');
+  requireString(page, 'checkingSessionLabel', 'wmw');
+
+  const shell = requireRecord(page.shell, 'wmw.shell');
+  requireString(shell, 'heading', 'wmw.shell');
+  requireString(shell, 'description', 'wmw.shell');
+  const nav = requireRecord(shell.nav, 'wmw.shell.nav');
+  requireString(nav, 'ariaLabel', 'wmw.shell.nav');
+  requireString(nav, 'mobileLabel', 'wmw.shell.nav');
+  requireString(nav, 'accountsGroupLabel', 'wmw.shell.nav');
+  requireString(nav, 'accountsEmptyLabel', 'wmw.shell.nav');
+  requireString(nav, 'inactiveAccountsGroupLabel', 'wmw.shell.nav');
+  requireString(nav, 'inactiveAccountsEmptyLabel', 'wmw.shell.nav');
+  requireArray(nav.items, 'wmw.shell.nav.items').forEach((item, index) => {
+    const entry = requireRecord(item, `wmw.shell.nav.items[${index}]`);
+    requireString(entry, 'id', `wmw.shell.nav.items[${index}]`);
+    requireString(entry, 'label', `wmw.shell.nav.items[${index}]`);
+    requireString(entry, 'href', `wmw.shell.nav.items[${index}]`);
+  });
+
+  const overview = requireRecord(page.overview, 'wmw.overview');
+  requireString(overview, 'heading', 'wmw.overview');
+  requireString(overview, 'description', 'wmw.overview');
+  requireString(overview, 'loadingLabel', 'wmw.overview');
+  requireString(overview, 'errorLabel', 'wmw.overview');
+  requireString(overview, 'emptyHeading', 'wmw.overview');
+  requireString(overview, 'emptyDescription', 'wmw.overview');
+  requireString(overview, 'refreshLabel', 'wmw.overview');
+  requireString(overview, 'refreshingLabel', 'wmw.overview');
+  requireString(overview, 'asOfLabel', 'wmw.overview');
+  requireString(overview, 'asOfUnknownLabel', 'wmw.overview');
+  requireString(overview, 'refreshErrorLabel', 'wmw.overview');
+  requireString(overview, 'netWorthHeading', 'wmw.overview');
+  requireString(overview, 'kpiCashSavingsLabel', 'wmw.overview');
+  requireString(overview, 'kpiGeneralInvestmentsLabel', 'wmw.overview');
+  requireString(overview, 'kpiRetirementLabel', 'wmw.overview');
+  requireString(overview, 'historyHeading', 'wmw.overview');
+  requireString(overview, 'classMixHeading', 'wmw.overview');
+  requireString(overview, 'classHeading', 'wmw.overview');
+  requireString(overview, 'accountHeading', 'wmw.overview');
+  requireString(overview, 'monthSlicerLabel', 'wmw.overview');
+  requireString(overview, 'accountSearchLabel', 'wmw.overview');
+  requireString(overview, 'columnPct', 'wmw.overview');
+  requireString(overview, 'columnMom', 'wmw.overview');
+  requireString(overview, 'pairsHeading', 'wmw.overview');
+  requireString(overview, 'periodYtd', 'wmw.overview');
+  requireString(overview, 'period1y', 'wmw.overview');
+  requireString(overview, 'periodMax', 'wmw.overview');
+  const mwrReasons = requireRecord(overview.mwrReasons, 'wmw.overview.mwrReasons');
+  requireString(mwrReasons, 'no-usable-cashflows', 'wmw.overview.mwrReasons');
+  requireString(mwrReasons, 'irr-failed', 'wmw.overview.mwrReasons');
+
+  const accountDetail = requireRecord(page.accountDetail, 'wmw.accountDetail');
+  requireString(accountDetail, 'heading', 'wmw.accountDetail');
+  requireString(accountDetail, 'description', 'wmw.accountDetail');
+  requireString(accountDetail, 'loadingLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'errorLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'notFoundHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'notFoundDescription', 'wmw.accountDetail');
+  requireString(accountDetail, 'backToOverviewLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'metadataHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'latestBalanceLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'seriesHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'seriesViewAriaLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'seriesViewBalanceLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'seriesViewPerformanceLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'balanceChartAriaLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'performanceChartAriaLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsCountLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsNetLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsLastLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'unitsHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'mileageHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'mwrHeading', 'wmw.accountDetail');
 }
 
 export function assertValidJobOsPage(data: unknown): void {

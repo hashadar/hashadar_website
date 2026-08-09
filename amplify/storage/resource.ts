@@ -46,3 +46,19 @@ export const siteContentStorage = defineStorage({
     ],
   }),
 });
+
+/**
+ * Private WMW lab Snapshots (last-good Workbook copy + as-of metadata).
+ * Authenticated Site Admin only — never guest/public Site Content.
+ *
+ * Amplify requires every defineStorage() call to live in this file
+ * (amplify/storage/resource.ts); subdirectory resources fail assembly.
+ */
+export const wmwSnapshotsStorage = defineStorage({
+  name: 'wmwSnapshots',
+  access: (allow) => ({
+    'snapshots/*': [
+      allow.authenticated.to(['read', 'write', 'delete']),
+    ],
+  }),
+});
