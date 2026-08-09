@@ -166,6 +166,8 @@ export interface WmwPageData {
     nav: {
       ariaLabel: string;
       mobileLabel: string;
+      accountsGroupLabel: string;
+      accountsEmptyLabel: string;
       items: Array<{ id: string; label: string; href: string }>;
     };
   };

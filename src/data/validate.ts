@@ -151,6 +151,8 @@ export function assertValidWmwPage(data: unknown): void {
   const nav = requireRecord(shell.nav, 'wmw.shell.nav');
   requireString(nav, 'ariaLabel', 'wmw.shell.nav');
   requireString(nav, 'mobileLabel', 'wmw.shell.nav');
+  requireString(nav, 'accountsGroupLabel', 'wmw.shell.nav');
+  requireString(nav, 'accountsEmptyLabel', 'wmw.shell.nav');
   requireArray(nav.items, 'wmw.shell.nav.items').forEach((item, index) => {
     const entry = requireRecord(item, `wmw.shell.nav.items[${index}]`);
     requireString(entry, 'id', `wmw.shell.nav.items[${index}]`);

@@ -49,7 +49,7 @@ export function WmwShell({ children }: WmwShellProps) {
   return (
     <Section className="py-6 md:py-8">
       <Container size="full">
-        <div className="grid gap-6 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-8">
+        <div className="grid gap-6 md:grid-cols-[13.5rem_minmax(0,1fr)] md:gap-8">
           <aside className="md:sticky md:top-20 md:self-start md:border-r md:border-[color-mix(in_oklab,var(--primary)_22%,var(--border))] md:pr-4">
             <div className="mb-3 space-y-0.5">
               <p className="font-display text-lg tracking-tight text-[var(--foreground)]">

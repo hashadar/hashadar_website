@@ -19,8 +19,8 @@ export type WmwNetWorthChartProps = {
 
 const WIDTH = 640;
 const HEIGHT = 220;
-const PAD_LEFT = 56;
-const PAD_RIGHT = 16;
+const PAD_LEFT = 72;
+const PAD_RIGHT = 28;
 const PAD_TOP = 16;
 const PAD_BOTTOM = 36;
 

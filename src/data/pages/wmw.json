@@ -11,6 +11,8 @@
     "nav": {
       "ariaLabel": "WMW navigation",
       "mobileLabel": "Go to",
+      "accountsGroupLabel": "Accounts",
+      "accountsEmptyLabel": "No Accounts in Snapshot",
       "items": [
         {
           "id": "overview",
