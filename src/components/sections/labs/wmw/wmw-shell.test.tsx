@@ -75,23 +75,28 @@ describe('WmwShell', () => {
 });
 
 describe('WmwNav', () => {
-  it('lists Accounts under the Accounts group', async () => {
+  it('splits Accounts into active and inactive groups', () => {
     render(
       <WmwNav
-        accounts={[
-          { accountId: 'IBKR_ISA', accountName: 'IBKR ISA' },
-          { accountId: 'CAR_PORSCHE', accountName: 'Porsche Taycan' },
-        ]}
+        accounts={{
+          active: [
+            { accountId: 'IBKR_ISA', accountName: 'IBKR ISA' },
+            { accountId: 'CAR_PORSCHE', accountName: 'Porsche Taycan' },
+          ],
+          inactive: [{ accountId: 'CB_ETH', accountName: 'Coinbase ETH' }],
+        }}
       />,
     );
 
     expect(screen.getByText(wmw.shell.nav.accountsGroupLabel)).toBeInTheDocument();
     expect(
+      screen.getByText(wmw.shell.nav.inactiveAccountsGroupLabel),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
-    expect(screen.getByRole('link', { name: 'IBKR ISA' })).toHaveAttribute(
-      'href',
-      '/labs/wmw/accounts/IBKR_ISA',
-    );
+    expect(
+      screen.getByRole('link', { name: 'Coinbase ETH' }),
+    ).toHaveAttribute('href', '/labs/wmw/accounts/CB_ETH');
   });
 });

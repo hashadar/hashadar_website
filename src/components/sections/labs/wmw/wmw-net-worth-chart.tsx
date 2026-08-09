@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
+import { niceTicks } from '@/lib/wmw/chart-scale';
 import { formatCalendarMonth, formatGbp } from '@/lib/wmw/format';
 import { cn } from '@/lib/utils';
 
@@ -23,23 +24,6 @@ const PAD_LEFT = 72;
 const PAD_RIGHT = 28;
 const PAD_TOP = 16;
 const PAD_BOTTOM = 36;
-
-function niceTicks(min: number, max: number, count = 4): number[] {
-  if (min === max) {
-    const pad = Math.abs(min) || 1;
-    return [min - pad, min, min + pad];
-  }
-  const span = max - min;
-  const step = span / count;
-  const magnitude = 10 ** Math.floor(Math.log10(Math.abs(step) || 1));
-  const niceStep = Math.ceil(step / magnitude) * magnitude;
-  const niceMin = Math.floor(min / niceStep) * niceStep;
-  const ticks: number[] = [];
-  for (let value = niceMin; value <= max + niceStep * 0.01; value += niceStep) {
-    ticks.push(value);
-  }
-  return ticks.length ? ticks : [min, max];
-}
 
 export function WmwNetWorthChart({
   points,

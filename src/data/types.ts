@@ -168,6 +168,8 @@ export interface WmwPageData {
       mobileLabel: string;
       accountsGroupLabel: string;
       accountsEmptyLabel: string;
+      inactiveAccountsGroupLabel: string;
+      inactiveAccountsEmptyLabel: string;
       items: Array<{ id: string; label: string; href: string }>;
     };
   };

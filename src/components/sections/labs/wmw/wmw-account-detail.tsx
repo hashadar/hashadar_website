@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Heading, Text } from '@/components/ui';
 import {
-  JobOsLedger,
-  JobOsLedgerCell,
-  JobOsLedgerRow,
-  JobOsWorkspaceIntro,
-} from '@/components/sections/labs/job-os/job-os-ledger';
+  WmwDenseCell,
+  WmwDenseRow,
+  WmwDenseTable,
+} from '@/components/sections/labs/wmw/wmw-dense-table';
 import { WmwSeriesChart } from '@/components/sections/labs/wmw/wmw-series-chart';
 import { wmw } from '@/data';
 import type { WmwFacade } from '@/lib/wmw/facade';
@@ -85,14 +84,16 @@ export function WmwAccountDetail({
 
   if (!view || view.status === 'not-found') {
     return (
-      <div className="max-w-2xl space-y-4">
-        <Heading size="md" as="h2">
+      <div className="max-w-xl space-y-2">
+        <Heading size="sm" as="h2">
           {copy.notFoundHeading}
         </Heading>
-        <Text variant="muted">{copy.notFoundDescription}</Text>
+        <Text variant="muted" className="text-sm">
+          {copy.notFoundDescription}
+        </Text>
         <Link
           href="/labs/wmw"
-          className="inline-flex font-body text-base text-[var(--foreground)] underline underline-offset-4"
+          className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
         >
           {copy.backToOverviewLabel}
         </Link>
@@ -109,78 +110,74 @@ export function WmwAccountDetail({
   const mwrReasonLabel = (reason: MwrUnavailableReason) =>
     wmw.overview.mwrReasons[reason] ?? wmw.overview.mwrUnavailableLabel;
 
-  const pairLabel = view.account.pairId ?? copy.pairNoneLabel;
+  const meta = [
+    { label: copy.fieldPlatform, value: view.account.platform },
+    {
+      label: copy.fieldCategory,
+      value: view.category?.categoryId ?? view.account.categoryId,
+    },
+    {
+      label: copy.fieldClass,
+      value: view.category?.class ?? copy.classUnknownLabel,
+    },
+    {
+      label: copy.fieldType,
+      value: view.category?.type ?? copy.typeUnknownLabel,
+    },
+    {
+      label: copy.fieldPair,
+      value: view.account.pairId ?? copy.pairNoneLabel,
+      mono: Boolean(view.account.pairId),
+    },
+  ];
 
   return (
-    <div className="space-y-8">
-      <JobOsWorkspaceIntro
-        heading={view.account.accountName}
-        description={copy.description}
-        actions={
-          <div className="flex flex-col items-stretch gap-2 sm:items-end">
-            <Link
-              href="/labs/wmw"
-              className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
-            >
-              {copy.backToOverviewLabel}
-            </Link>
-            <Text variant="muted" className="text-sm tabular-nums">
-              {wmw.overview.asOfLabel}: {formatAsOf(view.asOf)}
-            </Text>
-          </div>
-        }
-      />
-
-      <section className="space-y-3">
-        <Heading size="sm" as="h3">
-          {copy.metadataHeading}
-        </Heading>
-        <JobOsLedger
-          caption={copy.metadataHeading}
-          columns={[
-            copy.columnField,
-            copy.columnValue,
-          ]}
-          isEmpty={false}
-          empty={null}
+    <div className="space-y-5">
+      <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-0.5">
+          <Heading size="sm" as="h2">
+            {view.account.accountName}
+          </Heading>
+          <Text variant="muted" className="text-sm">
+            {wmw.overview.asOfLabel}:{' '}
+            <span className="tabular-nums">{formatAsOf(view.asOf)}</span>
+          </Text>
+        </div>
+        <Link
+          href="/labs/wmw"
+          className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
         >
-          <JobOsLedgerRow>
-            <JobOsLedgerCell>{copy.fieldPlatform}</JobOsLedgerCell>
-            <JobOsLedgerCell>{view.account.platform}</JobOsLedgerCell>
-          </JobOsLedgerRow>
-          <JobOsLedgerRow>
-            <JobOsLedgerCell>{copy.fieldCategory}</JobOsLedgerCell>
-            <JobOsLedgerCell>
-              {view.category?.categoryId ?? view.account.categoryId}
-            </JobOsLedgerCell>
-          </JobOsLedgerRow>
-          <JobOsLedgerRow>
-            <JobOsLedgerCell>{copy.fieldClass}</JobOsLedgerCell>
-            <JobOsLedgerCell>
-              {view.category?.class ?? copy.classUnknownLabel}
-            </JobOsLedgerCell>
-          </JobOsLedgerRow>
-          <JobOsLedgerRow>
-            <JobOsLedgerCell>{copy.fieldType}</JobOsLedgerCell>
-            <JobOsLedgerCell>
-              {view.category?.type ?? copy.typeUnknownLabel}
-            </JobOsLedgerCell>
-          </JobOsLedgerRow>
-          <JobOsLedgerRow>
-            <JobOsLedgerCell>{copy.fieldPair}</JobOsLedgerCell>
-            <JobOsLedgerCell mono={Boolean(view.account.pairId)}>
-              {pairLabel}
-            </JobOsLedgerCell>
-          </JobOsLedgerRow>
-        </JobOsLedger>
-      </section>
+          {copy.backToOverviewLabel}
+        </Link>
+      </div>
 
-      <section className="space-y-3">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 border-y border-[var(--border)] py-3 sm:grid-cols-5">
+        {meta.map((item) => (
+          <div key={item.label} className="min-w-0">
+            <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
+              {item.label}
+            </dt>
+            <dd
+              className={
+                item.mono
+                  ? 'mt-0.5 truncate font-mono text-sm tabular-nums text-[var(--foreground)]'
+                  : 'mt-0.5 truncate font-body text-sm text-[var(--foreground)]'
+              }
+            >
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <section className="space-y-2">
         <Heading size="sm" as="h3">
           {copy.balanceHeading}
         </Heading>
         {view.balanceHistory.length === 0 ? (
-          <Text variant="muted">{copy.balanceEmptyLabel}</Text>
+          <Text variant="muted" className="text-sm">
+            {copy.balanceEmptyLabel}
+          </Text>
         ) : (
           <WmwSeriesChart
             points={view.balanceHistory.map((point) => ({
@@ -193,94 +190,96 @@ export function WmwAccountDetail({
         )}
       </section>
 
-      <section className="space-y-3">
+      <div className="grid gap-5 lg:grid-cols-2">
+        {view.unitsHistory ? (
+          <section className="space-y-2">
+            <Heading size="sm" as="h3">
+              {copy.unitsHeading}
+            </Heading>
+            <WmwSeriesChart
+              points={view.unitsHistory.map((point) => ({
+                label: formatIsoDate(point.date),
+                value: point.value,
+              }))}
+              ariaLabel={copy.unitsChartAriaLabel}
+              formatValue={formatQuantity}
+            />
+          </section>
+        ) : null}
+
+        {view.mileageHistory ? (
+          <section className="space-y-2">
+            <Heading size="sm" as="h3">
+              {copy.mileageHeading}
+            </Heading>
+            <WmwSeriesChart
+              points={view.mileageHistory.map((point) => ({
+                label: formatIsoDate(point.date),
+                value: point.value,
+              }))}
+              ariaLabel={copy.mileageChartAriaLabel}
+              formatValue={formatMileage}
+            />
+          </section>
+        ) : null}
+      </div>
+
+      <section className="space-y-2">
         <Heading size="sm" as="h3">
           {copy.cashflowsHeading}
         </Heading>
-        <JobOsLedger
+        <WmwDenseTable
           caption={copy.cashflowsHeading}
+          className="max-w-none"
           columns={[
             copy.columnDate,
             copy.columnType,
             copy.columnDescription,
-            copy.columnAmount,
+            { label: copy.columnAmount, align: 'right' },
           ]}
           isEmpty={view.cashflows.length === 0}
           empty={copy.cashflowsEmptyLabel}
         >
           {view.cashflows.map((cf, index) => (
-            <JobOsLedgerRow key={`${cf.date}-${cf.transactionType}-${index}`}>
-              <JobOsLedgerCell mono>{formatIsoDate(cf.date)}</JobOsLedgerCell>
-              <JobOsLedgerCell>{cf.transactionType}</JobOsLedgerCell>
-              <JobOsLedgerCell>{cf.description || '—'}</JobOsLedgerCell>
-              <JobOsLedgerCell mono>
+            <WmwDenseRow key={`${cf.date}-${cf.transactionType}-${index}`}>
+              <WmwDenseCell mono>{formatIsoDate(cf.date)}</WmwDenseCell>
+              <WmwDenseCell>{cf.transactionType}</WmwDenseCell>
+              <WmwDenseCell>{cf.description || '—'}</WmwDenseCell>
+              <WmwDenseCell mono align="right">
                 {formatGbp(cf.amount, true)}
-              </JobOsLedgerCell>
-            </JobOsLedgerRow>
+              </WmwDenseCell>
+            </WmwDenseRow>
           ))}
-        </JobOsLedger>
+        </WmwDenseTable>
       </section>
 
-      {view.unitsHistory ? (
-        <section className="space-y-3">
-          <Heading size="sm" as="h3">
-            {copy.unitsHeading}
-          </Heading>
-          <WmwSeriesChart
-            points={view.unitsHistory.map((point) => ({
-              label: formatIsoDate(point.date),
-              value: point.value,
-            }))}
-            ariaLabel={copy.unitsChartAriaLabel}
-            formatValue={formatQuantity}
-          />
-        </section>
-      ) : null}
-
-      {view.mileageHistory ? (
-        <section className="space-y-3">
-          <Heading size="sm" as="h3">
-            {copy.mileageHeading}
-          </Heading>
-          <WmwSeriesChart
-            points={view.mileageHistory.map((point) => ({
-              label: formatIsoDate(point.date),
-              value: point.value,
-            }))}
-            ariaLabel={copy.mileageChartAriaLabel}
-            formatValue={formatMileage}
-          />
-        </section>
-      ) : null}
-
       {view.investable ? (
-        <section className="space-y-3">
-          <div className="space-y-1">
+        <section className="space-y-2">
+          <div className="space-y-0.5">
             <Heading size="sm" as="h3">
               {copy.mwrHeading}
             </Heading>
-            <Text variant="muted">{copy.mwrDescription}</Text>
+            <Text variant="muted" className="text-sm">
+              {copy.mwrDescription}
+            </Text>
           </div>
-          <JobOsLedger
-            caption={copy.mwrHeading}
-            columns={[
-              wmw.overview.columnPeriod,
-              wmw.overview.columnMwr,
-            ]}
-            isEmpty={view.mwr.length === 0}
-            empty={wmw.overview.mwrUnavailableLabel}
-          >
+          <ul className="flex flex-wrap gap-2">
             {view.mwr.map((row) => (
-              <JobOsLedgerRow key={row.period}>
-                <JobOsLedgerCell>{periodLabel(row.period)}</JobOsLedgerCell>
-                <JobOsLedgerCell mono>
+              <li
+                key={row.period}
+                className="rounded-md border border-[var(--border)] px-2.5 py-1.5"
+              >
+                <span className="font-body text-xs text-[var(--mono-500)]">
+                  {periodLabel(row.period)}
+                </span>
+                <span className="ml-2 font-mono text-sm tabular-nums text-[var(--foreground)]">
                   {row.status === 'available'
                     ? formatAnnualisedRate(row.annualisedRate)
                     : mwrReasonLabel(row.reason)}
-                </JobOsLedgerCell>
-              </JobOsLedgerRow>
+                </span>
+              </li>
             ))}
-          </JobOsLedger>
+          </ul>
         </section>
       ) : null}
     </div>

@@ -12,7 +12,9 @@
       "ariaLabel": "WMW navigation",
       "mobileLabel": "Go to",
       "accountsGroupLabel": "Accounts",
-      "accountsEmptyLabel": "No Accounts in Snapshot",
+      "accountsEmptyLabel": "No active Accounts",
+      "inactiveAccountsGroupLabel": "Inactive",
+      "inactiveAccountsEmptyLabel": "No inactive Accounts",
       "items": [
         {
           "id": "overview",

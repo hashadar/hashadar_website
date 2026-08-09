@@ -155,6 +155,12 @@ export {
 } from '@/lib/wmw/account-detail-view';
 
 export {
+  isAccountActiveInSnapshot,
+  partitionAccountsByActivity,
+  type WmwAccountActivityGroups,
+} from '@/lib/wmw/account-activity';
+
+export {
   formatAnnualisedRate,
   formatAsOf,
   formatCalendarMonth,
