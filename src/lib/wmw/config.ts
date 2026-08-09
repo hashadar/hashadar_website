@@ -1,6 +1,7 @@
 /**
  * WMW app config from environment.
- * Spreadsheet ID and SA secret values are supplied in #181; placeholders are fine until then.
+ * Spreadsheet ID + SA secret name (#181). SA JSON itself is resolved server-side
+ * via `resolveGoogleServiceAccountCredentials` (never NEXT_PUBLIC_).
  */
 export type WmwConfig = {
   spreadsheetId: string | null;

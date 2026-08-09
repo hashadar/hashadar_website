@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Local service-account JSON and other secret files (never commit)
+.secrets/
+
 
 # vercel
 .vercel

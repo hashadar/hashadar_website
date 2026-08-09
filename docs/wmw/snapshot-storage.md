@@ -25,14 +25,26 @@ Typed ingest store: `createSnapshotStoreFromJsonStorage` / `createDefaultWmwSnap
 
 ## App config / secrets
 
-Env wiring (placeholders OK until [#181](https://github.com/hashadar/hashadar_website/issues/181)):
+Env wiring ([#181](https://github.com/hashadar/hashadar_website/issues/181)):
 
 | Variable | Role |
 |----------|------|
 | `WMW_SPREADSHEET_ID` | Equity Workbook spreadsheet ID |
 | `WMW_GOOGLE_SA_SECRET_NAME` | Name of the Amplify secret that holds the Google service account JSON |
+| `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` | Server-only raw SA JSON (preferred for `next dev`) |
+| `WMW_GOOGLE_SERVICE_ACCOUNT_FILE` | Server-only path to SA JSON file (e.g. `.secrets/wmw-google-sa.json`) |
 
-Default secret name (documented in `.env.example`, not a credential): `wmw.google-service-account`.
+Default Amplify secret name (documented in `.env.example`, not a credential): `wmw.google-service-account`.
+
+Refresh pulls Sheets through a **Server Action** (`pullWmwWorkbookTabs`) so the private key never enters the browser. Credential resolution order: inline JSON → file path → Amplify Hosting `process.env.secrets[name]`.
+
+### Local testing (`npm run sandbox` + `npm run dev`)
+
+1. Share the Workbook read-only with the service account email.
+2. In `.env.local` set `WMW_SPREADSHEET_ID` and `WMW_GOOGLE_SA_SECRET_NAME=wmw.google-service-account`.
+3. Put the SA JSON in `.env.local` as `WMW_GOOGLE_SERVICE_ACCOUNT_JSON=...` **or** on disk and set `WMW_GOOGLE_SERVICE_ACCOUNT_FILE=.secrets/wmw-google-sa.json`.
+4. Restart `npm run dev` after changing env.
+5. Optionally also `npx ampx sandbox secret set wmw.google-service-account` for Hosting/backend parity — that alone does **not** inject the JSON into Next.js.
 
 ### Amplify secret naming
 
@@ -40,7 +52,7 @@ Sandbox CLI and Amplify Hosting secrets both store the leaf name in SSM Paramete
 
 | Environment | How to set |
 |-------------|------------|
-| Local sandbox | `npx ampx sandbox secret set wmw.google-service-account` |
-| Amplify Hosting | App → Hosting → Secrets → Manage secrets (same leaf name) |
+| Local sandbox | `npx ampx sandbox secret set wmw.google-service-account` (backend/SSM; Next.js still needs JSON/FILE above) |
+| Amplify Hosting | App → Hosting → Secrets → Manage secrets (same leaf name); expose via `process.env.secrets` for SSR |
 
-Point `WMW_GOOGLE_SA_SECRET_NAME` at that name in `.env.local` (local) or Hosting environment variables (deployed). Do not commit spreadsheet IDs or service account JSON.
+Do not commit spreadsheet IDs or service account JSON.

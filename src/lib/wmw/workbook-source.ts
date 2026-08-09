@@ -42,11 +42,9 @@ export type CreateGoogleSheetsWorkbookSourceOptions = {
 
 /**
  * Live Google Sheets pull (read-only).
- * Requires spreadsheet ID + SA token from Amplify secrets (#181).
+ * Requires spreadsheet ID + SA access token (#181).
  * Requests UNFORMATTED_VALUE + SERIAL_NUMBER — never writes.
- *
- * TODO(#181): wire Amplify secret references for SA JSON + spreadsheet ID
- * (config hooks land with #182).
+ * Production UI obtains tabs via `pullWmwWorkbookTabs` (Server Action).
  */
 export function createGoogleSheetsWorkbookSource(
   options: CreateGoogleSheetsWorkbookSourceOptions,
