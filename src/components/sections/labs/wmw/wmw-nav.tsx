@@ -13,6 +13,11 @@ export type WmwNavAccount = {
   accountName: string;
 };
 
+type WmwNavGroups = {
+  active: WmwNavAccount[];
+  inactive: WmwNavAccount[];
+};
+
 function accountHref(accountId: string): string {
   return `/labs/wmw/accounts/${encodeURIComponent(accountId)}`;
 }
@@ -37,24 +42,17 @@ function linkClass(active: boolean, compact = false): string {
 
 export type WmwNavProps = {
   /** Injectable groups for Vitest; defaults to Snapshot partition. */
-  accounts?: {
-    active: WmwNavAccount[];
-    inactive: WmwNavAccount[];
-  } | null;
+  accounts?: WmwNavGroups | null;
 };
 
 export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
   const pathname = usePathname() || '/labs/wmw';
   const router = useRouter();
   const { nav } = wmw.shell;
-  const [loaded, setLoaded] = useState<{
-    active: WmwNavAccount[];
-    inactive: WmwNavAccount[];
-  } | null>(accountsProp === undefined ? null : accountsProp);
+  const [fetched, setFetched] = useState<WmwNavGroups | null>(null);
 
   useEffect(() => {
     if (accountsProp !== undefined) {
-      setLoaded(accountsProp);
       return;
     }
     let cancelled = false;
@@ -64,11 +62,11 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
         const snapshot = await client.getSnapshot();
         if (cancelled) return;
         if (!snapshot) {
-          setLoaded({ active: [], inactive: [] });
+          setFetched({ active: [], inactive: [] });
           return;
         }
         const groups = partitionAccountsByActivity(snapshot);
-        setLoaded({
+        setFetched({
           active: groups.active.map((a) => ({
             accountId: a.accountId,
             accountName: a.accountName,
@@ -79,7 +77,7 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
           })),
         });
       } catch {
-        if (!cancelled) setLoaded({ active: [], inactive: [] });
+        if (!cancelled) setFetched({ active: [], inactive: [] });
       }
     })();
     return () => {
@@ -87,10 +85,14 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
     };
   }, [accountsProp, pathname]);
 
-  const active = loaded?.active ?? [];
-  const inactive = loaded?.inactive ?? [];
+  const groups =
+    accountsProp !== undefined
+      ? (accountsProp ?? { active: [], inactive: [] })
+      : fetched;
 
   const mobileOptions = useMemo(() => {
+    const active = groups?.active ?? [];
+    const inactive = groups?.inactive ?? [];
     const top = nav.items.map((item) => ({
       href: item.href,
       label: item.label,
@@ -105,8 +107,7 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
     }));
     return [...top, ...activeOptions, ...inactiveOptions];
   }, [
-    active,
-    inactive,
+    groups,
     nav.accountsGroupLabel,
     nav.inactiveAccountsGroupLabel,
     nav.items,
@@ -116,6 +117,9 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
     mobileOptions.find((item) => item.href === pathname)?.href ??
     nav.items[0]?.href ??
     '/labs/wmw';
+
+  const active = groups?.active ?? [];
+  const inactive = groups?.inactive ?? [];
 
   function renderAccountList(accounts: WmwNavAccount[]) {
     return (
@@ -185,7 +189,7 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
           <p className="mb-1 px-2.5 font-body text-[0.65rem] font-medium uppercase tracking-[0.08em] text-[var(--mono-500)]">
             {nav.accountsGroupLabel}
           </p>
-          {loaded === null ? (
+          {groups === null ? (
             <p className="px-2.5 font-body text-xs text-[var(--mono-500)]">
               {wmw.overview.loadingLabel}
             </p>
@@ -202,7 +206,7 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
           <p className="mb-1 px-2.5 font-body text-[0.65rem] font-medium uppercase tracking-[0.08em] text-[var(--mono-500)]">
             {nav.inactiveAccountsGroupLabel}
           </p>
-          {loaded === null ? null : inactive.length === 0 ? (
+          {groups === null ? null : inactive.length === 0 ? (
             <p className="px-2.5 font-body text-xs text-[var(--mono-500)]">
               {nav.inactiveAccountsEmptyLabel}
             </p>
