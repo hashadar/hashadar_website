@@ -1,4 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/lib/wmw/amplify-hosting-secret', () => ({
+  fetchAmplifyHostingSecret: vi.fn(async () => null),
+}));
+
 import { pullWmwWorkbookTabs } from '@/lib/wmw/pull-workbook-action';
 import {
   WMW_SPREADSHEET_ID_ENV,

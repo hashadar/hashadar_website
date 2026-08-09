@@ -1,160 +1,41 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  amplifyBranchSecretParamName,
-  amplifySharedSecretParamName,
-  buildAmplifySsrEnvLines,
-  ensureWmwSecretInAmplifySecretsEnv,
-  flattenWmwServiceAccountJsonEnv,
-  parseAmplifySecretsMap,
+  buildWmwSsrConfigModuleSource,
+  resolveWmwSsrConfigValues,
 } from './write-amplify-ssr-env';
 
-describe('buildAmplifySsrEnvLines', () => {
-  it('writes present keys as JSON-stringified dotenv lines', () => {
-    const secrets = JSON.stringify({
-      'wmw.google-service-account': '{"type":"service_account"}',
-    });
-    const saJson = '{"type":"service_account"}';
-    const lines = buildAmplifySsrEnvLines({
-      WMW_SPREADSHEET_ID: 'sheet-id',
-      WMW_GOOGLE_SA_SECRET_NAME: 'wmw.google-service-account',
-      WMW_GOOGLE_SERVICE_ACCOUNT_JSON: saJson,
-      secrets,
-    });
-
-    expect(lines).toEqual([
-      'WMW_SPREADSHEET_ID="sheet-id"',
-      'WMW_GOOGLE_SA_SECRET_NAME="wmw.google-service-account"',
-      `WMW_GOOGLE_SERVICE_ACCOUNT_JSON=${JSON.stringify(saJson)}`,
-      `secrets=${JSON.stringify(secrets)}`,
-    ]);
-  });
-
-  it('skips missing or empty values', () => {
+describe('resolveWmwSsrConfigValues', () => {
+  it('reads spreadsheet id and falls back to defaults', () => {
     expect(
-      buildAmplifySsrEnvLines({
-        WMW_SPREADSHEET_ID: '',
-        WMW_GOOGLE_SA_SECRET_NAME: undefined,
+      resolveWmwSsrConfigValues({
+        WMW_SPREADSHEET_ID: ' sheet-123 ',
+        WMW_GOOGLE_SA_SECRET_NAME: 'wmw.google-service-account',
+        AWS_APP_ID: 'd3j7dgxx3prj17',
+        AWS_REGION: 'eu-west-2',
       }),
-    ).toEqual([]);
+    ).toEqual({
+      appId: 'd3j7dgxx3prj17',
+      region: 'eu-west-2',
+      spreadsheetId: 'sheet-123',
+      googleSaSecretName: 'wmw.google-service-account',
+    });
   });
 
-  it('round-trips secrets JSON through JSON.parse of the dotenv value', () => {
-    const secrets = JSON.stringify({
-      'wmw.google-service-account': '{"client_email":"a@b.com"}',
-    });
-    const [line] = buildAmplifySsrEnvLines({ secrets }, ['secrets']);
-    const valueLiteral = line.slice('secrets='.length);
-    expect(JSON.parse(valueLiteral)).toBe(secrets);
-    expect(JSON.parse(JSON.parse(valueLiteral))).toEqual({
-      'wmw.google-service-account': '{"client_email":"a@b.com"}',
-    });
+  it('allows null spreadsheet id when unset', () => {
+    expect(resolveWmwSsrConfigValues({}).spreadsheetId).toBeNull();
   });
 });
 
-describe('ensureWmwSecretInAmplifySecretsEnv', () => {
-  const saJson = JSON.stringify({
-    type: 'service_account',
-    client_email: 'wmw-reader@example.iam.gserviceaccount.com',
-    private_key:
-      '-----BEGIN PRIVATE KEY-----\\nMIIE\\n-----END PRIVATE KEY-----\\n',
-  });
-
-  it('leaves secrets untouched when the named leaf is already present', () => {
-    const secrets = JSON.stringify({
-      'wmw.google-service-account': saJson,
+describe('buildWmwSsrConfigModuleSource', () => {
+  it('embeds values with JSON string escaping', () => {
+    const source = buildWmwSsrConfigModuleSource({
+      appId: 'd3j7dgxx3prj17',
+      region: 'eu-west-2',
+      spreadsheetId: 'sheet-id',
+      googleSaSecretName: 'wmw.google-service-account',
     });
-    const fetchParameter = vi.fn();
-    const result = ensureWmwSecretInAmplifySecretsEnv(
-      {
-        WMW_GOOGLE_SA_SECRET_NAME: 'wmw.google-service-account',
-        secrets,
-        AWS_APP_ID: 'd3j7dgxx3prj17',
-        AWS_BRANCH: 'main',
-      },
-      { fetchParameter },
-    );
-
-    expect(result.seededFrom).toBeNull();
-    expect(result.env.secrets).toBe(secrets);
-    expect(fetchParameter).not.toHaveBeenCalled();
-  });
-
-  it('seeds from shared SSM when build injects an empty secrets map', () => {
-    const sharedName = amplifySharedSecretParamName(
-      'd3j7dgxx3prj17',
-      'wmw.google-service-account',
-    );
-    const fetchParameter = vi.fn((name: string) =>
-      name === sharedName ? saJson : null,
-    );
-
-    const result = ensureWmwSecretInAmplifySecretsEnv(
-      {
-        WMW_SPREADSHEET_ID: 'sheet-id',
-        WMW_GOOGLE_SA_SECRET_NAME: 'wmw.google-service-account',
-        secrets: JSON.stringify({}),
-        AWS_APP_ID: 'd3j7dgxx3prj17',
-        AWS_BRANCH: 'main',
-      },
-      { fetchParameter },
-    );
-
-    expect(result.seededFrom).toBe(sharedName);
-    expect(parseAmplifySecretsMap(result.env.secrets)).toEqual({
-      'wmw.google-service-account': saJson,
-    });
-    expect(fetchParameter).toHaveBeenCalledWith(
-      amplifyBranchSecretParamName(
-        'd3j7dgxx3prj17',
-        'main',
-        'wmw.google-service-account',
-      ),
-    );
-    expect(fetchParameter).toHaveBeenCalledWith(sharedName);
-  });
-
-  it('prefers branch SSM over shared when both could resolve', () => {
-    const branchName = amplifyBranchSecretParamName(
-      'd3j7dgxx3prj17',
-      'main',
-      'wmw.google-service-account',
-    );
-    const fetchParameter = vi.fn((name: string) =>
-      name === branchName ? saJson : 'SHOULD_NOT_USE',
-    );
-
-    const result = ensureWmwSecretInAmplifySecretsEnv(
-      {
-        secrets: '{}',
-        AWS_APP_ID: 'd3j7dgxx3prj17',
-        AWS_BRANCH: 'main',
-      },
-      { fetchParameter },
-    );
-
-    expect(result.seededFrom).toBe(branchName);
-    expect(fetchParameter).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe('flattenWmwServiceAccountJsonEnv', () => {
-  it('promotes the secrets-map leaf into WMW_GOOGLE_SERVICE_ACCOUNT_JSON', () => {
-    const saJson =
-      '{"client_email":"a@b.com","private_key":"-----BEGIN PRIVATE KEY-----\\nx\\n-----END PRIVATE KEY-----\\n"}';
-    const flattened = flattenWmwServiceAccountJsonEnv({
-      secrets: JSON.stringify({ 'wmw.google-service-account': saJson }),
-    });
-    expect(flattened.WMW_GOOGLE_SERVICE_ACCOUNT_JSON).toBe(saJson);
-  });
-
-  it('does not overwrite an existing top-level JSON env', () => {
-    const existing = '{"client_email":"keep@b.com"}';
-    const flattened = flattenWmwServiceAccountJsonEnv({
-      WMW_GOOGLE_SERVICE_ACCOUNT_JSON: existing,
-      secrets: JSON.stringify({
-        'wmw.google-service-account': '{"client_email":"other@b.com"}',
-      }),
-    });
-    expect(flattened.WMW_GOOGLE_SERVICE_ACCOUNT_JSON).toBe(existing);
+    expect(source).toContain('spreadsheetId: "sheet-id"');
+    expect(source).toContain('googleSaSecretName: "wmw.google-service-account"');
+    expect(source).not.toContain('PRIVATE KEY');
   });
 });
