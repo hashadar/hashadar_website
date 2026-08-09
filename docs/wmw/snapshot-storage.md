@@ -55,4 +55,16 @@ Sandbox CLI and Amplify Hosting secrets both store the leaf name in SSM Paramete
 | Local sandbox | `npx ampx sandbox secret set wmw.google-service-account` (backend/SSM; Next.js still needs JSON/FILE above) |
 | Amplify Hosting | App → Hosting → Secrets → Manage secrets (same leaf name); expose via `process.env.secrets` for SSR |
 
+### Amplify Hosting SSR wiring
+
+Amplify loads console env vars and Hosting secrets into the **build** environment (you should see `Setting Up SSM Secrets` in BUILD logs). Next.js Server Actions do **not** see those by default — Amplify only forwards vars written to `.env.production` before `next build`.
+
+`amplify.yml` runs `npx tsx scripts/write-amplify-ssr-env.ts`, which appends:
+
+- `WMW_SPREADSHEET_ID`
+- `WMW_GOOGLE_SA_SECRET_NAME`
+- `secrets` (the Amplify Hosting secrets JSON map)
+
+without logging values. Redeploy after changing Hosting secrets or env vars.
+
 Do not commit spreadsheet IDs or service account JSON.
