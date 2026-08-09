@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { WmwAccountDetail } from '@/components/sections/labs/wmw/wmw-account-detail';
 import { wmw } from '@/data';
@@ -53,7 +54,7 @@ describe('WmwAccountDetail', () => {
     ).toHaveAttribute('href', '/labs/wmw');
   });
 
-  it('renders metadata, Balance history, Mileage, and empty Cashflows for vehicle', async () => {
+  it('renders Balance and Mileage without Performance for the vehicle Account', async () => {
     const client = createClient();
     render(
       <WmwAccountDetail accountId="CAR_PORSCHE" wmwClient={client} />,
@@ -62,28 +63,49 @@ describe('WmwAccountDetail', () => {
     expect(
       await screen.findByRole('heading', { name: 'Porsche Taycan' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: wmw.accountDetail.metadataHeading,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Private')).toBeInTheDocument();
     expect(screen.getByText('Cars')).toBeInTheDocument();
     expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', {
-        name: wmw.accountDetail.balanceHeading,
+        name: wmw.accountDetail.seriesViewBalanceLabel,
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: wmw.accountDetail.balanceChartAriaLabel,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('tab', {
+        name: wmw.accountDetail.seriesViewPerformanceLabel,
+      }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('heading', {
         name: wmw.accountDetail.mileageHeading,
       }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('img', {
+        name: wmw.accountDetail.mileageChartAriaLabel,
+      }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(wmw.accountDetail.cashflowsEmptyLabel),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { name: wmw.accountDetail.mwrHeading }),
+      screen.queryByText(wmw.accountDetail.mwrHeading),
     ).not.toBeInTheDocument();
   });
 
-  it('shows Units history and MWR summary for investable crypto', async () => {
+  it('shows Balance / Performance tabs and Units for investable crypto', async () => {
+    const user = userEvent.setup();
     const client = createClient(
       buildSampleSnapshot({
         cashflows: [
@@ -105,10 +127,32 @@ describe('WmwAccountDetail', () => {
     expect(
       screen.getByRole('heading', { name: wmw.accountDetail.unitsHeading }),
     ).toBeInTheDocument();
+    expect(screen.getByText(wmw.accountDetail.mwrHeading)).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: wmw.accountDetail.mwrHeading }),
+      screen.getByRole('tab', {
+        name: wmw.accountDetail.seriesViewBalanceLabel,
+      }),
+    ).toHaveAttribute('aria-selected', 'true');
+
+    await user.click(
+      screen.getByRole('tab', {
+        name: wmw.accountDetail.seriesViewPerformanceLabel,
+      }),
+    );
+    expect(
+      screen.getByRole('img', {
+        name: wmw.accountDetail.performanceChartAriaLabel,
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Buy ETH')).toBeInTheDocument();
+
+    expect(
+      screen.getByText(wmw.accountDetail.cashflowsCountLabel),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(wmw.accountDetail.cashflowsLastLabel),
+    ).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.queryByText('Buy ETH')).not.toBeInTheDocument();
     expect(screen.getByText(wmw.overview.periodYtd)).toBeInTheDocument();
     expect(screen.getByText(wmw.overview.period1y)).toBeInTheDocument();
     expect(screen.getByText(wmw.overview.periodMax)).toBeInTheDocument();

@@ -4,11 +4,6 @@
 
 import { computeNetWorth } from '@/lib/wmw/net-worth';
 import { computePairEquity } from '@/lib/wmw/paired-accounts';
-import {
-  computeInvestableAccountsAnnualisedMwr,
-  type AccountAnnualisedMwr,
-  type MwrPeriod,
-} from '@/lib/wmw/mwr';
 import type { PairEquity } from '@/lib/wmw/paired-accounts';
 import type {
   AccountNetWorthRow,
@@ -18,19 +13,22 @@ import type {
 } from '@/lib/wmw/net-worth';
 import type { CalendarMonth, WmwSnapshot } from '@/lib/wmw/types';
 
-/** Brokerage balances only — pensions / crypto stay out of the AUM KPI. */
 export const WMW_BROKERAGE_CATEGORY_ID = 'CAT_BROKERAGE';
 export const WMW_CASH_CATEGORY_ID = 'CAT_CASH';
+export const WMW_PENSION_CATEGORY_ID = 'CAT_PENSION';
+
+export type WmwKpiMetric = {
+  total: number;
+  momDelta: number | null;
+  momPct: number | null;
+};
 
 export type WmwOverviewKpis = {
   month: CalendarMonth;
-  netWorth: number;
-  momDelta: number | null;
-  momPct: number | null;
-  /** Sum of CAT_BROKERAGE Account Balances for the selected month. */
-  brokerageAum: number;
-  /** Sum of CAT_CASH Account Balances for the selected month. */
-  cashTotal: number;
+  netWorth: WmwKpiMetric;
+  cashSavings: WmwKpiMetric;
+  generalInvestments: WmwKpiMetric;
+  retirement: WmwKpiMetric;
 };
 
 export type WmwDashboardClassRow = ClassNetWorthRow & {
@@ -63,12 +61,10 @@ export type WmwOverviewView = {
   classRows: WmwDashboardClassRow[];
   accountRows: WmwDashboardAccountRow[];
   pairs: PairEquity[];
-  mwr: AccountAnnualisedMwr[];
   accountNames: Map<string, string>;
 };
 
 export type BuildWmwOverviewViewOptions = {
-  period: MwrPeriod;
   /** Defaults to headline month when omitted / unknown. */
   selectedMonth?: CalendarMonth | null;
   /** Case-insensitive Account name / id filter. */
@@ -101,32 +97,50 @@ function resolveDisplayMonth(
   return netWorth.headline;
 }
 
+function sumCategoryContribution(
+  month: NetWorthMonth,
+  categoryId: string,
+): number {
+  let total = 0;
+  for (const row of month.byAccount) {
+    if (row.categoryId === categoryId) {
+      total += row.contribution;
+    }
+  }
+  return total;
+}
+
+function buildMetric(
+  current: number,
+  priorTotal: number | null,
+): WmwKpiMetric {
+  if (priorTotal === null) {
+    return { total: current, momDelta: null, momPct: null };
+  }
+  const momDelta = current - priorTotal;
+  const momPct = priorTotal === 0 ? null : momDelta / priorTotal;
+  return { total: current, momDelta, momPct };
+}
+
 function buildKpis(
   display: NetWorthMonth,
   prior: NetWorthMonth | null,
 ): WmwOverviewKpis {
-  const momDelta = prior ? display.total - prior.total : null;
-  const momPct =
-    prior && prior.total !== 0 ? (display.total - prior.total) / prior.total : null;
-
-  let brokerageAum = 0;
-  let cashTotal = 0;
-  for (const row of display.byAccount) {
-    if (row.categoryId === WMW_BROKERAGE_CATEGORY_ID) {
-      brokerageAum += row.balance;
-    }
-    if (row.categoryId === WMW_CASH_CATEGORY_ID) {
-      cashTotal += row.balance;
-    }
-  }
-
   return {
     month: display.month,
-    netWorth: display.total,
-    momDelta,
-    momPct,
-    brokerageAum,
-    cashTotal,
+    netWorth: buildMetric(display.total, prior ? prior.total : null),
+    cashSavings: buildMetric(
+      sumCategoryContribution(display, WMW_CASH_CATEGORY_ID),
+      prior ? sumCategoryContribution(prior, WMW_CASH_CATEGORY_ID) : null,
+    ),
+    generalInvestments: buildMetric(
+      sumCategoryContribution(display, WMW_BROKERAGE_CATEGORY_ID),
+      prior ? sumCategoryContribution(prior, WMW_BROKERAGE_CATEGORY_ID) : null,
+    ),
+    retirement: buildMetric(
+      sumCategoryContribution(display, WMW_PENSION_CATEGORY_ID),
+      prior ? sumCategoryContribution(prior, WMW_PENSION_CATEGORY_ID) : null,
+    ),
   };
 }
 
@@ -178,14 +192,8 @@ function enrichAccountRows(
 
 export function buildWmwOverviewView(
   snapshot: WmwSnapshot,
-  periodOrOptions: MwrPeriod | BuildWmwOverviewViewOptions,
-  maybeSelectedMonth?: CalendarMonth | null,
+  options: BuildWmwOverviewViewOptions = {},
 ): WmwOverviewView {
-  const options: BuildWmwOverviewViewOptions =
-    typeof periodOrOptions === 'string'
-      ? { period: periodOrOptions, selectedMonth: maybeSelectedMonth }
-      : periodOrOptions;
-
   const netWorth = computeNetWorth(snapshot);
   const accountNames = new Map(
     snapshot.accounts.map((a) => [a.accountId, a.accountName]),
@@ -222,7 +230,6 @@ export function buildWmwOverviewView(
     classRows,
     accountRows,
     pairs,
-    mwr: computeInvestableAccountsAnnualisedMwr(snapshot, options.period),
     accountNames,
   };
 }

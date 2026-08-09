@@ -271,15 +271,14 @@ describe('WMW annualised per-Account MWR', () => {
     });
 
     expect(computeAccountAnnualisedMwr(withPreHistoryOnly, 'btc', 'Max')).toMatchObject({
-      status: 'unavailable',
-      reason: 'no-usable-cashflows',
+      status: 'available',
     });
 
     const result = computeAccountAnnualisedMwr(snap, 'btc', 'Max');
     expect(result.status).toBe('available');
   });
 
-  it('ignores Loan Repayment and unknown Types for MWR', () => {
+  it('ignores Loan Repayment and unknown Types and still solves from Balances', () => {
     const snap = snapshot({
       accounts: [account('isa', 'CAT_BROKERAGE')],
       balances: [
@@ -293,27 +292,38 @@ describe('WMW annualised per-Account MWR', () => {
       ],
     });
 
-    expect(computeAccountAnnualisedMwr(snap, 'isa', 'Max')).toMatchObject({
-      status: 'unavailable',
-      reason: 'no-usable-cashflows',
-    });
+    const result = computeAccountAnnualisedMwr(snap, 'isa', 'Max');
+    expect(result.status).toBe('available');
+    if (result.status !== 'available') return;
+    // £1,000 → £1,100 over one year with no usable external flows ≈ 10%
+    expect(result.annualisedRate).toBeCloseTo(0.1, 3);
   });
 
-  it('is unavailable when Balances exist but there are no usable Cashflows in the period', () => {
+  it('solves MWR from opening and closing Balance when the period has no usable Cashflows', () => {
     const snap = snapshot({
+      asOf: '2026-08-09T00:00:00.000Z',
       accounts: [account('legacy', 'CAT_CRYPTO')],
       balances: [
         balance('legacy', '2023-01-01', 100),
         balance('legacy', '2024-01-01', 400),
         balance('legacy', '2025-01-01', 900),
+        balance('legacy', '2026-06-01', 950),
       ],
-      cashflows: [],
+      cashflows: [
+        // Outside YTD — should not block a balance-only YTD solve
+        cashflow('legacy', '2025-03-01', 200, 'Contribution'),
+      ],
     });
 
     expect(computeAccountAnnualisedMwr(snap, 'legacy', 'Max')).toMatchObject({
-      status: 'unavailable',
-      reason: 'no-usable-cashflows',
+      status: 'available',
     });
+
+    const ytd = computeAccountAnnualisedMwr(snap, 'legacy', 'YTD');
+    expect(ytd.status).toBe('available');
+    if (ytd.status !== 'available') return;
+    // Opening on/before 2026-01-01 is £900; close £950 — positive return
+    expect(ytd.annualisedRate).toBeGreaterThan(0);
   });
 
   it('does not invent a synthetic £0 opening', () => {

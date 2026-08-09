@@ -106,6 +106,8 @@ export function computeAccountAnnualisedMwr(
     return unavailable(accountId, period, 'no-closing-balance');
   }
 
+  // Mid-period Contribution/Withdrawal only. Empty is allowed: IRR from
+  // opening → closing Balance alone (carry-forward held capital).
   const usableCashflows = snapshot.cashflows.filter(
     (cf) =>
       cf.accountId === accountId &&
@@ -114,10 +116,6 @@ export function computeAccountAnnualisedMwr(
       cf.date >= window.start &&
       cf.date <= window.end,
   );
-
-  if (usableCashflows.length === 0) {
-    return unavailable(accountId, period, 'no-usable-cashflows');
-  }
 
   const investorFlows = buildInvestorFlows(
     opening,

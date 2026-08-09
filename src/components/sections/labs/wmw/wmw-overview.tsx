@@ -15,7 +15,6 @@ import { WmwNetWorthChart } from '@/components/sections/labs/wmw/wmw-net-worth-c
 import { wmw } from '@/data';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import type { WmwFacade } from '@/lib/wmw/facade';
-import type { MwrPeriod, MwrUnavailableReason } from '@/lib/wmw/mwr';
 import {
   formatAnnualisedRate,
   formatAsOf,
@@ -28,7 +27,6 @@ import {
 } from '@/lib/wmw/overview-view';
 import type { CalendarMonth } from '@/lib/wmw/types';
 import { getDefaultWmw } from '@/lib/wmw-default';
-import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 function accountHref(accountId: string): string {
@@ -42,8 +40,6 @@ export type WmwOverviewProps = {
 
 type LoadState = 'loading' | 'ready' | 'error';
 
-const PERIODS: MwrPeriod[] = ['YTD', '1Y', 'Max'];
-
 function formatPctOfNw(value: number | null): string {
   if (value === null) return '—';
   return formatAnnualisedRate(value);
@@ -54,7 +50,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [view, setView] = useState<WmwOverviewView | null>(null);
-  const [period, setPeriod] = useState<MwrPeriod>('YTD');
   const [selectedMonth, setSelectedMonth] = useState<CalendarMonth | null>(
     null,
   );
@@ -89,7 +84,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
           return;
         }
         const next = buildWmwOverviewView(snapshot, {
-          period,
           selectedMonth,
           accountQuery,
         });
@@ -105,7 +99,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     return () => {
       cancelled = true;
     };
-  }, [client, period, selectedMonth, accountQuery]);
+  }, [client, selectedMonth, accountQuery]);
 
   async function handleRefresh() {
     if (!client || refreshing) return;
@@ -114,7 +108,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     try {
       const { snapshot } = await client.refresh();
       const next = buildWmwOverviewView(snapshot, {
-        period,
         selectedMonth,
         accountQuery,
       });
@@ -128,7 +121,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
         if (lastGood) {
           setView(
             buildWmwOverviewView(lastGood, {
-              period,
               selectedMonth,
               accountQuery,
             }),
@@ -142,15 +134,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
       setRefreshing(false);
     }
   }
-
-  const periodLabel = (value: MwrPeriod) => {
-    if (value === 'YTD') return copy.periodYtd;
-    if (value === '1Y') return copy.period1y;
-    return copy.periodMax;
-  };
-
-  const mwrReasonLabel = (reason: MwrUnavailableReason) =>
-    copy.mwrReasons[reason] ?? copy.mwrUnavailableLabel;
 
   const monthOptions = useMemo(() => view?.months ?? [], [view?.months]);
 
@@ -195,31 +178,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
               </select>
             </label>
           ) : null}
-          <div
-            role="group"
-            aria-label={copy.periodControlAriaLabel}
-            className="flex flex-wrap gap-1"
-          >
-            {PERIODS.map((value) => {
-              const active = period === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setPeriod(value)}
-                  className={cn(
-                    'rounded-md px-2.5 py-1.5 font-body text-xs transition-colors',
-                    active
-                      ? 'bg-[color-mix(in_oklab,var(--primary)_12%,transparent)] font-medium text-[var(--primary)] ring-1 ring-[color-mix(in_oklab,var(--primary)_25%,transparent)]'
-                      : 'text-[var(--mono-500)] hover:bg-[color-mix(in_oklab,var(--primary)_6%,transparent)] hover:text-[var(--foreground)]',
-                  )}
-                >
-                  {periodLabel(value)}
-                </button>
-              );
-            })}
-          </div>
           <Button
             type="button"
             variant="outline"
@@ -264,9 +222,9 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
               kpis={view.kpis}
               labels={{
                 netWorth: copy.netWorthHeading,
-                mom: copy.kpiMomLabel,
-                brokerageAum: copy.kpiBrokerageLabel,
-                cash: copy.kpiCashLabel,
+                cashSavings: copy.kpiCashSavingsLabel,
+                generalInvestments: copy.kpiGeneralInvestmentsLabel,
+                retirement: copy.kpiRetirementLabel,
               }}
             />
           ) : (
@@ -403,49 +361,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
               </WmwDenseTable>
             </section>
           </div>
-
-          <section className="space-y-2">
-            <div className="space-y-0.5">
-              <Heading size="sm" as="h3">
-                {copy.mwrHeading}
-              </Heading>
-              <Text variant="muted" className="text-sm">
-                {copy.mwrDescription}
-              </Text>
-            </div>
-            {view.mwr.length === 0 ? (
-              <Text variant="muted" className="text-sm">
-                {copy.mwrEmptyLabel}
-              </Text>
-            ) : (
-              <ul className="flex flex-wrap gap-2">
-                {view.mwr.map((row) => {
-                  const name =
-                    view.accountNames.get(row.accountId) ?? row.accountId;
-                  const value =
-                    row.status === 'available'
-                      ? formatAnnualisedRate(row.annualisedRate)
-                      : mwrReasonLabel(row.reason);
-                  return (
-                    <li
-                      key={`${row.accountId}-${row.period}`}
-                      className="rounded-md border border-[var(--border)] px-2.5 py-1.5"
-                    >
-                      <Link
-                        href={accountHref(row.accountId)}
-                        className="font-body text-sm underline underline-offset-2"
-                      >
-                        {name}
-                      </Link>
-                      <span className="ml-2 font-mono text-sm tabular-nums text-[var(--foreground)]">
-                        {value}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
 
           {view.warnings.length > 0 ? (
             <section className="space-y-1">

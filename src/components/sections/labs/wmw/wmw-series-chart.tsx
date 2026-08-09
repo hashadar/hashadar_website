@@ -14,39 +14,59 @@ export type WmwSeriesChartPoint = {
 export type WmwSeriesChartProps = {
   points: WmwSeriesChartPoint[];
   ariaLabel: string;
+  /** Axis tick labels (keep short). */
   formatValue: (value: number) => string;
+  /** Hover tooltip; defaults to formatValue. */
+  formatHoverValue?: (value: number) => string;
+  /** Compact charts suit Account detail; default is taller Overview-style. */
+  size?: 'default' | 'compact';
   className?: string;
 };
 
 const WIDTH = 640;
-const HEIGHT = 220;
-const PAD_LEFT = 72;
-const PAD_RIGHT = 28;
-const PAD_TOP = 16;
-const PAD_BOTTOM = 36;
+const HEIGHT_DEFAULT = 220;
+const HEIGHT_COMPACT = 180;
+const PAD_LEFT = 56;
+const PAD_RIGHT = 20;
+const PAD_TOP = 14;
+const PAD_BOTTOM = 28;
+/** User units — scales with the viewBox (CSS px would look oversized when the SVG stretches). */
+const AXIS_FONT_SIZE = 8;
 
 export function WmwSeriesChart({
   points,
   ariaLabel,
   formatValue,
+  formatHoverValue,
+  size = 'default',
   className,
 }: WmwSeriesChartProps) {
+  const hoverValue = formatHoverValue ?? formatValue;
   const prefersReducedMotion = usePrefersReducedMotion();
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const height = size === 'compact' ? HEIGHT_COMPACT : HEIGHT_DEFAULT;
 
   if (points.length === 0) {
     return null;
   }
 
   const values = points.map((p) => p.value);
-  const min = Math.min(...values, 0);
-  const max = Math.max(...values, 0);
+  const dataMin = Math.min(...values);
+  const dataMax = Math.max(...values);
+  // Pad the domain so the series is not crushed against the plot edges.
+  const pad =
+    dataMin === dataMax
+      ? Math.abs(dataMin) * 0.08 || 1
+      : (dataMax - dataMin) * 0.12;
+  const min = dataMin - pad;
+  const max = dataMax + pad;
   const ticks = niceTicks(min, max);
   const domainMin = Math.min(...ticks, min);
   const domainMax = Math.max(...ticks, max);
   const span = domainMax - domainMin || 1;
   const plotWidth = WIDTH - PAD_LEFT - PAD_RIGHT;
-  const plotHeight = HEIGHT - PAD_TOP - PAD_BOTTOM;
+  const plotHeight = height - PAD_TOP - PAD_BOTTOM;
+  const plotBottom = PAD_TOP + plotHeight;
 
   const yFor = (value: number) =>
     PAD_TOP + (1 - (value - domainMin) / span) * plotHeight;
@@ -63,10 +83,9 @@ export function WmwSeriesChart({
     .map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
     .join(' ');
 
-  const zeroY = yFor(0);
   const areaPath =
-    `${linePath} L ${coords[coords.length - 1]!.x.toFixed(1)} ${zeroY.toFixed(1)}` +
-    ` L ${coords[0]!.x.toFixed(1)} ${zeroY.toFixed(1)} Z`;
+    `${linePath} L ${coords[coords.length - 1]!.x.toFixed(1)} ${plotBottom.toFixed(1)}` +
+    ` L ${coords[0]!.x.toFixed(1)} ${plotBottom.toFixed(1)} Z`;
 
   const labelStep = Math.max(1, Math.ceil(points.length / 6));
   const hovered = hoverIndex === null ? null : coords[hoverIndex];
@@ -74,12 +93,12 @@ export function WmwSeriesChart({
   return (
     <figure
       className={cn('relative w-full', className)}
-      aria-label={ariaLabel}
       onMouseLeave={() => setHoverIndex(null)}
     >
       <svg
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="h-auto w-full text-[var(--primary)]"
+        viewBox={`0 0 ${WIDTH} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="block h-auto w-full text-[var(--primary)]"
         role="img"
         aria-label={ariaLabel}
       >
@@ -97,11 +116,11 @@ export function WmwSeriesChart({
                 strokeDasharray={tick === 0 ? undefined : '3 3'}
               />
               <text
-                x={PAD_LEFT - 8}
-                y={y + 3}
+                x={PAD_LEFT - 6}
+                y={y + 2.5}
                 textAnchor="end"
                 className="fill-[var(--mono-500)]"
-                style={{ fontSize: 10 }}
+                fontSize={AXIS_FONT_SIZE}
               >
                 {formatValue(tick)}
               </text>
@@ -113,15 +132,15 @@ export function WmwSeriesChart({
           x1={PAD_LEFT}
           y1={PAD_TOP}
           x2={PAD_LEFT}
-          y2={HEIGHT - PAD_BOTTOM}
+          y2={plotBottom}
           stroke="var(--border)"
           strokeWidth={1}
         />
         <line
           x1={PAD_LEFT}
-          y1={HEIGHT - PAD_BOTTOM}
+          y1={plotBottom}
           x2={WIDTH - PAD_RIGHT}
-          y2={HEIGHT - PAD_BOTTOM}
+          y2={plotBottom}
           stroke="var(--border)"
           strokeWidth={1}
         />
@@ -176,10 +195,10 @@ export function WmwSeriesChart({
             {(c.index % labelStep === 0 || c.index === coords.length - 1) && (
               <text
                 x={c.x}
-                y={HEIGHT - 10}
+                y={height - 8}
                 textAnchor="middle"
                 className="fill-[var(--mono-500)]"
-                style={{ fontSize: 10 }}
+                fontSize={AXIS_FONT_SIZE}
               >
                 {c.label}
               </text>
@@ -192,7 +211,7 @@ export function WmwSeriesChart({
             x1={hovered.x}
             y1={PAD_TOP}
             x2={hovered.x}
-            y2={HEIGHT - PAD_BOTTOM}
+            y2={plotBottom}
             stroke="color-mix(in oklab, var(--primary) 45%, transparent)"
             strokeWidth={1}
           />
@@ -204,7 +223,7 @@ export function WmwSeriesChart({
           className="pointer-events-none absolute z-10 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 shadow-sm"
           style={{
             left: `${(hovered.x / WIDTH) * 100}%`,
-            top: `${(hovered.y / HEIGHT) * 100}%`,
+            top: `${(hovered.y / height) * 100}%`,
             transform: 'translate(-50%, calc(-100% - 8px))',
           }}
           role="tooltip"
@@ -213,7 +232,7 @@ export function WmwSeriesChart({
             {hovered.label}
           </p>
           <p className="font-mono text-sm font-medium tabular-nums text-[var(--foreground)]">
-            {formatValue(hovered.value)}
+            {hoverValue(hovered.value)}
           </p>
         </div>
       ) : null}

@@ -2,7 +2,6 @@ import {
   cleanup,
   render,
   screen,
-  waitFor,
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -64,7 +63,7 @@ describe('WmwOverview', () => {
     expect(screen.getByText(wmw.overview.asOfUnknownLabel)).toBeInTheDocument();
   });
 
-  it('renders KPIs, Account links, and MWR period control from Snapshot', async () => {
+  it('renders KPIs and Account links from Snapshot', async () => {
     const client = createClient();
     render(<WmwOverview wmwClient={client} />);
 
@@ -77,20 +76,10 @@ describe('WmwOverview', () => {
       screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
     expect(screen.queryByText('PAIR_TAYCAN')).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('group', { name: wmw.overview.periodControlAriaLabel }),
-    ).toBeInTheDocument();
+    expect(screen.queryByText(wmw.overview.periodYtd)).not.toBeInTheDocument();
     expect(
       screen.getByLabelText(wmw.overview.monthSlicerLabel),
     ).toBeInTheDocument();
-
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: wmw.overview.periodMax }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: wmw.overview.periodMax }),
-      ).toHaveAttribute('aria-pressed', 'true');
-    });
   });
 
   it('keeps last-good Snapshot and shows error when Refresh cannot reach Sheets', async () => {
