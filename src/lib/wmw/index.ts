@@ -137,6 +137,13 @@ export {
 
 export {
   buildWmwOverviewView,
+  WMW_BROKERAGE_CATEGORY_ID,
+  WMW_CASH_CATEGORY_ID,
+  type BuildWmwOverviewViewOptions,
+  type WmwClassHistoryPoint,
+  type WmwDashboardAccountRow,
+  type WmwDashboardClassRow,
+  type WmwOverviewKpis,
   type WmwOverviewView,
 } from '@/lib/wmw/overview-view';
 
@@ -146,6 +153,12 @@ export {
   type WmwAccountDetailView,
   type WmwAccountQuantityPoint,
 } from '@/lib/wmw/account-detail-view';
+
+export {
+  isAccountActiveInSnapshot,
+  partitionAccountsByActivity,
+  type WmwAccountActivityGroups,
+} from '@/lib/wmw/account-activity';
 
 export {
   formatAnnualisedRate,

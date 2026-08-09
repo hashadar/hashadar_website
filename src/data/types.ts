@@ -130,8 +130,11 @@ export interface BlogPageData {
 
 export interface LabIndexItem {
   title: string;
+  /** Short first line under the lab title. */
+  lede: string;
   description: string;
   href: string;
+  ctaLabel: string;
 }
 
 export interface LabsPageData {
@@ -139,10 +142,6 @@ export interface LabsPageData {
   description: string;
   brandEyebrow: string;
   purposeLine: string;
-  ctaLabel: string;
-  flagshipTitle: string;
-  teaserAriaLabel: string;
-  catalogueHeading: string;
   catalogueAriaLabel: string;
   labs: LabIndexItem[];
 }
@@ -163,6 +162,15 @@ export interface WmwPageData {
   shell: {
     heading: string;
     description: string;
+    nav: {
+      ariaLabel: string;
+      mobileLabel: string;
+      accountsGroupLabel: string;
+      accountsEmptyLabel: string;
+      inactiveAccountsGroupLabel: string;
+      inactiveAccountsEmptyLabel: string;
+      items: Array<{ id: string; label: string; href: string }>;
+    };
   };
   overview: {
     heading: string;
@@ -179,32 +187,36 @@ export interface WmwPageData {
     warningsLabel: string;
     netWorthHeading: string;
     netWorthEmptyLabel: string;
+    kpiCashSavingsLabel: string;
+    kpiGeneralInvestmentsLabel: string;
+    kpiRetirementLabel: string;
     historyHeading: string;
     historyEmptyLabel: string;
     historyChartAriaLabel: string;
+    classMixHeading: string;
+    classMixChartAriaLabel: string;
     classHeading: string;
     accountHeading: string;
+    monthSlicerLabel: string;
+    accountSearchLabel: string;
+    accountSearchPlaceholder: string;
     columnClass: string;
     columnAccount: string;
     columnCategory: string;
     columnContribution: string;
     columnBalance: string;
+    columnPct: string;
+    columnMom: string;
     pairsHeading: string;
     pairsEmptyLabel: string;
     columnPairId: string;
     columnAsset: string;
     columnLiability: string;
     columnEquity: string;
-    mwrHeading: string;
-    mwrDescription: string;
-    mwrEmptyLabel: string;
     mwrUnavailableLabel: string;
-    columnPeriod: string;
-    columnMwr: string;
     periodYtd: string;
     period1y: string;
     periodMax: string;
-    periodControlAriaLabel: string;
     mwrReasons: {
       'not-investable': string;
       'account-not-found': string;
@@ -234,15 +246,22 @@ export interface WmwPageData {
     pairNoneLabel: string;
     classUnknownLabel: string;
     typeUnknownLabel: string;
-    balanceHeading: string;
+    latestBalanceLabel: string;
     balanceEmptyLabel: string;
+    seriesHeading: string;
+    seriesViewAriaLabel: string;
+    seriesViewBalanceLabel: string;
+    seriesViewPerformanceLabel: string;
+    seriesEmptyLabel: string;
     balanceChartAriaLabel: string;
+    performanceChartAriaLabel: string;
     cashflowsHeading: string;
     cashflowsEmptyLabel: string;
-    columnDate: string;
-    columnType: string;
-    columnDescription: string;
-    columnAmount: string;
+    cashflowsCountLabel: string;
+    cashflowsNetLabel: string;
+    cashflowsContributionsLabel: string;
+    cashflowsWithdrawalsLabel: string;
+    cashflowsLastLabel: string;
     unitsHeading: string;
     unitsChartAriaLabel: string;
     mileageHeading: string;

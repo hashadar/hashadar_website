@@ -2,7 +2,6 @@ import {
   cleanup,
   render,
   screen,
-  waitFor,
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -61,39 +60,26 @@ describe('WmwOverview', () => {
       screen.getByRole('heading', { name: wmw.overview.emptyHeading }),
     ).toBeInTheDocument();
     expect(screen.getByText(wmw.overview.emptyDescription)).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        new RegExp(`${wmw.overview.asOfLabel}:\\s*${wmw.overview.asOfUnknownLabel}`),
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(wmw.overview.asOfUnknownLabel)).toBeInTheDocument();
   });
 
-  it('renders Net Worth, Taycan pair, and MWR period control from Snapshot', async () => {
+  it('renders KPIs and Account links from Snapshot', async () => {
     const client = createClient();
     render(<WmwOverview wmwClient={client} />);
 
     expect(
-      await screen.findByRole('heading', { name: wmw.overview.netWorthHeading }),
+      await screen.findByRole('heading', { name: wmw.overview.historyHeading }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: '£53,000' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
+    expect(screen.getByText('£53,000')).toBeInTheDocument();
     expect(screen.getAllByText('Porsche Taycan').length).toBeGreaterThan(0);
     expect(
       screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
+    expect(screen.queryByText('PAIR_TAYCAN')).not.toBeInTheDocument();
+    expect(screen.queryByText(wmw.overview.periodYtd)).not.toBeInTheDocument();
     expect(
-      screen.getByRole('group', { name: wmw.overview.periodControlAriaLabel }),
+      screen.getByLabelText(wmw.overview.monthSlicerLabel),
     ).toBeInTheDocument();
-
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: wmw.overview.periodMax }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: wmw.overview.periodMax }),
-      ).toHaveAttribute('aria-pressed', 'true');
-    });
   });
 
   it('keeps last-good Snapshot and shows error when Refresh cannot reach Sheets', async () => {
@@ -105,18 +91,24 @@ describe('WmwOverview', () => {
     const client = createClient({ workbookSource: failingSource });
     render(<WmwOverview wmwClient={client} />);
 
-    expect(await screen.findByText('PAIR_TAYCAN')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(
       screen.getByRole('button', { name: wmw.overview.refreshLabel }),
     );
 
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      wmw.overview.refreshErrorLabel,
+    );
     expect(
-      await screen.findByRole('alert'),
-    ).toHaveTextContent(wmw.overview.refreshErrorLabel);
-    expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
-    expect(within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel)).toBeInTheDocument();
+      screen.getByRole('link', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel),
+    ).toBeInTheDocument();
   });
 
   it('surfaces Refresh warnings for unknown Transaction_Type to the Site Admin', async () => {
