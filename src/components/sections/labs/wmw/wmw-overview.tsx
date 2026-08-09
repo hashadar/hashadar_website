@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Heading, Text } from '@/components/ui';
 import { WmwClassMixChart } from '@/components/sections/labs/wmw/wmw-class-mix-chart';
 import {
+  momDeltaClassName,
   WmwDenseCell,
   WmwDenseRow,
   WmwDenseTable,
@@ -316,9 +317,9 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                 caption={copy.classHeading}
                 columns={[
                   copy.columnClass,
-                  copy.columnContribution,
-                  copy.columnPct,
-                  copy.columnMom,
+                  { label: copy.columnContribution, align: 'right' },
+                  { label: copy.columnPct, align: 'right' },
+                  { label: copy.columnMom, align: 'right' },
                 ]}
                 isEmpty={view.classRows.length === 0}
                 empty={copy.netWorthEmptyLabel}
@@ -332,7 +333,11 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                     <WmwDenseCell mono align="right">
                       {formatPctOfNw(row.pctOfNetWorth)}
                     </WmwDenseCell>
-                    <WmwDenseCell mono align="right">
+                    <WmwDenseCell
+                      mono
+                      align="right"
+                      className={momDeltaClassName(row.momDelta)}
+                    >
                       {row.momDelta === null ? '—' : formatGbp(row.momDelta)}
                     </WmwDenseCell>
                   </WmwDenseRow>
@@ -362,10 +367,9 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                 columns={[
                   copy.columnAccount,
                   copy.columnClass,
-                  copy.columnBalance,
-                  copy.columnContribution,
-                  copy.columnPct,
-                  copy.columnMom,
+                  { label: copy.columnContribution, align: 'right' },
+                  { label: copy.columnPct, align: 'right' },
+                  { label: copy.columnMom, align: 'right' },
                 ]}
                 isEmpty={view.accountRows.length === 0}
                 empty={copy.netWorthEmptyLabel}
@@ -382,15 +386,16 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                     </WmwDenseCell>
                     <WmwDenseCell>{row.class}</WmwDenseCell>
                     <WmwDenseCell mono align="right">
-                      {formatGbp(row.balance)}
-                    </WmwDenseCell>
-                    <WmwDenseCell mono align="right">
                       {formatGbp(row.contribution)}
                     </WmwDenseCell>
                     <WmwDenseCell mono align="right">
                       {formatPctOfNw(row.pctOfNetWorth)}
                     </WmwDenseCell>
-                    <WmwDenseCell mono align="right">
+                    <WmwDenseCell
+                      mono
+                      align="right"
+                      className={momDeltaClassName(row.momDelta)}
+                    >
                       {row.momDelta === null ? '—' : formatGbp(row.momDelta)}
                     </WmwDenseCell>
                   </WmwDenseRow>
@@ -398,38 +403,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
               </WmwDenseTable>
             </section>
           </div>
-
-          <section id="pairs" className="space-y-2 scroll-mt-24">
-            <Heading size="sm" as="h3">
-              {copy.pairsHeading}
-            </Heading>
-            <WmwDenseTable
-              caption={copy.pairsHeading}
-              columns={[
-                copy.columnPairId,
-                copy.columnAsset,
-                copy.columnLiability,
-                copy.columnEquity,
-              ]}
-              isEmpty={view.pairs.length === 0}
-              empty={copy.pairsEmptyLabel}
-            >
-              {view.pairs.map((pair) => (
-                <WmwDenseRow key={pair.pairId}>
-                  <WmwDenseCell mono>{pair.pairId}</WmwDenseCell>
-                  <WmwDenseCell>
-                    {pair.asset?.accountName ?? '—'}
-                  </WmwDenseCell>
-                  <WmwDenseCell>
-                    {pair.liability?.accountName ?? '—'}
-                  </WmwDenseCell>
-                  <WmwDenseCell mono align="right">
-                    {formatGbp(pair.equity)}
-                  </WmwDenseCell>
-                </WmwDenseRow>
-              ))}
-            </WmwDenseTable>
-          </section>
 
           <section className="space-y-2">
             <div className="space-y-0.5">

@@ -64,7 +64,7 @@ describe('WmwOverview', () => {
     expect(screen.getByText(wmw.overview.asOfUnknownLabel)).toBeInTheDocument();
   });
 
-  it('renders KPIs, Taycan pair, and MWR period control from Snapshot', async () => {
+  it('renders KPIs, Account links, and MWR period control from Snapshot', async () => {
     const client = createClient();
     render(<WmwOverview wmwClient={client} />);
 
@@ -72,11 +72,11 @@ describe('WmwOverview', () => {
       await screen.findByRole('heading', { name: wmw.overview.historyHeading }),
     ).toBeInTheDocument();
     expect(screen.getByText('£53,000')).toBeInTheDocument();
-    expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(screen.getAllByText('Porsche Taycan').length).toBeGreaterThan(0);
     expect(
       screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
+    expect(screen.queryByText('PAIR_TAYCAN')).not.toBeInTheDocument();
     expect(
       screen.getByRole('group', { name: wmw.overview.periodControlAriaLabel }),
     ).toBeInTheDocument();
@@ -102,7 +102,9 @@ describe('WmwOverview', () => {
     const client = createClient({ workbookSource: failingSource });
     render(<WmwOverview wmwClient={client} />);
 
-    expect(await screen.findByText('PAIR_TAYCAN')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(
@@ -112,7 +114,9 @@ describe('WmwOverview', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       wmw.overview.refreshErrorLabel,
     );
-    expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
     expect(
       within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel),
     ).toBeInTheDocument();

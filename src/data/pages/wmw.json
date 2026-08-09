@@ -16,11 +16,6 @@
           "id": "overview",
           "label": "Overview",
           "href": "/labs/wmw"
-        },
-        {
-          "id": "pairs",
-          "label": "Pairs",
-          "href": "/labs/wmw#pairs"
         }
       ]
     }
