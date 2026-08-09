@@ -7,7 +7,8 @@
  * Hosting secrets created for all branches live under
  * `/amplify/shared/{appId}/` and often arrive as an empty `process.env.secrets`
  * map (`{}`). This script seeds the WMW Google SA from shared/branch SSM when
- * missing so Refresh Server Actions can resolve credentials.
+ * missing, then also writes `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` as a top-level
+ * env so Next can statically inline `process.env.WMW_*` into Server Actions.
  *
  * @see https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
  */
@@ -15,10 +16,14 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-/** Non-secret WMW config + Amplify's injected `secrets` JSON map. */
+/**
+ * WMW SSR keys. Prefer top-level SA JSON — Next inlines static
+ * `process.env.WMW_*` access; nested `secrets` alone is easy to miss at runtime.
+ */
 export const AMPLIFY_SSR_ENV_KEYS = [
   'WMW_SPREADSHEET_ID',
   'WMW_GOOGLE_SA_SECRET_NAME',
+  'WMW_GOOGLE_SERVICE_ACCOUNT_JSON',
   'secrets',
 ] as const;
 
@@ -168,16 +173,32 @@ export function ensureWmwSecretInAmplifySecretsEnv(
   return { env, seededFrom: null, secretName };
 }
 
+/**
+ * Promote the SA leaf into `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` so Server Actions
+ * can use static `process.env.WMW_GOOGLE_SERVICE_ACCOUNT_JSON` (Next inlines it).
+ */
+export function flattenWmwServiceAccountJsonEnv(
+  env: Record<string, string | undefined>,
+  secretName: string = DEFAULT_WMW_GOOGLE_SA_SECRET_NAME,
+): Record<string, string | undefined> {
+  if (env.WMW_GOOGLE_SERVICE_ACCOUNT_JSON?.trim()) return env;
+  const fromMap = parseAmplifySecretsMap(env.secrets)[secretName]?.trim();
+  if (!fromMap) return env;
+  return { ...env, WMW_GOOGLE_SERVICE_ACCOUNT_JSON: fromMap };
+}
+
 export function writeAmplifySsrEnvFile(
   env: Record<string, string | undefined> = process.env,
   filePath = '.env.production',
   options?: WriteAmplifySsrEnvOptions,
 ): WriteAmplifySsrEnvResult {
   const {
-    env: resolvedEnv,
+    env: seededEnv,
     seededFrom,
     secretName,
   } = ensureWmwSecretInAmplifySecretsEnv(env, options);
+
+  const resolvedEnv = flattenWmwServiceAccountJsonEnv(seededEnv, secretName);
 
   if (seededFrom) {
     console.log(
@@ -185,10 +206,17 @@ export function writeAmplifySsrEnvFile(
     );
   } else {
     const hasSa = Boolean(
-      parseAmplifySecretsMap(resolvedEnv.secrets)[secretName]?.trim(),
+      parseAmplifySecretsMap(resolvedEnv.secrets)[secretName]?.trim() ||
+        resolvedEnv.WMW_GOOGLE_SERVICE_ACCOUNT_JSON?.trim(),
     );
     console.log(
       `write-amplify-ssr-env: secrets map ${hasSa ? 'already has' : 'missing'} ${secretName}`,
+    );
+  }
+
+  if (resolvedEnv.WMW_GOOGLE_SERVICE_ACCOUNT_JSON?.trim()) {
+    console.log(
+      'write-amplify-ssr-env: including WMW_GOOGLE_SERVICE_ACCOUNT_JSON for Next static env inline',
     );
   }
 

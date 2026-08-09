@@ -26,7 +26,18 @@ function readTrimmed(env: EnvLike, key: string): string | null {
   return value ? value : null;
 }
 
-export function getWmwConfig(env: EnvLike = process.env): WmwConfig {
+/**
+ * Static `process.env.WMW_*` reads so Next can inline build-time values into
+ * Server Actions (dynamic `env[key]` / `process.env[key]` is not inlined).
+ */
+export function readWmwConfigProcessEnv(): EnvLike {
+  return {
+    WMW_SPREADSHEET_ID: process.env.WMW_SPREADSHEET_ID,
+    WMW_GOOGLE_SA_SECRET_NAME: process.env.WMW_GOOGLE_SA_SECRET_NAME,
+  };
+}
+
+export function getWmwConfig(env: EnvLike = readWmwConfigProcessEnv()): WmwConfig {
   return {
     spreadsheetId: readTrimmed(env, WMW_SPREADSHEET_ID_ENV),
     googleServiceAccountSecretName: readTrimmed(

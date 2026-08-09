@@ -63,10 +63,11 @@ Amplify loads console env vars and Hosting secrets into the **build** environmen
 
 - `WMW_SPREADSHEET_ID`
 - `WMW_GOOGLE_SA_SECRET_NAME`
+- `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` (flattened from the Hosting secrets map / shared SSM)
 - `secrets` (the Amplify Hosting secrets JSON map)
 
 without logging values. Redeploy after changing Hosting secrets or env vars.
 
-**Shared vs branch secrets:** Amplify’s build loader only reads SSM under `/amplify/{appId}/{branch}/`. Secrets created for all branches live under `/amplify/shared/{appId}/` and often yield an empty `process.env.secrets` (`{}`). The write script then seeds `wmw.google-service-account` from shared (or branch) SSM via `aws ssm get-parameter` so Refresh can resolve the Google SA. BUILD should log `seeded wmw.google-service-account from SSM /amplify/shared/...` when that path runs.
+**Shared vs branch secrets:** Amplify’s build loader only reads SSM under `/amplify/{appId}/{branch}/`. Secrets created for all branches live under `/amplify/shared/{appId}/` and often yield an empty `process.env.secrets` (`{}`). The write script then seeds `wmw.google-service-account` from shared (or branch) SSM via `aws ssm get-parameter`, and also writes `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` so Next can statically inline `process.env.WMW_*` into Server Actions (dynamic `process.env[key]` is not inlined). BUILD should log `seeded wmw.google-service-account from SSM /amplify/shared/...` and `including WMW_GOOGLE_SERVICE_ACCOUNT_JSON...` when that path runs.
 
 Do not commit spreadsheet IDs or service account JSON.

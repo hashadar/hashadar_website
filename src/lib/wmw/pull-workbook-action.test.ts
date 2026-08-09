@@ -4,9 +4,18 @@ import {
   WMW_SPREADSHEET_ID_ENV,
   WMW_WORKBOOK_NOT_CONFIGURED_REASON,
 } from '@/lib/wmw/config';
-import { WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV } from '@/lib/wmw/google-sa-credentials';
+import {
+  WMW_GOOGLE_SERVICE_ACCOUNT_FILE_ENV,
+  WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV,
+} from '@/lib/wmw/google-sa-credentials';
 
 const ORIGINAL_ENV = { ...process.env };
+
+function clearWmwCredentialEnv() {
+  delete process.env[WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV];
+  delete process.env[WMW_GOOGLE_SERVICE_ACCOUNT_FILE_ENV];
+  delete process.env.secrets;
+}
 
 afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
@@ -16,8 +25,7 @@ afterEach(() => {
 describe('pullWmwWorkbookTabs', () => {
   it('fails clearly when spreadsheet ID or SA credentials are missing', async () => {
     delete process.env[WMW_SPREADSHEET_ID_ENV];
-    delete process.env[WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV];
-    delete process.env.secrets;
+    clearWmwCredentialEnv();
 
     await expect(pullWmwWorkbookTabs()).rejects.toThrow(
       WMW_WORKBOOK_NOT_CONFIGURED_REASON,
@@ -26,8 +34,7 @@ describe('pullWmwWorkbookTabs', () => {
 
   it('fails clearly when only spreadsheet ID is set', async () => {
     process.env[WMW_SPREADSHEET_ID_ENV] = 'sheet-id-only';
-    delete process.env[WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV];
-    delete process.env.secrets;
+    clearWmwCredentialEnv();
 
     await expect(pullWmwWorkbookTabs()).rejects.toThrow(
       WMW_WORKBOOK_NOT_CONFIGURED_REASON,
