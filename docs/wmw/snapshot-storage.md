@@ -67,4 +67,6 @@ Amplify loads console env vars and Hosting secrets into the **build** environmen
 
 without logging values. Redeploy after changing Hosting secrets or env vars.
 
+**Shared vs branch secrets:** Amplify’s build loader only reads SSM under `/amplify/{appId}/{branch}/`. Secrets created for all branches live under `/amplify/shared/{appId}/` and often yield an empty `process.env.secrets` (`{}`). The write script then seeds `wmw.google-service-account` from shared (or branch) SSM via `aws ssm get-parameter` so Refresh can resolve the Google SA. BUILD should log `seeded wmw.google-service-account from SSM /amplify/shared/...` when that path runs.
+
 Do not commit spreadsheet IDs or service account JSON.
