@@ -130,8 +130,11 @@ export interface BlogPageData {
 
 export interface LabIndexItem {
   title: string;
+  /** Short first line under the lab title. */
+  lede: string;
   description: string;
   href: string;
+  ctaLabel: string;
 }
 
 export interface LabsPageData {
@@ -139,10 +142,6 @@ export interface LabsPageData {
   description: string;
   brandEyebrow: string;
   purposeLine: string;
-  ctaLabel: string;
-  flagshipTitle: string;
-  teaserAriaLabel: string;
-  catalogueHeading: string;
   catalogueAriaLabel: string;
   labs: LabIndexItem[];
 }
