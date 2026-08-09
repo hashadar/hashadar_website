@@ -137,6 +137,8 @@ export {
 
 export {
   buildWmwOverviewView,
+  WMW_BROKERAGE_CATEGORY_ID,
+  WMW_CASH_CATEGORY_ID,
   type BuildWmwOverviewViewOptions,
   type WmwClassHistoryPoint,
   type WmwDashboardAccountRow,

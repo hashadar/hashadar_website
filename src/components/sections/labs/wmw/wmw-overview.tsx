@@ -264,8 +264,8 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
               labels={{
                 netWorth: copy.netWorthHeading,
                 mom: copy.kpiMomLabel,
-                investableAum: copy.kpiInvestableLabel,
-                pairEquity: copy.kpiPairEquityLabel,
+                brokerageAum: copy.kpiBrokerageLabel,
+                cash: copy.kpiCashLabel,
               }}
             />
           ) : (

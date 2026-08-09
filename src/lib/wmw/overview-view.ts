@@ -6,7 +6,6 @@ import { computeNetWorth } from '@/lib/wmw/net-worth';
 import { computePairEquity } from '@/lib/wmw/paired-accounts';
 import {
   computeInvestableAccountsAnnualisedMwr,
-  isInvestableCategoryId,
   type AccountAnnualisedMwr,
   type MwrPeriod,
 } from '@/lib/wmw/mwr';
@@ -19,13 +18,19 @@ import type {
 } from '@/lib/wmw/net-worth';
 import type { CalendarMonth, WmwSnapshot } from '@/lib/wmw/types';
 
+/** Brokerage balances only — pensions / crypto stay out of the AUM KPI. */
+export const WMW_BROKERAGE_CATEGORY_ID = 'CAT_BROKERAGE';
+export const WMW_CASH_CATEGORY_ID = 'CAT_CASH';
+
 export type WmwOverviewKpis = {
   month: CalendarMonth;
   netWorth: number;
   momDelta: number | null;
   momPct: number | null;
-  investableAum: number;
-  pairEquityTotal: number;
+  /** Sum of CAT_BROKERAGE Account Balances for the selected month. */
+  brokerageAum: number;
+  /** Sum of CAT_CASH Account Balances for the selected month. */
+  cashTotal: number;
 };
 
 export type WmwDashboardClassRow = ClassNetWorthRow & {
@@ -99,16 +104,19 @@ function resolveDisplayMonth(
 function buildKpis(
   display: NetWorthMonth,
   prior: NetWorthMonth | null,
-  pairs: PairEquity[],
 ): WmwOverviewKpis {
   const momDelta = prior ? display.total - prior.total : null;
   const momPct =
     prior && prior.total !== 0 ? (display.total - prior.total) / prior.total : null;
 
-  let investableAum = 0;
+  let brokerageAum = 0;
+  let cashTotal = 0;
   for (const row of display.byAccount) {
-    if (isInvestableCategoryId(row.categoryId)) {
-      investableAum += row.balance;
+    if (row.categoryId === WMW_BROKERAGE_CATEGORY_ID) {
+      brokerageAum += row.balance;
+    }
+    if (row.categoryId === WMW_CASH_CATEGORY_ID) {
+      cashTotal += row.balance;
     }
   }
 
@@ -117,8 +125,8 @@ function buildKpis(
     netWorth: display.total,
     momDelta,
     momPct,
-    investableAum,
-    pairEquityTotal: pairs.reduce((sum, pair) => sum + pair.equity, 0),
+    brokerageAum,
+    cashTotal,
   };
 }
 
@@ -210,7 +218,7 @@ export function buildWmwOverviewView(
       byClass: m.byClass,
     })),
     months: netWorth.months.map((m) => m.month),
-    kpis: displayMonth ? buildKpis(displayMonth, prior, pairs) : null,
+    kpis: displayMonth ? buildKpis(displayMonth, prior) : null,
     classRows,
     accountRows,
     pairs,

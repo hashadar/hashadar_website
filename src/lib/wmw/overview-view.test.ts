@@ -23,8 +23,8 @@ describe('buildWmwOverviewView', () => {
     expect(view.history.length).toBe(3);
     expect(view.kpis?.netWorth).toBe(53_000);
     expect(view.kpis?.momDelta).toBe(53_000 - 58_800);
-    expect(view.kpis?.investableAum).toBe(23_000);
-    expect(view.kpis?.pairEquityTotal).toBe(30_000);
+    expect(view.kpis?.brokerageAum).toBe(23_000);
+    expect(view.kpis?.cashTotal).toBe(0);
     expect(view.pairs.some((p) => p.pairId === 'PAIR_TAYCAN')).toBe(true);
     expect(view.mwr.some((row) => row.accountId === 'IBKR_ISA')).toBe(true);
     expect(view.accountNames.get('CAR_PORSCHE')).toBe('Porsche Taycan');

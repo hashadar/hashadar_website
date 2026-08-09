@@ -185,8 +185,8 @@ export interface WmwPageData {
     netWorthHeading: string;
     netWorthEmptyLabel: string;
     kpiMomLabel: string;
-    kpiInvestableLabel: string;
-    kpiPairEquityLabel: string;
+    kpiBrokerageLabel: string;
+    kpiCashLabel: string;
     historyHeading: string;
     historyEmptyLabel: string;
     historyChartAriaLabel: string;

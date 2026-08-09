@@ -172,8 +172,8 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(overview, 'refreshErrorLabel', 'wmw.overview');
   requireString(overview, 'netWorthHeading', 'wmw.overview');
   requireString(overview, 'kpiMomLabel', 'wmw.overview');
-  requireString(overview, 'kpiInvestableLabel', 'wmw.overview');
-  requireString(overview, 'kpiPairEquityLabel', 'wmw.overview');
+  requireString(overview, 'kpiBrokerageLabel', 'wmw.overview');
+  requireString(overview, 'kpiCashLabel', 'wmw.overview');
   requireString(overview, 'historyHeading', 'wmw.overview');
   requireString(overview, 'classMixHeading', 'wmw.overview');
   requireString(overview, 'classHeading', 'wmw.overview');
