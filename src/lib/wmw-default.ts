@@ -29,7 +29,7 @@ export function createUnavailableWorkbookSource(
 
 /** Client-safe source that delegates the Sheets pull to a Server Action. */
 export function createServerPullWorkbookSource(
-  pullTabs: () => Promise<WmwWorkbookRaw> = pullWmwWorkbookTabs,
+  pullTabs: () => Promise<WmwWorkbookRaw> = () => pullWmwWorkbookTabs(),
 ): WmwWorkbookSource {
   return {
     async pullTabs() {

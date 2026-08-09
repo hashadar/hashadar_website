@@ -6,7 +6,7 @@ import {
   resolveDefaultWorkbookSource,
 } from '@/lib/wmw-default';
 import { createSampleWorkbookRaw } from '@/lib/wmw/fixtures/sample-workbook';
-import { WMW_WORKBOOK_NOT_CONFIGURED_REASON } from '@/lib/wmw/pull-workbook-action';
+import { WMW_WORKBOOK_NOT_CONFIGURED_REASON } from '@/lib/wmw/config';
 
 afterEach(() => {
   resetDefaultWmwCache();

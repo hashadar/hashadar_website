@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { pullWmwWorkbookTabs } from '@/lib/wmw/pull-workbook-action';
 import {
-  pullWmwWorkbookTabs,
+  WMW_SPREADSHEET_ID_ENV,
   WMW_WORKBOOK_NOT_CONFIGURED_REASON,
-} from '@/lib/wmw/pull-workbook-action';
-import { WMW_SPREADSHEET_ID_ENV } from '@/lib/wmw/config';
+} from '@/lib/wmw/config';
 import { WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV } from '@/lib/wmw/google-sa-credentials';
 
 const ORIGINAL_ENV = { ...process.env };

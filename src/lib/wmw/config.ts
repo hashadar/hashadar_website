@@ -15,6 +15,10 @@ export const WMW_GOOGLE_SA_SECRET_NAME_ENV = 'WMW_GOOGLE_SA_SECRET_NAME';
 /** Default Amplify secret name in `.env.example` (not a credential). Must match `[a-zA-Z0-9_.-]+`. */
 export const WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER = 'wmw.google-service-account';
 
+/** Shared error copy when spreadsheet ID / SA credentials are missing (#181). */
+export const WMW_WORKBOOK_NOT_CONFIGURED_REASON =
+  'WMW Workbook source is not configured (see #181). Set WMW_SPREADSHEET_ID and WMW_GOOGLE_SERVICE_ACCOUNT_JSON (or FILE / Amplify secrets).';
+
 type EnvLike = Record<string, string | undefined>;
 
 function readTrimmed(env: EnvLike, key: string): string | null {

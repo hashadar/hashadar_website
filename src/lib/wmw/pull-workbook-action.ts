@@ -2,16 +2,17 @@
 
 /**
  * Server-only Workbook pull. Keeps the Google SA private key off the browser.
+ * This file may only export async Server Actions.
  */
 
-import { getWmwConfig } from '@/lib/wmw/config';
+import {
+  getWmwConfig,
+  WMW_WORKBOOK_NOT_CONFIGURED_REASON,
+} from '@/lib/wmw/config';
 import { createGoogleSaAccessTokenProvider } from '@/lib/wmw/google-sa-access-token';
 import { resolveGoogleServiceAccountCredentials } from '@/lib/wmw/google-sa-credentials';
 import type { WmwWorkbookRaw } from '@/lib/wmw/types';
 import { createGoogleSheetsWorkbookSource } from '@/lib/wmw/workbook-source';
-
-export const WMW_WORKBOOK_NOT_CONFIGURED_REASON =
-  'WMW Workbook source is not configured (see #181). Set WMW_SPREADSHEET_ID and WMW_GOOGLE_SERVICE_ACCOUNT_JSON (or FILE / Amplify secrets).';
 
 /**
  * Pull the four frozen Workbook tabs via Sheets (unformatted values).
