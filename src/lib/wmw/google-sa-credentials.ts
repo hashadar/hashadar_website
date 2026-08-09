@@ -79,13 +79,26 @@ function readAmplifySecretsMap(env: EnvLike): Record<string, string> {
 }
 
 /**
+ * Static `process.env.*` reads so Next can inline Amplify `.env.production`
+ * values into Server Actions (dynamic `process.env[key]` is not inlined).
+ */
+export function readGoogleSaProcessEnv(): EnvLike {
+  return {
+    WMW_GOOGLE_SERVICE_ACCOUNT_JSON: process.env.WMW_GOOGLE_SERVICE_ACCOUNT_JSON,
+    WMW_GOOGLE_SERVICE_ACCOUNT_FILE: process.env.WMW_GOOGLE_SERVICE_ACCOUNT_FILE,
+    WMW_GOOGLE_SA_SECRET_NAME: process.env.WMW_GOOGLE_SA_SECRET_NAME,
+    secrets: process.env.secrets,
+  };
+}
+
+/**
  * Resolution order (first hit wins):
- * 1. `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` — raw JSON (local `.env.local`)
+ * 1. `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` — raw JSON (local `.env.local` / Amplify SSR)
  * 2. `WMW_GOOGLE_SERVICE_ACCOUNT_FILE` — path to JSON file
  * 3. Amplify Hosting `process.env.secrets[WMW_GOOGLE_SA_SECRET_NAME]`
  */
 export function resolveGoogleServiceAccountCredentials(
-  env: EnvLike = process.env,
+  env: EnvLike = readGoogleSaProcessEnv(),
 ): GoogleServiceAccountCredentials | null {
   const inline = env[WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV]?.trim();
   if (inline) {

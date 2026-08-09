@@ -4,6 +4,7 @@ import {
   amplifySharedSecretParamName,
   buildAmplifySsrEnvLines,
   ensureWmwSecretInAmplifySecretsEnv,
+  flattenWmwServiceAccountJsonEnv,
   parseAmplifySecretsMap,
 } from './write-amplify-ssr-env';
 
@@ -12,15 +13,18 @@ describe('buildAmplifySsrEnvLines', () => {
     const secrets = JSON.stringify({
       'wmw.google-service-account': '{"type":"service_account"}',
     });
+    const saJson = '{"type":"service_account"}';
     const lines = buildAmplifySsrEnvLines({
       WMW_SPREADSHEET_ID: 'sheet-id',
       WMW_GOOGLE_SA_SECRET_NAME: 'wmw.google-service-account',
+      WMW_GOOGLE_SERVICE_ACCOUNT_JSON: saJson,
       secrets,
     });
 
     expect(lines).toEqual([
       'WMW_SPREADSHEET_ID="sheet-id"',
       'WMW_GOOGLE_SA_SECRET_NAME="wmw.google-service-account"',
+      `WMW_GOOGLE_SERVICE_ACCOUNT_JSON=${JSON.stringify(saJson)}`,
       `secrets=${JSON.stringify(secrets)}`,
     ]);
   });
@@ -51,7 +55,8 @@ describe('ensureWmwSecretInAmplifySecretsEnv', () => {
   const saJson = JSON.stringify({
     type: 'service_account',
     client_email: 'wmw-reader@example.iam.gserviceaccount.com',
-    private_key: '-----BEGIN PRIVATE KEY-----\\nMIIE\\n-----END PRIVATE KEY-----\\n',
+    private_key:
+      '-----BEGIN PRIVATE KEY-----\\nMIIE\\n-----END PRIVATE KEY-----\\n',
   });
 
   it('leaves secrets untouched when the named leaf is already present', () => {
@@ -129,5 +134,27 @@ describe('ensureWmwSecretInAmplifySecretsEnv', () => {
 
     expect(result.seededFrom).toBe(branchName);
     expect(fetchParameter).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('flattenWmwServiceAccountJsonEnv', () => {
+  it('promotes the secrets-map leaf into WMW_GOOGLE_SERVICE_ACCOUNT_JSON', () => {
+    const saJson =
+      '{"client_email":"a@b.com","private_key":"-----BEGIN PRIVATE KEY-----\\nx\\n-----END PRIVATE KEY-----\\n"}';
+    const flattened = flattenWmwServiceAccountJsonEnv({
+      secrets: JSON.stringify({ 'wmw.google-service-account': saJson }),
+    });
+    expect(flattened.WMW_GOOGLE_SERVICE_ACCOUNT_JSON).toBe(saJson);
+  });
+
+  it('does not overwrite an existing top-level JSON env', () => {
+    const existing = '{"client_email":"keep@b.com"}';
+    const flattened = flattenWmwServiceAccountJsonEnv({
+      WMW_GOOGLE_SERVICE_ACCOUNT_JSON: existing,
+      secrets: JSON.stringify({
+        'wmw.google-service-account': '{"client_email":"other@b.com"}',
+      }),
+    });
+    expect(flattened.WMW_GOOGLE_SERVICE_ACCOUNT_JSON).toBe(existing);
   });
 });
