@@ -11,8 +11,8 @@ export type WmwConfig = {
 export const WMW_SPREADSHEET_ID_ENV = 'WMW_SPREADSHEET_ID';
 export const WMW_GOOGLE_SA_SECRET_NAME_ENV = 'WMW_GOOGLE_SA_SECRET_NAME';
 
-/** Default secret name documented in `.env.example` (not a credential). */
-export const WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER = 'wmw/google-service-account';
+/** Default Amplify secret name in `.env.example` (not a credential). Must match `[a-zA-Z0-9_.-]+`. */
+export const WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER = 'wmw.google-service-account';
 
 type EnvLike = Record<string, string | undefined>;
 
