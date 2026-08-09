@@ -77,7 +77,7 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 
 Site Content no longer requires private blog-repo SSH secrets. Remove obsolete `SSH_PRIVATE_KEY` / `BLOG_REPO_*` console variables when convenient.
 
-WMW (What's My Worth) expects `WMW_SPREADSHEET_ID` and `WMW_GOOGLE_SA_SECRET_NAME` (secret name only — not the service account JSON). Placeholders live in `.env.example`; real values are set in [#181](https://github.com/hashadar/hashadar_website/issues/181). See [docs/wmw/snapshot-storage.md](./wmw/snapshot-storage.md).
+WMW (What's My Worth) expects `WMW_SPREADSHEET_ID` and `WMW_GOOGLE_SA_SECRET_NAME` (secret **name** only — not the service account JSON). The default name is `wmw.google-service-account` (must match `[a-zA-Z0-9_.-]+` for both `ampx sandbox secret set` and Amplify Hosting → Secrets). Placeholders live in `.env.example`; real values are set in [#181](https://github.com/hashadar/hashadar_website/issues/181). See [docs/wmw/snapshot-storage.md](./wmw/snapshot-storage.md).
 
 ## CI vs Site Content
 

@@ -30,6 +30,17 @@ Env wiring (placeholders OK until [#181](https://github.com/hashadar/hashadar_we
 | Variable | Role |
 |----------|------|
 | `WMW_SPREADSHEET_ID` | Equity Workbook spreadsheet ID |
-| `WMW_GOOGLE_SA_SECRET_NAME` | Name of the host/Amplify secret that holds the Google service account JSON |
+| `WMW_GOOGLE_SA_SECRET_NAME` | Name of the Amplify secret that holds the Google service account JSON |
 
-See `.env.example`. Do not commit spreadsheet secrets or service account JSON.
+Default secret name (documented in `.env.example`, not a credential): `wmw.google-service-account`.
+
+### Amplify secret naming
+
+Sandbox CLI and Amplify Hosting secrets both store the leaf name in SSM Parameter Store. Use a name that matches `[a-zA-Z0-9_.-]+` (letters, digits, `_`, `.`, `-` only — no `/`).
+
+| Environment | How to set |
+|-------------|------------|
+| Local sandbox | `npx ampx sandbox secret set wmw.google-service-account` |
+| Amplify Hosting | App → Hosting → Secrets → Manage secrets (same leaf name) |
+
+Point `WMW_GOOGLE_SA_SECRET_NAME` at that name in `.env.local` (local) or Hosting environment variables (deployed). Do not commit spreadsheet IDs or service account JSON.
