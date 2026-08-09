@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   AMPLIFY_SECRETS_ENV,
   parseGoogleServiceAccountJson,
   resolveGoogleServiceAccountCredentials,
+  resolveGoogleServiceAccountCredentialsAsync,
   WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV,
 } from '@/lib/wmw/google-sa-credentials';
 import {
@@ -66,5 +67,33 @@ describe('resolveGoogleServiceAccountCredentials', () => {
     ).toMatchObject({
       clientEmail: 'wmw-reader@example.iam.gserviceaccount.com',
     });
+  });
+});
+
+describe('resolveGoogleServiceAccountCredentialsAsync', () => {
+  it('falls back to SSM hosting secret when sync env is empty', async () => {
+    const fetchHostingSecret = vi.fn(async () => SAMPLE_JSON);
+    await expect(
+      resolveGoogleServiceAccountCredentialsAsync({
+        env: {},
+        fetchHostingSecret,
+      }),
+    ).resolves.toMatchObject({
+      clientEmail: 'wmw-reader@example.iam.gserviceaccount.com',
+    });
+    expect(fetchHostingSecret).toHaveBeenCalled();
+  });
+
+  it('skips SSM when inline JSON is present', async () => {
+    const fetchHostingSecret = vi.fn();
+    await expect(
+      resolveGoogleServiceAccountCredentialsAsync({
+        env: { [WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV]: SAMPLE_JSON },
+        fetchHostingSecret,
+      }),
+    ).resolves.toMatchObject({
+      clientEmail: 'wmw-reader@example.iam.gserviceaccount.com',
+    });
+    expect(fetchHostingSecret).not.toHaveBeenCalled();
   });
 });

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1104.0",
+    "@aws-sdk/client-ssm": "^3.1106.0",
     "@fontsource/zalando-sans-expanded": "^5.2.1",
     "aws-amplify": "^6.20.0",
     "clsx": "^2.1.1",

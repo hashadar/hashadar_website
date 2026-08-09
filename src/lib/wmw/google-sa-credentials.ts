@@ -5,17 +5,19 @@
 
 import 'server-only';
 import { readFileSync } from 'node:fs';
+import { fetchAmplifyHostingSecret } from '@/lib/wmw/amplify-hosting-secret';
 import {
   WMW_GOOGLE_SA_SECRET_NAME_ENV,
   WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER,
 } from '@/lib/wmw/config';
+import { wmwSsrConfig } from '@/lib/wmw/wmw-ssr-config';
 
 export const WMW_GOOGLE_SERVICE_ACCOUNT_JSON_ENV =
   'WMW_GOOGLE_SERVICE_ACCOUNT_JSON';
 export const WMW_GOOGLE_SERVICE_ACCOUNT_FILE_ENV =
   'WMW_GOOGLE_SERVICE_ACCOUNT_FILE';
 
-/** Amplify Hosting injects branch secrets as a JSON map under this env key. */
+/** Amplify Hosting injects branch secrets as a JSON map under this env key (build only). */
 export const AMPLIFY_SECRETS_ENV = 'secrets';
 
 export const WMW_SHEETS_READONLY_SCOPE =
@@ -78,10 +80,7 @@ function readAmplifySecretsMap(env: EnvLike): Record<string, string> {
   }
 }
 
-/**
- * Static `process.env.*` reads so Next can inline Amplify `.env.production`
- * values into Server Actions (dynamic `process.env[key]` is not inlined).
- */
+/** Local / test env reads (`.env.local`). Production uses SSM via the async resolver. */
 export function readGoogleSaProcessEnv(): EnvLike {
   return {
     WMW_GOOGLE_SERVICE_ACCOUNT_JSON: process.env.WMW_GOOGLE_SERVICE_ACCOUNT_JSON,
@@ -92,10 +91,10 @@ export function readGoogleSaProcessEnv(): EnvLike {
 }
 
 /**
- * Resolution order (first hit wins):
- * 1. `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` — raw JSON (local `.env.local` / Amplify SSR)
- * 2. `WMW_GOOGLE_SERVICE_ACCOUNT_FILE` — path to JSON file
- * 3. Amplify Hosting `process.env.secrets[WMW_GOOGLE_SA_SECRET_NAME]`
+ * Sync resolution (local + tests):
+ * 1. `WMW_GOOGLE_SERVICE_ACCOUNT_JSON`
+ * 2. `WMW_GOOGLE_SERVICE_ACCOUNT_FILE`
+ * 3. Amplify build-time `process.env.secrets[name]` (usually empty on SSR compute)
  */
 export function resolveGoogleServiceAccountCredentials(
   env: EnvLike = readGoogleSaProcessEnv(),
@@ -112,6 +111,7 @@ export function resolveGoogleServiceAccountCredentials(
 
   const secretName =
     env[WMW_GOOGLE_SA_SECRET_NAME_ENV]?.trim() ||
+    wmwSsrConfig.googleSaSecretName ||
     WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER;
   const fromAmplify = readAmplifySecretsMap(env)[secretName]?.trim();
   if (fromAmplify) {
@@ -119,4 +119,31 @@ export function resolveGoogleServiceAccountCredentials(
   }
 
   return null;
+}
+
+export type ResolveGoogleSaCredentialsAsyncOptions = {
+  env?: EnvLike;
+  /** Injected SSM fetch for tests. */
+  fetchHostingSecret?: typeof fetchAmplifyHostingSecret;
+};
+
+/**
+ * Production Refresh path: sync env/file first, then Amplify Hosting secret via SSM
+ * (requires SSR Compute IAM role with `ssm:GetParameter` on the shared secret).
+ */
+export async function resolveGoogleServiceAccountCredentialsAsync(
+  options: ResolveGoogleSaCredentialsAsyncOptions = {},
+): Promise<GoogleServiceAccountCredentials | null> {
+  const env = options.env ?? readGoogleSaProcessEnv();
+  const sync = resolveGoogleServiceAccountCredentials(env);
+  if (sync) return sync;
+
+  const secretName =
+    env[WMW_GOOGLE_SA_SECRET_NAME_ENV]?.trim() ||
+    wmwSsrConfig.googleSaSecretName ||
+    WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER;
+  const fetchSecret = options.fetchHostingSecret ?? fetchAmplifyHostingSecret;
+  const fromSsm = await fetchSecret({ secretName });
+  if (!fromSsm) return null;
+  return parseGoogleServiceAccountJson(fromSsm);
 }

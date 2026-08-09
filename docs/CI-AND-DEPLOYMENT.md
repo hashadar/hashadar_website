@@ -77,7 +77,7 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 
 Site Content no longer requires private blog-repo SSH secrets. Remove obsolete `SSH_PRIVATE_KEY` / `BLOG_REPO_*` console variables when convenient.
 
-WMW (What's My Worth) expects `WMW_SPREADSHEET_ID`, `WMW_GOOGLE_SA_SECRET_NAME` (default `wmw.google-service-account`, must match `[a-zA-Z0-9_.-]+`), and server-only SA material via `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` / `WMW_GOOGLE_SERVICE_ACCOUNT_FILE` (local) or Amplify Hosting Secrets (`process.env.secrets`). Refresh uses a Server Action so the private key never ships to the browser. Placeholders live in `.env.example`; see [docs/wmw/snapshot-storage.md](./wmw/snapshot-storage.md) and [#181](https://github.com/hashadar/hashadar_website/issues/181).
+WMW (What's My Worth) expects `WMW_SPREADSHEET_ID` and `WMW_GOOGLE_SA_SECRET_NAME` (default `wmw.google-service-account`, must match `[a-zA-Z0-9_.-]+`) as Amplify env vars, plus the Google SA as an Amplify Hosting secret. Local Refresh uses `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` / `WMW_GOOGLE_SERVICE_ACCOUNT_FILE`; production Refresh reads the Hosting secret from SSM via the app’s **SSR Compute IAM role**. Placeholders live in `.env.example`; see [docs/wmw/snapshot-storage.md](./wmw/snapshot-storage.md) and [#181](https://github.com/hashadar/hashadar_website/issues/181).
 
 ## CI vs Site Content
 
