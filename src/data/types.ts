@@ -163,6 +163,11 @@ export interface WmwPageData {
   shell: {
     heading: string;
     description: string;
+    nav: {
+      ariaLabel: string;
+      mobileLabel: string;
+      items: Array<{ id: string; label: string; href: string }>;
+    };
   };
   overview: {
     heading: string;
@@ -179,16 +184,26 @@ export interface WmwPageData {
     warningsLabel: string;
     netWorthHeading: string;
     netWorthEmptyLabel: string;
+    kpiMomLabel: string;
+    kpiInvestableLabel: string;
+    kpiPairEquityLabel: string;
     historyHeading: string;
     historyEmptyLabel: string;
     historyChartAriaLabel: string;
+    classMixHeading: string;
+    classMixChartAriaLabel: string;
     classHeading: string;
     accountHeading: string;
+    monthSlicerLabel: string;
+    accountSearchLabel: string;
+    accountSearchPlaceholder: string;
     columnClass: string;
     columnAccount: string;
     columnCategory: string;
     columnContribution: string;
     columnBalance: string;
+    columnPct: string;
+    columnMom: string;
     pairsHeading: string;
     pairsEmptyLabel: string;
     columnPairId: string;

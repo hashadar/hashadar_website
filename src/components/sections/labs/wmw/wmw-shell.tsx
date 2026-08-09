@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Container, Section, SectionHeader, Text } from '@/components/ui';
+import { Container, Section, Text } from '@/components/ui';
+import { WmwNav } from '@/components/sections/labs/wmw/wmw-nav';
 import { wmw } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 
@@ -16,7 +17,7 @@ export function WmwShell({ children }: WmwShellProps) {
 
   if (isLoading) {
     return (
-      <Section className="py-12 md:py-16">
+      <Section className="py-8 md:py-10">
         <Container>
           <Text variant="muted">{wmw.checkingSessionLabel}</Text>
         </Container>
@@ -26,16 +27,16 @@ export function WmwShell({ children }: WmwShellProps) {
 
   if (session === null || session.status !== 'authenticated') {
     return (
-      <Section className="py-12 md:py-16">
+      <Section className="py-8 md:py-10">
         <Container>
-          <div className="max-w-2xl space-y-4">
-            <SectionHeader animated={false}>
+          <div className="max-w-2xl space-y-3">
+            <h1 className="font-display text-2xl tracking-tight text-[var(--foreground)]">
               {wmw.unauthenticatedHeading}
-            </SectionHeader>
+            </h1>
             <Text variant="muted">{wmw.unauthenticatedDescription}</Text>
             <Link
               href={`/login?next=${encodeURIComponent(pathname)}`}
-              className="inline-flex font-body text-base text-[var(--foreground)] underline underline-offset-4"
+              className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
             >
               {wmw.signInLabel}
             </Link>
@@ -46,15 +47,22 @@ export function WmwShell({ children }: WmwShellProps) {
   }
 
   return (
-    <Section className="py-10 md:py-12">
+    <Section className="py-6 md:py-8">
       <Container size="full">
-        <div className="mb-8 max-w-3xl space-y-3">
-          <SectionHeader animated={false} showLeftAccent>
-            {wmw.shell.heading}
-          </SectionHeader>
-          <Text variant="muted">{wmw.shell.description}</Text>
+        <div className="grid gap-6 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-8">
+          <aside className="md:sticky md:top-20 md:self-start md:border-r md:border-[color-mix(in_oklab,var(--primary)_22%,var(--border))] md:pr-4">
+            <div className="mb-3 space-y-0.5">
+              <p className="font-display text-lg tracking-tight text-[var(--foreground)]">
+                {wmw.shell.heading}
+              </p>
+              <Text variant="muted" className="text-xs">
+                {wmw.shell.description}
+              </Text>
+            </div>
+            <WmwNav />
+          </aside>
+          <div className="min-w-0 space-y-5">{children}</div>
         </div>
-        <div className="min-w-0 space-y-10">{children}</div>
       </Container>
     </Section>
   );

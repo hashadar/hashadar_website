@@ -56,8 +56,9 @@ describe('WmwShell', () => {
       </SiteAuthProvider>,
     );
 
+    expect(await screen.findByText(wmw.shell.heading)).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: wmw.shell.heading }),
+      screen.getByLabelText(wmw.shell.nav.mobileLabel),
     ).toBeInTheDocument();
     expect(screen.getByText('Secret WMW content')).toBeInTheDocument();
   });

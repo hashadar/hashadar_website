@@ -148,6 +148,15 @@ export function assertValidWmwPage(data: unknown): void {
   const shell = requireRecord(page.shell, 'wmw.shell');
   requireString(shell, 'heading', 'wmw.shell');
   requireString(shell, 'description', 'wmw.shell');
+  const nav = requireRecord(shell.nav, 'wmw.shell.nav');
+  requireString(nav, 'ariaLabel', 'wmw.shell.nav');
+  requireString(nav, 'mobileLabel', 'wmw.shell.nav');
+  requireArray(nav.items, 'wmw.shell.nav.items').forEach((item, index) => {
+    const entry = requireRecord(item, `wmw.shell.nav.items[${index}]`);
+    requireString(entry, 'id', `wmw.shell.nav.items[${index}]`);
+    requireString(entry, 'label', `wmw.shell.nav.items[${index}]`);
+    requireString(entry, 'href', `wmw.shell.nav.items[${index}]`);
+  });
 
   const overview = requireRecord(page.overview, 'wmw.overview');
   requireString(overview, 'heading', 'wmw.overview');
@@ -162,9 +171,17 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(overview, 'asOfUnknownLabel', 'wmw.overview');
   requireString(overview, 'refreshErrorLabel', 'wmw.overview');
   requireString(overview, 'netWorthHeading', 'wmw.overview');
+  requireString(overview, 'kpiMomLabel', 'wmw.overview');
+  requireString(overview, 'kpiInvestableLabel', 'wmw.overview');
+  requireString(overview, 'kpiPairEquityLabel', 'wmw.overview');
   requireString(overview, 'historyHeading', 'wmw.overview');
+  requireString(overview, 'classMixHeading', 'wmw.overview');
   requireString(overview, 'classHeading', 'wmw.overview');
   requireString(overview, 'accountHeading', 'wmw.overview');
+  requireString(overview, 'monthSlicerLabel', 'wmw.overview');
+  requireString(overview, 'accountSearchLabel', 'wmw.overview');
+  requireString(overview, 'columnPct', 'wmw.overview');
+  requireString(overview, 'columnMom', 'wmw.overview');
   requireString(overview, 'pairsHeading', 'wmw.overview');
   requireString(overview, 'mwrHeading', 'wmw.overview');
   requireString(overview, 'periodYtd', 'wmw.overview');

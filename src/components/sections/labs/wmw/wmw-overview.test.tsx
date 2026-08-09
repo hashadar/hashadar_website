@@ -61,23 +61,17 @@ describe('WmwOverview', () => {
       screen.getByRole('heading', { name: wmw.overview.emptyHeading }),
     ).toBeInTheDocument();
     expect(screen.getByText(wmw.overview.emptyDescription)).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        new RegExp(`${wmw.overview.asOfLabel}:\\s*${wmw.overview.asOfUnknownLabel}`),
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(wmw.overview.asOfUnknownLabel)).toBeInTheDocument();
   });
 
-  it('renders Net Worth, Taycan pair, and MWR period control from Snapshot', async () => {
+  it('renders KPIs, Taycan pair, and MWR period control from Snapshot', async () => {
     const client = createClient();
     render(<WmwOverview wmwClient={client} />);
 
     expect(
-      await screen.findByRole('heading', { name: wmw.overview.netWorthHeading }),
+      await screen.findByRole('heading', { name: wmw.overview.historyHeading }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: '£53,000' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('£53,000')).toBeInTheDocument();
     expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(screen.getAllByText('Porsche Taycan').length).toBeGreaterThan(0);
     expect(
@@ -85,6 +79,9 @@ describe('WmwOverview', () => {
     ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
     expect(
       screen.getByRole('group', { name: wmw.overview.periodControlAriaLabel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(wmw.overview.monthSlicerLabel),
     ).toBeInTheDocument();
 
     const user = userEvent.setup();
@@ -112,11 +109,13 @@ describe('WmwOverview', () => {
       screen.getByRole('button', { name: wmw.overview.refreshLabel }),
     );
 
-    expect(
-      await screen.findByRole('alert'),
-    ).toHaveTextContent(wmw.overview.refreshErrorLabel);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      wmw.overview.refreshErrorLabel,
+    );
     expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
-    expect(within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel)).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel),
+    ).toBeInTheDocument();
   });
 
   it('surfaces Refresh warnings for unknown Transaction_Type to the Site Admin', async () => {

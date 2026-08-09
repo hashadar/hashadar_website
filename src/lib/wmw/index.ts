@@ -137,6 +137,11 @@ export {
 
 export {
   buildWmwOverviewView,
+  type BuildWmwOverviewViewOptions,
+  type WmwClassHistoryPoint,
+  type WmwDashboardAccountRow,
+  type WmwDashboardClassRow,
+  type WmwOverviewKpis,
   type WmwOverviewView,
 } from '@/lib/wmw/overview-view';
 
