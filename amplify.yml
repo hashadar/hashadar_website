@@ -34,6 +34,9 @@ frontend:
           fi
     build:
       commands:
+        # Console env + Hosting secrets exist in the build env only; Next SSR
+        # needs them in .env.production (see docs/wmw/snapshot-storage.md).
+        - npx tsx scripts/write-amplify-ssr-env.ts
         - npm run build
   artifacts:
     baseDirectory: .next
