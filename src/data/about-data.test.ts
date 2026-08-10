@@ -30,7 +30,7 @@ describe('getPageData for About', () => {
     expect(pageData).not.toHaveProperty('certifications');
   });
 
-  it('frames Labs as engineered products with a public Labs CTA', () => {
+  it('frames Labs products plainly with a public Labs CTA', () => {
     const paragraphs = Array.isArray(about.professional.content)
       ? about.professional.content
       : [about.professional.content];
@@ -39,7 +39,8 @@ describe('getPageData for About', () => {
     );
 
     expect(labsFraming).toBeDefined();
-    expect(labsFraming!.toLowerCase()).toContain('engineered products');
+    expect(labsFraming!.toLowerCase()).toContain('application tracker');
+    expect(labsFraming!.toLowerCase()).toContain('dashboard');
     expect(about.professional.cta).toEqual({
       label: 'Explore Labs',
       href: '/labs',

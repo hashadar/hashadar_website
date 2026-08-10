@@ -1,13 +1,13 @@
 {
   "heading": "Job OS",
-  "description": "Private job-hunting operating system for tracking employers, opportunities, and applications.",
+  "description": "Private application tracker for employers, opportunities, and applications.",
   "unauthenticatedHeading": "Sign in to open Job OS",
   "unauthenticatedDescription": "Job OS is a private owner workspace. Sign in with your invited account to continue.",
   "signInLabel": "Owner sign in",
   "checkingSessionLabel": "Checking session…",
   "shell": {
     "heading": "Job OS",
-    "description": "Hunt with a clear graph: Employers, Opportunities, and Applications. Decision Events keep a timeline of meaningful moves.",
+    "description": "Track employers, opportunities, and applications.",
     "nav": {
       "ariaLabel": "Job OS sections",
       "mobileLabel": "Workspace",

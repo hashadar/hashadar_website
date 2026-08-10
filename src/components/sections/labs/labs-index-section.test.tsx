@@ -36,13 +36,13 @@ describe('LabsIndexSection', () => {
     ).toHaveAttribute('href', '/labs/wmw');
     expect(within(catalogue).getByText(wmw!.lede)).toBeInTheDocument();
     expect(within(catalogue).getByText(wmw!.description)).toBeInTheDocument();
-    expect(wmw!.lede.toLowerCase()).toBe('net worth tracker');
+    expect(jobOs!.lede.toLowerCase()).toBe('application tracker');
+    expect(jobOs!.description.toLowerCase()).toContain('applications');
+    expect(wmw!.lede.toLowerCase()).toBe('dashboard');
     expect(wmw!.description).toContain('account returns');
     expect(wmw!.description).not.toContain('Account');
-    expect(labs.purposeLine.toLowerCase()).toContain('products');
-    expect(labs.description.toLowerCase()).toContain('engineered');
-    expect(labs.purposeLine.toLowerCase()).not.toContain('personal projects');
-    expect(jobOs!.description.toLowerCase()).toContain('product');
+    expect(labs.purposeLine.toLowerCase()).toBe('my mini projects and tools');
+    expect(labs.description.toLowerCase()).toContain('workflows');
 
     expect(
       screen.queryByRole('link', { name: /job signal lab/i }),
