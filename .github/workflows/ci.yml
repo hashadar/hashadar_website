@@ -6,7 +6,7 @@
 #
 # Triggers: pull_request is the merge gate (required). Push to main re-runs quality plus
 # `next build` as a post-ship safety net. Do not also push-trigger on develop — that
-# duplicates the PR run after every squash-merge.
+# duplicates the PR run after every merge to develop.
 name: CI
 
 on:

@@ -1,4 +1,4 @@
-# Keep develop aligned with main after squash merges / hotfixes.
+# Keep develop aligned with main after promotes / hotfixes.
 # Same tree → reset develop to main. Different tree → rebase develop onto main.
 # See docs/BRANCHING.md.
 name: Sync develop from main
