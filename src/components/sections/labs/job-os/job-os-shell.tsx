@@ -1,8 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { Container, Section, SectionHeader, Text } from '@/components/ui';
 import { JobOsNav } from '@/components/sections/labs/job-os/job-os-nav';
+import {
+  LabsSessionChecking,
+  LabsSignInGate,
+} from '@/components/sections/labs/labs-sign-in-gate';
 import { jobOs } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 
@@ -14,33 +17,17 @@ export function JobOsShell({ children }: JobOsShellProps) {
   const { session, isLoading } = useSiteAuth();
 
   if (isLoading) {
-    return (
-      <Section className="py-12 md:py-16">
-        <Container>
-          <Text variant="muted">{jobOs.checkingSessionLabel}</Text>
-        </Container>
-      </Section>
-    );
+    return <LabsSessionChecking label={jobOs.checkingSessionLabel} />;
   }
 
   if (session === null || session.status !== 'authenticated') {
     return (
-      <Section className="py-12 md:py-16">
-        <Container>
-          <div className="max-w-2xl space-y-4">
-            <SectionHeader animated={false}>
-              {jobOs.unauthenticatedHeading}
-            </SectionHeader>
-            <Text variant="muted">{jobOs.unauthenticatedDescription}</Text>
-            <Link
-              href={`/login?next=${encodeURIComponent('/labs/job-os')}`}
-              className="inline-flex font-body text-base text-[var(--foreground)] underline underline-offset-4"
-            >
-              {jobOs.signInLabel}
-            </Link>
-          </div>
-        </Container>
-      </Section>
+      <LabsSignInGate
+        heading={jobOs.unauthenticatedHeading}
+        description={jobOs.unauthenticatedDescription}
+        signInLabel={jobOs.signInLabel}
+        nextPath="/labs/job-os"
+      />
     );
   }
 

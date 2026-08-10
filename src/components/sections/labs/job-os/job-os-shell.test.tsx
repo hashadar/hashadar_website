@@ -37,9 +37,19 @@ describe('JobOsShell', () => {
 
     expect(
       screen.getByRole('heading', {
+        level: 1,
         name: jobOs.unauthenticatedHeading,
       }),
-    ).toBeInTheDocument();
+    ).toHaveClass('text-2xl');
+    expect(
+      screen.getByRole('link', { name: jobOs.signInLabel }),
+    ).toHaveAttribute(
+      'href',
+      `/login?next=${encodeURIComponent('/labs/job-os')}`,
+    );
+    expect(screen.getByRole('link', { name: jobOs.signInLabel })).toHaveClass(
+      'text-sm',
+    );
     expect(screen.queryByText('Secret Job OS content')).not.toBeInTheDocument();
   });
 

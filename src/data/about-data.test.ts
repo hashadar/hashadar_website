@@ -29,6 +29,23 @@ describe('getPageData for About', () => {
     expect(pageData).not.toHaveProperty('education');
     expect(pageData).not.toHaveProperty('certifications');
   });
+
+  it('frames Labs products plainly with a public Labs CTA', () => {
+    const paragraphs = Array.isArray(about.professional.content)
+      ? about.professional.content
+      : [about.professional.content];
+    const labsFraming = paragraphs.find((paragraph) =>
+      paragraph.toLowerCase().includes('labs'),
+    );
+
+    expect(labsFraming).toBeDefined();
+    expect(labsFraming!.toLowerCase()).toContain('application tracker');
+    expect(labsFraming!.toLowerCase()).toContain('dashboard');
+    expect(about.professional.cta).toEqual({
+      label: 'Explore Labs',
+      href: '/labs',
+    });
+  });
 });
 
 describe('getAboutCareerViews', () => {
