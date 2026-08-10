@@ -2,7 +2,7 @@
   "heading": "What's My Worth",
   "description": "Private net-worth dashboard for the Site Admin. Read-only Snapshot from the equity Workbook.",
   "unauthenticatedHeading": "Sign in to open What's My Worth",
-  "unauthenticatedDescription": "WMW is a private owner lab. Sign in with your invited account to continue.",
+  "unauthenticatedDescription": "WMW is a private net-worth dashboard. Sign in with your invited account to continue.",
   "signInLabel": "Owner sign in",
   "checkingSessionLabel": "Checking session…",
   "shell": {
