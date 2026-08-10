@@ -8,7 +8,7 @@
 | **Push to `main`** | GitHub Actions | Same quality suite **plus** `next build` as a cheap post-ship safety net. Still does not deploy. |
 | **Production build and deploy** | **AWS Amplify** autobuild | On push to connected branches: runs `amplify.yml` (conditional Gen 2 `ampx pipeline-deploy` or `ampx generate outputs`, reuse or `npm ci`, `npm run build`), publishes `.next`. **This is the only CD path** unless the team explicitly changes strategy. Prefer **`main` only** for Amplify autobuild. |
 
-There is **no** Actions CI on push to `develop` — that would duplicate the PR `quality` run after every squash-merge.
+There is **no** Actions CI on push to `develop` — that would duplicate the PR `quality` run after every merge to `develop`.
 
 ### Actions concurrency and path filters
 
@@ -63,8 +63,8 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 ## Branching
 
 - Day-to-day integration branch: **`develop`**. Production: **`main`**.
-- Squash-only merges; hotfixes branch from `main`. Details: [BRANCHING.md](./BRANCHING.md).
-- After every push to `main`, `.github/workflows/sync-develop.yml` resets or rebases `develop` onto `main` (force-with-lease).
+- Prefer merge commits; hotfixes branch from `main`. Details: [BRANCHING.md](./BRANCHING.md).
+- After every push to `main`, `.github/workflows/sync-develop.yml` aligns `develop` with `main` when needed (reset or rebase; force-with-lease).
 
 ## Dependency updates
 
@@ -85,7 +85,7 @@ GitHub Actions builds without `amplify_outputs.json`. Public blog/portfolio read
 
 ## Branch protection (repository owner)
 
-Canonical settings live in [BRANCHING.md](./BRANCHING.md) (squash-only, **do not** enable delete-head-on-merge, slim rulesets for `main` / `develop`).
+Canonical settings live in [BRANCHING.md](./BRANCHING.md) (merge commits preferred, **do not** enable delete-head-on-merge, slim rulesets for `main` / `develop`).
 
 Minimum for CI:
 

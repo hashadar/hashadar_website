@@ -6,7 +6,7 @@ Personal site for [Hasha Dar](https://hashadar.com)
 
 - **Public site** — portfolio photography, blog, and page content driven from a data layer + live Site Content storage
 - **Site Admin** — authenticated CMS for Posts, portfolio Photos, and the Home Photo (`/admin`)
-- **Labs** — separate gated products under `/labs` that reuse site-wide sign-in; currently **Job OS**, a private job-hunting graph (Employer → Opportunity → Application) with fit analysis behind a facade
+- **Labs** — separate gated products under `/labs` that reuse site-wide sign-in; currently **Job OS** (private job-hunting graph: Employer → Opportunity → Application, with fit analysis behind a facade) and **WMW (What's My Worth)** (private net-worth lab: read-only Net Worth, pairs, and Account MWR from the equity Workbook)
 - **Cloud backend** — AWS Amplify Gen 2 (Cognito auth, Amplify Data, Storage, and Functions such as Bedrock-backed fit analysis)
 - **Engineering hygiene** — TypeScript throughout, Vitest, GitHub Actions CI, Amplify Hosting CD, domain language in `CONTEXT.md` / ADRs
 
@@ -49,7 +49,7 @@ npm run build
 | Doc | Purpose |
 |-----|---------|
 | [Wiki changelogs](https://github.com/hashadar/hashadar_website/wiki) | Product changelogs (Site + per Lab), ASD-STE100 |
-| [CONTEXT-MAP.md](CONTEXT-MAP.md) | Domain contexts (Site, Job OS) |
+| [CONTEXT-MAP.md](CONTEXT-MAP.md) | Domain contexts (Site, Job OS, WMW) |
 | [Codebase conventions](docs/CODEBASE-CONVENTIONS.md) | Imports, data layer, design system, Next.js |
 | [Branching](docs/BRANCHING.md) | `develop` / `main`, hotfixes, sync |
 | [CI and deployment](docs/CI-AND-DEPLOYMENT.md) | GitHub Actions + Amplify |
