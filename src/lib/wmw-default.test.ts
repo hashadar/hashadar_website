@@ -15,9 +15,7 @@ afterEach(() => {
 describe('WMW default wiring (CI without Google secrets)', () => {
   it('defaults to a Server Action workbook source', async () => {
     const source = resolveDefaultWorkbookSource();
-    await expect(source.pullTabs()).rejects.toThrow(
-      /not configured \(see #181\)/i,
-    );
+    await expect(source.pullTabs()).rejects.toThrow(/not configured/i);
   });
 
   it('allows injecting a pullTabs override for tests', async () => {

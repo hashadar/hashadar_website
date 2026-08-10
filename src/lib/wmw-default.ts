@@ -18,7 +18,7 @@ let cached: Promise<WmwFacade> | null = null;
 
 /** Workbook pull that fails with a clear message (no live Sheets in CI). */
 export function createUnavailableWorkbookSource(
-  message = 'WMW Workbook source is not configured (see #181).',
+  message = 'WMW Workbook source is not configured. See docs/wmw/snapshot-storage.md.',
 ): WmwWorkbookSource {
   return {
     async pullTabs() {

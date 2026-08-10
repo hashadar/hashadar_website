@@ -84,6 +84,17 @@ describe('resolveGoogleServiceAccountCredentialsAsync', () => {
     expect(fetchHostingSecret).toHaveBeenCalled();
   });
 
+  it('returns null without throwing when SSM and sync env are absent', async () => {
+    const fetchHostingSecret = vi.fn(async () => null);
+    await expect(
+      resolveGoogleServiceAccountCredentialsAsync({
+        env: {},
+        fetchHostingSecret,
+      }),
+    ).resolves.toBeNull();
+    expect(fetchHostingSecret).toHaveBeenCalled();
+  });
+
   it('skips SSM when inline JSON is present', async () => {
     const fetchHostingSecret = vi.fn();
     await expect(
