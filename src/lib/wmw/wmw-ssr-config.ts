@@ -1,7 +1,9 @@
 /**
  * Non-secret WMW SSR config available to Server Actions.
- * Amplify build overwrites spreadsheet fields via write-amplify-ssr-env.ts.
+ * Amplify build overwrites these fields via write-amplify-ssr-env.ts
+ * (`AWS_APP_ID`, region, spreadsheet ID, secret leaf name).
  * Google SA JSON is fetched at runtime from SSM (compute role) — not stored here.
+ * See docs/wmw/snapshot-storage.md for the recommended shared Hosting secret path.
  */
 import 'server-only';
 
@@ -16,7 +18,11 @@ export type WmwSsrConfig = {
   googleSaSecretName: string;
 };
 
-/** Defaults for production Amplify app; spreadsheetId filled at Amplify build. */
+/**
+ * Local/CI defaults when write-amplify-ssr-env has not run.
+ * Amplify build overwrites `appId` from `AWS_APP_ID` — do not treat this as the
+ * documented SSM path; use `/amplify/shared/{appId}/{secretName}` placeholders.
+ */
 export const wmwSsrConfig: WmwSsrConfig = {
   appId: 'd3j7dgxx3prj17',
   region: 'eu-west-2',

@@ -1,6 +1,7 @@
 /**
  * Fetch Amplify Hosting secrets from SSM at SSR runtime (compute IAM role).
- * Prefer shared (all-branches) path, then branch path.
+ * Recommended setup: one shared secret under `/amplify/shared/{appId}/{secretName}`.
+ * Resolution order: branch path (optional override), then shared path.
  */
 import 'server-only';
 import {
@@ -35,8 +36,9 @@ export function amplifyBranchSecretParamName(
 }
 
 /**
- * Load a Hosting secret SecureString. Tries branch path then shared path.
- * Returns null when missing or when the compute role cannot read SSM.
+ * Load a Hosting secret SecureString.
+ * Tries `/amplify/{appId}/{branch}/{secretName}` then `/amplify/shared/{appId}/{secretName}`.
+ * Returns null when missing or when the compute role cannot read SSM (no throw).
  */
 export async function fetchAmplifyHostingSecret(
   options: FetchAmplifyHostingSecretOptions = {},

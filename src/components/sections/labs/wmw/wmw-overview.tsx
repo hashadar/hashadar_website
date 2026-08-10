@@ -114,11 +114,15 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
       setView(next);
       if (next.selectedMonth) setSelectedMonth(next.selectedMonth);
       setLoadState('ready');
-    } catch {
-      setRefreshError(copy.refreshErrorLabel);
+    } catch (error) {
+      const failureMessage =
+        error instanceof Error ? error.message : String(error);
+      const missingTab = /missing values for tab/i.test(failureMessage);
+      let hasLastGood = Boolean(view);
       try {
         const lastGood = await client.getSnapshot();
         if (lastGood) {
+          hasLastGood = true;
           setView(
             buildWmwOverviewView(lastGood, {
               selectedMonth,
@@ -129,6 +133,13 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
         }
       } catch {
         /* keep existing view */
+      }
+      if (missingTab) {
+        setRefreshError(copy.refreshErrorMissingTabLabel);
+      } else if (hasLastGood) {
+        setRefreshError(copy.refreshErrorLastGoodLabel);
+      } else {
+        setRefreshError(copy.refreshErrorEmptyLabel);
       }
     } finally {
       setRefreshing(false);
@@ -204,6 +215,31 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
         >
           <Text className="text-sm">{refreshError}</Text>
         </motion.div>
+      ) : null}
+
+      {view && view.warnings.length > 0 ? (
+        <motion.section
+          role="status"
+          aria-live="polite"
+          className="rounded-md border border-[var(--border)] bg-[color-mix(in_oklab,var(--foreground)_3%,var(--background))] px-3 py-2.5"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={
+            prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }
+          }
+        >
+          <Heading size="sm" as="h3">
+            {copy.warningsLabel} ({view.warnings.length})
+          </Heading>
+          <Text variant="muted" className="mt-0.5 text-sm">
+            {copy.warningsDescription}
+          </Text>
+          <ul className="mt-2 list-disc space-y-1 pl-5 font-body text-sm text-[var(--foreground)]">
+            {view.warnings.map((warning, index) => (
+              <li key={`${warning.code}-${index}`}>{warning.message}</li>
+            ))}
+          </ul>
+        </motion.section>
       ) : null}
 
       {!view ? (
@@ -362,18 +398,6 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
             </section>
           </div>
 
-          {view.warnings.length > 0 ? (
-            <section className="space-y-1">
-              <Heading size="sm" as="h3">
-                {copy.warningsLabel}
-              </Heading>
-              <ul className="list-disc space-y-0.5 pl-5 font-body text-xs text-[var(--mono-500)]">
-                {view.warnings.map((warning, index) => (
-                  <li key={`${warning.code}-${index}`}>{warning.message}</li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
         </>
       )}
     </div>

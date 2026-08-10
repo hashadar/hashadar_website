@@ -171,7 +171,11 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(overview, 'refreshingLabel', 'wmw.overview');
   requireString(overview, 'asOfLabel', 'wmw.overview');
   requireString(overview, 'asOfUnknownLabel', 'wmw.overview');
-  requireString(overview, 'refreshErrorLabel', 'wmw.overview');
+  requireString(overview, 'refreshErrorLastGoodLabel', 'wmw.overview');
+  requireString(overview, 'refreshErrorEmptyLabel', 'wmw.overview');
+  requireString(overview, 'refreshErrorMissingTabLabel', 'wmw.overview');
+  requireString(overview, 'warningsLabel', 'wmw.overview');
+  requireString(overview, 'warningsDescription', 'wmw.overview');
   requireString(overview, 'netWorthHeading', 'wmw.overview');
   requireString(overview, 'kpiCashSavingsLabel', 'wmw.overview');
   requireString(overview, 'kpiGeneralInvestmentsLabel', 'wmw.overview');

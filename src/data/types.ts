@@ -183,8 +183,11 @@ export interface WmwPageData {
     refreshingLabel: string;
     asOfLabel: string;
     asOfUnknownLabel: string;
-    refreshErrorLabel: string;
+    refreshErrorLastGoodLabel: string;
+    refreshErrorEmptyLabel: string;
+    refreshErrorMissingTabLabel: string;
     warningsLabel: string;
+    warningsDescription: string;
     netWorthHeading: string;
     netWorthEmptyLabel: string;
     kpiCashSavingsLabel: string;

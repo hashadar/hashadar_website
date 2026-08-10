@@ -129,7 +129,8 @@ export type ResolveGoogleSaCredentialsAsyncOptions = {
 
 /**
  * Production Refresh path: sync env/file first, then Amplify Hosting secret via SSM
- * (requires SSR Compute IAM role with `ssm:GetParameter` on the shared secret).
+ * (requires SSR Compute IAM role with `ssm:GetParameter` on the secret paths).
+ * Returns null when credentials are absent — does not throw.
  */
 export async function resolveGoogleServiceAccountCredentialsAsync(
   options: ResolveGoogleSaCredentialsAsyncOptions = {},

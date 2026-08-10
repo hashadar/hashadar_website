@@ -42,7 +42,7 @@ export type CreateGoogleSheetsWorkbookSourceOptions = {
 
 /**
  * Live Google Sheets pull (read-only).
- * Requires spreadsheet ID + SA access token (#181).
+ * Requires spreadsheet ID + SA access token.
  * Requests UNFORMATTED_VALUE + SERIAL_NUMBER — never writes.
  * Production UI obtains tabs via `pullWmwWorkbookTabs` (Server Action).
  */
@@ -55,7 +55,7 @@ export function createGoogleSheetsWorkbookSource(
     async pullTabs() {
       if (!options.spreadsheetId.trim()) {
         throw new Error(
-          'WMW spreadsheet ID is not configured (see #181 / #182 config).',
+          'WMW spreadsheet ID is not configured. Set WMW_SPREADSHEET_ID (see docs/wmw/snapshot-storage.md).',
         );
       }
 
