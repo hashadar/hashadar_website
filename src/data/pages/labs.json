@@ -1,21 +1,21 @@
 {
   "heading": "Labs",
-  "description": "Personal projects Hasha built for himself.",
+  "description": "Engineered products with real workflows — portfolio signal, not hidden side apps.",
   "brandEyebrow": "Hasha Dar's",
-  "purposeLine": "Personal projects I built for myself.",
+  "purposeLine": "Deliberate products I engineer for real use — working software with production seams, not throwaway demos.",
   "catalogueAriaLabel": "Available labs",
   "labs": [
     {
       "title": "Job OS",
-      "lede": "Hunt better roles",
-      "description": "Employers, opportunities, and applications in one place.",
+      "lede": "Hunting operating system",
+      "description": "Employers, opportunities, and applications as a structured product — not a spreadsheet.",
       "href": "/labs/job-os",
       "ctaLabel": "Open Job OS"
     },
     {
       "title": "What's My Worth",
       "lede": "Net worth tracker",
-      "description": "Balances, class mix, and account returns.",
+      "description": "Balances, class mix, and account returns from a live workbook — engineered end to end.",
       "href": "/labs/wmw",
       "ctaLabel": "Open What's My Worth"
     }

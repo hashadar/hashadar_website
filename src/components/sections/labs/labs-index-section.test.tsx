@@ -39,6 +39,10 @@ describe('LabsIndexSection', () => {
     expect(wmw!.lede.toLowerCase()).toBe('net worth tracker');
     expect(wmw!.description).toContain('account returns');
     expect(wmw!.description).not.toContain('Account');
+    expect(labs.purposeLine.toLowerCase()).toContain('products');
+    expect(labs.description.toLowerCase()).toContain('engineered');
+    expect(labs.purposeLine.toLowerCase()).not.toContain('personal projects');
+    expect(jobOs!.description.toLowerCase()).toContain('product');
 
     expect(
       screen.queryByRole('link', { name: /job signal lab/i }),
