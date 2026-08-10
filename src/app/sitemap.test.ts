@@ -1,21 +1,55 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import sitemap from '@/app/sitemap';
-import { getAllBlogPosts } from '@/lib/blog';
 import { buildSitemap } from '@/lib/sitemap';
 import { site } from '@/data';
+import type { BlogPost } from '@/data/types';
 
-vi.mock('@/lib/site-content/server', async () => {
-  const fixturesDir = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '../test/fixtures/blog',
-  );
-  const { getAllBlogPosts: getFixturePosts } = await import('@/lib/blog');
-  return {
-    getAllBlogPostsFromSiteContent: async () => getFixturePosts(fixturesDir),
-  };
-});
+const mockBlogPosts: BlogPost[] = [
+  {
+    slug: 'newer-post',
+    frontmatter: {
+      title: 'Newer Post',
+      date: '2025-04-01',
+      excerpt: '',
+      category: '',
+      tags: [],
+      image: '',
+      author: '',
+    },
+    content: '',
+  },
+  {
+    slug: 'complete-post',
+    frontmatter: {
+      title: 'Complete Post',
+      date: '2025-03-15',
+      excerpt: 'A complete blog post for testing.',
+      category: 'Engineering',
+      tags: ['testing', 'blog'],
+      image: '/blog/complete-post/hero.webp',
+      author: 'Test Author',
+      aiGeneratedContent: true,
+    },
+    content: '',
+  },
+  {
+    slug: 'older-post',
+    frontmatter: {
+      title: 'Older Post',
+      date: '2024-12-01',
+      excerpt: '',
+      category: '',
+      tags: [],
+      image: '',
+      author: '',
+    },
+    content: '',
+  },
+];
+
+vi.mock('@/lib/site-content/server', () => ({
+  getAllBlogPostsFromSiteContent: async () => mockBlogPosts,
+}));
 
 describe('sitemap', () => {
   it('includes the About page entry unchanged', async () => {
@@ -76,14 +110,9 @@ describe('sitemap', () => {
   });
 
   it('includes blog post URLs with lastModified dates from Site Content readers', async () => {
-    const fixturesDir = path.join(
-      path.dirname(fileURLToPath(import.meta.url)),
-      '../test/fixtures/blog',
-    );
-    const posts = getAllBlogPosts(fixturesDir);
     const entries = await buildSitemap();
 
-    for (const post of posts) {
+    for (const post of mockBlogPosts) {
       const entry = entries.find((item) => item.url === `${site.metadata.siteUrl}/blog/${post.slug}`);
 
       expect(entry).toEqual({
