@@ -243,7 +243,7 @@ export function JobOsOpportunitiesWorkspace({
     return () => {
       cancelled = true;
     };
-  }, [client, selectedId, opportunities]);
+  }, [client, selectedId]);
 
   async function refreshFitSurfaces(active: JobOs, opportunityId: string) {
     const [checklistResult, insightResult] = await Promise.all([
