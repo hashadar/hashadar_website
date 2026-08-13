@@ -151,4 +151,29 @@ describe('JobOsOpportunitiesWorkspace', () => {
     }
     expect(stored.body).toBe(UPDATED_BODY);
   });
+
+  it('places Save opportunity in the same action cluster as Pass and Pursue', async () => {
+    const client = createClient();
+    const opportunityId = await seedOpportunity(client);
+
+    render(
+      <JobOsOpportunitiesWorkspace
+        jobOsClient={client}
+        selectedId={opportunityId}
+      />,
+    );
+
+    const pass = await screen.findByRole('button', {
+      name: jobOs.opportunities.passLabel,
+    });
+    const pursue = screen.getByRole('button', {
+      name: jobOs.opportunities.pursueLabel,
+    });
+    const save = screen.getByRole('button', {
+      name: jobOs.opportunities.saveLabel,
+    });
+
+    expect(save.parentElement).toBe(pass.parentElement);
+    expect(pursue.parentElement).toBe(pass.parentElement);
+  });
 });
