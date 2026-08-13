@@ -62,7 +62,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ### 4.3 Blog and portfolio (Site Content)
 
-- **Source of truth:** Amplify Storage bucket `siteContent` — `blog/index.json` + `blog/posts/{slug}.md` (+ optional hero WebPs), `portfolio/manifest.json` + `portfolio/images/*`, and `home/photography.json` + `home/images/*` for the Home Photo. Readers live under `src/lib/site-content/` (server loaders in `server.ts`). Markdown → HTML remains in `src/lib/blog-markdown.ts` (`processMarkdown`). Filesystem helpers in `src/lib/blog.ts` are for Vitest fixtures only.
+- **Source of truth:** Amplify Storage bucket `siteContent` — `blog/index.json` + `blog/posts/{slug}.md` (+ optional hero WebPs), `portfolio/manifest.json` + `portfolio/images/*`, and `home/photography.json` + `home/images/*` for the Home Photo. Readers live under `src/lib/site-content/` (server loaders in `server.ts`). Markdown → HTML remains in `src/lib/blog-markdown.ts` (`processMarkdown`). Raw markdown fixtures for Vitest live under `src/test/fixtures/blog/`.
 - **WMW Snapshots:** Private Amplify Storage bucket `wmwSnapshots` (authenticated Site Admin only) holds last-good Snapshot JSON + as-of metadata. Keys and env wiring: `docs/wmw/snapshot-storage.md`; facade under `src/lib/wmw/`.
 - **Admin:** Site Admin manages Posts and Photos at `/admin` (not under Labs). Sign-in is site-wide at `/login`.
 - **Types:** Use `BlogPost` / `BlogPostFrontmatter` / `PhotoItem` from `@/data/types`. List metadata for Posts is authoritative in `blog/index.json`.
@@ -114,7 +114,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ### 7.3 Images
 
-- Use the Next.js `Image` component with appropriate `sizes` and `priority` for above-the-fold images. Respect `next.config.ts` (e.g. `images.unoptimized` if set for the deployment target).
+- Use the Next.js `Image` component with appropriate `sizes` and `priority` for above-the-fold images. Production uses Next image optimisation via `sharp` (see `next.config.ts`); reserve `priority` for true LCP candidates.
 
 ---
 
@@ -149,7 +149,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ## 11. Reference
 
-- **Deferred work and technical debt:** Tracked in [GitHub Issues](https://github.com/hashadar/hashadar_website/issues). Current open deferred items include [#113](https://github.com/hashadar/hashadar_website/issues/113) (images/sharp). Do not fix unless asked or the issue is in scope; when implementing, align with this document and close or update the relevant issue.
+- **Deferred work and technical debt:** Tracked in [GitHub Issues](https://github.com/hashadar/hashadar_website/issues). Do not fix unless asked or the issue is in scope; when implementing, align with this document and close or update the relevant issue.
 - **Data structure and adding pages:** See `src/data/README.md`.
 - **Agent workflow (issues, triage):** See `docs/agents/` and `AGENTS.md`.
 

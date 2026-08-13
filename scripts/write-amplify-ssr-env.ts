@@ -2,11 +2,12 @@
  * Amplify build helper for WMW SSR.
  *
  * Next.js 16 keeps `process.env.WMW_*` as runtime lookups, and Amplify only
- * deploys `.next/**`, so `.env.production` never reaches Server Actions.
+ * deploys `.next/**`, so build-time env files never reach Server Actions.
  *
  * This script writes non-secret config into `src/lib/wmw/wmw-ssr-config.ts`
  * (bundled into `.next/server`). The Google SA JSON stays in Amplify Hosting
- * Secrets / SSM and is read at runtime via the SSR Compute IAM role.
+ * Secrets / SSM (prefer shared path) and is read at runtime via the SSR
+ * Compute IAM role — see docs/wmw/snapshot-storage.md.
  */
 import { writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -14,6 +15,7 @@ import { pathToFileURL } from 'node:url';
 export const WMW_SSR_CONFIG_PATH = 'src/lib/wmw/wmw-ssr-config.ts';
 
 export const DEFAULT_WMW_GOOGLE_SA_SECRET_NAME = 'wmw.google-service-account';
+/** Fallback when `AWS_APP_ID` is unset (local/CI). Amplify build always sets `AWS_APP_ID`. */
 export const DEFAULT_WMW_AMPLIFY_APP_ID = 'd3j7dgxx3prj17';
 export const DEFAULT_WMW_AWS_REGION = 'eu-west-2';
 

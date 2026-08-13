@@ -101,13 +101,70 @@ describe('WmwOverview', () => {
     );
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      wmw.overview.refreshErrorLabel,
+      wmw.overview.refreshErrorLastGoodLabel,
     );
     expect(
       screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toBeInTheDocument();
     expect(
-      within(screen.getByRole('alert')).getByText(wmw.overview.refreshErrorLabel),
+      within(screen.getByRole('alert')).getByText(
+        wmw.overview.refreshErrorLastGoodLabel,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('shows empty-lab Refresh failure when no last-good Snapshot exists', async () => {
+    const failingSource: WmwWorkbookSource = {
+      pullTabs: vi.fn(async () => {
+        throw new Error('WMW Workbook source is not configured');
+      }),
+    };
+    const client = createClient({
+      initialSnapshot: null,
+      workbookSource: failingSource,
+    });
+    render(<WmwOverview wmwClient={client} />);
+
+    expect(
+      await screen.findByRole('heading', { name: wmw.overview.emptyHeading }),
+    ).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole('button', { name: wmw.overview.refreshLabel }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      wmw.overview.refreshErrorEmptyLabel,
+    );
+    expect(
+      screen.getByRole('heading', { name: wmw.overview.emptyHeading }),
+    ).toBeInTheDocument();
+  });
+
+  it('surfaces empty-tab Refresh failures distinctly from generic Sheets errors', async () => {
+    const failingSource: WmwWorkbookSource = {
+      pullTabs: vi.fn(async () => {
+        throw new Error('Sheets pull missing values for tab dim_Accounts');
+      }),
+    };
+    const client = createClient({ workbookSource: failingSource });
+    render(<WmwOverview wmwClient={client} />);
+
+    expect(
+      await screen.findByRole('link', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole('button', { name: wmw.overview.refreshLabel }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      wmw.overview.refreshErrorMissingTabLabel,
+    );
+    expect(
+      screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toBeInTheDocument();
   });
 
@@ -134,9 +191,51 @@ describe('WmwOverview', () => {
     });
     render(<WmwOverview wmwClient={client} />);
 
+    const warningsRegion = await screen.findByRole('status');
     expect(
-      await screen.findByRole('heading', { name: wmw.overview.warningsLabel }),
+      within(warningsRegion).getByRole('heading', {
+        name: `${wmw.overview.warningsLabel} (1)`,
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText(warningMessage)).toBeInTheDocument();
+    expect(
+      within(warningsRegion).getByText(wmw.overview.warningsDescription),
+    ).toBeInTheDocument();
+    expect(within(warningsRegion).getByText(warningMessage)).toBeInTheDocument();
+  });
+
+  it('updates Refresh warnings after a successful Refresh from the Workbook', async () => {
+    const raw = createSampleWorkbookRaw();
+    raw.fact_Cashflows.push([
+      46054,
+      'IBKR_ISA',
+      25,
+      'Dividend',
+      'Unknown type for warning surface',
+    ]);
+    const client = createClient({
+      initialSnapshot: buildSampleSnapshot({ warnings: [] }),
+      workbookSource: createFixtureWorkbookSource(raw),
+    });
+    render(<WmwOverview wmwClient={client} />);
+
+    expect(
+      await screen.findByRole('link', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole('button', { name: wmw.overview.refreshLabel }),
+    );
+
+    const warningsRegion = await screen.findByRole('status');
+    expect(
+      within(warningsRegion).getByRole('heading', {
+        name: /Refresh warnings \(\d+\)/,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(warningsRegion).getByText(/unknown Transaction_Type "Dividend"/i),
+    ).toBeInTheDocument();
   });
 });

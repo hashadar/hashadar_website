@@ -21,9 +21,9 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    // Amplify Hosting serves static/SSR without Next image optimisation; keep
-    // unoptimised and omit the sharp dependency until a CDN/image pipeline lands.
-    unoptimized: true,
+    // Amplify Hosting compute serves `/_next/image`; sharp is a direct dependency
+    // so local `next start` and CI match production optimisation. Amplify also
+    // supplies sharp at deploy time. Optimised output is capped at ~4.3 MB.
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

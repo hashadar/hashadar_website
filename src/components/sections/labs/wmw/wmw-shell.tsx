@@ -1,9 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Container, Section, Text } from '@/components/ui';
 import { WmwNav } from '@/components/sections/labs/wmw/wmw-nav';
+import {
+  LabsSessionChecking,
+  LabsSignInGate,
+} from '@/components/sections/labs/labs-sign-in-gate';
 import { wmw } from '@/data';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 
@@ -16,33 +19,17 @@ export function WmwShell({ children }: WmwShellProps) {
   const pathname = usePathname() || '/labs/wmw';
 
   if (isLoading) {
-    return (
-      <Section className="py-8 md:py-10">
-        <Container>
-          <Text variant="muted">{wmw.checkingSessionLabel}</Text>
-        </Container>
-      </Section>
-    );
+    return <LabsSessionChecking label={wmw.checkingSessionLabel} />;
   }
 
   if (session === null || session.status !== 'authenticated') {
     return (
-      <Section className="py-8 md:py-10">
-        <Container>
-          <div className="max-w-2xl space-y-3">
-            <h1 className="font-display text-2xl tracking-tight text-[var(--foreground)]">
-              {wmw.unauthenticatedHeading}
-            </h1>
-            <Text variant="muted">{wmw.unauthenticatedDescription}</Text>
-            <Link
-              href={`/login?next=${encodeURIComponent(pathname)}`}
-              className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
-            >
-              {wmw.signInLabel}
-            </Link>
-          </div>
-        </Container>
-      </Section>
+      <LabsSignInGate
+        heading={wmw.unauthenticatedHeading}
+        description={wmw.unauthenticatedDescription}
+        signInLabel={wmw.signInLabel}
+        nextPath={pathname}
+      />
     );
   }
 

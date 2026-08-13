@@ -40,15 +40,19 @@ describe('WmwShell', () => {
 
     expect(
       screen.getByRole('heading', {
+        level: 1,
         name: wmw.unauthenticatedHeading,
       }),
-    ).toBeInTheDocument();
+    ).toHaveClass('text-2xl');
     expect(screen.queryByText('Secret WMW content')).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: wmw.signInLabel }),
     ).toHaveAttribute(
       'href',
       `/login?next=${encodeURIComponent('/labs/wmw')}`,
+    );
+    expect(screen.getByRole('link', { name: wmw.signInLabel })).toHaveClass(
+      'text-sm',
     );
   });
 

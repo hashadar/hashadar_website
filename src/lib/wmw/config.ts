@@ -1,11 +1,11 @@
 /**
  * WMW app config from environment.
- * Spreadsheet ID + SA secret name (#181). SA JSON itself is resolved server-side
- * via `resolveGoogleServiceAccountCredentialsAsync` (never NEXT_PUBLIC_).
+ * Spreadsheet ID + SA secret name. SA JSON itself is resolved server-side via
+ * `resolveGoogleServiceAccountCredentialsAsync` (never NEXT_PUBLIC_).
  *
  * Production spreadsheet ID is injected into `wmw-ssr-config.ts` at Amplify build
  * (see write-amplify-ssr-env) and read from the Server Action — not from here —
- * because Amplify SSR compute does not receive `.env.production` at runtime.
+ * because Amplify SSR compute does not receive build-time env files at runtime.
  */
 export type WmwConfig = {
   spreadsheetId: string | null;
@@ -19,9 +19,9 @@ export const WMW_GOOGLE_SA_SECRET_NAME_ENV = 'WMW_GOOGLE_SA_SECRET_NAME';
 /** Default Amplify secret name in `.env.example` (not a credential). Must match `[a-zA-Z0-9_.-]+`. */
 export const WMW_GOOGLE_SA_SECRET_NAME_PLACEHOLDER = 'wmw.google-service-account';
 
-/** Shared error copy when spreadsheet ID / SA credentials are missing (#181). */
+/** Shared error copy when spreadsheet ID / SA credentials are missing. */
 export const WMW_WORKBOOK_NOT_CONFIGURED_REASON =
-  'WMW Workbook source is not configured (see #181). Set WMW_SPREADSHEET_ID and WMW_GOOGLE_SERVICE_ACCOUNT_JSON (or FILE / Amplify secrets + SSR compute role).';
+  'WMW Workbook source is not configured. Set WMW_SPREADSHEET_ID and WMW_GOOGLE_SERVICE_ACCOUNT_JSON (or FILE / Amplify Hosting secret + SSR compute role). See docs/wmw/snapshot-storage.md.';
 
 type EnvLike = Record<string, string | undefined>;
 

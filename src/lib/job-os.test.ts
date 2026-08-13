@@ -286,6 +286,58 @@ describe('Job OS facade — Opportunities', () => {
     expect(updated.opportunity.title).toBe('Staff ML Engineer');
   });
 
+  it('persists an edited Opportunity Body across reload and keeps it after a field update', async () => {
+    const { jobOs } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-20T09:00:00.000Z',
+      title: 'Staff Data Scientist',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const written = await jobOs.updateOpportunityBody(
+      created.opportunity.id,
+      'Original listing prose.',
+    );
+    expect(written.status).toBe('updated');
+
+    const edited = await jobOs.updateOpportunityBody(
+      created.opportunity.id,
+      'Updated listing prose.',
+    );
+    expect(edited.status).toBe('updated');
+    if (edited.status !== 'updated') {
+      return;
+    }
+
+    const reloaded = await jobOs.getOpportunityBody(created.opportunity.id);
+    expect(reloaded.status).toBe('ok');
+    if (reloaded.status !== 'ok') {
+      return;
+    }
+    expect(reloaded.body).toBe('Updated listing prose.');
+
+    const renamed = await jobOs.updateOpportunity({
+      id: created.opportunity.id,
+      employerId: anon.id,
+      title: 'Principal Data Scientist',
+      status: 'open',
+    });
+    expect(renamed.status).toBe('updated');
+
+    const afterFields = await jobOs.getOpportunityBody(created.opportunity.id);
+    expect(afterFields.status).toBe('ok');
+    if (afterFields.status !== 'ok') {
+      return;
+    }
+    expect(afterFields.body).toBe('Updated listing prose.');
+    expect(afterFields.opportunity.title).toBe('Principal Data Scientist');
+  });
+
   it('rejects Opportunity Body update when body storage fails', async () => {
     const store = createMemoryJobOsStore();
     const bodies = createMemoryJobOsBodyStorage();

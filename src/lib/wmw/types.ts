@@ -1,6 +1,6 @@
 /**
  * WMW Snapshot domain types — frozen Workbook contract from epic #179 /
- * ADR 0009 / ADR 0010. Shared across storage (#182), ingest (#183), Net Worth
+ * ADR 0009 / ADR 0010. Shared across storage, ingest, Net Worth
  * (#184), and MWR (#185). Dates are ISO calendar days (YYYY-MM-DD) after ingest
  * parses Sheet serials. Amounts are GBP; Cashflow Amounts are account-perspective
  * (into Account positive).

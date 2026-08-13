@@ -10,11 +10,11 @@ describe('resolveWmwSsrConfigValues', () => {
       resolveWmwSsrConfigValues({
         WMW_SPREADSHEET_ID: ' sheet-123 ',
         WMW_GOOGLE_SA_SECRET_NAME: 'wmw.google-service-account',
-        AWS_APP_ID: 'd3j7dgxx3prj17',
+        AWS_APP_ID: 'app-example',
         AWS_REGION: 'eu-west-2',
       }),
     ).toEqual({
-      appId: 'd3j7dgxx3prj17',
+      appId: 'app-example',
       region: 'eu-west-2',
       spreadsheetId: 'sheet-123',
       googleSaSecretName: 'wmw.google-service-account',
@@ -29,11 +29,12 @@ describe('resolveWmwSsrConfigValues', () => {
 describe('buildWmwSsrConfigModuleSource', () => {
   it('embeds values with JSON string escaping', () => {
     const source = buildWmwSsrConfigModuleSource({
-      appId: 'd3j7dgxx3prj17',
+      appId: 'app-example',
       region: 'eu-west-2',
       spreadsheetId: 'sheet-id',
       googleSaSecretName: 'wmw.google-service-account',
     });
+    expect(source).toContain('appId: "app-example"');
     expect(source).toContain('spreadsheetId: "sheet-id"');
     expect(source).toContain('googleSaSecretName: "wmw.google-service-account"');
     expect(source).not.toContain('PRIVATE KEY');

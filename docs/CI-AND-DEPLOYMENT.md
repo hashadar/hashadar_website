@@ -70,14 +70,14 @@ If `nvm use 22` fails on the build image (version not installed), add a line bef
 
 - **Dependabot**: `.github/dependabot.yml` opens weekly npm PRs (grouped production patches and Amplify-related packages) and monthly GitHub Actions PRs, targeting **`develop`**.
 - **CI audit gate**: `npm audit --omit=dev --audit-level=critical` fails the quality job on production criticals.
-- Photos stay on `images.unoptimized: true` without a direct `sharp` dependency until an image CDN / optimisation pipeline is added.
+- Photos use Next.js image optimisation (`/_next/image`) with a direct `sharp` dependency (`>= 0.35.x`). Amplify Hosting compute serves the optimisation path; do not set `images.unoptimized: true` unless intentionally bypassing it.
 - **Amplify OpenTelemetry `npm ls` warnings:** Nested `@aws-amplify/data-construct` / `graphql-api-construct` trees still report `invalid` peer ranges for `@opentelemetry/core` (mixed `2.0.0` / `2.8.0` / `2.9.0`). Root `overrides` did not unify that tree and were removed; install, typecheck, and `ampx` still succeed. Treat remaining `npm ls` noise as an upstream Amplify limitation until those packages align their OTEL peers.
 
 ## Amplify environment variables
 
 Site Content no longer requires private blog-repo SSH secrets. Remove obsolete `SSH_PRIVATE_KEY` / `BLOG_REPO_*` console variables when convenient.
 
-WMW (What's My Worth) expects `WMW_SPREADSHEET_ID` and `WMW_GOOGLE_SA_SECRET_NAME` (default `wmw.google-service-account`, must match `[a-zA-Z0-9_.-]+`) as Amplify env vars, plus the Google SA as an Amplify Hosting secret. Local Refresh uses `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` / `WMW_GOOGLE_SERVICE_ACCOUNT_FILE`; production Refresh reads the Hosting secret from SSM via the app’s **SSR Compute IAM role**. Placeholders live in `.env.example`; see [docs/wmw/snapshot-storage.md](./wmw/snapshot-storage.md) and [#181](https://github.com/hashadar/hashadar_website/issues/181).
+WMW (What's My Worth) expects `WMW_SPREADSHEET_ID` and `WMW_GOOGLE_SA_SECRET_NAME` (default `wmw.google-service-account`, must match `[a-zA-Z0-9_.-]+`) as Amplify env vars, plus the Google SA as a **shared** Amplify Hosting secret. Local Refresh uses `WMW_GOOGLE_SERVICE_ACCOUNT_JSON` / `WMW_GOOGLE_SERVICE_ACCOUNT_FILE`; production Refresh reads the Hosting secret from SSM via the app’s **SSR Compute IAM role**. Build writes non-secret fields into `wmw-ssr-config.ts` (not `.env.production`). Placeholders live in `.env.example`; see the recommended Hosting + IAM path in [docs/wmw/snapshot-storage.md](./wmw/snapshot-storage.md).
 
 ## CI vs Site Content
 
@@ -102,5 +102,4 @@ Minimum for CI:
 - `.github/workflows/sync-develop.yml` — align `develop` after `main` updates
 - `.github/dependabot.yml` — weekly npm / monthly Actions update PRs → `develop`
 - [docs/adr/0003-site-content-and-admin.md](./adr/0003-site-content-and-admin.md) — Site Content + Admin vs Labs
-- [#113](https://github.com/hashadar/hashadar_website/issues/113) — re-enable Next image optimisation with sharp
 - [#136](https://github.com/hashadar/hashadar_website/issues/136) — CI/CD speed and Amplify cost (**shipped** via PRs [#138](https://github.com/hashadar/hashadar_website/pull/138)/[#139](https://github.com/hashadar/hashadar_website/pull/139); remaining Amplify console checklist above is still human-owned)

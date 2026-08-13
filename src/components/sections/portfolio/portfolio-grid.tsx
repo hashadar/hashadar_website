@@ -76,7 +76,7 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
                   location={image.location}
                   aspectRatio="2/3"
                   showOverlay={true}
-                  priority={index < 9}
+                  priority={index < 3}
                   onClick={() => openLightbox(index)}
                   onMouseEnter={() => {
                     if (typeof window !== 'undefined') {

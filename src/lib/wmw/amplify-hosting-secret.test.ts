@@ -6,22 +6,22 @@ import {
 } from '@/lib/wmw/amplify-hosting-secret';
 
 describe('amplify hosting secret paths', () => {
-  it('uses documented shared and branch SSM layouts', () => {
+  it('uses documented shared and branch SSM layouts with placeholders', () => {
     expect(
-      amplifySharedSecretParamName('d3j7dgxx3prj17', 'wmw.google-service-account'),
-    ).toBe('/amplify/shared/d3j7dgxx3prj17/wmw.google-service-account');
+      amplifySharedSecretParamName('{appId}', 'wmw.google-service-account'),
+    ).toBe('/amplify/shared/{appId}/wmw.google-service-account');
     expect(
       amplifyBranchSecretParamName(
-        'd3j7dgxx3prj17',
-        'main',
+        '{appId}',
+        '{branch}',
         'wmw.google-service-account',
       ),
-    ).toBe('/amplify/d3j7dgxx3prj17/main/wmw.google-service-account');
+    ).toBe('/amplify/{appId}/{branch}/wmw.google-service-account');
   });
 });
 
 describe('fetchAmplifyHostingSecret', () => {
-  it('returns the first parameter value that resolves', async () => {
+  it('tries branch path then shared path and returns the first value', async () => {
     const send = vi
       .fn()
       .mockRejectedValueOnce(new Error('not found'))
@@ -29,7 +29,7 @@ describe('fetchAmplifyHostingSecret', () => {
 
     await expect(
       fetchAmplifyHostingSecret({
-        appId: 'd3j7dgxx3prj17',
+        appId: 'app-example',
         branch: 'main',
         secretName: 'wmw.google-service-account',
         client: { send },
@@ -37,6 +37,12 @@ describe('fetchAmplifyHostingSecret', () => {
     ).resolves.toBe('secret-json');
 
     expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[0]?.[0].input.Name).toBe(
+      '/amplify/app-example/main/wmw.google-service-account',
+    );
+    expect(send.mock.calls[1]?.[0].input.Name).toBe(
+      '/amplify/shared/app-example/wmw.google-service-account',
+    );
   });
 
   it('returns null when no candidate resolves', async () => {

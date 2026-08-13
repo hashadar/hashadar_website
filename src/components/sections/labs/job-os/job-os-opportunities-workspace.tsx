@@ -243,7 +243,7 @@ export function JobOsOpportunitiesWorkspace({
     return () => {
       cancelled = true;
     };
-  }, [client, selectedId, opportunities]);
+  }, [client, selectedId]);
 
   async function refreshFitSurfaces(active: JobOs, opportunityId: string) {
     const [checklistResult, insightResult] = await Promise.all([
@@ -841,49 +841,61 @@ export function JobOsOpportunitiesWorkspace({
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {selected.status === 'closed' ? (
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               size="sm"
-              variant="outline"
-              disabled={busy || busyId === selected.id}
-              onClick={() => void handleReopen(selected.id)}
+              disabled={busy}
+              onClick={() => void handleSave()}
             >
-              {busyId === selected.id
-                ? copy.reopeningLabel
-                : copy.reopenLabel}
+              {busy ? copy.savingLabel : copy.saveLabel}
             </Button>
-          ) : null}
-          {!applicationId && !hasPassed ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              disabled={busy || busyId === selected.id}
-              onClick={() => void handlePass(selected.id)}
-            >
-              {busyId === selected.id ? copy.passingLabel : copy.passLabel}
-            </Button>
-          ) : null}
-          {!applicationId ? (
-            <Button
-              type="button"
-              size="sm"
-              disabled={busy || busyId === selected.id}
-              onClick={() => void handlePursue(selected.id)}
-            >
-              {busyId === selected.id ? copy.pursuingLabel : copy.pursueLabel}
-            </Button>
-          ) : (
-            <Button
-              href={`/labs/job-os/applications/${applicationId}`}
-              size="sm"
-              variant="ghost"
-            >
-              {jobOs.applications.heading}
-            </Button>
-          )}
+            {selected.status === 'closed' ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy || busyId === selected.id}
+                onClick={() => void handleReopen(selected.id)}
+              >
+                {busyId === selected.id
+                  ? copy.reopeningLabel
+                  : copy.reopenLabel}
+              </Button>
+            ) : null}
+            {!applicationId && !hasPassed ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy || busyId === selected.id}
+                onClick={() => void handlePass(selected.id)}
+              >
+                {busyId === selected.id ? copy.passingLabel : copy.passLabel}
+              </Button>
+            ) : null}
+            {!applicationId ? (
+              <Button
+                type="button"
+                size="sm"
+                disabled={busy || busyId === selected.id}
+                onClick={() => void handlePursue(selected.id)}
+              >
+                {busyId === selected.id ? copy.pursuingLabel : copy.pursueLabel}
+              </Button>
+            ) : (
+              <Button
+                href={`/labs/job-os/applications/${applicationId}`}
+                size="sm"
+                variant="ghost"
+              >
+                {jobOs.applications.heading}
+              </Button>
+            )}
+          </div>
+          {message ? <Text>{message}</Text> : null}
+          {error ? <Text>{error}</Text> : null}
         </div>
 
         {/* Desktop: ~30% metadata rail / ~70% Body + Fit. Mobile: Body & Fit first. */}
@@ -937,17 +949,6 @@ export function JobOsOpportunitiesWorkspace({
             {fitSection}
           </div>
         </div>
-
-        <Button
-          type="button"
-          size="sm"
-          disabled={busy}
-          onClick={() => void handleSave()}
-        >
-          {busy ? copy.savingLabel : copy.saveLabel}
-        </Button>
-        {message ? <Text>{message}</Text> : null}
-        {error ? <Text>{error}</Text> : null}
       </div>
     );
   }
