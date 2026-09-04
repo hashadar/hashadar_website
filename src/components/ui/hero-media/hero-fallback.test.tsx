@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { HeroFallback } from "@/components/ui/hero-webgl/hero-fallback";
+import { HeroFallback } from "@/components/ui/hero-media/hero-fallback";
 
 describe("HeroFallback", () => {
   it("renders an intentional static atmosphere", () => {

@@ -36,7 +36,7 @@ export default async function Home() {
 
   return (
     <SitePage>
-      <HeroSection {...home.hero} />
+      <HeroSection {...home.hero} media={teaser} />
       <AboutSection id="about" {...home.about} />
       <PhotographySection {...photography} />
       <BlogSection {...home.blog} posts={blogPosts} />

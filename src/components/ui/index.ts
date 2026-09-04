@@ -30,5 +30,6 @@ export { FooterColumn, NavLink, SocialLink, FooterBackground, FooterBrand, Linke
 // Backgrounds
 export { SectionBackground } from "./backgrounds";
 
-// Static hero atmosphere only — WebGL shell is deep-imported via next/dynamic on `/`
-export { HeroFallback } from "./hero-webgl/hero-fallback";
+// Home hero atmosphere (photo + CSS fallback)
+export { HeroMedia, HeroFallback } from "./hero-media";
+export type { HeroMediaProps } from "./hero-media";
