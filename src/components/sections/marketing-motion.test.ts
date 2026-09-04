@@ -19,6 +19,9 @@ function walkTsx(dirFromRepo: string): string[] {
     if (statSync(absNext).isDirectory()) {
       return walkTsx(next);
     }
+    if (next.endsWith('.test.ts') || next.endsWith('.test.tsx')) {
+      return [];
+    }
     if (next.endsWith('.tsx') || next.endsWith('.ts')) {
       return [next.split('\\').join('/')];
     }
@@ -48,17 +51,15 @@ describe('marketing motion wiring', () => {
     );
   });
 
-  it('does not import WebGL on marketing or Labs surfaces', () => {
+  it('does not import WebGL on any marketing, Labs, or home surface', () => {
     const roots = [
-      'src/components/sections/about',
-      'src/components/sections/blog',
-      'src/components/sections/portfolio',
-      'src/components/sections/shared',
-      'src/components/sections/labs',
+      'src/components/sections',
       'src/app/about',
       'src/app/blog',
       'src/app/portfolio',
       'src/app/labs',
+      'src/app/admin',
+      'src/app/login',
     ];
     const files = [
       ...roots.flatMap(walkTsx),

@@ -1,8 +1,6 @@
 "use client";
 
-import { Heading, Container } from "@/components/ui";
-import { HeroFallback } from "@/components/ui/hero-media/hero-fallback";
-import { HeroMedia } from "@/components/ui/hero-media/hero-media";
+import { Container, Heading, HeroFallback, HeroMedia } from "@/components/ui";
 import type { PhotoItem } from "@/data/types";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";

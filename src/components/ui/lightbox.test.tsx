@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Lightbox } from '@/components/ui/lightbox';
 
@@ -74,5 +74,51 @@ describe('Lightbox', () => {
     const image = screen.getByRole('img', { name: 'First photo' });
     expect(image).toBeVisible();
     expect(image.closest('[style]')).not.toHaveStyle({ opacity: '0' });
+  });
+
+  it('closes on Escape and does not trap keyboard on a canvas', () => {
+    const onClose = vi.fn();
+
+    const { container } = render(
+      <Lightbox
+        isOpen
+        images={images}
+        currentIndex={0}
+        onClose={onClose}
+      />,
+    );
+
+    expect(container.querySelector('canvas')).toBeNull();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves between photos with arrow keys', () => {
+    const onNext = vi.fn();
+    const onPrevious = vi.fn();
+    const gallery = [
+      ...images,
+      {
+        src: '/photos/two.webp',
+        alt: 'Second photo',
+        title: 'Two',
+      },
+    ];
+
+    render(
+      <Lightbox
+        isOpen
+        images={gallery}
+        currentIndex={0}
+        onClose={() => {}}
+        onNext={onNext}
+        onPrevious={onPrevious}
+      />,
+    );
+
+    fireEvent.keyDown(document, { key: 'ArrowRight' });
+    fireEvent.keyDown(document, { key: 'ArrowLeft' });
+    expect(onNext).toHaveBeenCalledTimes(1);
+    expect(onPrevious).toHaveBeenCalledTimes(1);
   });
 });

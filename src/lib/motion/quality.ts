@@ -1,5 +1,8 @@
 /**
- * WebGL quality tiers for the home hero Canvas (Phase 2+).
+ * WebGL quality tiers for a possible future home Canvas.
+ *
+ * Not consumed while the home first-fold is media-led (photo + CSS fallback).
+ * Keep this helper if R3F is reintroduced; do not import Three from marketing or Labs.
  *
  * DPR caps (passed as Canvas `dpr` max):
  * - high: ≤ 2
