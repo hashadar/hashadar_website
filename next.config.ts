@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  // R3F / three addons often ship untranspiled ESM; required for Next App Router.
+  transpilePackages: ["three"],
   turbopack: {
     root: __dirname,
   },

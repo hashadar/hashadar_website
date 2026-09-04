@@ -16,8 +16,8 @@ Audited against the codebase as of Phase 0 (issue #230).
 
 | Area | Today |
 | --- | --- |
-| Motion library | `framer-motion` only (`package.json`) |
-| 3D / WebGL | None — no `three`, `@react-three/fiber`, or `@react-three/drei` |
+| Motion library | `framer-motion` (`package.json`) |
+| 3D / WebGL | `three`, `@react-three/fiber`, `@react-three/drei` installed (Phase 1); Canvas not mounted until Phase 2 |
 
 ### Shared reveal — `MotionReveal`
 
