@@ -14,7 +14,7 @@ import type { CertificationsSection } from "@/data/types";
 export function CertificationsListing({ heading, items }: CertificationsSection) {
   return (
     <Section className="relative overflow-hidden">
-      <SectionBackground variant="about-experience" />
+      <SectionBackground variant="marketing" />
 
       <Container>
         <div className="space-y-16">

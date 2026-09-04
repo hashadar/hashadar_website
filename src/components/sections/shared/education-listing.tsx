@@ -14,7 +14,7 @@ import type { EducationSection } from "@/data/types";
 export function EducationListing({ heading, entries }: EducationSection) {
   return (
     <Section id="education" className="relative overflow-hidden">
-      <SectionBackground variant="about-experience" />
+      <SectionBackground variant="marketing" />
 
       <Container>
         <div className="space-y-16">

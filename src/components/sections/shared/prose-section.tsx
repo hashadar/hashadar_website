@@ -27,7 +27,7 @@ export function ProseSection({
 
   return (
     <Section id={id} className={`relative overflow-hidden ${className ?? ""}`.trim()}>
-      <SectionBackground variant="about-experience" />
+      <SectionBackground variant="marketing" />
 
       <Container>
         <div className="space-y-16">
