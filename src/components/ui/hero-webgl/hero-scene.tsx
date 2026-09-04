@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { WebGLQualityTier } from "@/lib/motion/quality";
 import type { HeroThemeColors } from "./use-theme-uniforms";
@@ -19,24 +19,34 @@ function lerp(current: number, target: number, alpha: number) {
 
 /** Fullscreen photographic grain — high/medium only. */
 function GrainOverlay({ opacity }: { opacity: number }) {
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        transparent: true,
-        depthTest: false,
-        depthWrite: false,
-        uniforms: {
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+
+  useFrame((state) => {
+    const material = materialRef.current;
+    if (!material) return;
+    material.uniforms.uTime.value = state.clock.elapsedTime;
+  });
+
+  return (
+    <mesh renderOrder={10} frustumCulled={false}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        ref={materialRef}
+        transparent
+        depthTest={false}
+        depthWrite={false}
+        uniforms={{
           uTime: { value: 0 },
           uOpacity: { value: opacity },
-        },
-        vertexShader: /* glsl */ `
+        }}
+        vertexShader={/* glsl */ `
           varying vec2 vUv;
           void main() {
             vUv = uv;
             gl_Position = vec4(position.xy, 0.0, 1.0);
           }
-        `,
-        fragmentShader: /* glsl */ `
+        `}
+        fragmentShader={/* glsl */ `
           uniform float uTime;
           uniform float uOpacity;
           varying vec2 vUv;
@@ -50,21 +60,8 @@ function GrainOverlay({ opacity }: { opacity: number }) {
             float grain = (n - 0.5) * 2.0;
             gl_FragColor = vec4(vec3(grain), uOpacity);
           }
-        `,
-      }),
-    [opacity],
-  );
-
-  useEffect(() => () => material.dispose(), [material]);
-
-  useFrame((state) => {
-    material.uniforms.uTime.value = state.clock.elapsedTime;
-  });
-
-  return (
-    <mesh renderOrder={10} frustumCulled={false}>
-      <planeGeometry args={[2, 2]} />
-      <primitive object={material} attach="material" />
+        `}
+      />
     </mesh>
   );
 }
