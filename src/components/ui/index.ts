@@ -28,4 +28,8 @@ export { Lightbox } from "./lightbox";
 export { FooterColumn, NavLink, SocialLink, FooterBackground, FooterBrand, LinkedInIcon, GitHubIcon } from "./footer";
 
 // Backgrounds
-export { HeroBackground, SectionBackground } from "./backgrounds";
+export { SectionBackground } from "./backgrounds";
+
+// Home hero atmosphere (photo + CSS fallback)
+export { HeroMedia, HeroFallback } from "./hero-media";
+export type { HeroMediaProps } from "./hero-media";

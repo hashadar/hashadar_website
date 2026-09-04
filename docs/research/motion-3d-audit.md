@@ -104,11 +104,11 @@ Imagery on this site remains real photos. 3D does not replace the portfolio or h
 
 | Decision | Choice |
 | --- | --- |
-| Ambition | **Selective 3D** — not basic fade-ups only, not a full-site WebGL / Lenis / GSAP build |
-| WebGL surface | **Home hero only** — everywhere else stays DOM + Framer Motion / CSS |
-| Stack | Keep `framer-motion`. Add `three`, `@react-three/fiber`, `@react-three/drei`. No GSAP, no Lenis, no site-wide Web Audio in this epic |
-| Creative direction | Elevate the existing **angular brand language** into a real depth field — scroll- and pointer-reactive WebGL of planes / light cuts / geometric mass **behind** DOM typography. Photography grain/light influence welcome; no stock particle wallpaper, no mountain-terrain clone, no floating CSS diamonds |
-| Typography | **Stays DOM** for SEO, selection, and a11y — WebGL is atmosphere and depth, not a wordmark mesh |
+| Ambition | **Selective craft** — cinematic home first-fold + elevated DOM motion; not a full-site WebGL / Lenis / GSAP agency build |
+| WebGL surface | **Not currently mounted** — R3F deps may remain from Phase 1; reintroduce only with an explicit epic decision. Never on about / portfolio / blog / Labs |
+| Stack | Keep `framer-motion`. `three` / `@react-three/fiber` / `@react-three/drei` installed but unused on `/` until re-scoped. No GSAP, no Lenis, no site-wide Web Audio in this epic |
+| Creative direction | Home first-fold: **cinematic media + DOM brand typography** (Site Content home photo, scrim, editorial restraint inspired by premium agency first folds). No floating CSS diamonds; no geometric WebGL cube demo; no mouse parallax |
+| Typography | **Stays DOM** for SEO, selection, and a11y — media is atmosphere behind type |
 | Labs / Admin / Login | **Quieter** — no WebGL; only adopt shared motion tokens if a touch is trivial |
 | PR target | Feature work → `develop` (see `docs/BRANCHING.md`) |
 
@@ -119,10 +119,8 @@ Imagery on this site remains real photos. 3D does not replace the portfolio or h
 | Path | Purpose |
 | --- | --- |
 | `src/lib/motion/tokens.ts` | Durations, easings, springs, stagger steps — single source for Framer Motion + docs |
-| `src/lib/motion/quality.ts` | WebGL quality tier (`high` / `medium` / `low` / `off`) from DPR, coarse pointer, reduced-motion (optional detect-gpu later) |
-| `src/components/ui/hero-webgl/hero-webgl.tsx` | Client shell: Canvas, Suspense, pause when off-screen, fallback slot |
-| `src/components/ui/hero-webgl/hero-scene.tsx` | R3F scene graph (geometry, materials, scroll/pointer uniforms) |
-| `src/components/ui/hero-webgl/hero-fallback.tsx` | Static / CSS atmosphere when WebGL off or reduced motion |
+| `src/lib/motion/quality.ts` | WebGL quality tier helpers (retained; unused while R3F is unmounted) |
+| `src/components/ui/hero-media/*` | Full-bleed home photo atmosphere + CSS fallback |
 | `SectionBackground` internals (or `section-atmosphere.tsx`) | Replaces looping section background behaviour |
 
 Optional: `MotionRevealGroup` for grid stagger.
@@ -139,7 +137,7 @@ Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches e
 | --- | --- |
 | `src/lib/motion/tokens.ts` | Add |
 | `src/lib/motion/quality.ts` | Add |
-| `src/components/ui/hero-webgl/*` | Add |
+| `src/components/ui/hero-media/*` | Add (cinematic photo hero) |
 | Optional `MotionRevealGroup` | Add (if grid stagger needs a shared primitive) |
 
 ### UI primitives
@@ -147,7 +145,7 @@ Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches e
 | File | Action |
 | --- | --- |
 | `motion-reveal.tsx` | **Upgrade** — tokens, variants, stagger, tests |
-| `hero-background.tsx` | **Retire** (replace) — superseded by HeroWebGL + fallback |
+| `hero-background.tsx` | **Retire** — superseded by cinematic hero media + CSS fallback |
 | `section-background.tsx` | **Redesign** — no loops; quieter variants; a11y |
 | `footer-background.tsx` | **Redesign** — no loops |
 | `section-header.tsx` | Light touch — consume upgraded `MotionReveal` |
@@ -162,7 +160,7 @@ Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches e
 
 | Section | File | Action |
 | --- | --- | --- |
-| Hero | `hero-section.tsx` | **Major rewrite** + WebGL |
+| Hero | `hero-section.tsx` | **Major rewrite** — cinematic media + DOM type |
 | About prose | `prose-section.tsx` | New atmosphere; richer reveal |
 | Photography | `photography-section.tsx` | Quiet atmosphere; PhotoCard polish |
 | Blog teaser | `blog-section.tsx` | Stagger group; new bg |
@@ -192,24 +190,19 @@ Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches e
 
 ### Load rules
 
-- Dynamic-import hero WebGL from `hero-section.tsx` with `ssr: false` (or Next `dynamic` + client boundary) so home **LCP is not blocked by Three**.
-- Cap `dpr` (e.g. `Math.min(devicePixelRatio, 1.5)` on medium; `1` on low).
-- Pause `frameloop` when the hero leaves the viewport.
-- Dispose geometries/materials on unmount.
-- WebGL chunk only on the `/` hero path — **never** imported by about / portfolio / blog / labs.
+- Home hero atmosphere is Site Content photo (or CSS fallback) — do **not** mount Three/R3F on `/` unless the epic explicitly re-scopes.
+- Prefer DOM brand typography for LCP; media loads as atmosphere (`sizes="100vw"`, careful `priority`).
+- Never import unused WebGL modules from about / portfolio / blog / labs.
 
 ### Budgets
 
 | Metric | Target |
 | --- | --- |
-| Mid-range mobile | ≥30fps while hero visible |
-| Desktop | ≥55fps while hero visible |
-| Home LCP | Remains typography/brand (**DOM**), not canvas |
-| Reduced motion / WebGL fail | `HeroFallback` looks intentional, not broken |
+| Home LCP | Remains typography/brand (**DOM**) where possible; media must not block text |
+| Reduced motion / missing photo | CSS fallback looks intentional, not broken |
+| Non-home routes | No WebGL chunk |
 
-### Quality tiers
-
-`src/lib/motion/quality.ts` maps device capability and preferences to `high` / `medium` / `low` / `off` (DPR, coarse pointer, `prefers-reduced-motion`; optional detect-gpu later).
+`src/lib/motion/quality.ts` remains available if R3F returns later.
 
 ---
 
@@ -232,14 +225,14 @@ Implementation order (six children under epic #229). Phases 4 and 5 are combined
 | --- | --- | --- | --- |
 | 0 | [#230](https://github.com/hashadar/hashadar_website/issues/230) | Research doc + conventions | This document + conventions §1 / §6 |
 | 1 | [#231](https://github.com/hashadar/hashadar_website/issues/231) | Foundation (deps + motion tokens) | Install R3F stack; `tokens.ts` / `quality.ts` |
-| 2 | [#232](https://github.com/hashadar/hashadar_website/issues/232) | Signature home hero (WebGL) | HeroWebGL scene, fallback, dynamic import |
+| 2 | [#232](https://github.com/hashadar/hashadar_website/issues/232) | Cinematic home first-fold | Media-led hero (photo + DOM type); unmount geometric WebGL |
 | 3 | [#233](https://github.com/hashadar/hashadar_website/issues/233) | MotionReveal + atmospheres + CSS cleanup | Upgrade reveals; redesign section/footer bg; remove dead CSS |
 | 4–5 | [#234](https://github.com/hashadar/hashadar_website/issues/234) | Wire marketing + card polish | Marketing consumers; PhotoCard / BlogCard hover |
 | 6 | [#235](https://github.com/hashadar/hashadar_website/issues/235) | QA, docs finish, Labs non-regression | Perf/a11y QA; docs polish; Labs stay calm |
 
 ### Epic acceptance (reminder)
 
-When all phases complete: first viewport of `/` feels branded and dimensional; scroll + pointer give hero presence; reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on non-home routes; LCP/perf budgets met.
+When all phases complete: first viewport of `/` feels branded and cinematic (media craft + DOM type); reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on non-home routes; LCP/perf budgets met.
 
 ---
 
