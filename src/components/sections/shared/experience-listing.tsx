@@ -8,6 +8,7 @@ import {
   SectionBackground,
   SectionHeader,
   MotionReveal,
+  MotionRevealGroup,
   type SectionBackgroundVariant,
 } from "@/components/ui";
 import type { ExperienceSection } from "@/data/types";
@@ -37,19 +38,14 @@ export function ExperienceListing({
             </SectionHeader>
           )}
 
-          <div className="max-w-4xl mx-auto space-y-16">
-            {companies.map((company, companyIndex) => (
-              <MotionReveal
-                key={company.name}
-                variant="slide-in"
-                delay={companyIndex * 0.3}
-                className="relative"
-              >
-                <div className="relative group">
-                  <div className="absolute left-0 top-0 bottom-0 w-2 bg-[var(--primary)] opacity-20 transform skew-x-12" />
+          <MotionRevealGroup className="mx-auto max-w-4xl space-y-16">
+            {companies.map((company) => (
+              <MotionReveal key={company.name} variant="slide-in" className="relative">
+                <div className="group relative">
+                  <div className="absolute top-0 bottom-0 left-0 w-2 skew-x-12 transform bg-[var(--primary)] opacity-20" />
 
-                  <div className="pl-12 pb-8">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-6">
+                  <div className="pb-8 pl-12">
+                    <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <div className="space-y-1">
                         <Heading size="md" as="h2" className="text-[var(--foreground)]">
                           {company.name}
@@ -59,26 +55,25 @@ export function ExperienceListing({
                         </Text>
                       </div>
 
-                      <div className="w-12 h-px bg-gradient-to-r from-[var(--primary)] to-transparent opacity-40" />
+                      <div className="h-px w-12 bg-gradient-to-r from-[var(--primary)] to-transparent opacity-40" />
                     </div>
 
-                    <div className="space-y-8">
+                    <MotionRevealGroup className="space-y-8">
                       {company.roles.map((role, roleIndex) => (
                         <MotionReveal
                           key={`${company.name}-${role.role}`}
                           variant="fade-up"
                           distance="sm"
-                          delay={companyIndex * 0.3 + roleIndex * 0.15}
-                          className="relative group/role"
+                          className="group/role relative"
                         >
                           {roleIndex > 0 && (
-                            <div className="absolute -left-8 top-0 w-px h-8 bg-[var(--primary)] opacity-30" />
+                            <div className="absolute top-0 -left-8 h-8 w-px bg-[var(--primary)] opacity-30" />
                           )}
 
-                          <div className="pl-8 space-y-3 relative">
-                            <div className="absolute -left-6 top-2 w-3 h-3 border border-[var(--primary)] transform rotate-45 opacity-0 group-hover/role:opacity-100 transition-opacity duration-300" />
+                          <div className="relative space-y-3 pl-8">
+                            <div className="absolute top-2 -left-6 h-3 w-3 rotate-45 transform border border-[var(--primary)] opacity-0 transition-opacity duration-300 group-hover/role:opacity-100 motion-reduce:transition-none" />
 
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
+                            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                               <div className="space-y-1">
                                 <Heading size="sm" as="h3" className="text-[var(--foreground)]">
                                   {role.role}
@@ -91,20 +86,20 @@ export function ExperienceListing({
                               </div>
                             </div>
 
-                            <Text className="leading-relaxed text-sm">
+                            <Text className="text-sm leading-relaxed">
                               {role.description}
                             </Text>
 
-                            <div className="w-12 h-px bg-gradient-to-r from-[var(--primary)] to-transparent opacity-20" />
+                            <div className="h-px w-12 bg-gradient-to-r from-[var(--primary)] to-transparent opacity-20" />
                           </div>
                         </MotionReveal>
                       ))}
-                    </div>
+                    </MotionRevealGroup>
                   </div>
                 </div>
               </MotionReveal>
             ))}
-          </div>
+          </MotionRevealGroup>
         </div>
       </Container>
     </Section>

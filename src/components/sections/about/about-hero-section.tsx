@@ -9,23 +9,23 @@ interface AboutHeroSectionProps {
 
 export function AboutHeroSection({ name, title }: AboutHeroSectionProps) {
   return (
-    <Section className="relative overflow-hidden pt-28 md:pt-36 pb-20">
+    <Section className="relative overflow-hidden pt-28 pb-20 md:pt-36">
       <SectionBackground variant="marketing" />
 
       <Container>
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <MotionReveal variant="fade-up" distance="md" inView={false}>
-            <Heading size="xl" className="text-[var(--foreground)] mb-4">
+        <div className="mx-auto max-w-4xl space-y-8 text-center">
+          <MotionReveal variant="clip-up" distance="md" inView={false}>
+            <Heading size="xl" className="mb-4 text-[var(--foreground)]">
               {name}
             </Heading>
           </MotionReveal>
 
-          <MotionReveal variant="fade-up" distance="sm" delay={0.2} inView={false} className="relative">
-            <div className="absolute left-1/2 -translate-x-1/2 -top-4 w-16 h-px bg-[var(--primary)] transform -skew-x-12 opacity-40" />
-            <Heading size="sm" as="h2" className="text-[var(--primary)] tracking-[0.25em] capitalize relative">
+          <MotionReveal variant="fade-up" distance="sm" delay={0.15} inView={false} className="relative">
+            <div className="absolute -top-4 left-1/2 h-px w-16 -translate-x-1/2 -skew-x-12 transform bg-[var(--primary)] opacity-40" />
+            <Heading size="sm" as="h2" className="relative capitalize tracking-[0.25em] text-[var(--primary)]">
               {title}
             </Heading>
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-12 h-px bg-[var(--primary)] transform skew-x-12 opacity-30" />
+            <div className="absolute -bottom-4 left-1/2 h-px w-12 -translate-x-1/2 skew-x-12 transform bg-[var(--primary)] opacity-30" />
           </MotionReveal>
         </div>
       </Container>

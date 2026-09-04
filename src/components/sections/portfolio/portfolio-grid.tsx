@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionHeader, Container, Section, PhotoCard, Lightbox, MotionReveal, Text } from "@/components/ui";
+import { SectionHeader, Container, Section, PhotoCard, Lightbox, MotionReveal, MotionRevealGroup, Text, SectionBackground } from "@/components/ui";
 import { portfolio } from "@/data";
 import type { PhotoItem } from "@/data/types";
 import { useState, useEffect } from "react";
@@ -44,29 +44,29 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
   }, [images]);
 
   return (
-    <Section className="py-20">
+    <Section className="relative overflow-hidden py-20">
+      <SectionBackground variant="photography" />
+
       <Container>
         <div className="mb-16 space-y-4">
           <SectionHeader animated={false}>
             {portfolio.heading}
           </SectionHeader>
-          
-          <p className="text-[var(--foreground)] text-lg max-w-2xl">
+
+          <Text size="lg" className="max-w-2xl text-[var(--foreground)]">
             {portfolio.description}
-          </p>
+          </Text>
         </div>
 
         {images.length === 0 ? (
           <Text variant="muted">No photos yet.</Text>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <MotionRevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {images.map((image, index) => (
               <MotionReveal
                 key={`${image.src}-${index}`}
                 variant="fade-up"
                 distance="sm"
-                delay={index * 0.1}
-                inView={false}
               >
                 <PhotoCard
                   src={image.src}
@@ -87,7 +87,7 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
                 />
               </MotionReveal>
             ))}
-          </div>
+          </MotionRevealGroup>
         )}
       </Container>
 

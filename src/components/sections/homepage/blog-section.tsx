@@ -46,11 +46,11 @@ export function BlogSection({
           </SectionHeader>
 
           {description && (
-            <div className="max-w-2xl mx-auto text-center">
+            <MotionReveal variant="fade" className="mx-auto max-w-2xl text-center">
               <Text size="lg" className="text-[var(--foreground)]/80">
                 {description}
               </Text>
-            </div>
+            </MotionReveal>
           )}
 
           {posts.length > 0 ? (
@@ -86,8 +86,7 @@ export function BlogSection({
             <MotionReveal
               variant="fade-up"
               distance="sm"
-              delay={0.4}
-              className="flex justify-center pt-8 relative z-10"
+              className="relative z-10 flex justify-center pt-8"
             >
               <Button href={cta.href} variant="primary" size="md">
                 {cta.label}
