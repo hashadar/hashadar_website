@@ -90,7 +90,7 @@ function useViewportWidth(): number {
 
 /**
  * Home-hero WebGL shell: quality tiers, off-screen pause, failure → fallback.
- * Atmosphere only — brand typography stays in the DOM.
+ * Atmosphere only — brand typography stays in the DOM. Scroll + idle; no pointer.
  */
 export function HeroWebGL({ scrollProgressRef }: HeroWebGLProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -98,7 +98,6 @@ export function HeroWebGL({ scrollProgressRef }: HeroWebGLProps) {
   const viewportWidth = useViewportWidth();
   const colors = useThemeUniforms();
   const containerRef = useRef<HTMLDivElement>(null);
-  const pointerRef = useRef({ x: 0, y: 0 });
   const [inView, setInView] = useState(true);
   const [failed, setFailed] = useState(false);
 
@@ -117,8 +116,6 @@ export function HeroWebGL({ scrollProgressRef }: HeroWebGLProps) {
     return clampDevicePixelRatio(tier, window.devicePixelRatio || 1);
   }, [tier]);
 
-  const pointerEnabled = !coarsePointer && tier !== "off" && !prefersReducedMotion;
-
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
@@ -130,28 +127,6 @@ export function HeroWebGL({ scrollProgressRef }: HeroWebGLProps) {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!pointerEnabled) {
-      pointerRef.current = { x: 0, y: 0 };
-      return;
-    }
-
-    const onMove = (event: PointerEvent) => {
-      const node = containerRef.current;
-      if (!node) return;
-      const rect = node.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-      pointerRef.current = {
-        x: Math.max(-1, Math.min(1, x)),
-        y: Math.max(-1, Math.min(1, y)),
-      };
-    };
-
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
-  }, [pointerEnabled]);
 
   if (tier === "off" || failed) {
     return <HeroFallback />;
@@ -176,7 +151,7 @@ export function HeroWebGL({ scrollProgressRef }: HeroWebGLProps) {
               powerPreference: activeTier === "low" ? "low-power" : "high-performance",
               failIfMajorPerformanceCaveat: false,
             }}
-            camera={{ position: [0, 0, 5], fov: 45, near: 0.1, far: 40 }}
+            camera={{ position: [0, 0.15, 5.2], fov: 42, near: 0.1, far: 40 }}
             style={{ width: "100%", height: "100%" }}
             onCreated={({ gl }) => {
               gl.setClearColor(colors.background, 1);
@@ -184,8 +159,6 @@ export function HeroWebGL({ scrollProgressRef }: HeroWebGLProps) {
           >
             <HeroScene
               scrollProgressRef={scrollProgressRef as MutableRefObject<number>}
-              pointerRef={pointerRef}
-              pointerEnabled={pointerEnabled}
               tier={activeTier}
               colors={colors}
             />

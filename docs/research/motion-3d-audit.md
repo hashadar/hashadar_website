@@ -107,7 +107,7 @@ Imagery on this site remains real photos. 3D does not replace the portfolio or h
 | Ambition | **Selective 3D** — not basic fade-ups only, not a full-site WebGL / Lenis / GSAP build |
 | WebGL surface | **Home hero only** — everywhere else stays DOM + Framer Motion / CSS |
 | Stack | Keep `framer-motion`. Add `three`, `@react-three/fiber`, `@react-three/drei`. No GSAP, no Lenis, no site-wide Web Audio in this epic |
-| Creative direction | Elevate the existing **angular brand language** into a real depth field — scroll- and pointer-reactive WebGL of planes / light cuts / geometric mass **behind** DOM typography. Photography grain/light influence welcome; no stock particle wallpaper, no mountain-terrain clone, no floating CSS diamonds |
+| Creative direction | Elevate the existing **angular brand language** into a real depth field — scroll- and idle-driven WebGL of planes / light cuts / geometric mass **behind** DOM typography (no mouse parallax). Photography grain/light influence welcome; no stock particle wallpaper, no mountain-terrain clone, no floating CSS diamonds |
 | Typography | **Stays DOM** for SEO, selection, and a11y — WebGL is atmosphere and depth, not a wordmark mesh |
 | Labs / Admin / Login | **Quieter** — no WebGL; only adopt shared motion tokens if a touch is trivial |
 | PR target | Feature work → `develop` (see `docs/BRANCHING.md`) |
@@ -121,7 +121,7 @@ Imagery on this site remains real photos. 3D does not replace the portfolio or h
 | `src/lib/motion/tokens.ts` | Durations, easings, springs, stagger steps — single source for Framer Motion + docs |
 | `src/lib/motion/quality.ts` | WebGL quality tier (`high` / `medium` / `low` / `off`) from DPR, coarse pointer, reduced-motion (optional detect-gpu later) |
 | `src/components/ui/hero-webgl/hero-webgl.tsx` | Client shell: Canvas, Suspense, pause when off-screen, fallback slot |
-| `src/components/ui/hero-webgl/hero-scene.tsx` | R3F scene graph (geometry, materials, scroll/pointer uniforms) |
+| `src/components/ui/hero-webgl/hero-scene.tsx` | R3F scene graph (geometry, materials, scroll/idle uniforms) |
 | `src/components/ui/hero-webgl/hero-fallback.tsx` | Static / CSS atmosphere when WebGL off or reduced motion |
 | `SectionBackground` internals (or `section-atmosphere.tsx`) | Replaces looping section background behaviour |
 
@@ -239,7 +239,7 @@ Implementation order (six children under epic #229). Phases 4 and 5 are combined
 
 ### Epic acceptance (reminder)
 
-When all phases complete: first viewport of `/` feels branded and dimensional; scroll + pointer give hero presence; reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on non-home routes; LCP/perf budgets met.
+When all phases complete: first viewport of `/` feels branded and dimensional; scroll + idle give hero presence; reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on non-home routes; LCP/perf budgets met.
 
 ---
 
