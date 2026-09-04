@@ -19,7 +19,7 @@ export const motionEasings = {
 
 export type MotionEasing = keyof typeof motionEasings;
 
-/** Spring presets for hero enter and reveal-style motion. */
+/** Spring presets for hero enter, reveal-style motion, and hover scale. */
 export const motionSprings = {
   heroEnter: {
     type: "spring" as const,
@@ -30,6 +30,11 @@ export const motionSprings = {
     type: "spring" as const,
     damping: 28,
     stiffness: 120,
+  },
+  hover: {
+    type: "spring" as const,
+    damping: 20,
+    stiffness: 260,
   },
 } as const;
 

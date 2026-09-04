@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { SectionHeader, Container, Section, BlogCard, MotionReveal } from "@/components/ui";
+import { SectionHeader, Container, Section, BlogCard, MotionReveal, MotionRevealGroup, SectionBackground, Text } from "@/components/ui";
 import { blog } from "@/data";
 import type { BlogPost } from "@/data/types";
 
@@ -56,17 +56,18 @@ export function BlogGrid({ posts }: BlogGridProps) {
   }, [posts, selectedCategory, sortOption]);
 
   return (
-    <Section className="py-20">
+    <Section className="relative overflow-hidden py-20">
+      <SectionBackground variant="marketing" />
+
       <Container>
-        {/* Header */}
         <div className="mb-16 space-y-4">
           <SectionHeader animated={false}>
             {blog.heading}
           </SectionHeader>
-          
-          <p className="text-[var(--foreground)] text-lg max-w-2xl">
+
+          <Text size="lg" className="max-w-2xl text-[var(--foreground)]">
             {blog.description}
-          </p>
+          </Text>
         </div>
 
         {/* Filters and Sort */}
@@ -127,14 +128,12 @@ export function BlogGrid({ posts }: BlogGridProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <MotionRevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredAndSortedPosts.map((post, index) => (
               <MotionReveal
                 key={post.slug}
                 variant="fade-up"
                 distance="sm"
-                delay={index * 0.05}
-                inView={false}
               >
                 <BlogCard
                   slug={post.slug}
@@ -148,7 +147,7 @@ export function BlogGrid({ posts }: BlogGridProps) {
                 />
               </MotionReveal>
             ))}
-          </div>
+          </MotionRevealGroup>
         )}
       </Container>
     </Section>

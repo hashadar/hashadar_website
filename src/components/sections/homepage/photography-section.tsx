@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionHeader, Text, Container, Section, SectionBackground, PhotoCard, Lightbox, Button } from "@/components/ui";
+import { SectionHeader, Text, Container, Section, SectionBackground, PhotoCard, Lightbox, Button, MotionReveal } from "@/components/ui";
 import { useState } from "react";
 
 interface PhotoItem {
@@ -34,24 +34,21 @@ export function PhotographySection({ heading, description, images }: Photography
 
       <Container>
         <div className="space-y-12 md:space-y-16">
-          {/* Header */}
           <SectionHeader animated={false} showBottomAccent>
             {heading}
           </SectionHeader>
 
-          {/* Description */}
           {description && (
-            <div className="max-w-2xl mx-auto text-center">
+            <MotionReveal variant="fade" className="mx-auto max-w-2xl text-center">
               <Text size="lg" className="text-[var(--foreground)]/80">
                 {description}
               </Text>
-            </div>
+            </MotionReveal>
           )}
 
-          {/* Single Image Display */}
           {images.length > 0 && (
-            <div className="flex justify-center">
-              <div className="max-w-4xl w-full">
+            <MotionReveal variant="fade" className="flex justify-center">
+              <div className="w-full max-w-4xl">
                 <PhotoCard
                   src={images[0].src}
                   alt={images[0].alt}
@@ -67,19 +64,17 @@ export function PhotographySection({ heading, description, images }: Photography
                   onClick={openLightbox}
                 />
               </div>
-            </div>
+            </MotionReveal>
           )}
 
-          {/* Button */}
-          <div className="flex justify-center pt-8 relative z-10">
+          <MotionReveal variant="fade-up" distance="sm" className="relative z-10 flex justify-center pt-8">
             <Button href="/portfolio" variant="primary" size="md">
               View Full Portfolio
             </Button>
-          </div>
+          </MotionReveal>
         </div>
       </Container>
 
-      {/* Lightbox */}
       <Lightbox
         isOpen={lightboxOpen}
         images={images}

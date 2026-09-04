@@ -19,13 +19,14 @@ describe("motion tokens", () => {
     expect(motionEasings.inOut).toBe("easeInOut");
   });
 
-  it("exposes hero enter and reveal spring presets", () => {
+  it("exposes hero enter, reveal, and hover spring presets", () => {
     expect(motionSprings.heroEnter).toMatchObject({
       type: "spring",
       damping: 25,
       stiffness: 80,
     });
     expect(motionSprings.reveal.type).toBe("spring");
+    expect(motionSprings.hover.stiffness).toBeGreaterThan(motionSprings.reveal.stiffness);
   });
 
   it("exposes a positive stagger step", () => {

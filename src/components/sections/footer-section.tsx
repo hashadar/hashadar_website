@@ -7,6 +7,7 @@ import {
   FooterColumn,
   GitHubIcon,
   LinkedInIcon,
+  MotionRevealGroup,
   NavLink,
   SocialLink,
   Text,
@@ -31,8 +32,8 @@ export function FooterSection() {
 
       <Container>
         <div className="py-20 space-y-16">
-          <div className="grid md:grid-cols-3 gap-12 md:gap-16">
-            <FooterColumn title={heading} delay={0}>
+          <MotionRevealGroup className="grid gap-12 md:grid-cols-3 md:gap-16">
+            <FooterColumn title={heading}>
               <Text className="leading-relaxed text-[var(--foreground)]">
                 {description}
               </Text>
@@ -46,7 +47,7 @@ export function FooterSection() {
               </div>
             </FooterColumn>
 
-            <FooterColumn title={navigationTitle} delay={0.2}>
+            <FooterColumn title={navigationTitle}>
               <nav className="space-y-3 relative z-10">
                 {navigation.links.map((link) => (
                   <NavLink key={link.href} href={link.href}>
@@ -56,7 +57,7 @@ export function FooterSection() {
               </nav>
             </FooterColumn>
 
-            <FooterColumn title={socialTitle} delay={0.4}>
+            <FooterColumn title={socialTitle}>
               <div className="flex gap-4 relative z-10">
                 <SocialLink
                   href={social.linkedin}
@@ -70,7 +71,7 @@ export function FooterSection() {
                 />
               </div>
             </FooterColumn>
-          </div>
+          </MotionRevealGroup>
 
           <FooterBrand brandName={site.brandName} copyright={copyright} />
         </div>
