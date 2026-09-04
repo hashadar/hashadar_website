@@ -1,5 +1,5 @@
 /**
- * Shared motion tokens for Framer Motion (and later R3F choreography).
+ * Shared motion tokens for Framer Motion.
  * Distances match MotionReveal fade-up / clip-up / slide-in offsets.
  */
 

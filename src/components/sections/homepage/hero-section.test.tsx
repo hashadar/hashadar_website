@@ -33,7 +33,8 @@ afterEach(() => {
 describe("HeroSection", () => {
   it("keeps brand typography in the DOM with media atmosphere", () => {
     mockMatchMedia(false);
-    render(
+
+    const { container } = render(
       <HeroSection
         name="Hasha Dar"
         title="Software Engineer"
@@ -50,6 +51,11 @@ describe("HeroSection", () => {
       screen.getByRole("heading", { level: 2, name: "Software Engineer" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("hero-media-image")).toBeInTheDocument();
+    expect(container.querySelector("canvas")).toBeNull();
+
+    const atmosphere = container.querySelector('[aria-hidden="true"]');
+    expect(atmosphere).toBeTruthy();
+    expect(atmosphere).toHaveClass("pointer-events-none");
   });
 
   it("shows CSS fallback when media is missing", () => {

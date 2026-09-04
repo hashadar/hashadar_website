@@ -1,16 +1,81 @@
 # Selective 3D motion revamp — audit and locked direction
 
-**Status:** Phase 0 complete (research + conventions). Implementation follows sibling sub-issues.  
+**Status:** Phase 6 complete (QA, docs, Labs non-regression). Implementation matches the media-led pivot, not the original geometric WebGL hero.  
 **Parent epic:** [#229 — Epic: Selective 3D motion revamp](https://github.com/hashadar/hashadar_website/issues/229)  
 **Conventions:** [CODEBASE-CONVENTIONS.md](../CODEBASE-CONVENTIONS.md) §1 overview and §6 Motion
 
-This document is the durable source of truth for the selective-3D motion revamp: baseline inventory, market context, locked decisions, component matrix, performance rules, non-goals, and phase map.
+This document is the durable source of truth for the selective-3D motion revamp: shipped inventory, market context, locked decisions, component matrix, performance rules, non-goals, and phase map. Section 1 keeps the Phase 0 baseline as history.
 
 ---
 
-## 1. Current baseline inventory
+## Shipped inventory (after Phase 6)
 
-Audited against the codebase as of Phase 0 (issue #230).
+Audited against the codebase at Phase 6 close (#235).
+
+### Dependencies
+
+| Area | Shipped |
+| --- | --- |
+| Motion library | `framer-motion` |
+| 3D / WebGL | `three`, `@react-three/fiber`, `@react-three/drei` remain in `package.json` from Phase 1; **not imported anywhere under `src/`**. No Canvas is mounted. Reintroduce only with an explicit epic decision. |
+
+### Shared reveal — `MotionReveal`
+
+**File:** `src/components/ui/motion-reveal.tsx`  
+**Barrel:** `@/components/ui`
+
+- Variants: `fade-up` \| `fade` \| `slide-in` \| `clip-up` \| `none`
+- Optional `delay`, `distance` (`sm` \| `md` \| `lg`), `inView` (default true)
+- Transitions from `@/lib/motion/tokens` (springs for spatial motion; duration/ease for fades)
+- Owns `usePrefersReducedMotion`; reduced motion or `variant === "none"` renders a static wrapper
+- `MotionRevealGroup` staggers children by `motionStagger.step` (overridable)
+
+### Home hero — cinematic media + DOM type
+
+**Files:** `src/components/sections/homepage/hero-section.tsx`, `src/components/ui/hero-media/*`
+
+- Full-bleed Site Content home photo (`HeroMedia`) or CSS `HeroFallback` when missing
+- Brand name/title stay real `Heading`s (LCP candidate); media is `aria-hidden` + `pointer-events-none`, `priority={false}`
+- Scroll-driven type fade/parallax and a light media Ken Burns; **no mouse parallax**
+- Reduced motion: static media, no Ken Burns, no scroll-cue bounce
+- Geometric `HeroWebGL` / `HeroBackground` modules are **retired** (not in the tree)
+
+### Decorative atmospheres
+
+Static, non-looping, `aria-hidden`. `SectionBackground` and `FooterBackground` do not need `usePrefersReducedMotion` because they no longer animate.
+
+| Component | Path | Shipped behaviour |
+| --- | --- | --- |
+| `SectionBackground` | `src/components/ui/backgrounds/section-background.tsx` | `marketing` (quiet grid/gradient rail), `photography` (minimal hairline), `none` |
+| `FooterBackground` | `src/components/ui/footer/footer-background.tsx` | Static grid + accent lines |
+| `.geometric-pattern` | `tailwind.config.ts` | Quiet CSS grid; used by marketing/footer/fallback atmospheres |
+
+### Dead CSS / utilities (removed)
+
+| Selector / util | Status |
+| --- | --- |
+| `.hero-floating` / `@keyframes float` | Removed from `globals.css` |
+| `.hero-pulse` / `@keyframes pulse-glow` | Removed from `globals.css` |
+| `.perspective-1000`, `transform-style-preserve-3d`, `.hero-parallax` | Removed from `tailwind.config.ts` |
+| `src/components/ui/hero-webgl/*` | Removed after the media-led pivot |
+| `hero-background.tsx` | Retired; not in the tree |
+
+### Other motion touchpoints
+
+| Area | Shipped |
+| --- | --- |
+| Cards | Shared hover zoom (`scale-[1.04]`) with `motion-reduce:group-hover:scale-100` |
+| Lightbox | Token fades; instant under reduced motion; Escape / arrow keys |
+| Labs index / WMW charts | Local springs or chart motion; restrained; no marketing atmospheres |
+| Job OS | `SectionHeader animated={false}`; CSS-only / quiet |
+| Admin / Login | No spectacle motion |
+| `use-smooth-scroll` | Hash-offset scrolling only — not Lenis |
+
+---
+
+## 1. Phase 0 baseline inventory (historical)
+
+Audited against the codebase as of Phase 0 (issue #230). Kept so later phases can see what was retired. **Do not treat this table as current** — see **Shipped inventory** above.
 
 ### Dependencies
 
@@ -105,8 +170,8 @@ Imagery on this site remains real photos. 3D does not replace the portfolio or h
 | Decision | Choice |
 | --- | --- |
 | Ambition | **Selective craft** — cinematic home first-fold + elevated DOM motion; not a full-site WebGL / Lenis / GSAP agency build |
-| WebGL surface | **Not currently mounted** — R3F deps may remain from Phase 1; reintroduce only with an explicit epic decision. Never on about / portfolio / blog / Labs |
-| Stack | Keep `framer-motion`. `three` / `@react-three/fiber` / `@react-three/drei` installed but unused on `/` until re-scoped. No GSAP, no Lenis, no site-wide Web Audio in this epic |
+| WebGL surface | **Not currently mounted on any route**, including `/`. R3F deps may remain from Phase 1; reintroduce only with an explicit epic decision. Never on about / portfolio / blog / Labs |
+| Stack | Keep `framer-motion`. `three` / `@react-three/fiber` / `@react-three/drei` installed but unused until re-scoped. No GSAP, no Lenis, no site-wide Web Audio in this epic |
 | Creative direction | Home first-fold: **cinematic media + DOM brand typography** (Site Content home photo, scrim, editorial restraint inspired by premium agency first folds). No floating CSS diamonds; no geometric WebGL cube demo; no mouse parallax |
 | Typography | **Stays DOM** for SEO, selection, and a11y — media is atmosphere behind type |
 | Labs / Admin / Login | **Quieter** — no WebGL; only adopt shared motion tokens if a touch is trivial |
@@ -116,73 +181,74 @@ Imagery on this site remains real photos. 3D does not replace the portfolio or h
 
 ## 4. Target architecture (modules)
 
-| Path | Purpose |
-| --- | --- |
-| `src/lib/motion/tokens.ts` | Durations, easings, springs, stagger steps — single source for Framer Motion + docs |
-| `src/lib/motion/quality.ts` | WebGL quality tier helpers (retained; unused while R3F is unmounted) |
-| `src/components/ui/hero-media/*` | Full-bleed home photo atmosphere + CSS fallback |
-| `SectionBackground` internals (or `section-atmosphere.tsx`) | Replaces looping section background behaviour |
-
-Optional: `MotionRevealGroup` for grid stagger.
+| Path | Purpose | Phase 6 status |
+| --- | --- | --- |
+| `src/lib/motion/tokens.ts` | Durations, easings, springs, stagger steps — single source for Framer Motion + docs | Shipped |
+| `src/lib/motion/quality.ts` | WebGL quality tier helpers (dormant; unused while R3F is unmounted) | Retained |
+| `src/components/ui/hero-media/*` | Full-bleed home photo atmosphere + CSS fallback | Shipped |
+| `src/components/ui/hero-webgl/*` | Geometric R3F hero (planes / light cuts) | **Retired** after the media-led pivot |
+| `SectionBackground` | Quiet static atmospheres (`marketing` / `photography` / `none`) | Shipped |
+| `MotionRevealGroup` | Grid stagger using token step | Shipped |
 
 ---
 
 ## 5. Component change matrix
 
-Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches epic #229.
+Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches epic #229. Status column is Phase 6 close.
 
 ### New
 
-| Path | Action |
-| --- | --- |
-| `src/lib/motion/tokens.ts` | Add |
-| `src/lib/motion/quality.ts` | Add |
-| `src/components/ui/hero-media/*` | Add (cinematic photo hero) |
-| Optional `MotionRevealGroup` | Add (if grid stagger needs a shared primitive) |
+| Path | Action | Status |
+| --- | --- | --- |
+| `src/lib/motion/tokens.ts` | Add | Shipped |
+| `src/lib/motion/quality.ts` | Add | Shipped (dormant) |
+| `src/components/ui/hero-media/*` | Add (cinematic photo hero) | Shipped |
+| `MotionRevealGroup` | Add | Shipped |
 
 ### UI primitives
 
-| File | Action |
-| --- | --- |
-| `motion-reveal.tsx` | **Upgrade** — tokens, variants, stagger, tests |
-| `hero-background.tsx` | **Retire** — superseded by cinematic hero media + CSS fallback |
-| `section-background.tsx` | **Redesign** — no loops; quieter variants; a11y |
-| `footer-background.tsx` | **Redesign** — no loops |
-| `section-header.tsx` | Light touch — consume upgraded `MotionReveal` |
-| `photo-card.tsx` / `blog-card.tsx` | **Polish** — coherent hover; reduced-motion (no scale zoom) |
-| `lightbox.tsx` | **Keep** / light polish — tokens; reduced-motion instant |
-| `social-link.tsx`, footer column/brand | **Keep** — inherit upgrades |
-| `button.tsx`, `card.tsx`, `header.tsx` | **Keep** — mobile menu enter out of scope |
-| `use-prefers-reduced-motion.ts` | **Keep** |
-| `use-smooth-scroll.ts` | **Keep** — hash offsets only; no Lenis |
+| File | Action | Status |
+| --- | --- | --- |
+| `motion-reveal.tsx` | **Upgrade** — tokens, variants, stagger, tests | Shipped |
+| `hero-background.tsx` | **Retire** — superseded by cinematic hero media + CSS fallback | Removed |
+| `hero-webgl/*` | Add then **retire** — geometric WebGL unmounted in the Phase 2 pivot | Removed |
+| `section-background.tsx` | **Redesign** — no loops; quieter variants; a11y | Shipped |
+| `footer-background.tsx` | **Redesign** — no loops | Shipped |
+| `section-header.tsx` | Light touch — consume upgraded `MotionReveal` | Shipped |
+| `photo-card.tsx` / `blog-card.tsx` | **Polish** — coherent hover; reduced-motion (no scale zoom) | Shipped |
+| `lightbox.tsx` | **Keep** / light polish — tokens; reduced-motion instant | Shipped |
+| `social-link.tsx`, footer column/brand | **Keep** — inherit upgrades | Shipped |
+| `button.tsx`, `card.tsx`, `header.tsx` | **Keep** — mobile menu enter out of scope | Unchanged |
+| `use-prefers-reduced-motion.ts` | **Keep** | Unchanged |
+| `use-smooth-scroll.ts` | **Keep** — hash offsets only; no Lenis | Unchanged |
 
 ### Homepage (`src/app/page.tsx`)
 
-| Section | File | Action |
-| --- | --- | --- |
-| Hero | `hero-section.tsx` | **Major rewrite** — cinematic media + DOM type |
-| About prose | `prose-section.tsx` | New atmosphere; richer reveal |
-| Photography | `photography-section.tsx` | Quiet atmosphere; PhotoCard polish |
-| Blog teaser | `blog-section.tsx` | Stagger group; new bg |
-| Experience | `experience-listing.tsx` | New bg; better stagger |
+| Section | File | Action | Status |
+| --- | --- | --- | --- |
+| Hero | `hero-section.tsx` | **Major rewrite** — cinematic media + DOM type | Shipped |
+| About prose | `prose-section.tsx` | New atmosphere; richer reveal | Shipped |
+| Photography | `photography-section.tsx` | Quiet atmosphere; PhotoCard polish | Shipped |
+| Blog teaser | `blog-section.tsx` | Stagger group; new bg | Shipped |
+| Experience | `experience-listing.tsx` | New bg; better stagger | Shipped |
 
 ### About / Portfolio / Blog / Footer
 
-| Surface | Action |
-| --- | --- |
-| About hero | Elevated DOM only — **no** WebGL; drop float bg |
-| Shared listings + prose | New atmosphere + upgraded reveals |
-| Portfolio / blog index | Stagger + card polish; optional static atmosphere |
-| Blog post | **Keep quiet** |
-| Footer | Redesigned `FooterBackground` |
-| `site-page.tsx` | **Keep** |
+| Surface | Action | Status |
+| --- | --- | --- |
+| About hero | Elevated DOM only — **no** WebGL; drop float bg | Shipped (`clip-up`) |
+| Shared listings + prose | New atmosphere + upgraded reveals | Shipped |
+| Portfolio / blog index | Stagger + card polish; optional static atmosphere | Shipped |
+| Blog post | **Keep quiet** | Shipped |
+| Footer | Redesigned `FooterBackground` | Shipped |
+| `site-page.tsx` | **Keep** | Unchanged |
 
 ### Labs (non-goals for spectacle)
 
-| Surface | Action |
-| --- | --- |
-| Labs index | Keep restrained springs; optional tokens only |
-| WMW / Job OS | Keep functional / CSS-only motion |
+| Surface | Action | Status |
+| --- | --- | --- |
+| Labs index | Keep restrained springs; optional tokens only | Unchanged (no spectacle added) |
+| WMW / Job OS | Keep functional / CSS-only motion | Unchanged (Job OS `animated={false}`) |
 
 ---
 
@@ -190,17 +256,19 @@ Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches e
 
 ### Load rules
 
-- Home hero atmosphere is Site Content photo (or CSS fallback) — do **not** mount Three/R3F on `/` unless the epic explicitly re-scopes.
-- Prefer DOM brand typography for LCP; media loads as atmosphere (`sizes="100vw"`, careful `priority`).
-- Never import unused WebGL modules from about / portfolio / blog / labs.
+- Home hero atmosphere is Site Content photo (or CSS fallback). Do **not** mount Three/R3F on `/` unless a later epic explicitly re-scopes.
+- Prefer DOM brand typography for LCP; media loads as atmosphere (`sizes="100vw"`, `priority={false}`).
+- Never import WebGL modules from `/`, about, portfolio, blog, footer, or Labs. Isolation test: `src/lib/motion/isolation.test.ts`.
+- Parked R3F packages must stay out of the client graph (no `src/` import). They are not a licence to remount a canvas.
 
 ### Budgets
 
 | Metric | Target |
 | --- | --- |
-| Home LCP | Remains typography/brand (**DOM**) where possible; media must not block text |
-| Reduced motion / missing photo | CSS fallback looks intentional, not broken |
-| Non-home routes | No WebGL chunk |
+| Home LCP | Remains typography/brand (**DOM**); media must not block text |
+| Reduced motion / missing photo | CSS fallback looks intentional, not broken; no Ken Burns or infinite bounce |
+| Any route, including `/` | No WebGL chunk |
+| Hero WebGL FPS | **N/A** until R3F is reintroduced (mid-range mobile ≥30fps / desktop ≥55fps, pause off-screen) |
 
 `src/lib/motion/quality.ts` remains available if R3F returns later.
 
@@ -221,18 +289,18 @@ Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches e
 
 Implementation order (six children under epic #229). Phases 4 and 5 are combined in #234.
 
-| Phase | Issue | Title | Focus |
-| --- | --- | --- | --- |
-| 0 | [#230](https://github.com/hashadar/hashadar_website/issues/230) | Research doc + conventions | This document + conventions §1 / §6 |
-| 1 | [#231](https://github.com/hashadar/hashadar_website/issues/231) | Foundation (deps + motion tokens) | Install R3F stack; `tokens.ts` / `quality.ts` |
-| 2 | [#232](https://github.com/hashadar/hashadar_website/issues/232) | Cinematic home first-fold | Media-led hero (photo + DOM type); unmount geometric WebGL |
-| 3 | [#233](https://github.com/hashadar/hashadar_website/issues/233) | MotionReveal + atmospheres + CSS cleanup | Upgrade reveals; redesign section/footer bg; remove dead CSS |
-| 4–5 | [#234](https://github.com/hashadar/hashadar_website/issues/234) | Wire marketing + card polish | Marketing consumers; PhotoCard / BlogCard hover |
-| 6 | [#235](https://github.com/hashadar/hashadar_website/issues/235) | QA, docs finish, Labs non-regression | Perf/a11y QA; docs polish; Labs stay calm |
+| Phase | Issue | Title | Focus | Status |
+| --- | --- | --- | --- | --- |
+| 0 | [#230](https://github.com/hashadar/hashadar_website/issues/230) | Research doc + conventions | This document + conventions §1 / §6 | Done |
+| 1 | [#231](https://github.com/hashadar/hashadar_website/issues/231) | Foundation (deps + motion tokens) | Install R3F stack; `tokens.ts` / `quality.ts` | Done |
+| 2 | [#232](https://github.com/hashadar/hashadar_website/issues/232) | Cinematic home first-fold | Media-led hero (photo + DOM type); unmount geometric WebGL | Done |
+| 3 | [#233](https://github.com/hashadar/hashadar_website/issues/233) | MotionReveal + atmospheres + CSS cleanup | Upgrade reveals; redesign section/footer bg; remove dead CSS | Done |
+| 4–5 | [#234](https://github.com/hashadar/hashadar_website/issues/234) | Wire marketing + card polish | Marketing consumers; PhotoCard / BlogCard hover | Done |
+| 6 | [#235](https://github.com/hashadar/hashadar_website/issues/235) | QA, docs finish, Labs non-regression | Perf/a11y QA; docs polish; Labs stay calm | Done (this close) |
 
 ### Epic acceptance (reminder)
 
-When all phases complete: first viewport of `/` feels branded and cinematic (media craft + DOM type); reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on non-home routes; LCP/perf budgets met.
+When all phases complete: first viewport of `/` feels branded and cinematic (media craft + DOM type); reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on any route; LCP/perf budgets met; this document and conventions §6 match shipped APIs.
 
 ---
 
