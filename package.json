@@ -19,6 +19,8 @@
     "@aws-sdk/client-bedrock-runtime": "^3.1104.0",
     "@aws-sdk/client-ssm": "^3.1106.0",
     "@fontsource/zalando-sans-expanded": "^5.2.1",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "aws-amplify": "^6.20.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
@@ -38,6 +40,7 @@
     "server-only": "^0.0.1",
     "sharp": "^0.35.3",
     "tailwind-merge": "^3.3.1",
+    "three": "^0.185.1",
     "unified": "^11.0.4"
   },
   "devDependencies": {
