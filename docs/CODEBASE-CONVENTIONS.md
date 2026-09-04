@@ -9,7 +9,7 @@ This document defines how to work in this codebase so that new and changed code 
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript.
 - **Styling:** Tailwind CSS v4, CSS variables for theming (light/dark), custom utilities in `tailwind.config.ts`.
 - **Content:** Page and common content in `src/data` (JSON + TypeScript types). Blog Posts and portfolio Photos live in Amplify **Site Content** storage (manifests, markdown, WebPs), managed via `/admin`. A blog hero fallback WebP remains under `public/img/`.
-- **Motion:** Framer Motion, with respect for `prefers-reduced-motion` everywhere.
+- **Motion:** Framer Motion for site-wide DOM motion, plus selective React Three Fiber (R3F) on the **home hero only**. Respect `prefers-reduced-motion` everywhere. Direction and inventory: `docs/research/motion-3d-audit.md`.
 
 ---
 
@@ -94,10 +94,12 @@ This document defines how to work in this codebase so that new and changed code 
 
 ## 6. Motion and accessibility
 
-- **`MotionReveal`:** Prefer `@/components/ui` `MotionReveal` for standard reveals. Pass `variant` (`fade-up` | `fade` | `slide-in` | `none`), optional `delay`, `distance` (`sm` | `md` | `lg`), and `inView` (default true). The primitive owns `usePrefersReducedMotion` and skips spatial animation when reduced motion is preferred.
-- **Special cases:** Home hero springs, parallax, and infinite pulses may keep a local hook — do not recreate reduced-motion ternaries for ordinary fade/slide reveals.
-- **Backgrounds / hovers:** Decorative background loops and micro-interactions may stay outside `MotionReveal`; still respect reduced motion where practical.
-
+- **Stack:** Framer Motion for DOM motion site-wide. Selective R3F (`three`, `@react-three/fiber`, `@react-three/drei`) on the **home hero only** — never import the WebGL chunk from about, portfolio, blog, footer, or Labs. Full audit and phase map: `docs/research/motion-3d-audit.md`.
+- **Tokens + `MotionReveal`:** Prefer shared motion tokens (`src/lib/motion/tokens.ts`, once landed) and `@/components/ui` `MotionReveal` for standard reveals. Pass `variant` (`fade-up` | `fade` | `slide-in` | `none`), optional `delay`, `distance` (`sm` | `md` | `lg`), and `inView` (default true). The primitive owns `usePrefersReducedMotion` and skips spatial animation when reduced motion is preferred. Prefer tokens over hard-coded durations/easings in new motion code.
+- **Special cases:** Home hero may keep bespoke springs, parallax, or R3F pointer/scroll uniforms — do not recreate reduced-motion ternaries for ordinary fade/slide reveals; use `usePrefersReducedMotion()` only when the primitive cannot express the behaviour.
+- **WebGL (home hero):** Dynamic-import the hero WebGL shell (`ssr: false` / Next `dynamic` + client boundary) so home LCP stays DOM typography/brand. Cap `dpr` by quality tier; pause `frameloop` when off-screen; dispose geometries/materials on unmount. Quality tiers (`high` / `medium` / `low` / `off`) live in `src/lib/motion/quality.ts`. On reduced motion or WebGL failure, show an intentional static/CSS fallback — not a broken canvas.
+- **Decorative atmospheres:** Section/footer (and similar) atmospheres must respect `prefers-reduced-motion` — no infinite decorative loops when reduce is preferred. Micro-interactions (card hover, lightbox) may stay outside `MotionReveal` but must still honour reduced motion (e.g. no scale zoom).
+- **Labs / Admin / Login:** Quieter surfaces — no WebGL; adopt shared tokens only when a touch is trivial.
 
 ---
 
