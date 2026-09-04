@@ -28,4 +28,7 @@ export { Lightbox } from "./lightbox";
 export { FooterColumn, NavLink, SocialLink, FooterBackground, FooterBrand, LinkedInIcon, GitHubIcon } from "./footer";
 
 // Backgrounds
-export { HeroBackground, SectionBackground } from "./backgrounds";
+export { SectionBackground } from "./backgrounds";
+
+// Static hero atmosphere only — WebGL shell is deep-imported via next/dynamic on `/`
+export { HeroFallback } from "./hero-webgl/hero-fallback";
