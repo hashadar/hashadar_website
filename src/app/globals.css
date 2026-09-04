@@ -67,41 +67,6 @@ button:focus-visible {
   z-index: 9999;
 }
 
-/* Animation keyframes */
-.hero-floating {
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-10px) rotate(180deg);
-  }
-}
-
-.hero-pulse {
-  animation: pulse-glow 4s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    opacity: 0.1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.3;
-    transform: scale(1.1);
-  }
-}
-
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
   .hero-container {

@@ -1,11 +1,11 @@
 /**
  * Shared motion tokens for Framer Motion (and later R3F choreography).
- * Distances match current MotionReveal fade-up offsets (Phase 3 may consume these).
+ * Distances match MotionReveal fade-up / clip-up / slide-in offsets.
  */
 
 export const motionDurations = {
   fast: 0.3,
-  /** Aligns with MotionReveal's fixed duration today. */
+  /** Aligns with MotionReveal fade duration. */
   base: 0.8,
   slow: 1.2,
 } as const;

@@ -8,11 +8,12 @@ import {
   SectionBackground,
   SectionHeader,
   MotionReveal,
+  type SectionBackgroundVariant,
 } from "@/components/ui";
 import type { ExperienceSection } from "@/data/types";
 
 interface ExperienceListingProps extends ExperienceSection {
-  variant?: "about-experience" | "photography";
+  variant?: SectionBackgroundVariant;
   showHeader?: boolean;
   id?: string;
 }
@@ -20,7 +21,7 @@ interface ExperienceListingProps extends ExperienceSection {
 export function ExperienceListing({
   heading,
   companies,
-  variant = "about-experience",
+  variant = "marketing",
   showHeader = true,
   id,
 }: ExperienceListingProps) {

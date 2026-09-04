@@ -2,8 +2,13 @@
 export { Heading } from "./typography/heading";
 export { Text } from "./typography/text";
 export { SectionHeader } from "./section-header";
-export { MotionReveal } from "./motion-reveal";
-export type { MotionRevealVariant, MotionRevealDistance, MotionRevealProps } from "./motion-reveal";
+export { MotionReveal, MotionRevealGroup } from "./motion-reveal";
+export type {
+  MotionRevealVariant,
+  MotionRevealDistance,
+  MotionRevealProps,
+  MotionRevealGroupProps,
+} from "./motion-reveal";
 
 // Interactive
 export { Button } from "./button";
@@ -29,6 +34,7 @@ export { FooterColumn, NavLink, SocialLink, FooterBackground, FooterBrand, Linke
 
 // Backgrounds
 export { SectionBackground } from "./backgrounds";
+export type { SectionBackgroundVariant } from "./backgrounds";
 
 // Home hero atmosphere (photo + CSS fallback)
 export { HeroMedia, HeroFallback } from "./hero-media";

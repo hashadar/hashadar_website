@@ -10,7 +10,7 @@ interface AboutHeroSectionProps {
 export function AboutHeroSection({ name, title }: AboutHeroSectionProps) {
   return (
     <Section className="relative overflow-hidden pt-28 md:pt-36 pb-20">
-      <SectionBackground variant="about-experience" />
+      <SectionBackground variant="marketing" />
 
       <Container>
         <div className="max-w-4xl mx-auto text-center space-y-8">

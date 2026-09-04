@@ -9,6 +9,7 @@ import {
   Button,
   BlogCard,
   MotionReveal,
+  MotionRevealGroup,
 } from "@/components/ui";
 import type { BlogPost } from "@/data/types";
 
@@ -36,7 +37,7 @@ export function BlogSection({
 
   return (
     <Section id="blog" className="relative overflow-hidden">
-      <SectionBackground variant="about-experience" />
+      <SectionBackground variant="marketing" />
 
       <Container>
         <div className="space-y-12 md:space-y-16">
@@ -53,13 +54,12 @@ export function BlogSection({
           )}
 
           {posts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <MotionRevealGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post, index) => (
                 <MotionReveal
                   key={post.slug}
                   variant="fade-up"
                   distance="sm"
-                  delay={index * 0.1}
                 >
                   <BlogCard
                     slug={post.slug}
@@ -73,7 +73,7 @@ export function BlogSection({
                   />
                 </MotionReveal>
               ))}
-            </div>
+            </MotionRevealGroup>
           ) : (
             <div className="text-center py-12">
               <Text className="text-[var(--foreground)]/60">
