@@ -9,7 +9,8 @@ This document defines how to work in this codebase so that new and changed code 
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript.
 - **Styling:** Tailwind CSS v4, CSS variables for theming (light/dark), custom utilities in `tailwind.config.ts`.
 - **Content:** Page and common content in `src/data` (JSON + TypeScript types). Blog Posts and portfolio Photos live in Amplify **Site Content** storage (manifests, markdown, WebPs), managed via `/admin`. A blog hero fallback WebP remains under `public/img/`.
-- **Motion:** Framer Motion for site-wide DOM motion. Home first-fold atmosphere is **cinematic media** (Site Content home photo) behind DOM brand typography. `three` / R3F remain installed from the selective-3D epic but are **not imported or mounted** on any route. Respect `prefers-reduced-motion` everywhere. Direction and shipped inventory: `docs/research/motion-3d-audit.md`.
+- **Motion:** Framer Motion for site-wide DOM motion. Home first-fold is the **Claim**: two-line name lockup, Roles, and landing line over a Loop (treated still), not name and title over the Home Photo. The Home Photo is the photographer Proof piece only. Loops are site chrome stills with analog VFX; reduced motion freezes them; Photographs stay untreated. `three` / R3F remain installed from the selective-3D epic but are **not imported or mounted** on any route. Respect `prefers-reduced-motion` everywhere. Home narrative: `docs/research/home-narrative.md`. Prior motion inventory: `docs/research/motion-3d-audit.md`.
+- **Chrome:** Quiet overlay header and footer. Header doors: About, Portfolio, Labs, Blog (the wordmark is Home). Admin is footer-only.
 
 ---
 
@@ -88,16 +89,17 @@ This document defines how to work in this codebase so that new and changed code 
 ### 5.3 Client vs server
 
 - **`"use client"`:** Add only when the component or a child uses hooks, browser APIs, or event handlers. Keep server components as the default for pages and static sections.
-- **Hooks:** Keep in `src/hooks/`. Prefer `MotionReveal` for section reveals; use `usePrefersReducedMotion()` from `@/hooks/use-prefers-reduced-motion` only for bespoke motion (e.g. hero springs) that the primitive cannot express.
+- **Hooks:** Keep in `src/hooks/`. Prefer `MotionReveal` for section reveals; use `usePrefersReducedMotion()` from `@/hooks/use-prefers-reduced-motion` only for bespoke motion (e.g. Claim Roles or Loop analog motion) that the primitive cannot express.
 
 ---
 
 ## 6. Motion and accessibility
 
-- **Stack:** Framer Motion for DOM motion site-wide. Home first-fold is **cinematic media + DOM type** (full-bleed Site Content home photo, scrim, brand headings). `three` / R3F may remain as parked dependencies from earlier phases; they must **not** be imported on `/`, about, portfolio, blog, footer, or Labs. Full audit and phase map: `docs/research/motion-3d-audit.md`.
+- **Stack:** Framer Motion for DOM motion site-wide. Home first-fold is the **Claim lockup** (two-line `hasha` / `dar`, Roles as questions, landing line) over a Loop — a treated still with analog VFX. Not name and title over the Home Photo. `three` / R3F may remain as parked dependencies from earlier phases; they must **not** be imported on `/`, about, portfolio, blog, footer, or Labs. Home lock: `docs/research/home-narrative.md`. Prior motion inventory: `docs/research/motion-3d-audit.md`.
 - **Tokens + `MotionReveal`:** Prefer shared motion tokens from `@/lib/motion/tokens` (`motionDurations`, `motionEasings`, `motionSprings`, `motionStagger`, `fadeUpDistance`) and `@/components/ui` `MotionReveal` for standard reveals. Pass `variant` (`fade-up` | `fade` | `slide-in` | `clip-up` | `none`), optional `delay`, `distance` (`sm` | `md` | `lg`), and `inView` (default true). Use `MotionRevealGroup` for grid stagger (token step, overridable). The primitive owns `usePrefersReducedMotion` and skips spatial animation when reduced motion is preferred. Prefer tokens over hard-coded durations/easings in new motion code. WebGL quality helpers in `@/lib/motion/quality` remain dormant for a possible future R3F surface.
-- **Special cases:** Home hero may keep bespoke springs and scroll-driven media/type motion — do not recreate reduced-motion ternaries for ordinary fade/slide reveals; use `usePrefersReducedMotion()` only when the primitive cannot express the behaviour. No mouse parallax on the hero.
-- **Home hero atmosphere:** Full-bleed photo from Site Content (`getHomePhotographyTeaser`) behind DOM brand typography. Missing photo → intentional CSS fallback. Prefer text paint for LCP (`HeroMedia` uses `priority={false}`); treat media as progressive atmosphere. Decorative media/fallback is `aria-hidden` with `pointer-events-none` so it cannot steal focus. On reduced motion, disable Ken Burns / media parallax and the scroll-cue bounce.
+- **Special cases:** Claim Roles (one pass, then land) and Loop analog motion are bespoke; use `usePrefersReducedMotion()` for those. Do not recreate reduced-motion ternaries for ordinary fade/slide reveals. No mouse parallax. No Ken Burns on the Home Photo.
+- **Home Loops and Proof:** Loops are site chrome stills under `public/loops/` ([ADR 0011](./adr/0011-home-loops-are-chrome.md)). Analog motion when in view: fine film grain, sub-1% idle drift, slow light/vignette breathe. `prefers-reduced-motion` freezes stills (no grain crawl, no drift) and shows the landed Claim (name + four Roles + landing line, no roll). No Loop treatment on Photographs. The Home Photo is the photographer Proof piece only ([ADR 0004](./adr/0004-home-photo-separate.md)); missing image → intentional CSS fallback. Decorative media is `aria-hidden` with `pointer-events-none`. Prefer text paint for LCP.
+- **Chrome:** Quiet overlay header and footer — no frosted bar. Header doors: About, Portfolio, Labs, Blog (the wordmark is Home). Admin is footer-only. Sign-out is not in marketing Chrome.
 - **Decorative atmospheres:** `SectionBackground` variants are `marketing` (quiet grid/gradient rail), `photography` (minimal — imagery leads), and `none`. `FooterBackground` is static, non-looping accents only. Atmospheres must respect `prefers-reduced-motion` — no infinite decorative loops. Micro-interactions (card hover, lightbox) may stay outside `MotionReveal` but must still honour reduced motion (e.g. no scale zoom).
 - **Labs / Admin / Login:** Quieter surfaces — no WebGL; no `SectionBackground` / `HeroMedia` / `MotionRevealGroup` spectacle. Adopt shared tokens only when a touch is trivial.
 
@@ -112,7 +114,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ### 7.2 Dynamic imports
 
-- Use `next/dynamic` when a section is below the fold or heavy and not needed for first paint. **Footer:** always rendered statically via `SitePage` (no per-route lazy footer). **Home / About:** lazy-load below-the-fold sections only; keep hero eager.
+- Use `next/dynamic` when a section is below the fold or heavy and not needed for first paint. **Footer:** always rendered statically via `SitePage` (no per-route lazy footer). **Home:** keep the Claim eager; lazy-load below-the-fold Statement and Proof only. **About:** lazy-load below-the-fold sections only; keep hero eager.
 
 ### 7.3 Images
 
@@ -152,6 +154,7 @@ This document defines how to work in this codebase so that new and changed code 
 ## 11. Reference
 
 - **Deferred work and technical debt:** Tracked in [GitHub Issues](https://github.com/hashadar/hashadar_website/issues). Do not fix unless asked or the issue is in scope; when implementing, align with this document and close or update the relevant issue.
+- **Home narrative:** `docs/research/home-narrative.md`. Language: `docs/site/CONTEXT.md`. Approved look (do not treat as a live route): `public/home-narrative-preview.html`.
 - **Data structure and adding pages:** See `src/data/README.md`.
 - **Agent workflow (issues, triage):** See `docs/agents/` and `AGENTS.md`.
 

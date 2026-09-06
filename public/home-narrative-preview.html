@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home narrative preview — not the live site</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --font: "Archivo", system-ui, sans-serif;
+        --font-display: "Archivo Black", "Archivo", system-ui, sans-serif;
+        --cream: #f7f4ee;
+        --green: #047857;
+        --green-hover: #065f46;
+        --bg: #ffffff;
+        --fg: #171717;
+        --muted: #525252;
+        --line: color-mix(in oklab, var(--fg) 12%, transparent);
+      }
+
+      html.dark {
+        --cream: #141414;
+        --bg: #0a0a0a;
+        --fg: #fafafa;
+        --muted: #a3a3a3;
+        --line: color-mix(in oklab, var(--fg) 16%, transparent);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font);
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .banner {
+        position: sticky;
+        top: 0;
+        z-index: 80;
+        padding: 0.55rem 1.25rem;
+        background: #171717;
+        color: #fafafa;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-align: center;
+      }
+
+      .banner strong {
+        font-weight: 600;
+      }
+
+      header.chrome {
+        position: absolute;
+        top: 2.4rem;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.75rem;
+        color: var(--fg);
+      }
+
+      .wordmark {
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        letter-spacing: -0.03em;
+      }
+
+      nav.doors {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      nav.doors a:hover {
+        color: var(--green);
+      }
+
+      .theme {
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .claim {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 0 0 2.25rem;
+        overflow: hidden;
+        background: var(--cream);
+      }
+
+      .plate {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        animation: drift 28s ease-in-out infinite alternate;
+      }
+
+      .claim .plate {
+        background-image: url("./loops/claim-poster.webp");
+        background-position: center 78%;
+        opacity: 0.92;
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.22;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+        animation: grain 0.9s steps(2) infinite;
+      }
+
+      html.dark .grain {
+        mix-blend-mode: overlay;
+        opacity: 0.28;
+      }
+
+      .claim h1.lockup {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 2.75rem;
+        bottom: 2.5rem;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0;
+        overflow: visible;
+        font-family: var(--font-display);
+        font-weight: 400;
+        line-height: 0.8;
+        letter-spacing: -0.04em;
+        pointer-events: none;
+      }
+
+      .claim h1.lockup span {
+        display: block;
+        white-space: nowrap;
+        width: max-content;
+        max-width: none;
+        line-height: 0.8;
+        padding: 0;
+      }
+
+      .claim h1.lockup span:first-child,
+      .claim h1.lockup span:last-child {
+        font-size: 22vw;
+        margin-top: 0;
+      }
+
+      .role-line {
+        position: relative;
+        z-index: 3;
+        padding: 0 1.5rem;
+        font-size: clamp(1.1rem, 2.4vw, 1.85rem);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        min-height: 1.4em;
+      }
+
+      .statement {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 6rem 1.75rem;
+        background: var(--cream);
+      }
+
+      .statement-inner {
+        max-width: 42rem;
+      }
+
+      .statement h2 {
+        font-family: var(--font-display);
+        font-size: clamp(2.4rem, 6vw, 4.4rem);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        margin-bottom: 1.5rem;
+      }
+
+      .statement p {
+        font-size: 1.15rem;
+        line-height: 1.55;
+        color: var(--muted);
+        max-width: 34rem;
+        margin-bottom: 2.25rem;
+      }
+
+      .cta {
+        color: var(--green);
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-bottom: 1px solid var(--green);
+        padding-bottom: 0.12rem;
+      }
+
+      .cta:hover {
+        color: var(--green-hover);
+      }
+
+      .proof {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+      }
+
+      @media (min-width: 900px) {
+        .proof {
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          min-height: 110vh;
+        }
+
+        nav.doors .hide-sm {
+          display: inline;
+        }
+      }
+
+      .tile {
+        position: relative;
+        min-height: 58vh;
+        overflow: hidden;
+        color: #fafafa;
+        display: flex;
+        align-items: flex-end;
+        padding: 1.5rem;
+      }
+
+      .tile .plate {
+        transform: scale(1.06);
+      }
+
+      .tile:hover .plate {
+        animation-duration: 16s;
+      }
+
+      .tile-consultant .plate {
+        background-image: url("./loops/consultant-poster.webp");
+      }
+      .tile-photographer .plate {
+        background-image: none;
+        background-color: #d7d2c8;
+        animation: none;
+      }
+      .tile-developer .plate {
+        background-image: url("./loops/developer-poster.webp");
+      }
+      .tile-writer .plate {
+        background-image: url("./loops/writer-poster.webp");
+      }
+
+      .tile-photographer {
+        /* Home Photo is not chosen yet — Claim plate as a stand-in, labelled */
+      }
+
+      .scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(10, 10, 10, 0.62),
+          rgba(10, 10, 10, 0.08) 48%,
+          transparent
+        );
+        z-index: 1;
+      }
+
+      .tile span {
+        position: relative;
+        z-index: 2;
+        font-size: 1.15rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+
+      footer.chrome {
+        padding: 3rem 1.75rem 2rem;
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 800px) {
+        footer.chrome {
+          grid-template-columns: 1fr auto;
+          align-items: end;
+        }
+      }
+
+      footer .doors {
+        flex-wrap: wrap;
+        gap: 1.1rem;
+      }
+
+      .meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem 1.25rem;
+      }
+
+      .admin {
+        opacity: 0.45;
+        font-size: 0.75rem;
+      }
+
+      @keyframes drift {
+        from {
+          transform: scale(1.04) translate3d(-0.6%, -0.4%, 0);
+        }
+        to {
+          transform: scale(1.1) translate3d(0.8%, 0.5%, 0);
+        }
+      }
+
+      @keyframes grain {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-1.5%, 1%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .plate,
+        .grain {
+          animation: none;
+        }
+      }
+
+      @media (max-width: 899px) {
+        nav.doors .hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <p class="banner">
+      <strong>Preview only.</strong>
+      Not the live site. Font is Archivo as a stand-in for Zalando Sans Expanded.
+      Photographer tile uses the Claim still until the Home Photo exists.
+    </p>
+
+    <section class="claim" id="claim">
+      <header class="chrome">
+        <a class="wordmark" href="#claim">hasha dar</a>
+        <nav class="doors" aria-label="Preview navigation">
+          <a href="#statement">About</a>
+          <a href="#proof">Portfolio</a>
+          <a class="hide-sm" href="#proof">Labs</a>
+          <a class="hide-sm" href="#proof">Blog</a>
+          <button class="theme" type="button" id="theme">Dark</button>
+        </nav>
+      </header>
+      <div class="plate" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+      <h1 class="lockup">
+        <span>hasha</span>
+        <span>dar</span>
+      </h1>
+      <p class="role-line" id="roles" aria-live="off">consultant?</p>
+    </section>
+
+    <section class="statement" id="statement">
+      <div class="statement-inner">
+        <h2>One practice, not a menu.</h2>
+        <p>
+          Consulting, photographs, tools, and writing are not hobbies stacked on a
+          job. They are one way of looking, and of making.
+        </p>
+        <a class="cta" href="#proof">About</a>
+      </div>
+    </section>
+
+    <section class="proof" id="proof">
+      <a class="tile tile-consultant" href="#statement">
+        <div class="plate" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+        <div class="scrim"></div>
+        <span>consultant</span>
+      </a>
+      <a class="tile tile-photographer" href="#proof">
+        <div class="plate" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+        <div class="scrim"></div>
+        <span>photographer — Home Photo not in this preview</span>
+      </a>
+      <a class="tile tile-developer" href="#proof">
+        <div class="plate" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+        <div class="scrim"></div>
+        <span>software developer</span>
+      </a>
+      <a class="tile tile-writer" href="#proof">
+        <div class="plate" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+        <div class="scrim"></div>
+        <span>writer</span>
+      </a>
+    </section>
+
+    <footer class="chrome">
+      <div>
+        <p class="wordmark">hasha dar</p>
+        <nav class="doors" style="margin-top: 1rem">
+          <a href="#statement">About</a>
+          <a href="#proof">Portfolio</a>
+          <a href="#proof">Labs</a>
+          <a href="#proof">Blog</a>
+        </nav>
+      </div>
+      <div class="meta">
+        <a href="mailto:hello@hashadar.com">hello@hashadar.com</a>
+        <a href="https://github.com/hashadar">GitHub</a>
+        <a href="https://linkedin.com/in/hdar">LinkedIn</a>
+        <span>© 2026 hasha dar</span>
+        <a class="admin" href="#claim">Admin</a>
+      </div>
+    </footer>
+
+    <script>
+      function fitLockup() {
+        const h1 = document.querySelector(".lockup");
+        if (!h1) return;
+        const lines = [...h1.querySelectorAll("span")];
+        const availW = h1.clientWidth;
+        const availH = h1.clientHeight;
+        if (!availW || !availH) return;
+
+        const probe = 80;
+        lines.forEach((line) => {
+          line.style.display = "inline-block";
+          line.style.width = "max-content";
+          line.style.fontSize = `${probe}px`;
+        });
+
+        const longest = Math.max(
+          ...lines.map((line) => line.getBoundingClientRect().width),
+        );
+        if (!longest) return;
+
+        let size = ((availW * 0.99) / longest) * probe;
+        lines.forEach((line) => {
+          line.style.fontSize = `${size}px`;
+        });
+
+        if (h1.scrollHeight > availH) {
+          size *= availH / h1.scrollHeight;
+          lines.forEach((line) => {
+            line.style.fontSize = `${size}px`;
+          });
+        }
+      }
+      fitLockup();
+      window.addEventListener("resize", fitLockup);
+      document.fonts.ready.then(fitLockup);
+
+      const roles = [
+        "consultant?",
+        "photographer?",
+        "software developer?",
+        "writer?",
+        "all of the above.",
+      ];
+      const el = document.getElementById("roles");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce) {
+        el.textContent = "consultant? photographer? software developer? writer? all of the above.";
+      } else {
+        let i = 0;
+        const tick = () => {
+          el.textContent = roles[i];
+          if (i < roles.length - 1) {
+            i += 1;
+            setTimeout(tick, 1100);
+          }
+        };
+        setTimeout(tick, 700);
+      }
+
+      const theme = document.getElementById("theme");
+      theme.addEventListener("click", () => {
+        const dark = document.documentElement.classList.toggle("dark");
+        theme.textContent = dark ? "Light" : "Dark";
+      });
+    </script>
+  </body>
+</html>
