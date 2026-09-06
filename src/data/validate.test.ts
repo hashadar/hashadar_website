@@ -42,6 +42,28 @@ describe('validateDataFile', () => {
     ).toThrow(/pages\/home\.json/);
   });
 
+  it('rejects a catalogue Home shape', () => {
+    expect(() =>
+      validateDataFile(
+        'pages/home.json',
+        { ...homeData, about: { heading: 'About', content: 'x' } },
+        assertValidHomePage,
+      ),
+    ).toThrow(/catalogue block "about"/);
+  });
+
+  it('rejects a loop Proof door without a still', () => {
+    const invalid = structuredClone(homeData) as {
+      proof: { doors: Array<{ media: string; src?: string }> };
+    };
+    const door = invalid.proof.doors.find((entry) => entry.media === 'loop');
+    delete door?.src;
+
+    expect(() =>
+      validateDataFile('pages/home.json', invalid, assertValidHomePage),
+    ).toThrow(/src/);
+  });
+
   it('accepts all golden content JSON files', () => {
     expect(() =>
       validateDataFile('pages/about.json', aboutData, assertValidAboutPage),

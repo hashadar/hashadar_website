@@ -108,3 +108,81 @@ button:focus-visible {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Home Loops — analog VFX on stills (ADR 0011). Motion classes are applied only when in view. */
+.loop-fallback {
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      color-mix(in oklab, var(--muted) 70%, var(--background)) 0%,
+      var(--muted) 100%
+    );
+}
+
+.loop-grain {
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.dark .loop-grain {
+  mix-blend-mode: overlay;
+  opacity: 0.28;
+}
+
+.loop-light {
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    transparent 42%,
+    color-mix(in oklab, var(--foreground) 28%, transparent) 100%
+  );
+  opacity: 0.55;
+}
+
+@keyframes loop-drift {
+  from {
+    transform: scale(1.04) translate3d(-0.6%, -0.4%, 0);
+  }
+  to {
+    transform: scale(1.1) translate3d(0.8%, 0.5%, 0);
+  }
+}
+
+@keyframes loop-grain {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-1.5%, 1%);
+  }
+}
+
+@keyframes loop-light {
+  from {
+    opacity: 0.42;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+.loop-plate-motion {
+  animation: loop-drift 28s ease-in-out infinite alternate;
+}
+
+.loop-grain-motion {
+  animation: loop-grain 0.9s steps(2) infinite;
+}
+
+.loop-light-motion {
+  animation: loop-light 12s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loop-plate-motion,
+  .loop-grain-motion,
+  .loop-light-motion {
+    animation: none;
+  }
+}

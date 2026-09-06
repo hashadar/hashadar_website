@@ -39,3 +39,7 @@ export type { SectionBackgroundVariant } from "./backgrounds";
 // Home hero atmosphere (photo + CSS fallback)
 export { HeroMedia, HeroFallback } from "./hero-media";
 export type { HeroMediaProps } from "./hero-media";
+
+// Home Loops (treated stills)
+export { Loop } from "./loop";
+export type { LoopProps, LoopState } from "./loop";

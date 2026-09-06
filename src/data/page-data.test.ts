@@ -15,6 +15,31 @@ import {
 } from '@/data';
 
 describe('getPageData', () => {
+  it('describes Home as Claim, Statement, and Proof with doors in data', () => {
+    expect(home).not.toHaveProperty('hero');
+    expect(home).not.toHaveProperty('about');
+    expect(home).not.toHaveProperty('photography');
+    expect(home).not.toHaveProperty('blog');
+    expect(home.claim.lockup).toEqual(['hasha', 'dar']);
+    expect(home.claim.roles.map((role) => role.question)).toEqual([
+      'consultant?',
+      'photographer?',
+      'software developer?',
+      'writer?',
+    ]);
+    expect(home.claim.landingLine).toBe('all of the above.');
+    expect(home.claim.loopSrc).toBe('/loops/claim-poster.webp');
+    expect(home.statement.headline).toBe('One practice, not a menu.');
+    expect(home.statement.cta).toEqual({ label: 'About', href: '/about' });
+    expect(home.proof.doors.map((door) => ({ id: door.id, href: door.href, media: door.media }))).toEqual([
+      { id: 'consultant', href: '/about', media: 'loop' },
+      { id: 'photographer', href: '/portfolio', media: 'photo' },
+      { id: 'developer', href: '/labs', media: 'loop' },
+      { id: 'writer', href: '/blog', media: 'loop' },
+    ]);
+    expect(home.proof.doors.find((door) => door.id === 'developer')?.href).toBe('/labs');
+  });
+
   it('returns the matching page data for every public route', () => {
     expect(getPageData('/')).toBe(home);
     expect(getPageData('/home')).toBe(home);
