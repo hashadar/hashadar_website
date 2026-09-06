@@ -331,15 +331,12 @@ export function assertValidLoginPage(data: unknown): void {
 export function assertValidFooter(data: unknown): void {
   const footer = requireRecord(data, 'footer');
   const contact = requireRecord(footer.contact, 'footer.contact');
-  requireString(contact, 'heading', 'footer.contact');
-  requireString(contact, 'description', 'footer.contact');
-  requireString(contact, 'navigationTitle', 'footer.contact');
-  requireString(contact, 'socialTitle', 'footer.contact');
   requireString(contact, 'email', 'footer.contact');
   requireString(contact, 'copyright', 'footer.contact');
   const social = requireRecord(contact.social, 'footer.contact.social');
   requireString(social, 'github', 'footer.contact.social');
   requireString(social, 'linkedin', 'footer.contact.social');
+  assertCta(contact.admin, 'footer.contact.admin');
 }
 
 export function assertValidAdminPage(data: unknown): void {
