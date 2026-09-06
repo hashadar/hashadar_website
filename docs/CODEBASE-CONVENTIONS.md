@@ -52,7 +52,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 ### 4.1 Data-driven content
 
-- **Copy and labels** that might change or be localised (buttons, headings, nav labels, brand name, footer column titles) should come from `src/data` (JSON + types), not be hardcoded in components.
+- **Copy and labels** that might change or be localised (buttons, headings, nav labels, brand name, footer labels) should come from `src/data` (JSON + types), not be hardcoded in components.
 - **Site-wide metadata** (title, description, author, siteUrl, brandName, locale) lives in `src/data/common/site.json` and is typed in `src/data/types.ts`. Use `site` from `@/data` in layout, metadata, and SEO.
 - **Footer and navigation** come from `src/data`; use `footer`, `navigation`, and `site` in header, footer, and any shared layout.
 

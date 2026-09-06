@@ -58,8 +58,20 @@ describe('getCommonData', () => {
     expect(navigation.links).toContainEqual({ label: 'Labs', href: '/labs' });
   });
 
-  it('includes an unobtrusive Admin navigation link and no footer sign-in', () => {
-    expect(navigation.links).toContainEqual({ label: 'Admin', href: '/admin' });
+  it('keeps header doors to public pages only, with Admin as a footer-only link', () => {
+    expect(navigation.links).toEqual([
+      { label: 'About', href: '/about' },
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: 'Labs', href: '/labs' },
+      { label: 'Blog', href: '/blog' },
+    ]);
+    expect(navigation.links).not.toContainEqual({ label: 'Home', href: '/' });
+    expect(navigation.links).not.toContainEqual({ label: 'Admin', href: '/admin' });
+    expect(footer.contact.admin).toEqual({ label: 'Admin', href: '/admin' });
     expect(footer.contact).not.toHaveProperty('ownerSignIn');
+    expect(footer.contact).not.toHaveProperty('heading');
+    expect(footer.contact).not.toHaveProperty('description');
+    expect(footer.contact).not.toHaveProperty('navigationTitle');
+    expect(footer.contact).not.toHaveProperty('socialTitle');
   });
 });

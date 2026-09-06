@@ -629,13 +629,10 @@ export interface SocialLinks {
 }
 
 export interface ContactInfo {
-  heading: string;
-  description: string;
-  navigationTitle: string;
-  socialTitle: string;
   email: string;
   social: SocialLinks;
   copyright: string;
+  admin: NavLink;
 }
 
 export interface FooterData {

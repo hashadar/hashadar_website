@@ -45,4 +45,12 @@ describe('ThemeToggle', () => {
       await screen.findByRole('button', { name: 'Switch to light mode' }),
     ).toBeInTheDocument();
   });
+
+  it('uses a sun or moon icon rather than a Light or Dark word', () => {
+    render(<ThemeToggle />);
+
+    const button = screen.getByRole('button', { name: 'Switch to dark mode' });
+    expect(button.querySelector('svg')).toBeTruthy();
+    expect(button).not.toHaveTextContent(/light|dark/i);
+  });
 });
