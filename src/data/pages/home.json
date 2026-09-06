@@ -1,29 +1,53 @@
 {
-  "hero": {
-    "name": "hasha dar",
-    "title": "AI & Data Consultant"
+  "claim": {
+    "lockup": ["hasha", "dar"],
+    "roles": [
+      { "id": "consultant", "question": "consultant?" },
+      { "id": "photographer", "question": "photographer?" },
+      { "id": "developer", "question": "software developer?" },
+      { "id": "writer", "question": "writer?" }
+    ],
+    "landingLine": "all of the above.",
+    "loopSrc": "/loops/claim-poster.webp",
+    "loopObjectPosition": "center 78%"
   },
-  "about": {
-    "heading": "About",
-    "content": "I'm a Consultant at Deloitte, in the AI & Data department. My work involves helping our clients implement AI solutions and manage their data effectively. I hold a mechanical engineering degree from UCL, graduating in 2023. In my free time, I develop apps and do photography. I primarily shoot a mixture of portraiture, travel and event. I also enjoy theatre, where I worked as a production manager and contributed to sound and lighting design.",
+  "statement": {
+    "headline": "One practice, not a menu.",
+    "paragraph": "Consulting, photographs, tools, and writing are not hobbies stacked on a job. They are one way of looking, and of making.",
     "cta": {
-      "label": "Learn more about me",
+      "label": "About",
       "href": "/about"
     }
   },
-  "photography": {
-    "heading": "Photography",
-    "description": "Moments captured in portraiture, travel, and theatre.",
-    "images": []
-  },
-  "blog": {
-    "heading": "Blog",
-    "description": "My thoughts in one place.",
-    "cta": {
-      "label": "View all posts",
-      "href": "/blog"
-    },
-    "emptyState": "No blog posts yet. Check back soon!"
+  "proof": {
+    "doors": [
+      {
+        "id": "consultant",
+        "label": "consultant",
+        "href": "/about",
+        "media": "loop",
+        "src": "/loops/consultant-poster.webp"
+      },
+      {
+        "id": "photographer",
+        "label": "photographer",
+        "href": "/portfolio",
+        "media": "photo"
+      },
+      {
+        "id": "developer",
+        "label": "software developer",
+        "href": "/labs",
+        "media": "loop",
+        "src": "/loops/developer-poster.webp"
+      },
+      {
+        "id": "writer",
+        "label": "writer",
+        "href": "/blog",
+        "media": "loop",
+        "src": "/loops/writer-poster.webp"
+      }
+    ]
   }
 }
-

@@ -63,6 +63,8 @@ import { careerProfile, getHomeExperienceView, getAboutCareerViews } from "@/dat
 const careerViews = getAboutCareerViews(careerProfile);
 ```
 
+Home (`pages/home.json`) is Claim → Statement → Proof. Claim Roles use the `ClaimRole` type (not career `Role`). Proof doors live under `proof.doors`. Career listings are not part of Home.
+
 Page JSON under `pages/` holds shell content only. It does not duplicate career structured data.
 
 ## Validation

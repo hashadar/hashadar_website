@@ -96,11 +96,48 @@ export interface BlogSection {
   emptyState?: string;
 }
 
+/** Home Role on the Claim — not career `Role`. */
+export interface ClaimRole {
+  id: string;
+  question: string;
+}
+
+export type ProofMedia = 'loop' | 'photo';
+
+export interface ProofDoor {
+  id: string;
+  label: string;
+  href: string;
+  media: ProofMedia;
+  /** Loop still under `/loops/`; omitted for the photographer Photograph. */
+  src?: string;
+}
+
+export interface HomeClaim {
+  lockup: string[];
+  roles: ClaimRole[];
+  landingLine: string;
+  loopSrc: string;
+  loopObjectPosition?: string;
+}
+
+export interface HomeStatement {
+  headline: string;
+  paragraph: string;
+  cta: {
+    label: string;
+    href: string;
+  };
+}
+
+export interface HomeProof {
+  doors: ProofDoor[];
+}
+
 export interface HomePageData {
-  hero: HeroSection;
-  about: AboutSection;
-  photography: PhotographySection;
-  blog: BlogSection;
+  claim: HomeClaim;
+  statement: HomeStatement;
+  proof: HomeProof;
 }
 
 export interface PortfolioPageData {
