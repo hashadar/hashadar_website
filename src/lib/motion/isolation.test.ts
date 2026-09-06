@@ -58,12 +58,13 @@ describe("motion isolation", () => {
     expect(barrel).not.toContain("hero-webgl");
   });
 
-  it("imports home hero atmosphere from the UI barrel", () => {
+  it("imports the Claim Loop from the UI barrel", () => {
     const source = readSrc("src/components/sections/homepage/hero-section.tsx");
 
-    expect(source).toContain("HeroMedia");
-    expect(source).toContain("HeroFallback");
-    expect(source).not.toContain("@/components/ui/hero-media/");
+    expect(source).toContain("Loop");
+    expect(source).not.toContain("@/components/ui/loop/");
+    expect(source).not.toContain("HeroMedia");
+    expect(source).not.toContain("HeroFallback");
   });
 
   it("keeps Labs, Admin, and Login free of marketing spectacle primitives", () => {

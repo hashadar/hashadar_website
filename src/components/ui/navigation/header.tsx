@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { navigation, site } from "@/data";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
@@ -11,7 +11,31 @@ import { cn } from "@/lib/utils";
 export function Header() {
   useSmoothScroll();
   const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [claimInView, setClaimInView] = useState(isHome);
+  const [trackedHome, setTrackedHome] = useState(isHome);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  if (trackedHome !== isHome) {
+    setTrackedHome(isHome);
+    setClaimInView(isHome);
+  }
+
+  useEffect(() => {
+    if (!isHome) return;
+
+    const claim = document.getElementById("claim");
+    if (!claim) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setClaimInView(entry.isIntersecting);
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(claim);
+    return () => observer.disconnect();
+  }, [isHome]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -19,6 +43,7 @@ export function Header() {
   };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
+  const showWordmark = !isHome || !claimInView;
 
   const doorClassName =
     "text-sm font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors";
@@ -26,15 +51,19 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <nav
-        className="container mx-auto flex items-center justify-between px-6 py-5"
+        className="flex w-full items-center justify-between px-6 py-5"
         aria-label="Primary"
       >
-        <Link
-          href="/"
-          className="font-body text-sm tracking-tight text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
-        >
-          {site.brandName}
-        </Link>
+        {showWordmark ? (
+          <Link
+            href="/"
+            className="font-body text-sm tracking-tight text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+          >
+            {site.brandName}
+          </Link>
+        ) : (
+          <span aria-hidden="true" />
+        )}
 
         <div className="flex items-center gap-4">
           <div className="hidden items-center gap-6 md:flex">
@@ -71,7 +100,7 @@ export function Header() {
 
       {mobileMenuOpen && (
         <div className="bg-[var(--background)] md:hidden">
-          <div className="container mx-auto flex flex-col gap-4 px-6 py-4">
+          <div className="flex w-full flex-col gap-4 px-6 py-4">
             {navigation.links.map((link) => (
               <Link
                 key={link.href}

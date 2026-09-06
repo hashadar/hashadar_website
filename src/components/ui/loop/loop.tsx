@@ -69,7 +69,8 @@ export function Loop({ src, className, objectPosition = "center" }: LoopProps) {
           <div className="loop-fallback absolute inset-0" />
         )}
       </div>
-      <div className={cn("loop-grain absolute inset-0", motion && "loop-grain-motion")} />
+      <div className={cn("loop-grain absolute -inset-[16%]", motion && "loop-grain-motion")} />
+      <div className={cn("loop-flash absolute inset-0", motion && "loop-flash-motion")} />
       <div className={cn("loop-light absolute inset-0", motion && "loop-light-motion")} />
     </div>
   );

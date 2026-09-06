@@ -67,6 +67,7 @@ describe("Loop", () => {
     expect(root).toHaveAttribute("aria-hidden", "true");
     expect(container.querySelector(".loop-grain-motion")).toBeNull();
     expect(container.querySelector(".loop-plate-motion")).toBeNull();
+    expect(container.querySelector(".loop-flash-motion")).toBeNull();
     expect(container.querySelector("canvas")).toBeNull();
     expect(container.querySelector("img")).toHaveAttribute("src", "/loops/claim-poster.webp");
   });
@@ -103,6 +104,7 @@ describe("Loop", () => {
     expect(container.querySelector("[data-loop]")).toHaveAttribute("data-loop", "live");
     expect(container.querySelector(".loop-grain-motion")).toBeTruthy();
     expect(container.querySelector(".loop-plate-motion")).toBeTruthy();
+    expect(container.querySelector(".loop-flash-motion")).toBeTruthy();
     expect(container.querySelector(".loop-light-motion")).toBeTruthy();
 
     cleanup();
@@ -116,5 +118,6 @@ describe("Loop", () => {
 
     expect(frozen.container.querySelector("[data-loop]")).toHaveAttribute("data-loop", "frozen");
     expect(frozen.container.querySelector(".loop-grain-motion")).toBeNull();
+    expect(frozen.container.querySelector(".loop-flash-motion")).toBeNull();
   });
 });

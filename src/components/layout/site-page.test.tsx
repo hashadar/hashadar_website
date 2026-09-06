@@ -57,10 +57,7 @@ describe('SitePage', () => {
     const header = screen.getByRole('banner');
     expect(within(header).queryByRole('link', { name: 'Home' })).not.toBeInTheDocument();
     expect(within(header).queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
-    expect(within(header).getByRole('link', { name: site.brandName })).toHaveAttribute(
-      'href',
-      '/',
-    );
+    expect(within(header).queryByRole('link', { name: site.brandName })).not.toBeInTheDocument();
 
     for (const link of navigation.links) {
       expect(within(header).getByRole('link', { name: link.label })).toHaveAttribute(
@@ -111,6 +108,7 @@ describe('SitePage', () => {
     const adminLink = footerLinks[footerLinks.length - 1];
     expect(adminLink).toHaveAttribute('href', footer.contact.admin.href);
     expect(adminLink).toHaveTextContent(footer.contact.admin.label);
+    expect(siteFooter.querySelector('.container')).toBeNull();
   });
 
   it('applies optional mainClassName to the main landmark', () => {

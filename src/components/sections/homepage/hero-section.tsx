@@ -1,150 +1,115 @@
 "use client";
 
-import { Container, Heading, HeroFallback, HeroMedia } from "@/components/ui";
-import type { PhotoItem } from "@/data/types";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { Heading, Loop } from "@/components/ui";
+import type { ClaimRole, HomeClaim } from "@/data/types";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import {
-  fadeUpDistance,
-  motionDurations,
-  motionEasings,
-  motionSprings,
-} from "@/lib/motion/tokens";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { fitClaimLockup } from "@/components/sections/homepage/fit-claim-lockup";
+
+const ROLE_START_MS = 700;
+const ROLE_STEP_MS = 1100;
+
+const roleLineClassName =
+  "relative z-[3] min-h-[1.4em] px-6 font-body text-[clamp(1.1rem,2.4vw,1.85rem)] font-semibold tracking-[-0.03em] text-[var(--foreground)]";
 
 interface HeroSectionProps {
-  name: string;
-  title: string;
-  /** Site Content home photo; CSS fallback when null/undefined. */
-  media?: PhotoItem | null;
+  claim: HomeClaim;
 }
 
-export function HeroSection({ name, title, media }: HeroSectionProps) {
+function staticRolesText(roles: ClaimRole[]) {
+  return roles.map((role) => role.question).join(" ");
+}
+
+function ClaimRoles({ roles }: { roles: ClaimRole[] }) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const containerRef = useRef<HTMLElement>(null);
+  const sequence = roles.map((role) => role.question);
+  const [index, setIndex] = useState(0);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
+  useEffect(() => {
+    if (prefersReducedMotion || sequence.length === 0) return;
 
-  const contentY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    prefersReducedMotion ? ["0%", "0%"] : ["0%", "28%"],
-  );
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.55],
-    prefersReducedMotion ? [1, 1] : [1, 0],
-  );
-  const mediaScale = useTransform(
-    scrollYProgress,
-    [0, 1],
-    prefersReducedMotion ? [1, 1] : [1, 1.08],
-  );
+    let step = 0;
+    let timer: ReturnType<typeof setTimeout>;
 
-  const enterTransition = prefersReducedMotion
-    ? { duration: 0 }
-    : { ...motionSprings.heroEnter, duration: motionDurations.slow };
+    const tick = () => {
+      step = (step + 1) % sequence.length;
+      setIndex(step);
+      timer = setTimeout(tick, ROLE_STEP_MS);
+    };
+
+    timer = setTimeout(tick, ROLE_START_MS);
+    return () => clearTimeout(timer);
+  }, [prefersReducedMotion, roles, sequence.length]);
+
+  const staticText = staticRolesText(roles);
+
+  if (prefersReducedMotion) {
+    return <p className={roleLineClassName}>{staticText}</p>;
+  }
+
+  return (
+    <>
+      <p className="sr-only">{staticText}</p>
+      <p className={roleLineClassName} aria-hidden="true">
+        {sequence[index]}
+      </p>
+    </>
+  );
+}
+
+export function HeroSection({ claim }: HeroSectionProps) {
+  const lockupRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const lockup = lockupRef.current;
+    if (!lockup) return;
+
+    const fit = () => fitClaimLockup(lockup);
+    fit();
+    void document.fonts?.ready.then(fit);
+    document.fonts?.addEventListener?.("loadingdone", fit);
+
+    if (typeof ResizeObserver === "undefined") {
+      return () => document.fonts?.removeEventListener?.("loadingdone", fit);
+    }
+
+    const observer = new ResizeObserver(fit);
+    observer.observe(lockup);
+    return () => {
+      observer.disconnect();
+      document.fonts?.removeEventListener?.("loadingdone", fit);
+    };
+  }, [claim.lockup]);
 
   return (
     <section
-      ref={containerRef}
-      id="hero"
-      className="relative flex min-h-screen items-end justify-center overflow-hidden bg-[var(--background)] pb-16 pt-24 sm:items-center sm:pb-0 sm:pt-20"
+      id="claim"
+      className="relative flex min-h-screen min-h-[100dvh] flex-col justify-end overflow-hidden bg-[var(--background)] pb-9"
     >
-      {media ? (
-        <HeroMedia
-          media={media}
-          scale={mediaScale}
-          prefersReducedMotion={prefersReducedMotion}
-        />
-      ) : (
-        <HeroFallback />
-      )}
-
-      <Container className="hero-container relative z-10 w-full">
-        <motion.div
-          style={{ y: contentY, opacity: contentOpacity }}
-          className="mx-auto w-full max-w-5xl space-y-8 overflow-visible px-4 text-center sm:px-6 md:space-y-10"
+      <Loop src={claim.loopSrc} objectPosition={claim.loopObjectPosition} />
+      <div
+        ref={lockupRef}
+        data-claim-lockup
+        className="pointer-events-none absolute inset-x-0 top-11 bottom-10 z-[2] overflow-visible"
+      >
+        <Heading
+          size="hero"
+          className="flex h-full w-full flex-col justify-start overflow-visible break-normal font-semibold"
+          style={{
+            fontSize: "22vw",
+            lineHeight: 0.8,
+            letterSpacing: "-0.04em",
+            fontWeight: 600,
+          }}
         >
-          <motion.div
-            initial={
-              prefersReducedMotion
-                ? { opacity: 1 }
-                : { opacity: 0, y: fadeUpDistance.lg }
-            }
-            animate={{ opacity: 1, y: 0 }}
-            transition={enterTransition}
-            className="relative"
-          >
-            <div className="mx-auto mb-6 h-px w-16 bg-[var(--primary)]/50 -skew-x-12 sm:mb-8" />
-            <Heading size="hero" className="hero-text relative inline-block">
-              <span className="relative z-10">{name}</span>
-            </Heading>
-          </motion.div>
-
-          <motion.div
-            initial={
-              prefersReducedMotion
-                ? { opacity: 1 }
-                : { opacity: 0, y: fadeUpDistance.md }
-            }
-            animate={{ opacity: 1, y: 0 }}
-            transition={
-              prefersReducedMotion
-                ? { duration: 0 }
-                : {
-                    ...motionSprings.heroEnter,
-                    delay: motionDurations.base * 0.55,
-                    duration: motionDurations.base,
-                  }
-            }
-          >
-            <Heading
-              size="sm"
-              as="h2"
-              className="capitalize tracking-[0.28em] text-[var(--primary)]"
-            >
-              {title}
-            </Heading>
-            <div className="mx-auto mt-6 h-px w-12 bg-[var(--foreground)]/20 skew-x-12" />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
-            animate={{ opacity: 1 }}
-            transition={
-              prefersReducedMotion
-                ? { duration: 0 }
-                : {
-                    delay: motionDurations.slow + 0.2,
-                    duration: motionDurations.base,
-                  }
-            }
-            className="flex justify-center pt-6 sm:pt-10"
-          >
-            <motion.div
-              animate={prefersReducedMotion ? undefined : { y: [0, 8, 0] }}
-              transition={
-                prefersReducedMotion
-                  ? undefined
-                  : {
-                      duration: motionDurations.slow + 0.8,
-                      repeat: Infinity,
-                      ease: motionEasings.inOut,
-                    }
-              }
-              className="flex flex-col items-center space-y-2"
-              aria-hidden="true"
-            >
-              <div className="h-8 w-px bg-[var(--primary)]/40" />
-              <div className="h-1.5 w-1.5 rotate-45 bg-[var(--primary)]/70" />
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </Container>
+          {claim.lockup.map((line) => (
+            <span key={line} className="block w-max max-w-none whitespace-nowrap leading-[0.8]">
+              {line}
+            </span>
+          ))}
+        </Heading>
+      </div>
+      <ClaimRoles roles={claim.roles} />
     </section>
   );
 }
