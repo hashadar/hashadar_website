@@ -21,12 +21,6 @@ export interface PhotoItem {
   location?: string;
 }
 
-export interface PhotographySection {
-  heading: string;
-  description?: string;
-  images: PhotoItem[];
-}
-
 export interface Role {
   role: string;
   period: string;
@@ -86,16 +80,6 @@ export interface CertificationsSection {
   items: CertificationItem[];
 }
 
-export interface BlogSection {
-  heading: string;
-  description?: string;
-  cta?: {
-    label: string;
-    href: string;
-  };
-  emptyState?: string;
-}
-
 /** Home Role on the Claim — not career `Role`. */
 export interface ClaimRole {
   id: string;
@@ -109,7 +93,7 @@ export interface ProofDoor {
   label: string;
   href: string;
   media: ProofMedia;
-  /** Loop still under `/loops/`; omitted for the photographer Photograph. */
+  /** Still under `/loops/`. Untreated when `media` is `photo`. */
   src?: string;
 }
 
@@ -123,10 +107,18 @@ export interface HomeClaim {
 
 export interface HomeStatement {
   headline: string;
-  paragraph: string;
+  lines: string[];
   cta: {
     label: string;
     href: string;
+  };
+  continue: {
+    label: string;
+    href: string;
+  };
+  portrait: {
+    src: string;
+    alt: string;
   };
 }
 

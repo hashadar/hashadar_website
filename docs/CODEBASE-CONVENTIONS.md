@@ -77,7 +77,7 @@ This document defines how to work in this codebase so that new and changed code 
 
 - **Typography:** Use `Heading` and `Text` from `@/components/ui` for all headings and body text. Do not use raw `<h1>`–`<h6>` or ad-hoc Tailwind typography classes for standard content.
 - **Layout:** Use `Container` and `Section` for page structure and spacing. Use the `spacing` prop on `Section` for vertical rhythm.
-- **Colours:** Use CSS variables: `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--muted)`, `var(--border)`. Do not introduce new hardcoded hex/rgb for theme colours.
+- **Colours:** Use CSS variables: `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--muted)`, `var(--border)`, `var(--cream)`. Do not introduce new hardcoded hex/rgb for theme colours.
 - **Class names:** Use `cn()` from `@/lib/utils` whenever combining conditional or multiple Tailwind classes.
 
 ### 5.2 Props and composition

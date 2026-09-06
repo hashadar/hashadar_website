@@ -30,9 +30,8 @@ function walkTsx(dirFromRepo: string): string[] {
 }
 
 describe('marketing motion wiring', () => {
-  it('staggers home blog, portfolio, and blog index grids', () => {
+  it('staggers portfolio and blog index grids', () => {
     const grids = [
-      'src/components/sections/homepage/blog-section.tsx',
       'src/components/sections/portfolio/portfolio-grid.tsx',
       'src/components/sections/blog/blog-grid.tsx',
     ];
@@ -43,9 +42,6 @@ describe('marketing motion wiring', () => {
   });
 
   it('keeps photography atmosphere quiet so imagery leads', () => {
-    expect(readSrc('src/components/sections/homepage/photography-section.tsx')).toContain(
-      'variant="photography"',
-    );
     expect(readSrc('src/components/sections/portfolio/portfolio-grid.tsx')).toContain(
       'variant="photography"',
     );
@@ -64,8 +60,6 @@ describe('marketing motion wiring', () => {
     const files = [
       ...roots.flatMap(walkTsx),
       'src/components/sections/footer-section.tsx',
-      'src/components/sections/homepage/blog-section.tsx',
-      'src/components/sections/homepage/photography-section.tsx',
       'src/components/ui/photo-card.tsx',
       'src/components/ui/blog-card.tsx',
       'src/components/ui/lightbox.tsx',

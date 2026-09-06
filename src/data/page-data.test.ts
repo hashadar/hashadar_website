@@ -29,13 +29,22 @@ describe('getPageData', () => {
     ]);
     expect(home.claim.landingLine).toBe('all of the above.');
     expect(home.claim.loopSrc).toBe('/loops/claim-poster.webp');
-    expect(home.statement.headline).toBe('One practice, not a menu.');
+    expect(home.statement.headline).toBe('Hello.');
+    expect(home.statement.lines).toEqual([
+      'I am an AI & Data consultant at Deloitte.',
+      'Find out more about me.',
+    ]);
     expect(home.statement.cta).toEqual({ label: 'About', href: '/about' });
-    expect(home.proof.doors.map((door) => ({ id: door.id, href: door.href, media: door.media }))).toEqual([
-      { id: 'consultant', href: '/about', media: 'loop' },
-      { id: 'photographer', href: '/portfolio', media: 'photo' },
-      { id: 'developer', href: '/labs', media: 'loop' },
-      { id: 'writer', href: '/blog', media: 'loop' },
+    expect(home.statement.continue).toEqual({ label: 'See more', href: '#proof' });
+    expect(home.statement.portrait).toEqual({
+      src: '/img/statement-portrait.webp',
+      alt: 'hasha dar',
+    });
+    expect(home.proof.doors.map((door) => ({ id: door.id, href: door.href, media: door.media, src: door.src }))).toEqual([
+      { id: 'consultant', href: '/about', media: 'loop', src: '/loops/consultant-poster.webp' },
+      { id: 'photographer', href: '/portfolio', media: 'photo', src: '/loops/photography-poster.webp' },
+      { id: 'developer', href: '/labs', media: 'loop', src: '/loops/developer-poster.webp' },
+      { id: 'writer', href: '/blog', media: 'loop', src: '/loops/writer-poster.webp' },
     ]);
     expect(home.proof.doors.find((door) => door.id === 'developer')?.href).toBe('/labs');
   });

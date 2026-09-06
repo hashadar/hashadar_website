@@ -52,11 +52,11 @@ describe('validateDataFile', () => {
     ).toThrow(/catalogue block "about"/);
   });
 
-  it('rejects a loop Proof door without a still', () => {
+  it('rejects a Proof door without a still', () => {
     const invalid = structuredClone(homeData) as {
       proof: { doors: Array<{ media: string; src?: string }> };
     };
-    const door = invalid.proof.doors.find((entry) => entry.media === 'loop');
+    const door = invalid.proof.doors.find((entry) => entry.media === 'photo');
     delete door?.src;
 
     expect(() =>
