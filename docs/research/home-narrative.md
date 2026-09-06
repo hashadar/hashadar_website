@@ -13,7 +13,7 @@ Home is Claim → Statement → Proof. Not a CV catalogue, not a six-step playbo
 | Beat | What | Media |
 | --- | --- | --- |
 | **Claim** | Two-line lockup `hasha` / `dar` (same size; longer line spans the viewport). Roles as questions, one pass, land on **all of the above.** | Loop behind (treated still). `h1` is the name. |
-| **Statement** | One practice, not a menu. Headline, short paragraph, CTA **About** → `/about`. | Type. No bio dump. |
+| **Statement** | Hello. Short line, CTA **About** → `/about`. Portrait on the right. | Type and a black-and-white portrait. |
 | **Proof** | Four large tiles, 2×2 desktop, stack mobile. Role word as the only title. | Photograph on photographer; Loops on the rest. |
 
 ### Roles and doors
@@ -31,9 +31,10 @@ Mechanical engineer is not a Home Role. No `/work`. No deep link into a Lab. No 
 
 ### Copy (Statement)
 
-- Headline: **One practice, not a menu.**
-- Paragraph: **Consulting, photographs, tools, and writing are not hobbies stacked on a job. They are one way of looking, and of making.**
+- Headline: **Hello.**
+- Lines: **I am an AI & Data consultant at Deloitte.** / **Find out more about me.**
 - CTA: **About**
+- Continue: **See more** → Proof
 
 ### Motion
 

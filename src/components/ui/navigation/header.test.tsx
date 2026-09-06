@@ -61,8 +61,14 @@ describe("Header", () => {
 
     const header = screen.getByRole("banner");
     expect(within(header).getByRole("link", { name: site.brandName })).toHaveAttribute("href", "/");
+    expect(within(header).getByRole("link", { name: site.brandName })).toHaveClass(
+      "text-sm",
+      "font-medium",
+    );
     for (const link of navigation.links) {
-      expect(within(header).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      const door = within(header).getByRole("link", { name: link.label });
+      expect(door).toHaveAttribute("href", link.href);
+      expect(door).toHaveClass("text-sm", "font-medium");
     }
   });
 

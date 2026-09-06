@@ -36,7 +36,6 @@ import {
   getPageData,
   getCommonData,
   careerProfile,
-  getHomeExperienceView,
   getAboutCareerViews,
 } from "@/data";
 
@@ -56,9 +55,7 @@ There is no `cv` export; career structured content lives in `careerProfile`.
 Structured career content lives in `profile/career-profile.json`. Page-specific views are composed via slice helpers:
 
 ```typescript
-import { careerProfile, getHomeExperienceView, getAboutCareerViews } from "@/data";
-
-<ExperienceListing {...getHomeExperienceView(careerProfile)} />
+import { careerProfile, getAboutCareerViews } from "@/data";
 
 const careerViews = getAboutCareerViews(careerProfile);
 ```

@@ -120,4 +120,18 @@ describe("Loop", () => {
     expect(frozen.container.querySelector(".loop-grain-motion")).toBeNull();
     expect(frozen.container.querySelector(".loop-flash-motion")).toBeNull();
   });
+
+  it("marks photograph Loops without relying on theme invert", () => {
+    mockMatchMedia(false);
+    mockInView(true);
+
+    const { container } = render(
+      <div className="relative h-40">
+        <Loop src="/loops/photography-poster.webp" tone="photograph" />
+      </div>,
+    );
+
+    expect(container.querySelector("[data-loop]")).toHaveAttribute("data-loop-tone", "photograph");
+    expect(container.querySelector(".loop-grain-motion")).toBeTruthy();
+  });
 });

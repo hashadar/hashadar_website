@@ -12,11 +12,22 @@
     "loopObjectPosition": "center 78%"
   },
   "statement": {
-    "headline": "One practice, not a menu.",
-    "paragraph": "Consulting, photographs, tools, and writing are not hobbies stacked on a job. They are one way of looking, and of making.",
+    "headline": "Hello.",
+    "lines": [
+      "I am an AI & Data consultant at Deloitte.",
+      "Find out more about me."
+    ],
     "cta": {
       "label": "About",
       "href": "/about"
+    },
+    "continue": {
+      "label": "See more",
+      "href": "#proof"
+    },
+    "portrait": {
+      "src": "/img/statement-portrait.webp",
+      "alt": "hasha dar"
     }
   },
   "proof": {
@@ -32,7 +43,8 @@
         "id": "photographer",
         "label": "photographer",
         "href": "/portfolio",
-        "media": "photo"
+        "media": "photo",
+        "src": "/loops/photography-poster.webp"
       },
       {
         "id": "developer",

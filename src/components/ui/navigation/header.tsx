@@ -45,8 +45,8 @@ export function Header() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
   const showWordmark = !isHome || !claimInView;
 
-  const doorClassName =
-    "text-sm font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors";
+  const chromeLinkClassName =
+    "font-body text-sm font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -57,7 +57,7 @@ export function Header() {
         {showWordmark ? (
           <Link
             href="/"
-            className="font-body text-sm tracking-tight text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+            className={chromeLinkClassName}
           >
             {site.brandName}
           </Link>
@@ -71,7 +71,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={doorClassName}
+                className={chromeLinkClassName}
                 aria-current={isActive(link.href) ? "page" : undefined}
               >
                 {link.label}
@@ -106,7 +106,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={closeMobileMenu}
-                className={cn(doorClassName, "text-base")}
+                className={cn(chromeLinkClassName, "text-base")}
                 aria-current={isActive(link.href) ? "page" : undefined}
               >
                 {link.label}

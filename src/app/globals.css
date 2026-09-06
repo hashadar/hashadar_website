@@ -28,6 +28,7 @@
   --foreground: #171717;
   --muted: #f5f5f5;
   --border: #e5e5e5;
+  --cream: #f7f4ee;
 }
 
 .dark {
@@ -36,6 +37,7 @@
   --foreground: #fafafa;
   --muted: #262626;
   --border: #404040;
+  --cream: #141414;
 }
 
 body {
@@ -143,12 +145,12 @@ button:focus-visible {
   mix-blend-mode: soft-light;
 }
 
-.loop-plate img {
-  transition: filter 0.2s ease;
+.loop-plate {
+  transform: scale(1.06);
 }
 
-.dark .loop-plate img {
-  filter: invert(1) hue-rotate(180deg);
+.loop-plate img {
+  transition: filter 0.2s ease;
 }
 
 .loop-light {
@@ -162,10 +164,10 @@ button:focus-visible {
 
 @keyframes loop-drift {
   from {
-    transform: scale(1.04) translate3d(-0.6%, -0.4%, 0);
+    transform: scale(1.06) translate3d(-0.4%, -0.25%, 0);
   }
   to {
-    transform: scale(1.1) translate3d(0.8%, 0.5%, 0);
+    transform: scale(1.09) translate3d(0.4%, 0.25%, 0);
   }
 }
 
@@ -231,23 +233,6 @@ button:focus-visible {
   }
 }
 
-@keyframes loop-plate-blur-dark {
-  0%,
-  78%,
-  80.7%,
-  82.4%,
-  93%,
-  100% {
-    filter: invert(1) hue-rotate(180deg) blur(0);
-  }
-  80.2% {
-    filter: invert(1) hue-rotate(180deg) blur(2px);
-  }
-  81.3% {
-    filter: invert(1) hue-rotate(180deg) blur(5px);
-  }
-}
-
 @keyframes loop-light {
   from {
     opacity: 0.42;
@@ -266,10 +251,6 @@ button:focus-visible {
   animation: loop-plate-blur 11s linear infinite;
 }
 
-.dark .loop-plate-motion img {
-  animation: loop-plate-blur-dark 11s linear infinite;
-}
-
 .loop-grain-motion {
   animation: loop-grain 2.8s steps(2) infinite;
 }
@@ -282,16 +263,74 @@ button:focus-visible {
   animation: loop-light 12s ease-in-out infinite alternate;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .proof-tile [data-loop] {
+    transform: scale(1);
+    transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .proof-tile:hover [data-loop],
+  .proof-tile:focus-visible [data-loop] {
+    transform: scale(1.05);
+  }
+
+  .proof-tile .proof-label {
+    font-size: 1.15rem;
+    transition: font-size 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .proof-tile:hover .proof-label,
+  .proof-tile:focus-visible .proof-label {
+    font-size: 1.75rem;
+  }
+}
+
+@keyframes statement-chevron-nudge {
+  0%,
+  10%,
+  100% {
+    transform: translateY(0);
+  }
+  3% {
+    transform: translateY(5px);
+  }
+  6% {
+    transform: translateY(0);
+  }
+  8% {
+    transform: translateY(4px);
+  }
+}
+
+.statement-continue-chevron {
+  animation: statement-chevron-nudge 6.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .loop-plate-motion,
   .loop-plate-motion img,
   .loop-grain-motion,
   .loop-flash-motion,
-  .loop-light-motion {
+  .loop-light-motion,
+  .statement-continue-chevron {
     animation: none;
   }
 
   .loop-plate img {
+    transition: none;
+  }
+
+  .proof-tile [data-loop],
+  .proof-tile:hover [data-loop],
+  .proof-tile:focus-visible [data-loop] {
+    transform: none;
+    transition: none;
+  }
+
+  .proof-tile .proof-label,
+  .proof-tile:hover .proof-label,
+  .proof-tile:focus-visible .proof-label {
+    font-size: 1.15rem;
     transition: none;
   }
 }

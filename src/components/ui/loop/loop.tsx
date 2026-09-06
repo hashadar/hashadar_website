@@ -9,6 +9,9 @@ export interface LoopProps {
   src?: string | null;
   className?: string;
   objectPosition?: string;
+  sizes?: string;
+  /** Photographs stay untreated by invert; analog motion still applies. */
+  tone?: "chrome" | "photograph";
 }
 
 export type LoopState = "live" | "frozen" | "fallback";
@@ -34,7 +37,13 @@ function useInView(elementRef: RefObject<HTMLElement | null>): boolean {
   return inView;
 }
 
-export function Loop({ src, className, objectPosition = "center" }: LoopProps) {
+export function Loop({
+  src,
+  className,
+  objectPosition = "center",
+  sizes = "100vw",
+  tone = "chrome",
+}: LoopProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inView = useInView(rootRef);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -53,6 +62,7 @@ export function Loop({ src, className, objectPosition = "center" }: LoopProps) {
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
       aria-hidden="true"
       data-loop={state}
+      data-loop-tone={tone}
     >
       <div className={cn("loop-plate absolute inset-0", motion && "loop-plate-motion")}>
         {hasSrc ? (
@@ -60,7 +70,7 @@ export function Loop({ src, className, objectPosition = "center" }: LoopProps) {
             src={src}
             alt=""
             fill
-            sizes="100vw"
+            sizes={sizes}
             className="object-cover"
             style={{ objectPosition }}
             quality={85}

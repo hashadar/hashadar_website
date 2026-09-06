@@ -90,9 +90,7 @@ function assertProofDoor(value: unknown, context: string): Record<string, unknow
   if (!PROOF_MEDIA.has(media)) {
     fail(`${context}: media must be "loop" or "photo"`);
   }
-  if (media === 'loop') {
-    requireString(door, 'src', context);
-  }
+  requireString(door, 'src', context);
   return door;
 }
 
@@ -123,8 +121,15 @@ export function assertValidHomePage(data: unknown): void {
 
   const statement = requireRecord(page.statement, 'home.statement');
   requireString(statement, 'headline', 'home.statement');
-  requireString(statement, 'paragraph', 'home.statement');
+  const lines = requireArray(statement.lines, 'home.statement.lines');
+  if (lines.length === 0 || lines.some((line) => typeof line !== 'string' || line.length === 0)) {
+    fail('home.statement.lines: expected non-empty strings');
+  }
   assertCta(statement.cta, 'home.statement.cta');
+  assertCta(statement.continue, 'home.statement.continue');
+  const portrait = requireRecord(statement.portrait, 'home.statement.portrait');
+  requireString(portrait, 'src', 'home.statement.portrait');
+  requireString(portrait, 'alt', 'home.statement.portrait');
 
   const proof = requireRecord(page.proof, 'home.proof');
   const doors = requireArray(proof.doors, 'home.proof.doors');
