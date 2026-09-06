@@ -47,7 +47,7 @@ export function FooterSection() {
 
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--background)]">
-      <div className="container mx-auto px-6">
+      <div className="w-full px-6">
         <div className="grid gap-6 py-12 md:grid-cols-[1fr_auto] md:items-end">
           <div className="w-max">
             <p

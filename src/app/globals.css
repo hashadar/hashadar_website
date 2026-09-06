@@ -120,14 +120,35 @@ button:focus-visible {
 }
 
 .loop-grain {
-  opacity: 0.22;
+  opacity: 0.28;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
 .dark .loop-grain {
   mix-blend-mode: overlay;
-  opacity: 0.28;
+  opacity: 0.34;
+}
+
+.loop-flash {
+  background: #fff6ea;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+}
+
+.dark .loop-flash {
+  background: #ffffff;
+  mix-blend-mode: soft-light;
+}
+
+.loop-plate img {
+  transition: filter 0.2s ease;
+}
+
+.dark .loop-plate img {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 .loop-light {
@@ -154,7 +175,76 @@ button:focus-visible {
     transform: translate(0, 0);
   }
   50% {
-    transform: translate(-1.5%, 1%);
+    transform: translate(-0.9%, 0.6%);
+  }
+}
+
+@keyframes loop-reel-flash {
+  0%,
+  78% {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+  80.2% {
+    opacity: 0.07;
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+  80.7% {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+  81.3% {
+    opacity: 0.14;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  82.4% {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+  93%,
+  100% {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+
+@keyframes loop-plate-blur {
+  0%,
+  78%,
+  80.7%,
+  82.4%,
+  93%,
+  100% {
+    filter: blur(0);
+  }
+  80.2% {
+    filter: blur(2px);
+  }
+  81.3% {
+    filter: blur(5px);
+  }
+}
+
+@keyframes loop-plate-blur-dark {
+  0%,
+  78%,
+  80.7%,
+  82.4%,
+  93%,
+  100% {
+    filter: invert(1) hue-rotate(180deg) blur(0);
+  }
+  80.2% {
+    filter: invert(1) hue-rotate(180deg) blur(2px);
+  }
+  81.3% {
+    filter: invert(1) hue-rotate(180deg) blur(5px);
   }
 }
 
@@ -171,8 +261,21 @@ button:focus-visible {
   animation: loop-drift 28s ease-in-out infinite alternate;
 }
 
+.loop-plate-motion img {
+  transition: none;
+  animation: loop-plate-blur 11s linear infinite;
+}
+
+.dark .loop-plate-motion img {
+  animation: loop-plate-blur-dark 11s linear infinite;
+}
+
 .loop-grain-motion {
-  animation: loop-grain 0.9s steps(2) infinite;
+  animation: loop-grain 2.8s steps(2) infinite;
+}
+
+.loop-flash-motion {
+  animation: loop-reel-flash 11s linear infinite;
 }
 
 .loop-light-motion {
@@ -181,8 +284,14 @@ button:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .loop-plate-motion,
+  .loop-plate-motion img,
   .loop-grain-motion,
+  .loop-flash-motion,
   .loop-light-motion {
     animation: none;
+  }
+
+  .loop-plate img {
+    transition: none;
   }
 }
