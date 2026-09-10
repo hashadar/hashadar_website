@@ -15,3 +15,11 @@ describe('next.config image optimisation', () => {
     );
   });
 });
+
+describe('next.config R3F / three', () => {
+  it('transpiles three for App Router compatibility', () => {
+    expect(nextConfig.transpilePackages).toEqual(
+      expect.arrayContaining(['three']),
+    );
+  });
+});

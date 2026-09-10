@@ -1,3 +1,3 @@
-export { HeroBackground } from './hero-background';
 export { SectionBackground } from './section-background';
+export type { SectionBackgroundVariant } from './section-background';
 

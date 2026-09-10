@@ -21,12 +21,6 @@ export interface PhotoItem {
   location?: string;
 }
 
-export interface PhotographySection {
-  heading: string;
-  description?: string;
-  images: PhotoItem[];
-}
-
 export interface Role {
   role: string;
   period: string;
@@ -86,21 +80,56 @@ export interface CertificationsSection {
   items: CertificationItem[];
 }
 
-export interface BlogSection {
-  heading: string;
-  description?: string;
-  cta?: {
+/** Home Role on the Claim — not career `Role`. */
+export interface ClaimRole {
+  id: string;
+  question: string;
+}
+
+export type ProofMedia = 'loop' | 'photo';
+
+export interface ProofDoor {
+  id: string;
+  label: string;
+  href: string;
+  media: ProofMedia;
+  /** Still under `/loops/`. Untreated when `media` is `photo`. */
+  src?: string;
+}
+
+export interface HomeClaim {
+  lockup: string[];
+  roles: ClaimRole[];
+  landingLine: string;
+  loopSrc: string;
+  loopObjectPosition?: string;
+}
+
+export interface HomeStatement {
+  headline: string;
+  lines: string[];
+  cta: {
     label: string;
     href: string;
   };
-  emptyState?: string;
+  continue: {
+    label: string;
+    href: string;
+  };
+  portrait: {
+    src: string;
+    alt: string;
+  };
+}
+
+export interface HomeProof {
+  doors: ProofDoor[];
 }
 
 export interface HomePageData {
-  hero: HeroSection;
-  about: AboutSection;
-  photography: PhotographySection;
-  blog: BlogSection;
+  claim: HomeClaim;
+  statement: HomeStatement;
+  proof: HomeProof;
 }
 
 export interface PortfolioPageData {
@@ -629,13 +658,10 @@ export interface SocialLinks {
 }
 
 export interface ContactInfo {
-  heading: string;
-  description: string;
-  navigationTitle: string;
-  socialTitle: string;
   email: string;
   social: SocialLinks;
   copyright: string;
+  admin: NavLink;
 }
 
 export interface FooterData {

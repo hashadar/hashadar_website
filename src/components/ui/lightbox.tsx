@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { motionDurations, motionEasings } from "@/lib/motion/tokens";
 
 interface LightboxImage {
   src: string;
@@ -29,14 +31,17 @@ export function Lightbox({
   onNext,
   onPrevious,
 }: LightboxProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const currentImage = images[currentIndex];
   const hasMultipleImages = images.length > 1;
 
-  // Preload adjacent images for faster navigation
   const nextIndex = (currentIndex + 1) % images.length;
   const prevIndex = (currentIndex - 1 + images.length) % images.length;
 
-  // Handle keyboard navigation
+  const fadeTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: motionDurations.fast, ease: motionEasings.out };
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -53,10 +58,9 @@ export function Lightbox({
           break;
       }
     },
-    [isOpen, onClose, onNext, onPrevious]
+    [isOpen, onClose, onNext, onPrevious],
   );
 
-  // Add/remove keyboard event listener
   useEffect(() => {
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
@@ -75,13 +79,13 @@ export function Lightbox({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
+          transition={fadeTransition}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
           onClick={onClose}
         >
-          {/* Close button */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-50 p-2 text-white hover:text-[var(--primary)] transition-colors"
@@ -103,7 +107,6 @@ export function Lightbox({
             </svg>
           </button>
 
-          {/* Previous button */}
           {hasMultipleImages && onPrevious && (
             <button
               onClick={(e) => {
@@ -130,7 +133,6 @@ export function Lightbox({
             </button>
           )}
 
-          {/* Next button */}
           {hasMultipleImages && onNext && (
             <button
               onClick={(e) => {
@@ -157,16 +159,14 @@ export function Lightbox({
             </button>
           )}
 
-          {/* Image container */}
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={prefersReducedMotion ? false : { scale: 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { scale: 0.96, opacity: 0 }}
+            transition={fadeTransition}
             className="relative max-w-7xl mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Current Image */}
             <div className="relative">
               <Image
                 src={currentImage.src}
@@ -181,33 +181,29 @@ export function Lightbox({
               />
             </div>
 
-            {/* Preload adjacent images for faster navigation */}
             {hasMultipleImages && (
-              <>
-                <div className="hidden">
-                  <Image
-                    src={images[nextIndex]?.src}
-                    alt={images[nextIndex]?.alt || ""}
-                    width={1600}
-                    height={1200}
-                    quality={90}
-                    priority
-                    loading="eager"
-                  />
-                  <Image
-                    src={images[prevIndex]?.src}
-                    alt={images[prevIndex]?.alt || ""}
-                    width={1600}
-                    height={1200}
-                    quality={90}
-                    priority
-                    loading="eager"
-                  />
-                </div>
-              </>
+              <div className="hidden">
+                <Image
+                  src={images[nextIndex]?.src}
+                  alt={images[nextIndex]?.alt || ""}
+                  width={1600}
+                  height={1200}
+                  quality={90}
+                  priority
+                  loading="eager"
+                />
+                <Image
+                  src={images[prevIndex]?.src}
+                  alt={images[prevIndex]?.alt || ""}
+                  width={1600}
+                  height={1200}
+                  quality={90}
+                  priority
+                  loading="eager"
+                />
+              </div>
             )}
 
-            {/* Image caption */}
             {(currentImage.title || currentImage.category || currentImage.location) && (
               <div className="mt-4 text-center">
                 {currentImage.title && (
@@ -230,7 +226,6 @@ export function Lightbox({
               </div>
             )}
 
-            {/* Image counter */}
             {hasMultipleImages && (
               <div className="mt-4 text-center text-white/50 text-sm">
                 {currentIndex + 1} / {images.length}
@@ -242,4 +237,3 @@ export function Lightbox({
     </AnimatePresence>
   );
 }
-

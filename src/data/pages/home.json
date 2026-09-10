@@ -1,29 +1,65 @@
 {
-  "hero": {
-    "name": "hasha dar",
-    "title": "AI & Data Consultant"
+  "claim": {
+    "lockup": ["hasha", "dar"],
+    "roles": [
+      { "id": "consultant", "question": "consultant?" },
+      { "id": "photographer", "question": "photographer?" },
+      { "id": "developer", "question": "software developer?" },
+      { "id": "writer", "question": "writer?" }
+    ],
+    "landingLine": "all of the above.",
+    "loopSrc": "/loops/claim-poster.webp",
+    "loopObjectPosition": "center 78%"
   },
-  "about": {
-    "heading": "About",
-    "content": "I'm a Consultant at Deloitte, in the AI & Data department. My work involves helping our clients implement AI solutions and manage their data effectively. I hold a mechanical engineering degree from UCL, graduating in 2023. In my free time, I develop apps and do photography. I primarily shoot a mixture of portraiture, travel and event. I also enjoy theatre, where I worked as a production manager and contributed to sound and lighting design.",
+  "statement": {
+    "headline": "hello",
+    "lines": [
+      "I'm Hasha, an AI & Data Consultant at Deloitte.",
+      "Find out more about me below."
+    ],
     "cta": {
-      "label": "Learn more about me",
+      "label": "About",
       "href": "/about"
+    },
+    "continue": {
+      "label": "See more",
+      "href": "#proof"
+    },
+    "portrait": {
+      "src": "/img/statement-portrait.webp",
+      "alt": "hasha dar"
     }
   },
-  "photography": {
-    "heading": "Photography",
-    "description": "Moments captured in portraiture, travel, and theatre.",
-    "images": []
-  },
-  "blog": {
-    "heading": "Blog",
-    "description": "My thoughts in one place.",
-    "cta": {
-      "label": "View all posts",
-      "href": "/blog"
-    },
-    "emptyState": "No blog posts yet. Check back soon!"
+  "proof": {
+    "doors": [
+      {
+        "id": "consultant",
+        "label": "find out more about me",
+        "href": "/about",
+        "media": "loop",
+        "src": "/loops/consultant-poster.webp"
+      },
+      {
+        "id": "photographer",
+        "label": "view my photography portfolio",
+        "href": "/portfolio",
+        "media": "photo",
+        "src": "/loops/photography-poster.webp"
+      },
+      {
+        "id": "developer",
+        "label": "access my personal projects",
+        "href": "/labs",
+        "media": "loop",
+        "src": "/loops/developer-poster.webp"
+      },
+      {
+        "id": "writer",
+        "label": "read my blog posts",
+        "href": "/blog",
+        "media": "loop",
+        "src": "/loops/writer-poster.webp"
+      }
+    ]
   }
 }
-

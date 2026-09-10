@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   formatBlogCardDate,
   resolveBlogPostImage,
@@ -31,73 +32,53 @@ export function BlogCard({
   priority = false,
   className = "",
 }: BlogCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const formattedDate = formatBlogCardDate(date);
   const imageSrc = resolveBlogPostImage(image, { imageLoadFailed: imageError });
 
   return (
-    <Link
-      href={`/blog/${slug}`}
-      className={`group block ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div
-        className="relative overflow-hidden bg-[var(--muted)] border border-[var(--border)] transition-all duration-500"
-        style={{
-          transform: isHovered ? 'scale(1.02)' : 'scale(1)',
-        }}
-      >
-        {/* Image */}
+    <Link href={`/blog/${slug}`} className={cn("group block", className)}>
+      <div className="relative overflow-hidden border border-[var(--border)] bg-[var(--muted)]">
         <div className="relative aspect-[16/9] overflow-hidden bg-[var(--muted)]">
           <Image
             src={imageSrc}
             alt={title}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             quality={85}
             priority={priority}
             loading={priority ? "eager" : "lazy"}
             onError={() => setImageError(true)}
           />
-          
-          {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none" />
         </div>
 
-        {/* Content */}
         <div className="p-6">
-          {/* Category */}
           <div className="mb-3">
-            <span className="text-[var(--primary)] font-medium text-sm uppercase tracking-wide">
+            <span className="text-sm font-medium uppercase tracking-wide text-[var(--primary)]">
               {category}
             </span>
           </div>
 
-          {/* Title */}
-          <h3 className="text-[var(--foreground)] font-body font-bold text-xl mb-3 line-clamp-3 group-hover:text-[var(--primary)] transition-colors duration-300">
+          <h3 className="mb-3 line-clamp-3 font-body text-xl font-bold text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--primary)] motion-reduce:transition-none">
             {title}
           </h3>
 
-          {/* Excerpt */}
-          <p className="text-[var(--foreground)]/70 text-sm mb-4 line-clamp-3">
+          <p className="mb-4 line-clamp-3 text-sm text-[var(--foreground)]/70">
             {excerpt}
           </p>
 
-          {/* Meta info */}
           <div className="flex items-center justify-between text-xs text-[var(--foreground)]/60">
             <span>{author}</span>
             <span>{formattedDate}</span>
           </div>
         </div>
 
-        {/* Border effect on hover */}
-        <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--primary)] transition-colors duration-500 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-[var(--primary)] motion-reduce:transition-none" />
       </div>
     </Link>
   );
 }
-

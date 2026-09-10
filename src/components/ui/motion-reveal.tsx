@@ -1,11 +1,24 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { motion } from "framer-motion";
+import {
+  Children,
+  createContext,
+  useContext,
+  type ReactNode,
+} from "react";
+import { motion, type Transition } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { cn } from "@/lib/utils";
+import {
+  fadeUpDistance,
+  motionDurations,
+  motionEasings,
+  motionSprings,
+  motionStagger,
+} from "@/lib/motion/tokens";
 
-export type MotionRevealVariant = "fade-up" | "fade" | "slide-in" | "none";
-export type MotionRevealDistance = "sm" | "md" | "lg";
+export type MotionRevealVariant = "fade-up" | "fade" | "slide-in" | "clip-up" | "none";
+export type MotionRevealDistance = keyof typeof fadeUpDistance;
 
 export interface MotionRevealProps {
   children: ReactNode;
@@ -17,11 +30,43 @@ export interface MotionRevealProps {
   distance?: MotionRevealDistance;
 }
 
-const FADE_UP_DISTANCE: Record<MotionRevealDistance, number> = {
-  sm: 20,
-  md: 30,
-  lg: 50,
-};
+export interface MotionRevealGroupProps {
+  children: ReactNode;
+  className?: string;
+  /** Per-item delay in seconds. Defaults to `motionStagger.step`. */
+  stagger?: number;
+}
+
+const GroupStaggerContext = createContext<number | null>(null);
+const GroupIndexContext = createContext(0);
+
+export function MotionRevealGroup({
+  children,
+  className,
+  stagger = motionStagger.step,
+}: MotionRevealGroupProps) {
+  return (
+    <GroupStaggerContext.Provider value={stagger}>
+      <div className={className}>
+        {Children.map(children, (child, index) => (
+          <GroupIndexContext.Provider value={index}>{child}</GroupIndexContext.Provider>
+        ))}
+      </div>
+    </GroupStaggerContext.Provider>
+  );
+}
+
+function spatialTransition(delay: number): Transition {
+  return { ...motionSprings.reveal, delay };
+}
+
+function fadeTransition(delay: number): Transition {
+  return {
+    duration: motionDurations.base,
+    delay,
+    ease: motionEasings.out,
+  };
+}
 
 export function MotionReveal({
   children,
@@ -32,17 +77,22 @@ export function MotionReveal({
   distance = "md",
 }: MotionRevealProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const groupStagger = useContext(GroupStaggerContext);
+  const groupIndex = useContext(GroupIndexContext);
+  const resolvedDelay = delay + (groupStagger == null ? 0 : groupIndex * groupStagger);
 
   if (variant === "none" || prefersReducedMotion) {
     return <div className={className}>{children}</div>;
   }
 
+  const offset = fadeUpDistance[distance];
+
   const initial =
     variant === "fade"
       ? { opacity: 0 }
       : variant === "slide-in"
-        ? { opacity: 0, x: -50 }
-        : { opacity: 0, y: FADE_UP_DISTANCE[distance] };
+        ? { opacity: 0, x: -offset }
+        : { opacity: 0, y: offset };
 
   const visible =
     variant === "fade"
@@ -51,29 +101,23 @@ export function MotionReveal({
         ? { opacity: 1, x: 0 }
         : { opacity: 1, y: 0 };
 
-  const transition = { duration: 0.8, delay, ease: "easeOut" as const };
+  const transition =
+    variant === "fade" ? fadeTransition(resolvedDelay) : spatialTransition(resolvedDelay);
 
-  if (inView) {
+  const motionProps = inView
+    ? { initial, whileInView: visible, viewport: { once: true } as const, transition }
+    : { initial, animate: visible, transition };
+
+  if (variant === "clip-up") {
     return (
-      <motion.div
-        className={className}
-        initial={initial}
-        whileInView={visible}
-        transition={transition}
-        viewport={{ once: true }}
-      >
-        {children}
-      </motion.div>
+      <div className={cn("overflow-hidden", className)}>
+        <motion.div {...motionProps}>{children}</motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      className={className}
-      initial={initial}
-      animate={visible}
-      transition={transition}
-    >
+    <motion.div className={className} {...motionProps}>
       {children}
     </motion.div>
   );

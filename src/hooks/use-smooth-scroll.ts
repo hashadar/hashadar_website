@@ -10,22 +10,15 @@ export function useSmoothScroll() {
       
       if (anchor && anchor.hash) {
         const href = anchor.getAttribute("href");
-        
-        // Only handle hash links for the current page (starting with / or #)
-        if (href?.startsWith("/#")) {
+        const isInPageHash = href === anchor.hash || href?.startsWith("/#");
+
+        if (isInPageHash) {
           e.preventDefault();
-          const id = href.substring(2); // Remove /#
+          const id = anchor.hash.slice(1);
           const element = document.getElementById(id);
           
           if (element) {
-            const headerOffset = 80; // Account for fixed header
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth"
-            });
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
           }
         }
       }

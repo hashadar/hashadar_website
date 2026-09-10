@@ -36,7 +36,6 @@ import {
   getPageData,
   getCommonData,
   careerProfile,
-  getHomeExperienceView,
   getAboutCareerViews,
 } from "@/data";
 
@@ -56,12 +55,12 @@ There is no `cv` export; career structured content lives in `careerProfile`.
 Structured career content lives in `profile/career-profile.json`. Page-specific views are composed via slice helpers:
 
 ```typescript
-import { careerProfile, getHomeExperienceView, getAboutCareerViews } from "@/data";
-
-<ExperienceListing {...getHomeExperienceView(careerProfile)} />
+import { careerProfile, getAboutCareerViews } from "@/data";
 
 const careerViews = getAboutCareerViews(careerProfile);
 ```
+
+Home (`pages/home.json`) is Claim → Statement → Proof. Claim Roles use the `ClaimRole` type (not career `Role`). Proof doors live under `proof.doors`. Career listings are not part of Home.
 
 Page JSON under `pages/` holds shell content only. It does not duplicate career structured data.
 

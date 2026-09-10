@@ -71,19 +71,77 @@ export function validateDataFile(
   }
 }
 
+const HOME_ROLE_COUNT = 4;
+const PROOF_MEDIA = new Set(['loop', 'photo']);
+
+function assertClaimRole(value: unknown, context: string): Record<string, unknown> {
+  const role = requireRecord(value, context);
+  requireString(role, 'id', context);
+  requireString(role, 'question', context);
+  return role;
+}
+
+function assertProofDoor(value: unknown, context: string): Record<string, unknown> {
+  const door = requireRecord(value, context);
+  requireString(door, 'id', context);
+  requireString(door, 'label', context);
+  requireString(door, 'href', context);
+  const media = requireString(door, 'media', context);
+  if (!PROOF_MEDIA.has(media)) {
+    fail(`${context}: media must be "loop" or "photo"`);
+  }
+  requireString(door, 'src', context);
+  return door;
+}
+
 export function assertValidHomePage(data: unknown): void {
   const page = requireRecord(data, 'home');
-  const hero = requireRecord(page.hero, 'home.hero');
-  requireString(hero, 'name', 'home.hero');
-  requireString(hero, 'title', 'home.hero');
-  assertAboutSection(page.about, 'home.about');
-  const photography = requireRecord(page.photography, 'home.photography');
-  requireString(photography, 'heading', 'home.photography');
-  requireArray(photography.images, 'home.photography.images').forEach((image, index) =>
-    assertPhotoItem(image, `home.photography.images[${index}]`),
-  );
-  const blog = requireRecord(page.blog, 'home.blog');
-  requireString(blog, 'heading', 'home.blog');
+  for (const retired of ['hero', 'about', 'photography', 'blog', 'experience'] as const) {
+    if (page[retired] !== undefined) {
+      fail(`home: unexpected catalogue block "${retired}"`);
+    }
+  }
+
+  const claim = requireRecord(page.claim, 'home.claim');
+  const lockup = requireArray(claim.lockup, 'home.claim.lockup');
+  if (lockup.length !== 2 || lockup.some((line) => typeof line !== 'string' || line.length === 0)) {
+    fail('home.claim.lockup: expected two non-empty strings');
+  }
+  requireString(claim, 'landingLine', 'home.claim');
+  requireString(claim, 'loopSrc', 'home.claim');
+  if (claim.loopObjectPosition !== undefined) {
+    requireString(claim, 'loopObjectPosition', 'home.claim');
+  }
+
+  const roles = requireArray(claim.roles, 'home.claim.roles');
+  if (roles.length !== HOME_ROLE_COUNT) {
+    fail(`home.claim.roles: expected ${HOME_ROLE_COUNT} roles`);
+  }
+  const roleIds = roles.map((role, index) => assertClaimRole(role, `home.claim.roles[${index}]`).id);
+
+  const statement = requireRecord(page.statement, 'home.statement');
+  requireString(statement, 'headline', 'home.statement');
+  const lines = requireArray(statement.lines, 'home.statement.lines');
+  if (lines.length === 0 || lines.some((line) => typeof line !== 'string' || line.length === 0)) {
+    fail('home.statement.lines: expected non-empty strings');
+  }
+  assertCta(statement.cta, 'home.statement.cta');
+  assertCta(statement.continue, 'home.statement.continue');
+  const portrait = requireRecord(statement.portrait, 'home.statement.portrait');
+  requireString(portrait, 'src', 'home.statement.portrait');
+  requireString(portrait, 'alt', 'home.statement.portrait');
+
+  const proof = requireRecord(page.proof, 'home.proof');
+  const doors = requireArray(proof.doors, 'home.proof.doors');
+  if (doors.length !== HOME_ROLE_COUNT) {
+    fail(`home.proof.doors: expected ${HOME_ROLE_COUNT} doors`);
+  }
+  doors.forEach((door, index) => {
+    const entry = assertProofDoor(door, `home.proof.doors[${index}]`);
+    if (entry.id !== roleIds[index]) {
+      fail(`home.proof.doors[${index}].id must match home.claim.roles[${index}].id`);
+    }
+  });
 }
 
 export function assertValidAboutPage(data: unknown): void {
@@ -331,15 +389,12 @@ export function assertValidLoginPage(data: unknown): void {
 export function assertValidFooter(data: unknown): void {
   const footer = requireRecord(data, 'footer');
   const contact = requireRecord(footer.contact, 'footer.contact');
-  requireString(contact, 'heading', 'footer.contact');
-  requireString(contact, 'description', 'footer.contact');
-  requireString(contact, 'navigationTitle', 'footer.contact');
-  requireString(contact, 'socialTitle', 'footer.contact');
   requireString(contact, 'email', 'footer.contact');
   requireString(contact, 'copyright', 'footer.contact');
   const social = requireRecord(contact.social, 'footer.contact.social');
   requireString(social, 'github', 'footer.contact.social');
   requireString(social, 'linkedin', 'footer.contact.social');
+  assertCta(contact.admin, 'footer.contact.admin');
 }
 
 export function assertValidAdminPage(data: unknown): void {

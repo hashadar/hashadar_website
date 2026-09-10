@@ -38,7 +38,7 @@ export default function AboutPage() {
     <SitePage>
       <AboutHeroSection {...about.hero} />
       <AboutProfessionalSection {...about.professional} />
-      <ExperienceListing {...careerViews.experience} variant="about-experience" />
+      <ExperienceListing {...careerViews.experience} variant="marketing" />
       <EducationListing {...careerViews.education} />
       <CertificationsListing {...careerViews.certifications} />
     </SitePage>

@@ -15,6 +15,70 @@ import {
 } from '@/data';
 
 describe('getPageData', () => {
+  it('describes Home as Claim, Statement, and Proof with doors in data', () => {
+    expect(home).not.toHaveProperty('hero');
+    expect(home).not.toHaveProperty('about');
+    expect(home).not.toHaveProperty('photography');
+    expect(home).not.toHaveProperty('blog');
+    expect(home.claim.lockup).toEqual(['hasha', 'dar']);
+    expect(home.claim.roles.map((role) => role.question)).toEqual([
+      'consultant?',
+      'photographer?',
+      'software developer?',
+      'writer?',
+    ]);
+    expect(home.claim.landingLine).toBe('all of the above.');
+    expect(home.claim.loopSrc).toBe('/loops/claim-poster.webp');
+    expect(home.statement.headline).toBe('hello');
+    expect(home.statement.lines).toEqual([
+      "I'm Hasha, an AI & Data Consultant at Deloitte.",
+      'Find out more about me below.',
+    ]);
+    expect(home.statement.cta).toEqual({ label: 'About', href: '/about' });
+    expect(home.statement.continue).toEqual({ label: 'See more', href: '#proof' });
+    expect(home.statement.portrait).toEqual({
+      src: '/img/statement-portrait.webp',
+      alt: 'hasha dar',
+    });
+    expect(home.proof.doors.map((door) => ({
+      id: door.id,
+      label: door.label,
+      href: door.href,
+      media: door.media,
+      src: door.src,
+    }))).toEqual([
+      {
+        id: 'consultant',
+        label: 'find out more about me',
+        href: '/about',
+        media: 'loop',
+        src: '/loops/consultant-poster.webp',
+      },
+      {
+        id: 'photographer',
+        label: 'view my photography portfolio',
+        href: '/portfolio',
+        media: 'photo',
+        src: '/loops/photography-poster.webp',
+      },
+      {
+        id: 'developer',
+        label: 'access my personal projects',
+        href: '/labs',
+        media: 'loop',
+        src: '/loops/developer-poster.webp',
+      },
+      {
+        id: 'writer',
+        label: 'read my blog posts',
+        href: '/blog',
+        media: 'loop',
+        src: '/loops/writer-poster.webp',
+      },
+    ]);
+    expect(home.proof.doors.find((door) => door.id === 'developer')?.href).toBe('/labs');
+  });
+
   it('returns the matching page data for every public route', () => {
     expect(getPageData('/')).toBe(home);
     expect(getPageData('/home')).toBe(home);
@@ -58,8 +122,20 @@ describe('getCommonData', () => {
     expect(navigation.links).toContainEqual({ label: 'Labs', href: '/labs' });
   });
 
-  it('includes an unobtrusive Admin navigation link and no footer sign-in', () => {
-    expect(navigation.links).toContainEqual({ label: 'Admin', href: '/admin' });
+  it('keeps header doors to public pages only, with Admin as a footer-only link', () => {
+    expect(navigation.links).toEqual([
+      { label: 'About', href: '/about' },
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: 'Labs', href: '/labs' },
+      { label: 'Blog', href: '/blog' },
+    ]);
+    expect(navigation.links).not.toContainEqual({ label: 'Home', href: '/' });
+    expect(navigation.links).not.toContainEqual({ label: 'Admin', href: '/admin' });
+    expect(footer.contact.admin).toEqual({ label: 'Admin', href: '/admin' });
     expect(footer.contact).not.toHaveProperty('ownerSignIn');
+    expect(footer.contact).not.toHaveProperty('heading');
+    expect(footer.contact).not.toHaveProperty('description');
+    expect(footer.contact).not.toHaveProperty('navigationTitle');
+    expect(footer.contact).not.toHaveProperty('socialTitle');
   });
 });

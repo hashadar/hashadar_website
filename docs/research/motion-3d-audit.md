@@ -1,0 +1,311 @@
+# Selective 3D motion revamp — audit and locked direction
+
+**Status:** Phase 6 complete (QA, docs, Labs non-regression). Implementation matches the media-led pivot, not the original geometric WebGL hero.  
+**Parent epic:** [#229 — Epic: Selective 3D motion revamp](https://github.com/hashadar/hashadar_website/issues/229)  
+**Conventions:** [CODEBASE-CONVENTIONS.md](../CODEBASE-CONVENTIONS.md) §1 overview and §6 Motion
+
+This document is the durable source of truth for the selective-3D motion revamp: shipped inventory, market context, locked decisions, component matrix, performance rules, non-goals, and phase map. Section 1 keeps the Phase 0 baseline as history.
+
+---
+
+## Shipped inventory (after Phase 6)
+
+Audited against the codebase at Phase 6 close (#235).
+
+### Dependencies
+
+| Area | Shipped |
+| --- | --- |
+| Motion library | `framer-motion` |
+| 3D / WebGL | `three`, `@react-three/fiber`, `@react-three/drei` remain in `package.json` from Phase 1; **not imported anywhere under `src/`**. No Canvas is mounted. Reintroduce only with an explicit epic decision. |
+
+### Shared reveal — `MotionReveal`
+
+**File:** `src/components/ui/motion-reveal.tsx`  
+**Barrel:** `@/components/ui`
+
+- Variants: `fade-up` \| `fade` \| `slide-in` \| `clip-up` \| `none`
+- Optional `delay`, `distance` (`sm` \| `md` \| `lg`), `inView` (default true)
+- Transitions from `@/lib/motion/tokens` (springs for spatial motion; duration/ease for fades)
+- Owns `usePrefersReducedMotion`; reduced motion or `variant === "none"` renders a static wrapper
+- `MotionRevealGroup` staggers children by `motionStagger.step` (overridable)
+
+### Home hero — cinematic media + DOM type
+
+**Files:** `src/components/sections/homepage/hero-section.tsx`, `src/components/ui/hero-media/*`
+
+- Full-bleed Site Content home photo (`HeroMedia`) or CSS `HeroFallback` when missing
+- Brand name/title stay real `Heading`s (LCP candidate); media is `aria-hidden` + `pointer-events-none`, `priority={false}`
+- Scroll-driven type fade/parallax and a light media Ken Burns; **no mouse parallax**
+- Reduced motion: static media, no Ken Burns, no scroll-cue bounce
+- Geometric `HeroWebGL` / `HeroBackground` modules are **retired** (not in the tree)
+
+### Decorative atmospheres
+
+Static, non-looping, `aria-hidden`. `SectionBackground` and `FooterBackground` do not need `usePrefersReducedMotion` because they no longer animate.
+
+| Component | Path | Shipped behaviour |
+| --- | --- | --- |
+| `SectionBackground` | `src/components/ui/backgrounds/section-background.tsx` | `marketing` (quiet grid/gradient rail), `photography` (minimal hairline), `none` |
+| `FooterBackground` | `src/components/ui/footer/footer-background.tsx` | Static grid + accent lines |
+| `.geometric-pattern` | `tailwind.config.ts` | Quiet CSS grid; used by marketing/footer/fallback atmospheres |
+
+### Dead CSS / utilities (removed)
+
+| Selector / util | Status |
+| --- | --- |
+| `.hero-floating` / `@keyframes float` | Removed from `globals.css` |
+| `.hero-pulse` / `@keyframes pulse-glow` | Removed from `globals.css` |
+| `.perspective-1000`, `transform-style-preserve-3d`, `.hero-parallax` | Removed from `tailwind.config.ts` |
+| `src/components/ui/hero-webgl/*` | Removed after the media-led pivot |
+| `hero-background.tsx` | Retired; not in the tree |
+
+### Other motion touchpoints
+
+| Area | Shipped |
+| --- | --- |
+| Cards | Shared hover zoom (`scale-[1.04]`) with `motion-reduce:group-hover:scale-100` |
+| Lightbox | Token fades; instant under reduced motion; Escape / arrow keys |
+| Labs index / WMW charts | Local springs or chart motion; restrained; no marketing atmospheres |
+| Job OS | `SectionHeader animated={false}`; CSS-only / quiet |
+| Admin / Login | No spectacle motion |
+| `use-smooth-scroll` | Hash-offset scrolling only — not Lenis |
+
+---
+
+## 1. Phase 0 baseline inventory (historical)
+
+Audited against the codebase as of Phase 0 (issue #230). Kept so later phases can see what was retired. **Do not treat this table as current** — see **Shipped inventory** above.
+
+### Dependencies
+
+| Area | Today |
+| --- | --- |
+| Motion library | `framer-motion` (`package.json`) |
+| 3D / WebGL | `three`, `@react-three/fiber`, `@react-three/drei` installed (Phase 1); Canvas not mounted until Phase 2 |
+
+### Shared reveal — `MotionReveal`
+
+**File:** `src/components/ui/motion-reveal.tsx`
+
+- Variants: `fade-up` \| `fade` \| `slide-in` \| `none`
+- Optional `delay`, `distance` (`sm` \| `md` \| `lg`), `inView` (default true)
+- Fixed transition: `duration: 0.8`, `ease: "easeOut"` — no shared motion tokens
+- Owns `usePrefersReducedMotion`; when reduced motion or `variant === "none"`, renders a plain `<div>` (no spatial animation)
+- Used widely: section headers, prose, listings, blog/portfolio grids, footer brand/columns
+
+### Home hero — springs and parallax
+
+**File:** `src/components/sections/homepage/hero-section.tsx`
+
+- Client section with Framer Motion springs for name/title enter
+- Scroll parallax via `useScroll` + `useTransform` on name (`y` / `opacity`); zeroed when reduced motion
+- Renders `HeroBackground` behind DOM typography (`Heading`)
+- Angular accent divs (CSS diamonds/borders) sit in the DOM layer, not WebGL
+
+### Floating diamond / square backgrounds
+
+Same pattern: infinite `motion.div` loops (rotate / scale / translate) plus static geometric lines and `.geometric-pattern`. **None of these backgrounds call `usePrefersReducedMotion`.**
+
+| Component | Path | Notes |
+| --- | --- | --- |
+| `HeroBackground` | `src/components/ui/backgrounds/hero-background.tsx` | Floating squares behind home hero |
+| `SectionBackground` | `src/components/ui/backgrounds/section-background.tsx` | Variants `about-experience` \| `photography`; floating shapes |
+| `FooterBackground` | `src/components/ui/footer/footer-background.tsx` | Floating shapes in site footer |
+
+### Unused perspective utilities
+
+**File:** `tailwind.config.ts`
+
+- Custom utility `.perspective-1000` (`perspective: 1000px`) is defined
+- **No consumers** in `src/` (true 3D CSS unused)
+
+### Dead CSS
+
+**File:** `src/app/globals.css`
+
+| Selector | Status |
+| --- | --- |
+| `.hero-floating` (+ `@keyframes float`) | Defined; **unused** in components |
+| `.hero-pulse` (+ `@keyframes pulse-glow`) | Defined; **unused** in components |
+
+Hero motion today is Framer Motion in TSX, not these classes.
+
+### Other motion touchpoints (keep quieter)
+
+| Area | Today |
+| --- | --- |
+| Cards | CSS hover scale / overlay (`photo-card`, `blog-card`) |
+| Lightbox | Framer Motion + `AnimatePresence` |
+| Labs index / WMW charts | Local springs or chart motion; restrained |
+| `use-smooth-scroll` | Hash-offset scrolling only — not Lenis |
+| Admin / Login | No spectacle motion |
+
+---
+
+## 2. Market synthesis (2026)
+
+Context for *why* selective 3D is the right ambition band for this site — not a mandate to copy agency stacks.
+
+### Pragmatic baseline — CSS scroll-driven timelines
+
+CSS `animation-timeline` / view timelines and scroll-driven animations are mature enough as a **pragmatic baseline** for reveals and section choreography without shipping a large JS animation runtime. They complement, rather than replace, a curated Framer Motion reveal primitive when the team already owns that API.
+
+### Premium agency stack — out of scope
+
+The common “premium agency” stack — **Lenis + GSAP + Three** site-wide — delivers buttery scroll and heavy scene work at the cost of bundle size, complexity, and maintenance. **Explicitly out of scope** for this epic. We keep Framer Motion for DOM motion and add WebGL only where it earns the job.
+
+### WebGL only when it earns the job
+
+WebGL is justified for a **signature surface** (here: the home hero depth field), not for wallpaper on every route. Decorative particle fields, NFT/metaverse aesthetics, and stock “floating geometry wallpaper” are noise — ignore them as creative references.
+
+### Photography stays photography
+
+Imagery on this site remains real photos. 3D does not replace the portfolio or home photography; it supplies depth and atmosphere behind DOM brand typography on `/` only.
+
+---
+
+## 3. Locked selective-3D decisions
+
+| Decision | Choice |
+| --- | --- |
+| Ambition | **Selective craft** — cinematic home first-fold + elevated DOM motion; not a full-site WebGL / Lenis / GSAP agency build |
+| WebGL surface | **Not currently mounted on any route**, including `/`. R3F deps may remain from Phase 1; reintroduce only with an explicit epic decision. Never on about / portfolio / blog / Labs |
+| Stack | Keep `framer-motion`. `three` / `@react-three/fiber` / `@react-three/drei` installed but unused until re-scoped. No GSAP, no Lenis, no site-wide Web Audio in this epic |
+| Creative direction | Home first-fold: **cinematic media + DOM brand typography** (Site Content home photo, scrim, editorial restraint inspired by premium agency first folds). No floating CSS diamonds; no geometric WebGL cube demo; no mouse parallax |
+| Typography | **Stays DOM** for SEO, selection, and a11y — media is atmosphere behind type |
+| Labs / Admin / Login | **Quieter** — no WebGL; only adopt shared motion tokens if a touch is trivial |
+| PR target | Feature work → `develop` (see `docs/BRANCHING.md`) |
+
+---
+
+## 4. Target architecture (modules)
+
+| Path | Purpose | Phase 6 status |
+| --- | --- | --- |
+| `src/lib/motion/tokens.ts` | Durations, easings, springs, stagger steps — single source for Framer Motion + docs | Shipped |
+| `src/lib/motion/quality.ts` | WebGL quality tier helpers (dormant; unused while R3F is unmounted) | Retained |
+| `src/components/ui/hero-media/*` | Full-bleed home photo atmosphere + CSS fallback | Shipped |
+| `src/components/ui/hero-webgl/*` | Geometric R3F hero (planes / light cuts) | **Retired** after the media-led pivot |
+| `SectionBackground` | Quiet static atmospheres (`marketing` / `photography` / `none`) | Shipped |
+| `MotionRevealGroup` | Grid stagger using token step | Shipped |
+
+---
+
+## 5. Component change matrix
+
+Actions: **add** / **upgrade** / **redesign** / **keep** / **retire**. Matches epic #229. Status column is Phase 6 close.
+
+### New
+
+| Path | Action | Status |
+| --- | --- | --- |
+| `src/lib/motion/tokens.ts` | Add | Shipped |
+| `src/lib/motion/quality.ts` | Add | Shipped (dormant) |
+| `src/components/ui/hero-media/*` | Add (cinematic photo hero) | Shipped |
+| `MotionRevealGroup` | Add | Shipped |
+
+### UI primitives
+
+| File | Action | Status |
+| --- | --- | --- |
+| `motion-reveal.tsx` | **Upgrade** — tokens, variants, stagger, tests | Shipped |
+| `hero-background.tsx` | **Retire** — superseded by cinematic hero media + CSS fallback | Removed |
+| `hero-webgl/*` | Add then **retire** — geometric WebGL unmounted in the Phase 2 pivot | Removed |
+| `section-background.tsx` | **Redesign** — no loops; quieter variants; a11y | Shipped |
+| `footer-background.tsx` | **Redesign** — no loops | Shipped |
+| `section-header.tsx` | Light touch — consume upgraded `MotionReveal` | Shipped |
+| `photo-card.tsx` / `blog-card.tsx` | **Polish** — coherent hover; reduced-motion (no scale zoom) | Shipped |
+| `lightbox.tsx` | **Keep** / light polish — tokens; reduced-motion instant | Shipped |
+| `social-link.tsx`, footer column/brand | **Keep** — inherit upgrades | Shipped |
+| `button.tsx`, `card.tsx`, `header.tsx` | **Keep** — mobile menu enter out of scope | Unchanged |
+| `use-prefers-reduced-motion.ts` | **Keep** | Unchanged |
+| `use-smooth-scroll.ts` | **Keep** — hash offsets only; no Lenis | Unchanged |
+
+### Homepage (`src/app/page.tsx`)
+
+| Section | File | Action | Status |
+| --- | --- | --- | --- |
+| Hero | `hero-section.tsx` | **Major rewrite** — cinematic media + DOM type | Shipped |
+| About prose | `prose-section.tsx` | New atmosphere; richer reveal | Shipped |
+| Photography | `photography-section.tsx` | Quiet atmosphere; PhotoCard polish | Shipped |
+| Blog teaser | `blog-section.tsx` | Stagger group; new bg | Shipped |
+| Experience | `experience-listing.tsx` | New bg; better stagger | Shipped |
+
+### About / Portfolio / Blog / Footer
+
+| Surface | Action | Status |
+| --- | --- | --- |
+| About hero | Elevated DOM only — **no** WebGL; drop float bg | Shipped (`clip-up`) |
+| Shared listings + prose | New atmosphere + upgraded reveals | Shipped |
+| Portfolio / blog index | Stagger + card polish; optional static atmosphere | Shipped |
+| Blog post | **Keep quiet** | Shipped |
+| Footer | Redesigned `FooterBackground` | Shipped |
+| `site-page.tsx` | **Keep** | Unchanged |
+
+### Labs (non-goals for spectacle)
+
+| Surface | Action | Status |
+| --- | --- | --- |
+| Labs index | Keep restrained springs; optional tokens only | Unchanged (no spectacle added) |
+| WMW / Job OS | Keep functional / CSS-only motion | Unchanged (Job OS `animated={false}`) |
+
+---
+
+## 6. Performance budgets and load rules
+
+### Load rules
+
+- Home hero atmosphere is Site Content photo (or CSS fallback). Do **not** mount Three/R3F on `/` unless a later epic explicitly re-scopes.
+- Prefer DOM brand typography for LCP; media loads as atmosphere (`sizes="100vw"`, `priority={false}`).
+- Never import WebGL modules from `/`, about, portfolio, blog, footer, or Labs. Isolation test: `src/lib/motion/isolation.test.ts`.
+- Parked R3F packages must stay out of the client graph (no `src/` import). They are not a licence to remount a canvas.
+
+### Budgets
+
+| Metric | Target |
+| --- | --- |
+| Home LCP | Remains typography/brand (**DOM**); media must not block text |
+| Reduced motion / missing photo | CSS fallback looks intentional, not broken; no Ken Burns or infinite bounce |
+| Any route, including `/` | No WebGL chunk |
+| Hero WebGL FPS | **N/A** until R3F is reintroduced (mid-range mobile ≥30fps / desktop ≥55fps, pause off-screen) |
+
+`src/lib/motion/quality.ts` remains available if R3F returns later.
+
+---
+
+## 7. Explicit non-goals
+
+- WebGL on about, portfolio, blog, footer, or Labs
+- Lenis / GSAP / site-wide page transitions / Web Audio
+- Rewriting Job OS or WMW UX for spectacle
+- Replacing photography with 3D — imagery remains real photos
+- Installing or implementing Three/R3F in Phase 0 (docs only)
+- NFT / metaverse / decorative particle wallpaper aesthetics as creative north stars
+
+---
+
+## 8. Phase map
+
+Implementation order (six children under epic #229). Phases 4 and 5 are combined in #234.
+
+| Phase | Issue | Title | Focus | Status |
+| --- | --- | --- | --- | --- |
+| 0 | [#230](https://github.com/hashadar/hashadar_website/issues/230) | Research doc + conventions | This document + conventions §1 / §6 | Done |
+| 1 | [#231](https://github.com/hashadar/hashadar_website/issues/231) | Foundation (deps + motion tokens) | Install R3F stack; `tokens.ts` / `quality.ts` | Done |
+| 2 | [#232](https://github.com/hashadar/hashadar_website/issues/232) | Cinematic home first-fold | Media-led hero (photo + DOM type); unmount geometric WebGL | Done |
+| 3 | [#233](https://github.com/hashadar/hashadar_website/issues/233) | MotionReveal + atmospheres + CSS cleanup | Upgrade reveals; redesign section/footer bg; remove dead CSS | Done |
+| 4–5 | [#234](https://github.com/hashadar/hashadar_website/issues/234) | Wire marketing + card polish | Marketing consumers; PhotoCard / BlogCard hover | Done |
+| 6 | [#235](https://github.com/hashadar/hashadar_website/issues/235) | QA, docs finish, Labs non-regression | Perf/a11y QA; docs polish; Labs stay calm | Done (this close) |
+
+### Epic acceptance (reminder)
+
+When all phases complete: first viewport of `/` feels branded and cinematic (media craft + DOM type); reduced-motion users get a strong static composition; public site shares one motion system; Labs remain calm; no WebGL on any route; LCP/perf budgets met; this document and conventions §6 match shipped APIs.
+
+---
+
+## Related
+
+- Epic: [#229](https://github.com/hashadar/hashadar_website/issues/229)
+- Conventions: [CODEBASE-CONVENTIONS.md](../CODEBASE-CONVENTIONS.md) §6
+- Branching: [BRANCHING.md](../BRANCHING.md)

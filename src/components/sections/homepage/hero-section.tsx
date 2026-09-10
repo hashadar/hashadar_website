@@ -1,122 +1,117 @@
 "use client";
 
-import { Heading, Container, HeroBackground } from "@/components/ui";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { Heading, Loop } from "@/components/ui";
+import type { ClaimRole, HomeClaim } from "@/data/types";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { fitClaimLockup } from "@/components/sections/homepage/fit-claim-lockup";
+
+const ROLE_START_MS = 700;
+const ROLE_STEP_MS = 1100;
+
+const claimTypeClassName = "text-[var(--background)]";
+
+const roleLineClassName =
+  `relative z-[3] min-h-[1.4em] px-6 font-body text-[clamp(1.1rem,2.4vw,1.85rem)] font-semibold tracking-[-0.03em] ${claimTypeClassName}`;
 
 interface HeroSectionProps {
-  name: string;
-  title: string;
+  claim: HomeClaim;
 }
 
-export function HeroSection({ name, title }: HeroSectionProps) {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
+function staticRolesText(roles: ClaimRole[]) {
+  return roles.map((role) => role.question).join(" ");
+}
 
-  const y = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? ["0%", "0%"] : ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], prefersReducedMotion ? [1, 1] : [1, 0]);
+function ClaimRoles({ roles }: { roles: ClaimRole[] }) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const sequence = roles.map((role) => role.question);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (prefersReducedMotion || sequence.length === 0) return;
+
+    let step = 0;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      step = (step + 1) % sequence.length;
+      setIndex(step);
+      timer = setTimeout(tick, ROLE_STEP_MS);
+    };
+
+    timer = setTimeout(tick, ROLE_START_MS);
+    return () => clearTimeout(timer);
+  }, [prefersReducedMotion, roles, sequence.length]);
+
+  const staticText = staticRolesText(roles);
+
+  if (prefersReducedMotion) {
+    return <p className={roleLineClassName}>{staticText}</p>;
+  }
 
   return (
-    <section 
-      ref={containerRef}
-      id="hero"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[var(--background)] pt-20"
-    >
-      {/* Enhanced Background Elements */}
-      <HeroBackground />
-      
-      <Container className="relative z-10 hero-container w-full">
-        <div className="text-center space-y-12 md:space-y-16 lg:space-y-20 px-4 sm:px-6 w-full overflow-visible">
-          {/* Main Name with Angular Styling */}
-          <motion.div
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 100, rotateX: 15 }}
-            animate={{ opacity: 1, y: 0, rotateX: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { 
-              type: "spring", 
-              damping: 25, 
-              stiffness: 80,
-              duration: 1.2
-            }}
-            className="relative"
-          >
-            {/* Angular Accent Behind Name */}
-            <div className="absolute -top-6 -left-6 sm:-top-8 sm:-left-8 w-16 h-16 sm:w-24 sm:h-24 bg-[var(--primary)] opacity-5 transform rotate-45" />
-            <div className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 w-12 h-12 sm:w-16 sm:h-16 border-2 border-[var(--primary)] opacity-10 transform -rotate-12" />
-            
-            <motion.div style={{ y, opacity }} className="w-full overflow-visible flex justify-center">
-              <Heading 
-                size="hero" 
-                className="relative hero-text whitespace-nowrap inline-block"
-              >
-                <span className="relative z-10">{name}</span>
-                
-                {/* Angular Text Accent */}
-                <motion.div 
-                  className="absolute -bottom-2 -right-2 w-8 h-8 bg-[var(--primary)] opacity-20 transform rotate-45"
-                  initial={{ scale: 0, rotate: 0 }}
-                  animate={{ scale: 1, rotate: 45 }}
-                  transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-                />
-              </Heading>
-            </motion.div>
-          </motion.div>
-          
-          {/* Title with Enhanced Styling */}
-          <motion.div
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { 
-              type: "spring", 
-              damping: 25, 
-              stiffness: 80, 
-              delay: 0.8,
-              duration: 1
-            }}
-            className="relative px-4 sm:px-0"
-          >
-            {/* Angular Accent Line */}
-            <div className="absolute -left-6 sm:-left-8 top-1/2 w-12 sm:w-16 h-px bg-[var(--primary)] transform -skew-y-12 opacity-30" />
-            
-            <Heading 
-              size="sm" 
-              as="h2" 
-              className="text-[var(--primary)] tracking-[0.25em] capitalize relative"
-            >
-              <span className="relative z-10">{title}</span>
-              
-              {/* Subtle Angular Accent */}
-              <motion.div 
-                className="absolute -top-1 -right-1 w-3 h-3 border border-[var(--primary)] transform rotate-45 opacity-40"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
-              />
-            </Heading>
-          </motion.div>
+    <>
+      <p className="sr-only">{staticText}</p>
+      <p className={roleLineClassName} aria-hidden="true">
+        {sequence[index]}
+      </p>
+    </>
+  );
+}
 
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
-            animate={{ opacity: 1 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 2, duration: 1 }}
-            className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2"
-          >
-            <motion.div
-              animate={prefersReducedMotion ? {} : { y: [0, 8, 0] }}
-              transition={prefersReducedMotion ? {} : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center space-y-2"
-            >
-              <div className="w-px h-8 bg-[var(--primary)] opacity-30" />
-              <div className="w-1 h-1 bg-[var(--primary)] transform rotate-45" />
-            </motion.div>
-          </motion.div>
-        </div>
-      </Container>
+export function HeroSection({ claim }: HeroSectionProps) {
+  const lockupRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const lockup = lockupRef.current;
+    if (!lockup) return;
+
+    const fit = () => fitClaimLockup(lockup);
+    fit();
+    void document.fonts?.ready.then(fit);
+    document.fonts?.addEventListener?.("loadingdone", fit);
+
+    if (typeof ResizeObserver === "undefined") {
+      return () => document.fonts?.removeEventListener?.("loadingdone", fit);
+    }
+
+    const observer = new ResizeObserver(fit);
+    observer.observe(lockup);
+    return () => {
+      observer.disconnect();
+      document.fonts?.removeEventListener?.("loadingdone", fit);
+    };
+  }, [claim.lockup]);
+
+  return (
+    <section
+      id="claim"
+      className="relative flex min-h-screen min-h-[100dvh] flex-col justify-end overflow-hidden bg-[var(--background)] pb-9"
+    >
+      <Loop src={claim.loopSrc} objectPosition={claim.loopObjectPosition} />
+      <div
+        ref={lockupRef}
+        data-claim-lockup
+        className="pointer-events-none absolute inset-x-0 top-11 bottom-10 z-[2] overflow-visible"
+      >
+        <Heading
+          size="hero"
+          className={`flex h-full w-full flex-col justify-start overflow-visible break-normal font-semibold ${claimTypeClassName}`}
+          style={{
+            fontSize: "22vw",
+            lineHeight: 0.8,
+            letterSpacing: "-0.04em",
+            fontWeight: 600,
+          }}
+        >
+          {claim.lockup.map((line) => (
+            <span key={line} className="block w-max max-w-none whitespace-nowrap leading-[0.8]">
+              {line}
+            </span>
+          ))}
+        </Heading>
+      </div>
+      <ClaimRoles roles={claim.roles} />
     </section>
   );
 }
