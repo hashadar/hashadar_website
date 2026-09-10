@@ -49,7 +49,7 @@ The single argument Home makes after the Claim, before Proof: the Roles are one 
 _Avoid_: About section on Home, bio dump
 
 **Proof**:
-Four large pieces after the Statement, one door per Role: consultant to About, photographer to Portfolio, software developer to the Labs index, writer to Blog. A Photograph for photographer; Loops for the rest. Each piece is titled with the Role word, not with a site-area heading.
+Four large pieces after the Statement, one door per Role: consultant to About, photographer to Portfolio, software developer to the Labs index, writer to Blog. A Photograph for photographer; Loops for the rest. Each piece is titled with destination copy, not with a site-area heading.
 _Avoid_: Experience listing on Home, a Work page, blog index as a section, photography as a labelled block, Loop treatment on Photographs, deep-linking into a Lab
 
 **Loop**:

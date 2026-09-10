@@ -154,7 +154,7 @@ This document defines how to work in this codebase so that new and changed code 
 ## 11. Reference
 
 - **Deferred work and technical debt:** Tracked in [GitHub Issues](https://github.com/hashadar/hashadar_website/issues). Do not fix unless asked or the issue is in scope; when implementing, align with this document and close or update the relevant issue.
-- **Home narrative:** `docs/research/home-narrative.md`. Language: `docs/site/CONTEXT.md`. Approved look (do not treat as a live route): `public/home-narrative-preview.html`.
+- **Home narrative:** `docs/research/home-narrative.md`. Language: `docs/site/CONTEXT.md`. Production `/` is the visual reference.
 - **Data structure and adding pages:** See `src/data/README.md`.
 - **Agent workflow (issues, triage):** See `docs/agents/` and `AGENTS.md`.
 
