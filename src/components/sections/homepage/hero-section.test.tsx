@@ -33,6 +33,19 @@ afterEach(() => {
 });
 
 describe("HeroSection", () => {
+  it("uses inverted page-background colour for Claim type", () => {
+    mockMatchMedia(true);
+
+    render(<HeroSection claim={home.claim} />);
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass(
+      "text-[var(--background)]",
+    );
+    expect(
+      screen.getByText("consultant? photographer? software developer? writer?"),
+    ).toHaveClass("text-[var(--background)]");
+  });
+
   it("renders the name as a two-line lockup, not a job title headline", () => {
     mockMatchMedia(false);
 

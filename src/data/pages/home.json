@@ -12,10 +12,10 @@
     "loopObjectPosition": "center 78%"
   },
   "statement": {
-    "headline": "Hello.",
+    "headline": "hello",
     "lines": [
-      "I am an AI & Data consultant at Deloitte.",
-      "Find out more about me."
+      "I'm Hasha, an AI & Data Consultant at Deloitte.",
+      "Find out more about me below."
     ],
     "cta": {
       "label": "About",
@@ -34,28 +34,28 @@
     "doors": [
       {
         "id": "consultant",
-        "label": "consultant",
+        "label": "find out more about me",
         "href": "/about",
         "media": "loop",
         "src": "/loops/consultant-poster.webp"
       },
       {
         "id": "photographer",
-        "label": "photographer",
+        "label": "view my photography portfolio",
         "href": "/portfolio",
         "media": "photo",
         "src": "/loops/photography-poster.webp"
       },
       {
         "id": "developer",
-        "label": "software developer",
+        "label": "access my personal projects",
         "href": "/labs",
         "media": "loop",
         "src": "/loops/developer-poster.webp"
       },
       {
         "id": "writer",
-        "label": "writer",
+        "label": "read my blog posts",
         "href": "/blog",
         "media": "loop",
         "src": "/loops/writer-poster.webp"

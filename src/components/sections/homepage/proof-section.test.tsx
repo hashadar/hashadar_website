@@ -68,34 +68,38 @@ afterEach(() => {
 });
 
 describe("ProofSection", () => {
-  it("renders four Role-word doors to About, Portfolio, Labs index, and Blog", () => {
+  it("renders four destination doors to About, Portfolio, Labs index, and Blog", () => {
     mockMatchMedia(false);
     mockInView(true);
 
     render(<ProofSection proof={home.proof} />);
 
-    expect(screen.getByRole("link", { name: "consultant" })).toHaveAttribute("href", "/about");
-    expect(screen.getByRole("link", { name: "photographer" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "find out more about me" })).toHaveAttribute(
+      "href",
+      "/about",
+    );
+    expect(screen.getByRole("link", { name: "view my photography portfolio" })).toHaveAttribute(
       "href",
       "/portfolio",
     );
-    expect(screen.getByRole("link", { name: "software developer" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "access my personal projects" })).toHaveAttribute(
       "href",
       "/labs",
     );
-    expect(screen.getByRole("link", { name: "writer" })).toHaveAttribute("href", "/blog");
+    expect(screen.getByRole("link", { name: "read my blog posts" })).toHaveAttribute(
+      "href",
+      "/blog",
+    );
 
-    expect(screen.queryByRole("link", { name: /blog/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /photography/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /job os/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /what's my worth/i })).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "software developer" }).getAttribute("href"),
+      screen.getByRole("link", { name: "access my personal projects" }).getAttribute("href"),
     ).not.toMatch(/\/labs\//);
 
-    expect(screen.getByRole("link", { name: "consultant" }).querySelector(".proof-label")).toHaveTextContent(
-      "consultant",
-    );
+    expect(
+      screen.getByRole("link", { name: "find out more about me" }).querySelector(".proof-label"),
+    ).toHaveTextContent("find out more about me");
   });
 
   it("places a Loop-treated photography poster on the photographer door, with no lightbox", () => {
@@ -104,7 +108,7 @@ describe("ProofSection", () => {
 
     render(<ProofSection proof={home.proof} />);
 
-    const photographer = screen.getByRole("link", { name: "photographer" });
+    const photographer = screen.getByRole("link", { name: "view my photography portfolio" });
     expect(photographer.querySelector("img")).toHaveAttribute(
       "src",
       "/loops/photography-poster.webp",

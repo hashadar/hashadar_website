@@ -29,10 +29,10 @@ describe('getPageData', () => {
     ]);
     expect(home.claim.landingLine).toBe('all of the above.');
     expect(home.claim.loopSrc).toBe('/loops/claim-poster.webp');
-    expect(home.statement.headline).toBe('Hello.');
+    expect(home.statement.headline).toBe('hello');
     expect(home.statement.lines).toEqual([
-      'I am an AI & Data consultant at Deloitte.',
-      'Find out more about me.',
+      "I'm Hasha, an AI & Data Consultant at Deloitte.",
+      'Find out more about me below.',
     ]);
     expect(home.statement.cta).toEqual({ label: 'About', href: '/about' });
     expect(home.statement.continue).toEqual({ label: 'See more', href: '#proof' });
@@ -40,11 +40,41 @@ describe('getPageData', () => {
       src: '/img/statement-portrait.webp',
       alt: 'hasha dar',
     });
-    expect(home.proof.doors.map((door) => ({ id: door.id, href: door.href, media: door.media, src: door.src }))).toEqual([
-      { id: 'consultant', href: '/about', media: 'loop', src: '/loops/consultant-poster.webp' },
-      { id: 'photographer', href: '/portfolio', media: 'photo', src: '/loops/photography-poster.webp' },
-      { id: 'developer', href: '/labs', media: 'loop', src: '/loops/developer-poster.webp' },
-      { id: 'writer', href: '/blog', media: 'loop', src: '/loops/writer-poster.webp' },
+    expect(home.proof.doors.map((door) => ({
+      id: door.id,
+      label: door.label,
+      href: door.href,
+      media: door.media,
+      src: door.src,
+    }))).toEqual([
+      {
+        id: 'consultant',
+        label: 'find out more about me',
+        href: '/about',
+        media: 'loop',
+        src: '/loops/consultant-poster.webp',
+      },
+      {
+        id: 'photographer',
+        label: 'view my photography portfolio',
+        href: '/portfolio',
+        media: 'photo',
+        src: '/loops/photography-poster.webp',
+      },
+      {
+        id: 'developer',
+        label: 'access my personal projects',
+        href: '/labs',
+        media: 'loop',
+        src: '/loops/developer-poster.webp',
+      },
+      {
+        id: 'writer',
+        label: 'read my blog posts',
+        href: '/blog',
+        media: 'loop',
+        src: '/loops/writer-poster.webp',
+      },
     ]);
     expect(home.proof.doors.find((door) => door.id === 'developer')?.href).toBe('/labs');
   });

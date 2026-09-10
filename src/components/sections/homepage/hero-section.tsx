@@ -9,8 +9,10 @@ import { fitClaimLockup } from "@/components/sections/homepage/fit-claim-lockup"
 const ROLE_START_MS = 700;
 const ROLE_STEP_MS = 1100;
 
+const claimTypeClassName = "text-[var(--background)]";
+
 const roleLineClassName =
-  "relative z-[3] min-h-[1.4em] px-6 font-body text-[clamp(1.1rem,2.4vw,1.85rem)] font-semibold tracking-[-0.03em] text-[var(--foreground)]";
+  `relative z-[3] min-h-[1.4em] px-6 font-body text-[clamp(1.1rem,2.4vw,1.85rem)] font-semibold tracking-[-0.03em] ${claimTypeClassName}`;
 
 interface HeroSectionProps {
   claim: HomeClaim;
@@ -94,7 +96,7 @@ export function HeroSection({ claim }: HeroSectionProps) {
       >
         <Heading
           size="hero"
-          className="flex h-full w-full flex-col justify-start overflow-visible break-normal font-semibold"
+          className={`flex h-full w-full flex-col justify-start overflow-visible break-normal font-semibold ${claimTypeClassName}`}
           style={{
             fontSize: "22vw",
             lineHeight: 0.8,

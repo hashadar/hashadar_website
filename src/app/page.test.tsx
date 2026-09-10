@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { home } from "@/data";
@@ -103,18 +103,24 @@ describe("Home page", () => {
       "/img/statement-portrait.webp",
     );
 
-    expect(screen.getByRole("link", { name: "consultant" })).toHaveAttribute("href", "/about");
-    expect(screen.getByRole("link", { name: "photographer" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "find out more about me" })).toHaveAttribute(
+      "href",
+      "/about",
+    );
+    expect(screen.getByRole("link", { name: "view my photography portfolio" })).toHaveAttribute(
       "href",
       "/portfolio",
     );
-    expect(screen.getByRole("link", { name: "software developer" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "access my personal projects" })).toHaveAttribute(
       "href",
       "/labs",
     );
-    expect(screen.getByRole("link", { name: "writer" })).toHaveAttribute("href", "/blog");
+    expect(screen.getByRole("link", { name: "read my blog posts" })).toHaveAttribute(
+      "href",
+      "/blog",
+    );
 
-    const photographer = screen.getByRole("link", { name: "photographer" });
+    const photographer = screen.getByRole("link", { name: "view my photography portfolio" });
     expect(photographer.querySelector("img")).toHaveAttribute(
       "src",
       "/loops/photography-poster.webp",
@@ -127,5 +133,13 @@ describe("Home page", () => {
     expect(screen.queryByRole("heading", { name: "Experience" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Photography" })).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("does not ship the home-narrative preview HTML", () => {
+    expect(
+      existsSync(
+        join(dirname(fileURLToPath(import.meta.url)), "../../public/home-narrative-preview.html"),
+      ),
+    ).toBe(false);
   });
 });

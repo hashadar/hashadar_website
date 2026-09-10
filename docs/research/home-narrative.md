@@ -1,6 +1,6 @@
 # Home narrative and marketing chrome
 
-**Status:** Planned. Epic: [#243](https://github.com/hashadar/hashadar_website/issues/243). Language: `docs/site/CONTEXT.md`. Loops: [ADR 0011](../adr/0011-home-loops-are-chrome.md). Home Photo: [ADR 0004](../adr/0004-home-photo-separate.md).
+**Status:** Shipped. Epic: [#243](https://github.com/hashadar/hashadar_website/issues/243). Language: `docs/site/CONTEXT.md`. Loops: [ADR 0011](../adr/0011-home-loops-are-chrome.md). Home Photo: [ADR 0004](../adr/0004-home-photo-separate.md).
 
 **References:** [Bellhop](https://www.bellhopco.com/) (cream, green, air, one hero Loop, work as stills) and [Love and Money](https://loveandmoney.com/) (full-viewport type, one idea per beat, work as large tiles). Hybrid: LAM composition, Bellhop surface.
 
@@ -13,8 +13,8 @@ Home is Claim → Statement → Proof. Not a CV catalogue, not a six-step playbo
 | Beat | What | Media |
 | --- | --- | --- |
 | **Claim** | Two-line lockup `hasha` / `dar` (same size; longer line spans the viewport). Roles as questions, one pass, land on **all of the above.** | Loop behind (treated still). `h1` is the name. |
-| **Statement** | Hello. Short line, CTA **About** → `/about`. Portrait on the right. | Type and a black-and-white portrait. |
-| **Proof** | Four large tiles, 2×2 desktop, stack mobile. Role word as the only title. | Photograph on photographer; Loops on the rest. |
+| **Statement** | hello. Short line, CTA **About** → `/about`. Portrait on the right. | Type and a black-and-white portrait. |
+| **Proof** | Four large tiles, 2×2 desktop, stack mobile. Destination copy as the title. | Photograph on photographer; Loops on the rest. |
 
 ### Roles and doors
 
@@ -31,8 +31,8 @@ Mechanical engineer is not a Home Role. No `/work`. No deep link into a Lab. No 
 
 ### Copy (Statement)
 
-- Headline: **Hello.**
-- Lines: **I am an AI & Data consultant at Deloitte.** / **Find out more about me.**
+- Headline: **hello**
+- Lines: **I'm Hasha, an AI & Data Consultant at Deloitte.** / **Find out more about me below.**
 - CTA: **About**
 - Continue: **See more** → Proof
 
@@ -43,7 +43,7 @@ Mechanical engineer is not a Home Role. No `/work`. No deep link into a Lab. No 
 - `prefers-reduced-motion`: landed Claim (name + four Roles + landing line, no roll) and frozen stills (no grain crawl, no drift). No Ken Burns on the Home Photo.
 - Screen readers: static text for the four Roles plus the landing line. Not a live region that announces every tick.
 
-**Look (approved):** `public/home-narrative-preview.html` is the visual reference until Home ships. Do not deploy that file. Preview font is Archivo; production uses Zalando Sans Expanded.
+**Look:** Production `/` is the visual reference. Type is Zalando Sans Expanded.
 
 ### Claim lockup
 
@@ -66,7 +66,7 @@ Unsplash abstracts. Motion is VFX on the still, in CSS/canvas, same family on al
 - **Keep:** fine film grain (animated only when motion is allowed), sub-1% idle drift, slow light/vignette breathe.
 - **Do not use:** pixelation, colour banding, glitch, RGB split as a look, generated video.
 
-Photographer tile: untreated Home Photo (cream placeholder in the preview only).
+Photographer tile: photography poster still (`/loops/photography-poster.webp`), Loop-treated as a Photograph.
 
 Until a still is missing: intentional CSS fallback.
 
