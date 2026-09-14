@@ -45,7 +45,7 @@
     "errorLabel": "Unable to save photo. Check you are signed in and try again."
   },
   "homePhoto": {
-    "description": "Shown on the home photography section. Separate from portfolio Photos.",
+    "description": "Shown on the photographer Proof piece on Home. Separate from portfolio Photos.",
     "titleLabel": "Title",
     "altLabel": "Alt text",
     "categoryLabel": "Category",

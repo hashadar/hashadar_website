@@ -1,20 +1,9 @@
 {
-  "hero": {
-    "name": "hasha dar",
-    "title": "AI & Data Consultant"
-  },
-  "professional": {
-    "heading": "professional background",
-    "content": [
-      "I'm a Consultant at Deloitte in the AI & Data department, designing and implementing solutions that transform how organisations operate - from streamlining data pipelines to developing intelligent decision-making systems.",
-      "I specialise in creating products and tools that help an organisation be more effective. This means building systems that address real business needs and drive measurable outcomes.",
-      "My role spans the full project lifecycle, from initial discovery and strategy through to implementation and optimisation.",
-      "I work with cutting-edge technologies and data/cloud platforms, constantly adapting to the evolving landscape of machine learning, data engineering, and intelligent automation.",
-      "Outside client work I ship Labs. Job OS is an application tracker, and What's My Worth is a dashboard."
-    ],
-    "cta": {
-      "label": "Explore Labs",
-      "href": "/labs"
-    }
-  }
+  "heading": "About",
+  "lede": [
+    "I'm a consultant in Deloitte's AI & Data practice. I work as a software developer on Financial Services projects, across data engineering, analytics, cloud, and machine learning.",
+    "I studied mechanical engineering at UCL, and was President of UCL Stage Crew, looking after student productions in the Bloomsbury Theatre and on campus.",
+    "I have worked as a freelance photographer, and now spend my free time building my own applications, (trying!) to write, and pursuing the CFA.",
+    "If you'd like to talk, I'm on LinkedIn."
+  ]
 }

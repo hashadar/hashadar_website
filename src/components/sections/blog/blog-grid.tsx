@@ -1,156 +1,59 @@
-"use client";
-
-import { useState, useMemo } from "react";
-import { SectionHeader, Container, Section, BlogCard, MotionReveal, MotionRevealGroup, SectionBackground, Text } from "@/components/ui";
+import {
+  BlogCard,
+  MotionReveal,
+  MotionRevealGroup,
+  Text,
+} from "@/components/ui";
+import { PageIntro } from "@/components/sections/shared/page-intro";
 import { blog } from "@/data";
 import type { BlogPost } from "@/data/types";
 
-interface BlogGridProps {
+export type BlogGridProps = {
   posts: BlogPost[];
+};
+
+function newestFirst(posts: BlogPost[]): BlogPost[] {
+  return [...posts].sort(
+    (a, b) =>
+      new Date(b.frontmatter.date).getTime() -
+      new Date(a.frontmatter.date).getTime(),
+  );
 }
 
-type SortOption = "latest" | "oldest" | "title";
-
 export function BlogGrid({ posts }: BlogGridProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("latest");
-
-  // Get unique categories from posts
-  const categories = useMemo(() => {
-    const cats = new Set(posts.map((post) => post.frontmatter.category));
-    return Array.from(cats).sort();
-  }, [posts]);
-
-  // Filter and sort posts
-  const filteredAndSortedPosts = useMemo(() => {
-    let filtered = posts;
-
-    // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (post) => post.frontmatter.category === selectedCategory
-      );
-    }
-
-    // Sort posts
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortOption) {
-        case "latest":
-          return (
-            new Date(b.frontmatter.date).getTime() -
-            new Date(a.frontmatter.date).getTime()
-          );
-        case "oldest":
-          return (
-            new Date(a.frontmatter.date).getTime() -
-            new Date(b.frontmatter.date).getTime()
-          );
-        case "title":
-          return a.frontmatter.title.localeCompare(b.frontmatter.title);
-        default:
-          return 0;
-      }
-    });
-
-    return sorted;
-  }, [posts, selectedCategory, sortOption]);
+  const listing = newestFirst(posts);
 
   return (
-    <Section className="relative overflow-hidden py-20">
-      <SectionBackground variant="marketing" />
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-[var(--cream)]">
+      <PageIntro
+        heading={blog.heading}
+        lede={blog.description}
+        flush
+        className="bg-transparent pb-8 min-[900px]:pb-10"
+      />
 
-      <Container>
-        <div className="mb-16 space-y-4">
-          <SectionHeader animated={false}>
-            {blog.heading}
-          </SectionHeader>
-
-          <Text size="lg" className="max-w-2xl text-[var(--foreground)]">
-            {blog.description}
-          </Text>
-        </div>
-
-        {/* Filters and Sort */}
-        {posts.length > 0 && (
-          <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            {/* Category Filter */}
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-              <label
-                htmlFor="category-filter"
-                className="text-sm font-medium text-[var(--foreground)]/70"
-              >
-                {blog.filterLabel}:
-              </label>
-              <select
-                id="category-filter"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 transition-colors"
-              >
-                <option value="all">{blog.allCategories}</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort Option */}
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-              <label
-                htmlFor="sort-option"
-                className="text-sm font-medium text-[var(--foreground)]/70"
-              >
-                {blog.sortLabel}:
-              </label>
-              <select
-                id="sort-option"
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as SortOption)}
-                className="px-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 transition-colors"
-              >
-                <option value="latest">{blog.sortOptions.latest}</option>
-                <option value="oldest">{blog.sortOptions.oldest}</option>
-                <option value="title">{blog.sortOptions.title}</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Blog Posts Grid */}
-        {filteredAndSortedPosts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-[var(--foreground)]/60">
-              {posts.length === 0
-                ? blog.emptyState
-                : `No posts found in "${selectedCategory === "all" ? blog.allCategories : selectedCategory}" category.`}
-            </p>
-          </div>
+      <nav
+        aria-label={blog.catalogueAriaLabel}
+        className="flex flex-1 flex-col px-7 pb-24 min-[900px]:px-12 min-[900px]:pb-32"
+      >
+        {listing.length === 0 ? (
+          <Text variant="muted">{blog.emptyState}</Text>
         ) : (
-          <MotionRevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredAndSortedPosts.map((post, index) => (
-              <MotionReveal
-                key={post.slug}
-                variant="fade-up"
-                distance="sm"
-              >
+          <MotionRevealGroup className="grid grid-cols-1 gap-10 min-[900px]:grid-cols-2 min-[900px]:gap-x-12 min-[900px]:gap-y-16">
+            {listing.map((post, index) => (
+              <MotionReveal key={post.slug} variant="fade-up" distance="sm">
                 <BlogCard
                   slug={post.slug}
                   title={post.frontmatter.title}
-                  excerpt={post.frontmatter.excerpt}
-                  category={post.frontmatter.category}
                   date={post.frontmatter.date}
-                  author={post.frontmatter.author}
                   image={post.frontmatter.image}
-                  priority={index < 6}
+                  priority={index < 2}
                 />
               </MotionReveal>
             ))}
           </MotionRevealGroup>
         )}
-      </Container>
-    </Section>
+      </nav>
+    </div>
   );
 }
-

@@ -92,5 +92,11 @@ describe("motion isolation", () => {
     expect(readSrc("src/components/sections/labs/job-os/job-os-shell.tsx")).toContain(
       "animated={false}",
     );
+    expect(readSrc("src/components/sections/labs/job-os/job-os-shell.tsx")).toContain(
+      "showLeftAccent",
+    );
+    expect(readSrc("src/components/auth/require-site-auth.tsx")).not.toContain(
+      "SectionHeader",
+    );
   });
 });

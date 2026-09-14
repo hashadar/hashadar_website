@@ -17,34 +17,29 @@ describe('data layer cv retirement', () => {
 });
 
 describe('getPageData for About', () => {
-  it('returns page shell content only, without embedded career sections', () => {
+  it('returns biography copy only, without embedded career sections', () => {
     const pageData = getPageData('/about');
 
     expect(pageData).toEqual(about);
     expect(pageData).toMatchObject({
-      hero: expect.objectContaining({ name: expect.any(String), title: expect.any(String) }),
-      professional: expect.objectContaining({ heading: expect.any(String), content: expect.anything() }),
+      heading: expect.any(String),
+      lede: expect.any(Array),
     });
+    expect(pageData).not.toHaveProperty('hero');
+    expect(pageData).not.toHaveProperty('professional');
     expect(pageData).not.toHaveProperty('experience');
     expect(pageData).not.toHaveProperty('education');
     expect(pageData).not.toHaveProperty('certifications');
   });
 
-  it('frames Labs products plainly with a public Labs CTA', () => {
-    const paragraphs = Array.isArray(about.professional.content)
-      ? about.professional.content
-      : [about.professional.content];
-    const labsFraming = paragraphs.find((paragraph) =>
-      paragraph.toLowerCase().includes('labs'),
-    );
+  it('keeps the biography free of a Labs door', () => {
+    expect(about.lede.join(' ').toLowerCase()).not.toContain('labs');
+    expect(about).not.toHaveProperty('cta');
+    expect(JSON.stringify(about)).not.toMatch(/explore labs/i);
+  });
 
-    expect(labsFraming).toBeDefined();
-    expect(labsFraming!.toLowerCase()).toContain('application tracker');
-    expect(labsFraming!.toLowerCase()).toContain('dashboard');
-    expect(about.professional.cta).toEqual({
-      label: 'Explore Labs',
-      href: '/labs',
-    });
+  it('does not pitch the blog from the lede', () => {
+    expect(about.lede.join(' ').toLowerCase()).not.toContain('blog');
   });
 });
 
@@ -61,6 +56,22 @@ describe('getAboutCareerViews', () => {
               period: 'Jun 2026 - Present',
               description: 'Technology and Transformation | AI and Data.',
             },
+            {
+              role: 'Analyst',
+              period: 'Sep 2024 - May 2025',
+              description: 'Technology and Transformation | AI and Data.',
+            },
+          ],
+        },
+        {
+          name: 'ALTEN Ltd',
+          location: 'London, United Kingdom',
+          roles: [
+            {
+              role: 'Graduate Business Manager',
+              period: 'Jan 2024 - Jul 2024',
+              description: 'Business Development.',
+            },
           ],
         },
       ],
@@ -71,7 +82,6 @@ describe('getAboutCareerViews', () => {
           institution: 'UCL',
           qualification: 'Mechanical Engineering (MEng)',
           period: 'Sep 2019 - Jul 2023',
-          description: 'Third Year Individual Project.',
         },
       ],
     },
@@ -86,29 +96,53 @@ describe('getAboutCareerViews', () => {
     },
   };
 
-  it('composes About career sections explicitly from profile slices', () => {
+  it('promotes the current seat and flattens earlier facts', () => {
     const views = getAboutCareerViews(fixtureProfile);
 
-    expect(views.experience).toEqual({
-      heading: 'experience',
-      companies: fixtureProfile.experience.companies,
+    expect(views.current).toEqual({
+      name: 'Deloitte LLP',
+      location: 'London, United Kingdom',
+      period: 'since Sep 2024',
+      titles: [
+        { role: 'Consultant', period: 'since Jun 2026', current: true },
+        { role: 'Analyst', period: 'Sep 2024 - May 2025', current: false },
+      ],
     });
-    expect(views.education).toEqual({
-      heading: 'education',
-      entries: fixtureProfile.education.entries,
-    });
-    expect(views.certifications).toEqual({
-      heading: 'certifications',
-      items: fixtureProfile.certifications.items,
-    });
+    expect(views.earlier).toEqual([
+      {
+        name: 'ALTEN Ltd',
+        detail: 'Graduate Business Manager',
+        period: 'Jan 2024 - Jul 2024',
+      },
+      {
+        name: 'UCL',
+        detail: 'Mechanical Engineering (MEng)',
+        period: 'Sep 2019 - Jul 2023',
+      },
+    ]);
+    expect(views.certifications).toEqual([{ name: 'AWS Certified Cloud Practitioner' }]);
   });
 
-  it('derives live About career views from the canonical career profile', () => {
+  it('derives the live About career view from the canonical career profile', () => {
     const views = getAboutCareerViews(careerProfile);
 
-    expect(views.experience.companies).toEqual(careerProfile.experience.companies);
-    expect(views.education.entries).toEqual(careerProfile.education.entries);
-    expect(views.certifications.items).toEqual(careerProfile.certifications.items);
+    expect(views.current).toEqual({
+      name: 'Deloitte LLP',
+      location: 'London, United Kingdom',
+      department: 'Technology & Transformation, AI & Data',
+      period: 'since Sep 2024',
+      titles: [
+        { role: 'Consultant', period: 'since Jun 2026', current: true },
+        { role: 'Senior Analyst', period: 'Jun 2025 - May 2026', current: false },
+        { role: 'Analyst', period: 'Sep 2024 - May 2025', current: false },
+      ],
+    });
+    expect(views.earlier.map((fact) => fact.name)).toEqual(['ALTEN Ltd', 'UCL']);
+    expect(views.certifications.map((item) => item.name)).toEqual([
+      'Bloomberg Finance Fundamentals',
+      'AWS Certified Cloud Practitioner',
+      'Databricks Certified Data Analyst Associate',
+    ]);
   });
 });
 
