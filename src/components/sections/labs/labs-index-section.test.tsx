@@ -8,13 +8,15 @@ afterEach(() => {
 });
 
 describe('LabsIndexSection', () => {
-  it('renders the catalogue first fold and both lab destinations without the retired job-market route', () => {
-    render(<LabsIndexSection />);
+  it('renders a flush catalogue of lab names and short labels', () => {
+    const { container } = render(<LabsIndexSection />);
 
     expect(
       screen.getByRole('heading', { level: 1, name: labs.heading }),
     ).toBeInTheDocument();
     expect(screen.getByText(labs.purposeLine)).toBeInTheDocument();
+    expect(labs.purposeLine.toLowerCase()).toBe('from my labs');
+    expect(container.innerHTML).not.toContain('max-w-6xl');
 
     const catalogue = screen.getByRole('navigation', {
       name: labs.catalogueAriaLabel,
@@ -33,15 +35,15 @@ describe('LabsIndexSection', () => {
     expect(
       within(catalogue).getByRole('link', { name: new RegExp(wmw!.title) }),
     ).toHaveAttribute('href', '/labs/wmw');
+    expect(within(catalogue).getByText(jobOs!.lede)).toBeInTheDocument();
     expect(within(catalogue).getByText(wmw!.lede)).toBeInTheDocument();
-    expect(within(catalogue).getByText(wmw!.description)).toBeInTheDocument();
     expect(jobOs!.lede.toLowerCase()).toBe('application tracker');
-    expect(jobOs!.description.toLowerCase()).toContain('applications');
-    expect(wmw!.lede.toLowerCase()).toBe('dashboard');
-    expect(wmw!.description).toContain('account returns');
-    expect(wmw!.description).not.toContain('Account');
-    expect(labs.purposeLine.toLowerCase()).toBe('my mini projects and tools');
-    expect(labs.description.toLowerCase()).toContain('workflows');
+    expect(wmw!.lede.toLowerCase()).toBe('balances and returns');
+
+    expect(within(catalogue).queryByText(jobOs!.description)).not.toBeInTheDocument();
+    expect(within(catalogue).queryByText(wmw!.description)).not.toBeInTheDocument();
+    expect(within(catalogue).queryByText(jobOs!.ctaLabel)).not.toBeInTheDocument();
+    expect(within(catalogue).queryByText(wmw!.ctaLabel)).not.toBeInTheDocument();
 
     expect(
       screen.queryByRole('link', { name: /job signal lab/i }),

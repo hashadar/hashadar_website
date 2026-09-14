@@ -77,7 +77,7 @@ This document defines how to work in this codebase so that new and changed code 
 ### 5.1 Design system
 
 - **Typography:** Use `Heading` and `Text` from `@/components/ui` for all headings and body text. Do not use raw `<h1>`–`<h6>` or ad-hoc Tailwind typography classes for standard content.
-- **Public interiors:** Use shared `PageIntro` (`@/components/sections/shared/page-intro`) for the first fold — large left-aligned `Heading` + lede, cream or plain air. Do not invent a per-route heading. Do not pass `showLeftAccent` / `showRightAccent` / `showBottomAccent` on marketing listings. `SectionHeader` still defaults `showLeftAccent` for Job OS; leave that default alone.
+- **Public interiors:** Use shared `PageIntro` (`@/components/sections/shared/page-intro`) for the first fold — large left-aligned `Heading` + lede, cream or plain air. About is a biography fold (quiet title + lede + optional portrait), not `PageIntro` display type and not the name. Do not invent a per-route heading on the catalogue pages. Do not pass `showLeftAccent` / `showRightAccent` / `showBottomAccent` on marketing listings. `SectionHeader` still defaults `showLeftAccent` for Job OS; leave that default alone.
 - **Layout:** Use `Container` and `Section` for page structure and spacing. Use the `spacing` prop on `Section` for vertical rhythm.
 - **Colours:** Use CSS variables: `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--muted)`, `var(--border)`, `var(--cream)`. Do not introduce new hardcoded hex/rgb for theme colours.
 - **Class names:** Use `cn()` from `@/lib/utils` whenever combining conditional or multiple Tailwind classes.

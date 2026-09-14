@@ -16,6 +16,8 @@ export interface PageIntroProps {
   media?: ReactNode;
   eyebrow?: ReactNode;
   className?: string;
+  /** Edge padding like Home Statement; no boxed Container. */
+  flush?: boolean;
 }
 
 export function PageIntro({
@@ -24,12 +26,9 @@ export function PageIntro({
   media,
   eyebrow,
   className,
+  flush = false,
 }: PageIntroProps) {
-  return (
-    <section
-      className={cn("bg-[var(--cream)] pt-28 pb-16 md:pt-36 md:pb-24", className)}
-    >
-      <Container>
+  const inner = (
         <div
           className={cn(
             media &&
@@ -78,7 +77,19 @@ export function PageIntro({
             </div>
           ) : null}
         </div>
-      </Container>
+  );
+
+  return (
+    <section
+      className={cn(
+        "bg-[var(--cream)]",
+        flush
+          ? "px-7 pt-28 pb-10 min-[900px]:px-12 min-[900px]:pt-36 min-[900px]:pb-12"
+          : "pt-28 pb-16 md:pt-36 md:pb-24",
+        className,
+      )}
+    >
+      {flush ? inner : <Container>{inner}</Container>}
     </section>
   );
 }

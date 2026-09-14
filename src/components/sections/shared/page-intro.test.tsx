@@ -37,6 +37,17 @@ describe("PageIntro", () => {
     expect(container.innerHTML).not.toContain("skew");
   });
 
+  it("can sit flush to the viewport without a boxed container", () => {
+    const { container } = render(
+      <PageIntro heading="Photography" lede="from my portfolio" flush />,
+    );
+
+    const section = container.querySelector("section");
+    expect(section?.className).toContain("px-7");
+    expect(container.innerHTML).not.toContain("max-w-6xl");
+    expect(screen.getByText("from my portfolio")).toBeInTheDocument();
+  });
+
   it("stays visible when reduced motion is preferred", () => {
     mockPrefersReducedMotion(true);
     render(<PageIntro heading="Blog" lede="Writing." />);

@@ -44,6 +44,7 @@ describe('marketing motion wiring', () => {
   it('does not wrap interiors in a marketing or photography atmosphere', () => {
     const interiors = [
       'src/components/sections/about/about-hero-section.tsx',
+      'src/components/sections/about/career-record.tsx',
       'src/components/sections/shared/prose-section.tsx',
       'src/components/sections/shared/experience-listing.tsx',
       'src/components/sections/shared/education-listing.tsx',

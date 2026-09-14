@@ -36,21 +36,6 @@ function assertCta(value: unknown, context: string): void {
   requireString(cta, 'href', context);
 }
 
-function assertAboutSection(value: unknown, context: string): void {
-  const section = requireRecord(value, context);
-  requireString(section, 'heading', context);
-  const content = section.content;
-  const contentOk =
-    typeof content === 'string' ||
-    (Array.isArray(content) && content.every((item) => typeof item === 'string'));
-  if (!contentOk) {
-    fail(`${context}: content must be a string or string array`);
-  }
-  if (section.cta !== undefined) {
-    assertCta(section.cta, `${context}.cta`);
-  }
-}
-
 function assertPhotoItem(value: unknown, context: string): void {
   const item = requireRecord(value, context);
   requireString(item, 'src', context);
@@ -146,10 +131,15 @@ export function assertValidHomePage(data: unknown): void {
 
 export function assertValidAboutPage(data: unknown): void {
   const page = requireRecord(data, 'about');
-  const hero = requireRecord(page.hero, 'about.hero');
-  requireString(hero, 'name', 'about.hero');
-  requireString(hero, 'title', 'about.hero');
-  assertAboutSection(page.professional, 'about.professional');
+  requireString(page, 'heading', 'about');
+  const lede = page.lede;
+  const ledeOk =
+    Array.isArray(lede) &&
+    lede.length > 0 &&
+    lede.every((item) => typeof item === 'string' && item.trim().length > 0);
+  if (!ledeOk) {
+    fail('about.lede must be a non-empty array of strings');
+  }
 }
 
 export function assertValidBlogPage(data: unknown): void {
@@ -157,13 +147,7 @@ export function assertValidBlogPage(data: unknown): void {
   requireString(page, 'heading', 'blog');
   requireString(page, 'description', 'blog');
   requireString(page, 'emptyState', 'blog');
-  requireString(page, 'filterLabel', 'blog');
-  requireString(page, 'sortLabel', 'blog');
-  requireString(page, 'allCategories', 'blog');
-  const sortOptions = requireRecord(page.sortOptions, 'blog.sortOptions');
-  requireString(sortOptions, 'latest', 'blog.sortOptions');
-  requireString(sortOptions, 'oldest', 'blog.sortOptions');
-  requireString(sortOptions, 'title', 'blog.sortOptions');
+  requireString(page, 'catalogueAriaLabel', 'blog');
 }
 
 export function assertValidPortfolioPage(data: unknown): void {
@@ -453,6 +437,9 @@ export function assertValidCareerProfile(data: unknown): void {
       const item = requireRecord(company, `careerProfile.experience.companies[${index}]`);
       requireString(item, 'name', `careerProfile.experience.companies[${index}]`);
       requireString(item, 'location', `careerProfile.experience.companies[${index}]`);
+      if ('department' in item && item.department !== undefined) {
+        requireString(item, 'department', `careerProfile.experience.companies[${index}]`);
+      }
       requireArray(item.roles, `careerProfile.experience.companies[${index}].roles`);
     },
   );
@@ -462,7 +449,9 @@ export function assertValidCareerProfile(data: unknown): void {
     requireString(item, 'institution', `careerProfile.education.entries[${index}]`);
     requireString(item, 'qualification', `careerProfile.education.entries[${index}]`);
     requireString(item, 'period', `careerProfile.education.entries[${index}]`);
-    requireString(item, 'description', `careerProfile.education.entries[${index}]`);
+    if ('description' in item && item.description !== undefined) {
+      requireString(item, 'description', `careerProfile.education.entries[${index}]`);
+    }
   });
   const certifications = requireRecord(profile.certifications, 'careerProfile.certifications');
   requireArray(certifications.items, 'careerProfile.certifications.items').forEach(
