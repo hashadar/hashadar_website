@@ -2,7 +2,7 @@
   "heading": "Labs",
   "description": "Working products with real workflows.",
   "brandEyebrow": "Hasha Dar's",
-  "purposeLine": "My mini projects and tools",
+  "purposeLine": "My personal projects",
   "catalogueAriaLabel": "Available labs",
   "labs": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "title": "What's My Worth",
-      "lede": "Dashboard",
+      "lede": "Balances and returns",
       "description": "Balances, class mix, and account returns from a live workbook.",
       "href": "/labs/wmw",
       "ctaLabel": "Open What's My Worth"

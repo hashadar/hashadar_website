@@ -21,7 +21,7 @@ export function hasBlogPostHeroImage(image: string): boolean {
 }
 
 export function formatBlogCardDate(date: string): string {
-  return format(new Date(date), 'MMM d, yyyy');
+  return format(new Date(date), 'd MMM yyyy');
 }
 
 export function formatBlogArticleDate(date: string): string {

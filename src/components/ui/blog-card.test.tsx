@@ -14,15 +14,12 @@ afterEach(() => {
 });
 
 describe('BlogCard', () => {
-  it('links to the post and matches PhotoCard hover zoom language', () => {
+  it('links to the post as an editorial tile with reduced-motion zoom', () => {
     render(
       <BlogCard
         slug="motion-notes"
         title="Motion notes"
-        excerpt="How the site moves."
-        category="Engineering"
         date="2026-09-04"
-        author="Hasha"
         image="/blog/motion-notes/hero.webp"
       />,
     );
@@ -31,8 +28,8 @@ describe('BlogCard', () => {
       'href',
       '/blog/motion-notes',
     );
-    expect(screen.getByText('Engineering')).toBeInTheDocument();
-    expect(screen.getByText('How the site moves.')).toBeInTheDocument();
+    expect(screen.queryByText('Engineering')).not.toBeInTheDocument();
+    expect(screen.queryByText('How the site moves.')).not.toBeInTheDocument();
 
     const image = screen.getByRole('img', { name: 'Motion notes' });
     expect(image.className).toMatch(/group-hover:scale-/);

@@ -1,6 +1,13 @@
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AboutHeroSection } from '@/components/sections/about/about-hero-section';
+
+vi.mock('next/image', () => ({
+  default: (props: { alt: string; src: string }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img alt={props.alt} src={props.src} />
+  ),
+}));
 
 function mockPrefersReducedMotion(matches: boolean) {
   Object.defineProperty(window, 'matchMedia', {
@@ -18,30 +25,54 @@ function mockPrefersReducedMotion(matches: boolean) {
   });
 }
 
+const lede = [
+  "I'm a consultant in Deloitte's AI & Data practice. I work as a software developer on Financial Services projects, across data engineering, analytics, cloud, and machine learning.",
+  'I studied mechanical engineering at UCL, and was President of UCL Stage Crew, looking after student productions in the Bloomsbury Theatre and on campus.',
+  'I have worked as a freelance photographer, and now spend my free time building my own applications, (trying!) to write, and pursuing the CFA.',
+  "If you'd like to talk, I'm on LinkedIn.",
+];
+
 afterEach(() => {
   cleanup();
   mockPrefersReducedMotion(false);
 });
 
 describe('AboutHeroSection', () => {
-  it('uses an elevated DOM entrance without a canvas', () => {
+  it('opens on biography and portrait, not the name', () => {
     mockPrefersReducedMotion(false);
     const { container } = render(
-      <AboutHeroSection name="Hasha Dar" title="AI & Data Consultant" />,
+      <AboutHeroSection
+        heading="About"
+        lede={lede}
+        linkedinHref="https://linkedin.com/in/hdar"
+        portrait={{ src: '/img/statement-portrait.webp', alt: 'hasha dar' }}
+      />,
     );
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Hasha Dar' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'AI & Data Consultant' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'About' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /hasha/i })).not.toBeInTheDocument();
+    expect(screen.getByText(lede[0])).toBeInTheDocument();
+    expect(screen.getByText(lede[1])).toBeInTheDocument();
+    expect(screen.getByText(lede[2])).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute(
+      'href',
+      'https://linkedin.com/in/hdar',
+    );
+    expect(screen.queryByRole('link', { name: /labs/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'hasha dar' })).toBeInTheDocument();
     expect(container.querySelector('canvas')).toBeNull();
+    expect(container.querySelector('.geometric-pattern')).toBeNull();
+    expect(container.innerHTML).not.toContain('skew');
+    expect(container.querySelector('section')?.className).toContain('px-7');
+    expect(container.querySelector('section')?.className).toContain('min-h-screen');
+    expect(container.innerHTML).not.toContain('max-w-6xl');
   });
 
-  it('shows name and title immediately when reduced motion is preferred', () => {
+  it('shows the biography immediately when reduced motion is preferred', () => {
     mockPrefersReducedMotion(true);
-    render(<AboutHeroSection name="Hasha Dar" title="AI & Data Consultant" />);
+    render(<AboutHeroSection heading="About" lede={lede} />);
 
-    expect(screen.getByRole('heading', { name: 'Hasha Dar' })).toBeVisible();
-    expect(screen.getByRole('heading', { name: 'AI & Data Consultant' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'About' })).toBeVisible();
+    expect(screen.getByText(lede[0])).toBeVisible();
   });
 });

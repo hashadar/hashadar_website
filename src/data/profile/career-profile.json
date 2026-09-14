@@ -4,6 +4,7 @@
       {
         "name": "Deloitte LLP",
         "location": "London, United Kingdom",
+        "department": "Technology & Transformation, AI & Data",
         "roles": [
           {
             "role": "Consultant",
@@ -40,8 +41,7 @@
       {
         "institution": "UCL",
         "qualification": "Mechanical Engineering (MEng)",
-        "period": "Sep 2019 - Jul 2023",
-        "description": "Third Year Individual Project: Designing a lap-time simulator for the Shell Eco-marathon. Fourth Year Group Project (lead): Autonomous Drone Sensor Data Processing and Control."
+        "period": "Sep 2019 - Jul 2023"
       }
     ]
   },

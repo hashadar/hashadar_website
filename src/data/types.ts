@@ -1,9 +1,4 @@
 // Page-specific types
-export interface HeroSection {
-  name: string;
-  title: string;
-}
-
 export interface AboutSection {
   heading: string;
   content: string | string[];
@@ -30,6 +25,7 @@ export interface Role {
 export interface Company {
   name: string;
   location: string;
+  department?: string;
   roles: Role[];
 }
 
@@ -50,7 +46,7 @@ export interface EducationEntry {
   institution: string;
   qualification: string;
   period: string;
-  description: string;
+  description?: string;
 }
 
 export interface CareerProfileEducation {
@@ -139,22 +135,15 @@ export interface PortfolioPageData {
 }
 
 export interface AboutPageData {
-  hero: HeroSection;
-  professional: AboutSection;
+  heading: string;
+  lede: string[];
 }
 
 export interface BlogPageData {
   heading: string;
   description: string;
   emptyState: string;
-  filterLabel: string;
-  sortLabel: string;
-  sortOptions: {
-    latest: string;
-    oldest: string;
-    title: string;
-  };
-  allCategories: string;
+  catalogueAriaLabel: string;
 }
 
 export interface LabIndexItem {

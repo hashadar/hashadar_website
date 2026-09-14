@@ -73,7 +73,10 @@ export { getHomeExperienceView, getAboutExperienceView } from './profile/experie
 export { getAboutCertificationsView } from './profile/certifications-slices';
 export { getAboutEducationView } from './profile/education-slices';
 export { getAboutCareerViews } from './profile/about-career-slices';
-export type { AboutCareerViews } from './profile/about-career-slices';
+export type {
+  AboutCareerSeat,
+  AboutCareerViews,
+} from './profile/about-career-slices';
 
 export const footer = footerData as FooterData;
 export const navigation = navigationData as NavigationData;

@@ -72,9 +72,9 @@ Until a still is missing: intentional CSS fallback.
 
 ### Off Home
 
-Remove from `/`: About prose block, photography section, blog teaser, experience listing, Home lightbox.
+Removed from `/` (shipped): About prose block, photography section, blog teaser, experience listing, Home lightbox.
 
-About, Portfolio, Blog, Labs index **interiors stay**. They only inherit new Chrome.
+About, Portfolio, Blog, and Labs index interiors inherit Home’s **surface** (type, cream/air, green, quiet Chrome), not Claim → Statement → Proof. That restyle is [#259](https://github.com/hashadar/hashadar_website/issues/259); lock: `docs/research/interior-pages.md`.
 
 Login, Admin, Lab shells: not restyled as marketing.
 
@@ -98,12 +98,15 @@ Keep Zalando Sans Expanded. No new serif this pass. Keep current green, light, a
 
 ## Current baseline
 
+Shipped. Production `/` is the visual reference.
+
 | Area | Today |
 | --- | --- |
-| `/` | Hero (name + job title over Home Photo) → About → Photography → Blog → Experience |
-| Header | Frosted bar, brand + Home/About/Portfolio/Labs/Blog/Admin, theme toggle |
-| Footer | Three columns, slogan, full nav reprint, social |
-| Home Photo | Teaser in photography section and hero atmosphere |
+| `/` | Claim → Statement → Proof |
+| Header | Quiet overlay; wordmark + About, Portfolio, Labs, Blog; theme toggle |
+| Footer | Wordmark, same doors, email, GitHub, LinkedIn, copyright, quiet Admin last |
+| Home Photo | Photographer Proof piece only |
+| Interiors | Separate epic [#259](https://github.com/hashadar/hashadar_website/issues/259) |
 | Video | None |
 
 ## Target modules (indicative)
@@ -125,7 +128,7 @@ Keep `HeroMedia` if Proof can reuse it for the Home Photo; do not keep job-title
 
 ## Explicit non-goals
 
-- Restyling About / Portfolio / Blog / Labs index interiors
+- Restyling About / Portfolio / Blog / Labs index interiors (moved to [#259](https://github.com/hashadar/hashadar_website/issues/259))
 - Playbook steps
 - Admin video uploads
 - R3F / Three on Home (a 2D canvas grain overlay is allowed)

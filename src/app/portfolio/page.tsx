@@ -23,7 +23,7 @@ export default async function PortfolioPage() {
   const images = await getPortfolioPhotos();
 
   return (
-    <SitePage mainClassName="min-h-screen pt-20">
+    <SitePage mainClassName="min-h-screen">
       <PortfolioGrid images={images} />
     </SitePage>
   );

@@ -44,7 +44,7 @@ describe('hasBlogPostHeroImage', () => {
 
 describe('formatBlogCardDate', () => {
   it('formats dates for blog listing cards', () => {
-    expect(formatBlogCardDate('2025-03-15')).toBe('Mar 15, 2025');
+    expect(formatBlogCardDate('2025-03-15')).toBe('15 Mar 2025');
   });
 });
 
