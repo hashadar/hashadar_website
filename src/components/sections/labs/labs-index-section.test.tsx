@@ -8,10 +8,9 @@ afterEach(() => {
 });
 
 describe('LabsIndexSection', () => {
-  it('renders Labs brand and both lab destinations without the retired job-market route', () => {
+  it('renders the catalogue first fold and both lab destinations without the retired job-market route', () => {
     render(<LabsIndexSection />);
 
-    expect(screen.getByText(labs.brandEyebrow)).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 1, name: labs.heading }),
     ).toBeInTheDocument();

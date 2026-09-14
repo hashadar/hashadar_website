@@ -37,33 +37,23 @@ function PhotoCardChrome({
 
   return (
     <>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none" />
 
       {hasCaption && (
-        <div className="absolute inset-x-0 bottom-0 translate-y-full p-6 opacity-100 transition-transform duration-300 group-hover:translate-y-0 motion-reduce:translate-y-0 motion-reduce:opacity-0 motion-reduce:transition-none motion-reduce:group-hover:opacity-100">
+        <div className="absolute inset-x-0 bottom-0 translate-y-full p-5 opacity-100 transition-transform duration-300 group-hover:translate-y-0 motion-reduce:translate-y-0 motion-reduce:opacity-0 motion-reduce:transition-none motion-reduce:group-hover:opacity-100">
           {title && (
-            <h3 className="mb-2 font-body text-xl font-bold text-white">
+            <h3 className="mb-1 font-body text-base font-medium text-white">
               {title}
             </h3>
           )}
           {(category || location) && (
-            <div className="flex gap-3 text-sm">
-              {category && (
-                <span className="font-medium text-[var(--primary)]">
-                  {category}
-                </span>
-              )}
-              {location && (
-                <span className="text-white/80">
-                  {location}
-                </span>
-              )}
+            <div className="flex gap-3 text-xs text-white/75">
+              {category && <span>{category}</span>}
+              {location && <span>{location}</span>}
             </div>
           )}
         </div>
       )}
-
-      <div className="pointer-events-none absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-[var(--primary)] motion-reduce:transition-none" />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Container, Section, SectionHeader, Text, Button } from '@/components/ui';
+import { Container, Section, Heading, Text, Button } from '@/components/ui';
 import { useSiteAuth } from '@/hooks/use-site-auth';
 
 export type RequireSiteAuthProps = {
@@ -40,7 +40,9 @@ export function RequireSiteAuth({
       <Section className="py-12 md:py-16">
         <Container>
           <div className="max-w-2xl space-y-4">
-            <SectionHeader animated={false}>{unauthenticatedHeading}</SectionHeader>
+            <Heading as="h1" size="md" className="font-semibold tracking-[-0.04em]">
+              {unauthenticatedHeading}
+            </Heading>
             <Text variant="muted">{unauthenticatedDescription}</Text>
             <Link
               href={href}

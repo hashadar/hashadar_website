@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { SitePage } from "@/components/layout/site-page";
-import { site, about, careerProfile, getAboutCareerViews } from "@/data";
+import { site, about, careerProfile, getAboutCareerViews, home } from "@/data";
 import { AboutHeroSection } from "@/components/sections/about/about-hero-section";
 
 const AboutProfessionalSection = dynamic(() => import("@/components/sections/shared/prose-section").then(mod => ({ default: mod.ProseSection })), {
@@ -35,10 +35,10 @@ export default function AboutPage() {
   const careerViews = getAboutCareerViews(careerProfile);
 
   return (
-    <SitePage>
-      <AboutHeroSection {...about.hero} />
+    <SitePage mainClassName="min-h-screen">
+      <AboutHeroSection {...about.hero} portrait={home.statement.portrait} />
       <AboutProfessionalSection {...about.professional} />
-      <ExperienceListing {...careerViews.experience} variant="marketing" />
+      <ExperienceListing {...careerViews.experience} />
       <EducationListing {...careerViews.education} />
       <CertificationsListing {...careerViews.certifications} />
     </SitePage>

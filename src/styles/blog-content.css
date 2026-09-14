@@ -21,29 +21,6 @@
 
 .blog-content h1 {
   @apply text-3xl md:text-4xl lg:text-5xl;
-  border-left: 3px solid var(--primary);
-  padding-left: 1rem;
-  margin-left: -1.25rem;
-}
-
-/* Mobile/Tablet h1 accent - consolidated from duplicate styles */
-@media (max-width: 1024px) {
-  .blog-content h1 {
-    margin-left: 0;
-    padding-left: 1.5rem;
-    border-left: none;
-    position: relative;
-  }
-
-  .blog-content h1::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background-color: var(--primary);
-  }
 }
 
 .blog-content h2 {

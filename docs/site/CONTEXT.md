@@ -29,8 +29,12 @@ _Avoid_: treating the catalogue as a Lab, deep-linking Home Proof into a Lab
 ### Surfaces
 
 **Chrome**:
-The public header and footer. Quiet wordmark, plain doors, no frosted bar. Header doors: About, Portfolio, Labs, Blog. Footer: wordmark, the same doors, email, GitHub, LinkedIn, copyright, and Admin as the last quiet link. No Home link (the wordmark is Home). Sign-out is not in Chrome.
+The public header and footer. Quiet wordmark, plain doors, no frosted bar. Header doors: About, Portfolio, Labs, Blog. Footer: wordmark, the same doors, email, GitHub, LinkedIn, copyright, and Admin as the last quiet link. No Home link (the wordmark is Home). Sign-out is not in Chrome. Public interiors inherit this Chrome.
 _Avoid_: frosted header bar, Home as a header link, Admin in the header, footer sign-out, a second shouting sitemap, slogan paragraph in the footer
+
+**Interior**:
+A public marketing page other than Home: About, Portfolio, Blog, Labs index. Inherits Chrome and Home’s surface (large type, cream or air, green). Not a second Claim, Statement, or Proof grid.
+_Avoid_: cloning the Home spine onto every route, geometric ornaments, Loop treatment on interior Photographs
 
 **Home**:
 The public first surface of the site. A point-of-view narrative in three beats: Claim, then Statement, then Proof. Not a catalogue of the site’s other areas.

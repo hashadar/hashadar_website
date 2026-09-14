@@ -21,8 +21,8 @@ describe('EducationListing', () => {
     const section = document.getElementById('education');
     expect(section).toBeInTheDocument();
     expect(section?.tagName).toBe('SECTION');
-    expect(screen.getByRole('heading', { level: 1, name: 'education' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'UCL' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'education' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'UCL' })).toBeInTheDocument();
     expect(screen.getByText('Mechanical Engineering (MEng)')).toBeInTheDocument();
   });
 });

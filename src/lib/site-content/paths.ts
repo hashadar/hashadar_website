@@ -35,7 +35,7 @@ export type PortfolioManifest = {
   photos: PortfolioManifestEntry[];
 };
 
-/** Single home photography section image — not a portfolio Photo. */
+/** Single Home Photo for the photographer Proof piece — not a portfolio Photo. */
 export type HomePhotoManifest = {
   title: string;
   alt: string;

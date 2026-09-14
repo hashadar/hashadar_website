@@ -1,6 +1,15 @@
 "use client";
 
-import { SectionHeader, Container, Section, PhotoCard, Lightbox, MotionReveal, MotionRevealGroup, Text, SectionBackground } from "@/components/ui";
+import {
+  Container,
+  Section,
+  PhotoCard,
+  Lightbox,
+  MotionReveal,
+  MotionRevealGroup,
+  Text,
+} from "@/components/ui";
+import { PageIntro } from "@/components/sections/shared/page-intro";
 import { portfolio } from "@/data";
 import type { PhotoItem } from "@/data/types";
 import { useState, useEffect } from "react";
@@ -35,7 +44,7 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       images.forEach((image) => {
         const img = new window.Image();
         img.src = image.src;
@@ -44,52 +53,45 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
   }, [images]);
 
   return (
-    <Section className="relative overflow-hidden py-20">
-      <SectionBackground variant="photography" />
+    <>
+      <PageIntro heading={portfolio.heading} lede={portfolio.description} />
 
-      <Container>
-        <div className="mb-16 space-y-4">
-          <SectionHeader animated={false}>
-            {portfolio.heading}
-          </SectionHeader>
-
-          <Text size="lg" className="max-w-2xl text-[var(--foreground)]">
-            {portfolio.description}
-          </Text>
-        </div>
-
-        {images.length === 0 ? (
-          <Text variant="muted">No photos yet.</Text>
-        ) : (
-          <MotionRevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {images.map((image, index) => (
-              <MotionReveal
-                key={`${image.src}-${index}`}
-                variant="fade-up"
-                distance="sm"
-              >
-                <PhotoCard
-                  src={image.src}
-                  alt={image.alt}
-                  title={image.title}
-                  category={image.category}
-                  location={image.location}
-                  aspectRatio="2/3"
-                  showOverlay={true}
-                  priority={index < 3}
-                  onClick={() => openLightbox(index)}
-                  onMouseEnter={() => {
-                    if (typeof window !== 'undefined') {
-                      const img = new window.Image();
-                      img.src = image.src;
-                    }
-                  }}
-                />
-              </MotionReveal>
-            ))}
-          </MotionRevealGroup>
-        )}
-      </Container>
+      <Section>
+        <Container>
+          {images.length === 0 ? (
+            <Text variant="muted">No photos yet.</Text>
+          ) : (
+            <MotionRevealGroup className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
+              {images.map((image, index) => (
+                <MotionReveal
+                  key={`${image.src}-${index}`}
+                  variant="fade-up"
+                  distance="sm"
+                >
+                  <PhotoCard
+                    src={image.src}
+                    alt={image.alt}
+                    title={image.title}
+                    category={image.category}
+                    location={image.location}
+                    aspectRatio="2/3"
+                    showOverlay={true}
+                    priority={index < 2}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    onClick={() => openLightbox(index)}
+                    onMouseEnter={() => {
+                      if (typeof window !== "undefined") {
+                        const img = new window.Image();
+                        img.src = image.src;
+                      }
+                    }}
+                  />
+                </MotionReveal>
+              ))}
+            </MotionRevealGroup>
+          )}
+        </Container>
+      </Section>
 
       <Lightbox
         isOpen={lightboxOpen}
@@ -99,6 +101,6 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
         onNext={nextImage}
         onPrevious={previousImage}
       />
-    </Section>
+    </>
   );
 }

@@ -5,56 +5,42 @@ import {
   Text,
   Container,
   Section,
-  SectionBackground,
-  SectionHeader,
   MotionReveal,
   MotionRevealGroup,
 } from "@/components/ui";
+import { InteriorHeading } from "@/components/sections/shared/page-intro";
 import type { EducationSection } from "@/data/types";
 
 export function EducationListing({ heading, entries }: EducationSection) {
   return (
-    <Section id="education" className="relative overflow-hidden">
-      <SectionBackground variant="marketing" />
-
+    <Section id="education">
       <Container>
-        <div className="space-y-16">
-          <SectionHeader showRightAccent showBottomAccent>
-            {heading}
-          </SectionHeader>
+        <div className="max-w-3xl space-y-12">
+          <InteriorHeading>{heading}</InteriorHeading>
 
-          <MotionRevealGroup className="mx-auto max-w-4xl space-y-12">
+          <MotionRevealGroup className="space-y-10">
             {entries.map((entry) => (
               <MotionReveal
                 key={`${entry.institution}-${entry.qualification}`}
-                variant="slide-in"
-                className="relative"
+                variant="fade-up"
+                distance="sm"
               >
-                <div className="group relative">
-                  <div className="absolute top-0 bottom-0 left-0 w-2 skew-x-12 transform bg-[var(--primary)] opacity-20" />
-
-                  <div className="pb-2 pl-12">
-                    <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                      <div className="space-y-1">
-                        <Heading size="md" as="h2" className="text-[var(--foreground)]">
-                          {entry.institution}
-                        </Heading>
-                        <Text variant="muted" className="text-sm">
-                          {entry.qualification}
-                        </Text>
-                      </div>
-                      <Text variant="muted" className="shrink-0 text-sm font-medium md:text-right">
-                        {entry.period}
-                      </Text>
-                    </div>
-
-                    <Text className="mb-3 text-sm leading-relaxed">
-                      {entry.description}
+                <div className="flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between md:gap-8">
+                  <div className="space-y-1">
+                    <Heading size="md" as="h3" className="text-[var(--foreground)]">
+                      {entry.institution}
+                    </Heading>
+                    <Text variant="muted" size="xs">
+                      {entry.qualification}
                     </Text>
-
-                    <div className="h-px w-12 bg-gradient-to-r from-[var(--primary)] to-transparent opacity-20" />
                   </div>
+                  <Text variant="muted" size="xs" className="shrink-0 md:text-right">
+                    {entry.period}
+                  </Text>
                 </div>
+                <Text size="sm" className="mt-3 leading-relaxed">
+                  {entry.description}
+                </Text>
               </MotionReveal>
             ))}
           </MotionRevealGroup>

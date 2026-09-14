@@ -58,5 +58,6 @@ describe('PortfolioGrid', () => {
     expect(screen.getByRole('img', { name: 'First' })).toBeVisible();
     expect(screen.getByRole('img', { name: 'Second' })).toBeVisible();
     expect(container.querySelector('.geometric-pattern')).toBeNull();
+    expect(container.innerHTML).not.toContain('SectionBackground');
   });
 });
