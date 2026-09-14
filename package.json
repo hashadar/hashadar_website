@@ -27,7 +27,7 @@
     "framer-motion": "^12.23.24",
     "gray-matter": "^4.0.3",
     "hast-util-to-html": "^9.0.1",
-    "katex": "^0.18.1",
+    "katex": "^0.18.7",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
