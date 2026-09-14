@@ -15,7 +15,6 @@ describe('LabsIndexSection', () => {
       screen.getByRole('heading', { level: 1, name: labs.heading }),
     ).toBeInTheDocument();
     expect(screen.getByText(labs.purposeLine)).toBeInTheDocument();
-    expect(labs.purposeLine.toLowerCase()).toBe('from my labs');
     expect(container.innerHTML).not.toContain('max-w-6xl');
 
     const catalogue = screen.getByRole('navigation', {

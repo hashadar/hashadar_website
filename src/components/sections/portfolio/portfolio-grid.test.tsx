@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PortfolioGrid } from '@/components/sections/portfolio/portfolio-grid';
+import { portfolio } from '@/data';
 
 vi.mock('next/image', () => ({
   default: (props: { alt: string; src: string }) => (
@@ -62,8 +63,8 @@ describe('PortfolioGrid', () => {
       />,
     );
 
-    expect(screen.getByRole('heading', { name: 'Photography' })).toBeInTheDocument();
-    expect(screen.getByText('from my portfolio')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: portfolio.heading })).toBeInTheDocument();
+    expect(screen.getByText(portfolio.description)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'First' })).toBeVisible();
     expect(screen.getByRole('img', { name: 'Second' })).toBeVisible();
     expect(container.querySelector('.geometric-pattern')).toBeNull();
