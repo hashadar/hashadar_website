@@ -44,8 +44,8 @@
     "unified": "^11.0.4"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "^1.24.0",
-    "@aws-amplify/backend-cli": "^1.9.0",
+    "@aws-amplify/backend": "^1.25.0",
+    "@aws-amplify/backend-cli": "^1.10.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.2.0",
@@ -55,8 +55,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.3.4",
-    "aws-cdk": "^2.1135.0",
-    "aws-cdk-lib": "^2.263.0",
+    "aws-cdk": "^2.1141.0",
+    "aws-cdk-lib": "^2.269.0",
     "babel-plugin-react-compiler": "1.0.0",
     "constructs": "^10.8.1",
     "esbuild": "^0.28.1",
