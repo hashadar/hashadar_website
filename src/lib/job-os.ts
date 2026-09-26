@@ -1481,14 +1481,16 @@ export function createJobOs(deps: JobOsDeps) {
       return { status: 'rejected', reason: 'Body prose cannot be blank' };
     }
 
-    const { s3Key } = await deps.bodies.putBody({
-      entityKind: 'application',
-      entityId: id,
-      prose: trimmed,
+    return withAdapterRejection('Could not save Application Body', async () => {
+      const { s3Key } = await deps.bodies.putBody({
+        entityKind: 'application',
+        entityId: id,
+        prose: trimmed,
+      });
+      const application: ApplicationRecord = { ...existing, s3Key };
+      await deps.store.persistApplication(application);
+      return { status: 'updated' as const, application, body: trimmed };
     });
-    const application: ApplicationRecord = { ...existing, s3Key };
-    await deps.store.persistApplication(application);
-    return { status: 'updated', application, body: trimmed };
   }
 
   async function getApplicationBody(

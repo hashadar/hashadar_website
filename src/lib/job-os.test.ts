@@ -689,6 +689,126 @@ describe('Job OS facade — Applications', () => {
     expect(eventsAfter).toHaveLength(eventCount);
   });
 
+  it('overwrites an Application Body and does not append a Decision Event', async () => {
+    const { jobOs, store } = createTestJobOs();
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-25T11:00:00.000Z',
+      title: 'Principal Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      return;
+    }
+
+    const eventsBefore = await store.listDecisionEventsForOpportunity(
+      created.opportunity.id,
+    );
+
+    const first = await jobOs.updateApplicationBody(
+      pursued.application.id,
+      'Prep notes for the panel.',
+    );
+    expect(first.status).toBe('updated');
+    if (first.status !== 'updated') {
+      return;
+    }
+
+    const edited = await jobOs.updateApplicationBody(
+      pursued.application.id,
+      'Updated prep notes for the panel.',
+    );
+    expect(edited.status).toBe('updated');
+    if (edited.status !== 'updated') {
+      return;
+    }
+
+    const s3Key = `bodies/applications/${pursued.application.id}.md`;
+    expect(first.application.s3Key).toBe(s3Key);
+    expect(edited.application.s3Key).toBe(s3Key);
+    expect(edited.body).toBe('Updated prep notes for the panel.');
+
+    const reloaded = await jobOs.getApplicationBody(pursued.application.id);
+    expect(reloaded.status).toBe('ok');
+    if (reloaded.status !== 'ok') {
+      return;
+    }
+    expect(reloaded.body).toBe('Updated prep notes for the panel.');
+    expect(reloaded.application.s3Key).toBe(s3Key);
+
+    const eventsAfter = await store.listDecisionEventsForOpportunity(
+      created.opportunity.id,
+    );
+    expect(eventsAfter).toEqual(eventsBefore);
+
+    const blank = await jobOs.updateApplicationBody(
+      pursued.application.id,
+      '   ',
+    );
+    expect(blank).toEqual({
+      status: 'rejected',
+      reason: 'Body prose cannot be blank',
+    });
+    const afterBlank = await jobOs.getApplicationBody(pursued.application.id);
+    expect(afterBlank.status).toBe('ok');
+    if (afterBlank.status !== 'ok') {
+      return;
+    }
+    expect(afterBlank.body).toBe('Updated prep notes for the panel.');
+  });
+
+  it('rejects Application Body update when body storage fails', async () => {
+    const store = createMemoryJobOsStore();
+    const bodies = createMemoryJobOsBodyStorage();
+    const jobOs = createJobOs({
+      store,
+      bodies: {
+        ...bodies,
+        putBody: async () => {
+          throw new Error('storage unavailable');
+        },
+      },
+      now: () => '2026-07-27T12:00:00.000Z',
+      createId: (() => {
+        let n = 0;
+        return () => `id-${++n}`;
+      })(),
+    });
+    const anon = await jobOs.ensureAnonEmployer();
+    const created = await jobOs.createOpportunity({
+      employerId: anon.id,
+      noticedAt: '2026-07-25T11:00:00.000Z',
+      title: 'Principal Engineer',
+    });
+    expect(created.status).toBe('created');
+    if (created.status !== 'created') {
+      return;
+    }
+
+    const pursued = await jobOs.pursueOpportunity(created.opportunity.id);
+    expect(pursued.status).toBe('pursued');
+    if (pursued.status !== 'pursued') {
+      return;
+    }
+
+    const result = await jobOs.updateApplicationBody(
+      pursued.application.id,
+      'Prep notes for the panel.',
+    );
+
+    expect(result).toEqual({
+      status: 'rejected',
+      reason: 'Could not save Application Body',
+    });
+  });
+
   it('closes the Opportunity when Application moves to a terminal status', async () => {
     const { jobOs } = createTestJobOs();
     const anon = await jobOs.ensureAnonEmployer();
