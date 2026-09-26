@@ -107,7 +107,7 @@ export function JobOsApplicationsWorkspace({
     return () => {
       cancelled = true;
     };
-  }, [client, selectedId, applications]);
+  }, [client, selectedId]);
 
   function opportunityFor(opportunityId: string): OpportunityRecord | undefined {
     return opportunities.find((item) => item.id === opportunityId);
