@@ -8,7 +8,15 @@ import {
   type AccountAnnualisedMwr,
   type MwrPeriod,
 } from '@/lib/wmw/mwr';
+import { computeNetWorth } from '@/lib/wmw/net-worth';
+import {
+  findPairGroupForAccount,
+  groupMonthIntoPositions,
+  summarisePositionLegs,
+  type WmwPositionRole,
+} from '@/lib/wmw/positions';
 import type {
+  CalendarMonth,
   WmwAccount,
   WmwCashflow,
   WmwCategory,
@@ -38,8 +46,44 @@ export type WmwAccountCashflowSummary = {
   netAmount: number;
   contributionTotal: number;
   withdrawalTotal: number;
+  /** Sum of Loan Repayment Amounts (absolute). */
+  repaymentTotal: number;
   firstDate: string | null;
   lastDate: string | null;
+};
+
+export type WmwPairLegDetail = {
+  account: WmwAccount;
+  category: WmwCategory;
+  role: WmwPositionRole;
+  latestBalance: number | null;
+  balanceHistory: WmwAccountBalancePoint[];
+  unitsHistory: WmwAccountQuantityPoint[] | null;
+  mileageHistory: WmwAccountQuantityPoint[] | null;
+  cashflowSummary: WmwAccountCashflowSummary;
+};
+
+export type WmwPairEquityPoint = {
+  month: CalendarMonth;
+  value: number;
+};
+
+/** Combined detail for Paired Accounts (ADR 0012). */
+export type WmwPairDetail = {
+  pairId: string;
+  /** Latest month with a Balance on any leg. */
+  month: CalendarMonth | null;
+  /** Net position (sum of legs' Balance × Sign) in `month`. */
+  equity: number | null;
+  /** Asset legs' contribution in `month`. */
+  assetTotal: number;
+  /** Liability legs' Balance in `month`, as a positive figure. */
+  liabilityTotal: number;
+  equityMomDelta: number | null;
+  equityMomPct: number | null;
+  equityHistory: WmwPairEquityPoint[];
+  /** Asset (primary) leg first. */
+  legs: WmwPairLegDetail[];
 };
 
 export type WmwAccountDetailView =
@@ -73,6 +117,11 @@ export type WmwAccountDetailView =
       investable: boolean;
       /** YTD / 1Y / Max when investable; otherwise empty. */
       mwr: AccountAnnualisedMwr[];
+      /**
+       * Set when the Account belongs to Paired Accounts: `account` is then the
+       * asset leg (a liability Account ID resolves to the same view).
+       */
+      pair: WmwPairDetail | null;
     };
 
 function byDateAsc(a: { date: string }, b: { date: string }): number {
@@ -82,6 +131,7 @@ function byDateAsc(a: { date: string }, b: { date: string }): number {
 function summariseCashflows(cashflows: WmwCashflow[]): WmwAccountCashflowSummary {
   let contributionTotal = 0;
   let withdrawalTotal = 0;
+  let repaymentTotal = 0;
   let netAmount = 0;
 
   for (const cf of cashflows) {
@@ -90,6 +140,8 @@ function summariseCashflows(cashflows: WmwCashflow[]): WmwAccountCashflowSummary
       contributionTotal += cf.amount;
     } else if (cf.transactionType === 'Withdrawal') {
       withdrawalTotal += Math.abs(cf.amount);
+    } else if (cf.transactionType === 'Loan Repayment') {
+      repaymentTotal += Math.abs(cf.amount);
     }
   }
 
@@ -98,6 +150,7 @@ function summariseCashflows(cashflows: WmwCashflow[]): WmwAccountCashflowSummary
     netAmount,
     contributionTotal,
     withdrawalTotal,
+    repaymentTotal,
     firstDate: cashflows[0]?.date ?? null,
     lastDate: cashflows[cashflows.length - 1]?.date ?? null,
   };
@@ -180,23 +233,17 @@ export function buildMonthlyMileageDeltas(
   return deltas;
 }
 
-export function buildWmwAccountDetailView(
-  snapshot: WmwSnapshot | null,
-  accountId: string,
-): WmwAccountDetailView {
-  if (!snapshot) {
-    return { status: 'not-found' };
-  }
+type LegSeries = {
+  latestBalance: number | null;
+  balanceMomDelta: number | null;
+  balanceMomPct: number | null;
+  balanceHistory: WmwAccountBalancePoint[];
+  unitsHistory: WmwAccountQuantityPoint[] | null;
+  mileageHistory: WmwAccountQuantityPoint[] | null;
+  cashflows: WmwCashflow[];
+};
 
-  const account = snapshot.accounts.find((row) => row.accountId === accountId);
-  if (!account) {
-    return { status: 'not-found' };
-  }
-
-  const category =
-    snapshot.categories.find((row) => row.categoryId === account.categoryId) ??
-    null;
-
+function buildLegSeries(snapshot: WmwSnapshot, accountId: string): LegSeries {
   const balances = snapshot.balances
     .filter((row) => row.accountId === accountId)
     .slice()
@@ -209,13 +256,6 @@ export function buildWmwAccountDetailView(
 
   const latest = balanceHistory[balanceHistory.length - 1] ?? null;
   const previous = balanceHistory[balanceHistory.length - 2] ?? null;
-  const latestBalance = latest?.balance ?? null;
-  const balanceMomDelta =
-    latest && previous ? latest.balance - previous.balance : null;
-  const balanceMomPct =
-    latest && previous && previous.balance !== 0
-      ? (latest.balance - previous.balance) / previous.balance
-      : null;
 
   const unitsPoints = balances
     .filter((row) => row.units != null)
@@ -225,15 +265,105 @@ export function buildWmwAccountDetailView(
     .map((row) => ({ date: row.date, value: row.mileage! }));
   const mileagePoints = buildMonthlyMileageDeltas(mileageReadings);
 
-  const cashflows = snapshot.cashflows
-    .filter((row) => row.accountId === accountId)
-    .slice()
-    .sort(byDateAsc);
+  return {
+    latestBalance: latest?.balance ?? null,
+    balanceMomDelta:
+      latest && previous ? latest.balance - previous.balance : null,
+    balanceMomPct:
+      latest && previous && previous.balance !== 0
+        ? (latest.balance - previous.balance) / previous.balance
+        : null,
+    balanceHistory,
+    unitsHistory: unitsPoints.length > 0 ? unitsPoints : null,
+    mileageHistory: mileagePoints.length > 0 ? mileagePoints : null,
+    cashflows: snapshot.cashflows
+      .filter((row) => row.accountId === accountId)
+      .slice()
+      .sort(byDateAsc),
+  };
+}
+
+function buildPairDetail(
+  snapshot: WmwSnapshot,
+  pairId: string,
+  members: Array<{
+    account: WmwAccount;
+    category: WmwCategory;
+    role: WmwPositionRole;
+  }>,
+): WmwPairDetail {
+  const legs: WmwPairLegDetail[] = members.map((member) => {
+    const series = buildLegSeries(snapshot, member.account.accountId);
+    return {
+      account: member.account,
+      category: member.category,
+      role: member.role,
+      latestBalance: series.latestBalance,
+      balanceHistory: series.balanceHistory,
+      unitsHistory: series.unitsHistory,
+      mileageHistory: series.mileageHistory,
+      cashflowSummary: summariseCashflows(series.cashflows),
+    };
+  });
+
+  const equityHistory: WmwPairEquityPoint[] = [];
+  let assetTotal = 0;
+  let liabilityTotal = 0;
+  for (const month of computeNetWorth(snapshot).months) {
+    const position = groupMonthIntoPositions(snapshot, month).find(
+      (p) => p.pairId === pairId,
+    );
+    if (!position) continue;
+    equityHistory.push({ month: month.month, value: position.contribution });
+    ({ assetTotal, liabilityTotal } = summarisePositionLegs(position.legs));
+  }
+
+  const latest = equityHistory[equityHistory.length - 1] ?? null;
+  const previous = equityHistory[equityHistory.length - 2] ?? null;
+
+  return {
+    pairId,
+    month: latest?.month ?? null,
+    equity: latest?.value ?? null,
+    assetTotal,
+    liabilityTotal,
+    equityMomDelta: latest && previous ? latest.value - previous.value : null,
+    equityMomPct:
+      latest && previous && previous.value !== 0
+        ? (latest.value - previous.value) / Math.abs(previous.value)
+        : null,
+    equityHistory,
+    legs,
+  };
+}
+
+export function buildWmwAccountDetailView(
+  snapshot: WmwSnapshot | null,
+  accountId: string,
+): WmwAccountDetailView {
+  if (!snapshot) {
+    return { status: 'not-found' };
+  }
+
+  const requested = snapshot.accounts.find((row) => row.accountId === accountId);
+  if (!requested) {
+    return { status: 'not-found' };
+  }
+
+  const group = findPairGroupForAccount(snapshot, accountId);
+  const combined = group && group.members.length > 1 ? group : null;
+  const account = combined ? combined.primary.account : requested;
+
+  const category =
+    snapshot.categories.find((row) => row.categoryId === account.categoryId) ??
+    null;
+
+  const series = buildLegSeries(snapshot, account.accountId);
 
   const investable = isInvestableCategoryId(account.categoryId);
   const mwr = investable
     ? MWR_PERIODS.map((period) =>
-        computeAccountAnnualisedMwr(snapshot, accountId, period),
+        computeAccountAnnualisedMwr(snapshot, account.accountId, period),
       )
     : [];
 
@@ -242,17 +372,20 @@ export function buildWmwAccountDetailView(
     asOf: snapshot.asOf,
     account,
     category,
-    latestBalance,
-    balanceMomDelta,
-    balanceMomPct,
-    balanceHistory,
+    latestBalance: series.latestBalance,
+    balanceMomDelta: series.balanceMomDelta,
+    balanceMomPct: series.balanceMomPct,
+    balanceHistory: series.balanceHistory,
     returnHistory: investable
-      ? buildReturnHistory(balanceHistory, cashflows)
+      ? buildReturnHistory(series.balanceHistory, series.cashflows)
       : [],
-    cashflowSummary: summariseCashflows(cashflows),
-    unitsHistory: unitsPoints.length > 0 ? unitsPoints : null,
-    mileageHistory: mileagePoints.length > 0 ? mileagePoints : null,
+    cashflowSummary: summariseCashflows(series.cashflows),
+    unitsHistory: series.unitsHistory,
+    mileageHistory: series.mileageHistory,
     investable,
     mwr,
+    pair: combined
+      ? buildPairDetail(snapshot, combined.pairId, combined.members)
+      : null,
   };
 }

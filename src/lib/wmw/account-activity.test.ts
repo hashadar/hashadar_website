@@ -18,12 +18,65 @@ describe('account activity', () => {
     const groups = partitionAccountsByActivity(snapshot);
     expect(groups.active.map((a) => a.accountName)).toEqual([
       'IBKR ISA',
-      'Motonovo',
-      'Porsche Taycan',
+      'Porsche Taycan 4S',
     ]);
     expect(groups.inactive.map((a) => a.accountName)).toEqual([
       'Coinbase ETH',
       'HSBC Current',
     ]);
+  });
+
+  it('lists a pair once, and keeps it active while either leg is non-zero', () => {
+    const snapshot = buildSampleSnapshot({
+      balances: [
+        {
+          date: '2026-04-30',
+          accountId: 'CAR_PORSCHE',
+          balance: 0,
+          units: null,
+          mileage: null,
+        },
+        {
+          date: '2026-04-30',
+          accountId: 'LOAN_MOTONOVO',
+          balance: 5_000,
+          units: null,
+          mileage: null,
+        },
+      ],
+    });
+
+    const groups = partitionAccountsByActivity(snapshot);
+    expect(groups.active.map((a) => a.accountId)).toEqual(['CAR_PORSCHE']);
+    expect(
+      [...groups.active, ...groups.inactive].some(
+        (a) => a.accountId === 'LOAN_MOTONOVO',
+      ),
+    ).toBe(false);
+  });
+
+  it('marks a pair inactive once both legs are £0', () => {
+    const snapshot = buildSampleSnapshot({
+      balances: [
+        {
+          date: '2026-04-30',
+          accountId: 'CAR_PORSCHE',
+          balance: 0,
+          units: null,
+          mileage: null,
+        },
+        {
+          date: '2026-04-30',
+          accountId: 'LOAN_MOTONOVO',
+          balance: 0,
+          units: null,
+          mileage: null,
+        },
+      ],
+    });
+
+    const groups = partitionAccountsByActivity(snapshot);
+    expect(groups.active).toEqual([]);
+    expect(groups.inactive.map((a) => a.accountId)).toContain('CAR_PORSCHE');
   });
 });

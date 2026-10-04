@@ -230,7 +230,13 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(overview, 'accountSearchLabel', 'wmw.overview');
   requireString(overview, 'columnPct', 'wmw.overview');
   requireString(overview, 'columnMom', 'wmw.overview');
-  requireString(overview, 'pairsHeading', 'wmw.overview');
+  requireString(overview, 'basisAriaLabel', 'wmw.overview');
+  requireString(overview, 'basisNetLabel', 'wmw.overview');
+  requireString(overview, 'basisGrossLabel', 'wmw.overview');
+  requireString(overview, 'pairAssetLabel', 'wmw.overview');
+  requireString(overview, 'pairLiabilityLabel', 'wmw.overview');
+  requireString(overview, 'pairLessLabel', 'wmw.overview');
+  requireString(overview, 'negativeEquityLabel', 'wmw.overview');
   requireString(overview, 'periodYtd', 'wmw.overview');
   requireString(overview, 'period1y', 'wmw.overview');
   requireString(overview, 'periodMax', 'wmw.overview');
@@ -257,9 +263,15 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(accountDetail, 'cashflowsHeading', 'wmw.accountDetail');
   requireString(accountDetail, 'cashflowsCountLabel', 'wmw.accountDetail');
   requireString(accountDetail, 'cashflowsNetLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsRepaymentsLabel', 'wmw.accountDetail');
   requireString(accountDetail, 'cashflowsLastLabel', 'wmw.accountDetail');
   requireString(accountDetail, 'unitsHeading', 'wmw.accountDetail');
   requireString(accountDetail, 'mileageHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'pairEquityLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'pairEquityHistoryHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'pairEquityChartAriaLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'legAssetLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'legLiabilityLabel', 'wmw.accountDetail');
   requireString(accountDetail, 'mwrHeading', 'wmw.accountDetail');
 }
 

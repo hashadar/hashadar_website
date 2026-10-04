@@ -142,6 +142,7 @@ export {
   type BuildWmwOverviewViewOptions,
   type WmwClassHistoryPoint,
   type WmwDashboardAccountRow,
+  type WmwOverviewBasis,
   type WmwDashboardClassRow,
   type WmwOverviewKpis,
   type WmwOverviewView,
@@ -152,7 +153,24 @@ export {
   type WmwAccountBalancePoint,
   type WmwAccountDetailView,
   type WmwAccountQuantityPoint,
+  type WmwPairDetail,
+  type WmwPairLegDetail,
 } from '@/lib/wmw/account-detail-view';
+
+export {
+  buildPairGroups,
+  findPairGroupForAccount,
+  groupMonthIntoPositions,
+  isCombinedPosition,
+  listPositionAccounts,
+  positionClassRows,
+  summarisePositionLegs,
+  type WmwPairGroup,
+  type WmwPairMember,
+  type WmwPosition,
+  type WmwPositionLeg,
+  type WmwPositionRole,
+} from '@/lib/wmw/positions';
 
 export {
   isAccountActiveInSnapshot,
