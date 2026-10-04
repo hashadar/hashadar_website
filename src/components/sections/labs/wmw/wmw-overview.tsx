@@ -23,11 +23,13 @@ import {
 } from '@/lib/wmw/format';
 import {
   buildWmwOverviewView,
+  type WmwOverviewBasis,
   type WmwOverviewView,
 } from '@/lib/wmw/overview-view';
 import type { CalendarMonth } from '@/lib/wmw/types';
 import { getDefaultWmw } from '@/lib/wmw-default';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 function accountHref(accountId: string): string {
   return `/labs/wmw/accounts/${encodeURIComponent(accountId)}`;
@@ -39,6 +41,8 @@ export type WmwOverviewProps = {
 };
 
 type LoadState = 'loading' | 'ready' | 'error';
+
+const BASES: WmwOverviewBasis[] = ['net', 'gross'];
 
 function formatPctOfNw(value: number | null): string {
   if (value === null) return '—';
@@ -54,6 +58,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     null,
   );
   const [accountQuery, setAccountQuery] = useState('');
+  const [basis, setBasis] = useState<WmwOverviewBasis>('net');
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [defaultClient, setDefaultClient] = useState<WmwFacade | null>(null);
@@ -86,6 +91,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
         const next = buildWmwOverviewView(snapshot, {
           selectedMonth,
           accountQuery,
+          basis,
         });
         setView(next);
         if (!selectedMonth && next.selectedMonth) {
@@ -99,7 +105,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     return () => {
       cancelled = true;
     };
-  }, [client, selectedMonth, accountQuery]);
+  }, [client, selectedMonth, accountQuery, basis]);
 
   async function handleRefresh() {
     if (!client || refreshing) return;
@@ -110,6 +116,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
       const next = buildWmwOverviewView(snapshot, {
         selectedMonth,
         accountQuery,
+        basis,
       });
       setView(next);
       if (next.selectedMonth) setSelectedMonth(next.selectedMonth);
@@ -127,6 +134,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
             buildWmwOverviewView(lastGood, {
               selectedMonth,
               accountQuery,
+              basis,
             }),
           );
           setLoadState('ready');
@@ -189,6 +197,36 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
               </select>
             </label>
           ) : null}
+          <div className="flex flex-col gap-0.5 font-body text-xs text-[var(--mono-500)]">
+            <span id="wmw-basis-label">{copy.basisLabel}</span>
+            <div
+              role="group"
+              aria-labelledby="wmw-basis-label"
+              className="inline-flex rounded-md border border-[var(--border)] p-0.5"
+            >
+              {BASES.map((mode) => {
+                const active = basis === mode;
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setBasis(mode)}
+                    className={cn(
+                      'rounded-[5px] px-2.5 py-1 font-body text-sm transition-colors',
+                      active
+                        ? 'bg-[color-mix(in_oklab,var(--primary)_12%,transparent)] font-medium text-[var(--primary)]'
+                        : 'text-[var(--mono-500)] hover:text-[var(--foreground)]',
+                    )}
+                  >
+                    {mode === 'net'
+                      ? copy.basisNetLabel
+                      : copy.basisGrossLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -377,6 +415,14 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                       >
                         {row.accountName}
                       </Link>
+                      {row.netPosition ? (
+                        <span className="mt-0.5 block text-xs text-[var(--mono-500)]">
+                          {copy.netPositionLabel}
+                          {row.netPosition.negativeEquity
+                            ? ` · ${copy.negativeEquityLabel}`
+                            : ''}
+                        </span>
+                      ) : null}
                     </WmwDenseCell>
                     <WmwDenseCell>{row.class}</WmwDenseCell>
                     <WmwDenseCell mono align="right">

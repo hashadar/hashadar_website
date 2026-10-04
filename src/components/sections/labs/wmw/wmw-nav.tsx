@@ -4,13 +4,15 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { wmw } from '@/data';
-import { partitionAccountsByActivity } from '@/lib/wmw/account-activity';
+import { partitionPositionsByActivity } from '@/lib/wmw/account-activity';
 import { getDefaultWmw } from '@/lib/wmw-default';
 import { cn } from '@/lib/utils';
 
 export type WmwNavAccount = {
   accountId: string;
   accountName: string;
+  /** Other Account IDs served by this entry (Paired Accounts). */
+  memberAccountIds?: string[];
 };
 
 type WmwNavGroups = {
@@ -26,8 +28,10 @@ function isOverviewPath(pathname: string): boolean {
   return pathname === '/labs/wmw';
 }
 
-function isAccountPath(pathname: string, accountId: string): boolean {
-  return pathname === accountHref(accountId);
+function isAccountPath(pathname: string, account: WmwNavAccount): boolean {
+  return [account.accountId, ...(account.memberAccountIds ?? [])].some(
+    (id) => pathname === accountHref(id),
+  );
 }
 
 function linkClass(active: boolean, compact = false): string {
@@ -65,17 +69,7 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
           setFetched({ active: [], inactive: [] });
           return;
         }
-        const groups = partitionAccountsByActivity(snapshot);
-        setFetched({
-          active: groups.active.map((a) => ({
-            accountId: a.accountId,
-            accountName: a.accountName,
-          })),
-          inactive: groups.inactive.map((a) => ({
-            accountId: a.accountId,
-            accountName: a.accountName,
-          })),
-        });
+        setFetched(partitionPositionsByActivity(snapshot));
       } catch {
         if (!cancelled) setFetched({ active: [], inactive: [] });
       }
@@ -126,7 +120,7 @@ export function WmwNav({ accounts: accountsProp }: WmwNavProps = {}) {
       <ul className="max-h-[min(16rem,40vh)] space-y-0.5 overflow-y-auto">
         {accounts.map((account) => {
           const href = accountHref(account.accountId);
-          const activeLink = isAccountPath(pathname, account.accountId);
+          const activeLink = isAccountPath(pathname, account);
           return (
             <li key={account.accountId}>
               <Link

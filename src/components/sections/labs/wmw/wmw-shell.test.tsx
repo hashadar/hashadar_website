@@ -103,4 +103,28 @@ describe('WmwNav', () => {
       screen.getByRole('link', { name: 'Coinbase ETH' }),
     ).toHaveAttribute('href', '/labs/wmw/accounts/CB_ETH');
   });
+
+  it('lists the paired car and loan as one entry', () => {
+    render(
+      <WmwNav
+        accounts={{
+          active: [
+            {
+              accountId: 'CAR_PORSCHE',
+              accountName: 'Porsche Taycan',
+              memberAccountIds: ['CAR_PORSCHE', 'LOAN_MOTONOVO'],
+            },
+          ],
+          inactive: [],
+        }}
+      />,
+    );
+
+    expect(screen.getAllByRole('link', { name: 'Porsche Taycan' })).toHaveLength(
+      1,
+    );
+    expect(
+      screen.queryByRole('link', { name: 'Motonovo' }),
+    ).not.toBeInTheDocument();
+  });
 });

@@ -2,6 +2,7 @@ import {
   cleanup,
   render,
   screen,
+  waitFor,
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -75,10 +76,126 @@ describe('WmwOverview', () => {
     expect(
       screen.getByRole('link', { name: 'Porsche Taycan' }),
     ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
-    expect(screen.queryByText('PAIR_TAYCAN')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Motonovo' }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText(wmw.overview.periodYtd)).not.toBeInTheDocument();
     expect(
       screen.getByLabelText(wmw.overview.monthSlicerLabel),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the paired car and loan as one net row by default', async () => {
+    const client = createClient();
+    render(<WmwOverview wmwClient={client} />);
+
+    const accountTable = await screen.findByRole('table', {
+      name: wmw.overview.accountHeading,
+    });
+    const taycanRow = within(accountTable)
+      .getByRole('link', { name: 'Porsche Taycan' })
+      .closest('tr')!;
+    expect(within(taycanRow).getByText('£30,000')).toBeInTheDocument();
+    expect(within(taycanRow).getByText('Cars')).toBeInTheDocument();
+    expect(
+      within(taycanRow).getByText(wmw.overview.netPositionLabel),
+    ).toBeInTheDocument();
+    expect(within(accountTable).queryByText('Motonovo')).not.toBeInTheDocument();
+    expect(within(accountTable).queryByText('Loans')).not.toBeInTheDocument();
+
+    const classTable = screen.getByRole('table', {
+      name: wmw.overview.classHeading,
+    });
+    expect(within(classTable).getByText('Cars')).toBeInTheDocument();
+    expect(within(classTable).queryByText('Loans')).not.toBeInTheDocument();
+    expect(screen.getByText('£53,000')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: wmw.overview.basisNetLabel }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('restores the two-row view on Gross and returns on Net', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    render(<WmwOverview wmwClient={client} />);
+
+    await screen.findByRole('link', { name: 'Porsche Taycan' });
+    await user.click(
+      screen.getByRole('button', { name: wmw.overview.basisGrossLabel }),
+    );
+
+    const accountTable = await screen.findByRole('table', {
+      name: wmw.overview.accountHeading,
+    });
+    await within(accountTable).findByRole('link', { name: 'Motonovo' });
+    expect(within(accountTable).getByText('£77,000')).toBeInTheDocument();
+    expect(within(accountTable).getByText('-£47,000')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: wmw.overview.basisGrossLabel }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      within(
+        screen.getByRole('table', { name: wmw.overview.classHeading }),
+      ).getByText('Loans'),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: wmw.overview.basisNetLabel }),
+    );
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('link', { name: 'Motonovo' }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText('£53,000')).toBeInTheDocument();
+  });
+
+  it('finds the net position when searching by the loan name', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    render(<WmwOverview wmwClient={client} />);
+
+    await screen.findByRole('link', { name: 'Porsche Taycan' });
+    await user.type(
+      screen.getByLabelText(wmw.overview.accountSearchLabel),
+      'motonovo',
+    );
+
+    const accountTable = screen.getByRole('table', {
+      name: wmw.overview.accountHeading,
+    });
+    await waitFor(() =>
+      expect(
+        within(accountTable).queryByRole('link', { name: 'IBKR ISA' }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      within(accountTable).getByRole('link', { name: 'Porsche Taycan' }),
+    ).toHaveAttribute('href', '/labs/wmw/accounts/CAR_PORSCHE');
+  });
+
+  it('labels negative equity on the net row', async () => {
+    const client = createClient({
+      initialSnapshot: buildSampleSnapshot({
+        balances: [
+          { date: '2026-03-31', accountId: 'CAR_PORSCHE', balance: 40_000, units: null, mileage: null },
+          { date: '2026-03-31', accountId: 'LOAN_MOTONOVO', balance: 47_000, units: null, mileage: null },
+        ],
+      }),
+    });
+    render(<WmwOverview wmwClient={client} />);
+
+    const accountTable = await screen.findByRole('table', {
+      name: wmw.overview.accountHeading,
+    });
+    const row = within(accountTable)
+      .getByRole('link', { name: 'Porsche Taycan' })
+      .closest('tr')!;
+    expect(within(row).getByText('-£7,000')).toBeInTheDocument();
+    expect(
+      within(row).getByText(
+        new RegExp(wmw.overview.negativeEquityLabel),
+      ),
     ).toBeInTheDocument();
   });
 

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { WmwAccountDetail } from '@/components/sections/labs/wmw/wmw-account-detail';
@@ -54,8 +54,20 @@ describe('WmwAccountDetail', () => {
     ).toHaveAttribute('href', '/labs/wmw');
   });
 
-  it('renders Balance and Mileage without Performance for the vehicle Account', async () => {
-    const client = createClient();
+  it('shows the car, the loan, and net equity on one page', async () => {
+    const client = createClient(
+      buildSampleSnapshot({
+        cashflows: [
+          {
+            date: '2026-03-15',
+            accountId: 'LOAN_MOTONOVO',
+            amount: -350,
+            transactionType: 'Loan Repayment',
+            description: 'Monthly',
+          },
+        ],
+      }),
+    );
     render(
       <WmwAccountDetail accountId="CAR_PORSCHE" wmwClient={client} />,
     );
@@ -63,44 +75,111 @@ describe('WmwAccountDetail', () => {
     expect(
       await screen.findByRole('heading', { name: 'Porsche Taycan' }),
     ).toBeInTheDocument();
+
+    const net = screen.getByRole('region', {
+      name: wmw.accountDetail.netEquityLabel,
+    });
+    expect(within(net).getAllByText('£30,000.00').length).toBeGreaterThan(0);
+    expect(within(net).getByText('Porsche Taycan')).toBeInTheDocument();
+    expect(within(net).getByText('Motonovo')).toBeInTheDocument();
+    expect(within(net).getByText('-£47,000.00')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', {
-        name: wmw.accountDetail.metadataHeading,
+      within(net).getByRole('img', {
+        name: wmw.accountDetail.netHistoryChartAriaLabel,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Private')).toBeInTheDocument();
-    expect(screen.getByText('Cars')).toBeInTheDocument();
-    expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', {
-        name: wmw.accountDetail.seriesViewBalanceLabel,
-      }),
-    ).toBeInTheDocument();
+      screen.queryByText(wmw.accountDetail.negativeEquityLabel),
+    ).not.toBeInTheDocument();
+
+    const car = screen.getByRole('region', {
+      name: `${wmw.accountDetail.roleAssetLabel}: Porsche Taycan`,
+    });
+    expect(within(car).getByText('Private')).toBeInTheDocument();
+    expect(within(car).getByText('Cars')).toBeInTheDocument();
+    expect(within(car).getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(
-      screen.getByRole('img', {
+      within(car).getByRole('img', {
         name: wmw.accountDetail.balanceChartAriaLabel,
       }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('tab', {
-        name: wmw.accountDetail.seriesViewPerformanceLabel,
-      }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', {
-        name: wmw.accountDetail.mileageHeading,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('img', {
+      within(car).getByRole('img', {
         name: wmw.accountDetail.mileageChartAriaLabel,
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(wmw.accountDetail.cashflowsEmptyLabel),
+      within(car).queryByRole('tab', {
+        name: wmw.accountDetail.seriesViewPerformanceLabel,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(car).queryByText(wmw.accountDetail.mwrHeading),
+    ).not.toBeInTheDocument();
+
+    const loan = screen.getByRole('region', {
+      name: `${wmw.accountDetail.roleLiabilityLabel}: Motonovo`,
+    });
+    expect(within(loan).getByText('Loans')).toBeInTheDocument();
+    expect(within(loan).getByText('£47,000.00')).toBeInTheDocument();
+    expect(
+      within(loan).getByRole('img', {
+        name: wmw.accountDetail.balanceChartAriaLabel,
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByText(wmw.accountDetail.mwrHeading),
+      within(loan).getByText(wmw.accountDetail.cashflowsLoanRepaymentsLabel),
+    ).toBeInTheDocument();
+    expect(within(loan).getByText('£350.00')).toBeInTheDocument();
+  });
+
+  it('opens the same combined page from the loan ID', async () => {
+    const client = createClient();
+    render(
+      <WmwAccountDetail accountId="LOAN_MOTONOVO" wmwClient={client} />,
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Porsche Taycan' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('region', {
+        name: `${wmw.accountDetail.roleLiabilityLabel}: Motonovo`,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('labels negative equity', async () => {
+    const client = createClient(
+      buildSampleSnapshot({
+        balances: [
+          { date: '2026-03-31', accountId: 'CAR_PORSCHE', balance: 40_000, units: null, mileage: null },
+          { date: '2026-03-31', accountId: 'LOAN_MOTONOVO', balance: 47_000, units: null, mileage: null },
+        ],
+      }),
+    );
+    render(
+      <WmwAccountDetail accountId="CAR_PORSCHE" wmwClient={client} />,
+    );
+
+    const net = await screen.findByRole('region', {
+      name: wmw.accountDetail.netEquityLabel,
+    });
+    expect(
+      within(net).getByText(wmw.accountDetail.negativeEquityLabel),
+    ).toBeInTheDocument();
+    expect(within(net).getAllByText('-£7,000.00').length).toBeGreaterThan(0);
+  });
+
+  it('renders an unpaired Account without a net section', async () => {
+    const client = createClient();
+    render(<WmwAccountDetail accountId="IBKR_ISA" wmwClient={client} />);
+
+    expect(
+      await screen.findByRole('heading', { name: 'IBKR ISA' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('region', { name: wmw.accountDetail.netEquityLabel }),
     ).not.toBeInTheDocument();
   });
 

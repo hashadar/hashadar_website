@@ -227,6 +227,11 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(overview, 'classHeading', 'wmw.overview');
   requireString(overview, 'accountHeading', 'wmw.overview');
   requireString(overview, 'monthSlicerLabel', 'wmw.overview');
+  requireString(overview, 'basisLabel', 'wmw.overview');
+  requireString(overview, 'basisNetLabel', 'wmw.overview');
+  requireString(overview, 'basisGrossLabel', 'wmw.overview');
+  requireString(overview, 'netPositionLabel', 'wmw.overview');
+  requireString(overview, 'negativeEquityLabel', 'wmw.overview');
   requireString(overview, 'accountSearchLabel', 'wmw.overview');
   requireString(overview, 'columnPct', 'wmw.overview');
   requireString(overview, 'columnMom', 'wmw.overview');
@@ -258,6 +263,11 @@ export function assertValidWmwPage(data: unknown): void {
   requireString(accountDetail, 'cashflowsCountLabel', 'wmw.accountDetail');
   requireString(accountDetail, 'cashflowsNetLabel', 'wmw.accountDetail');
   requireString(accountDetail, 'cashflowsLastLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'cashflowsLoanRepaymentsLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'netEquityLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'negativeEquityLabel', 'wmw.accountDetail');
+  requireString(accountDetail, 'netHistoryHeading', 'wmw.accountDetail');
+  requireString(accountDetail, 'breakdownHeading', 'wmw.accountDetail');
   requireString(accountDetail, 'unitsHeading', 'wmw.accountDetail');
   requireString(accountDetail, 'mileageHeading', 'wmw.accountDetail');
   requireString(accountDetail, 'mwrHeading', 'wmw.accountDetail');
