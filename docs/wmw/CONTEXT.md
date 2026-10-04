@@ -47,7 +47,7 @@ A dated external money movement on an Account, used as an input to Money-Weighte
 _Avoid_: transaction (unqualified), expense, budget line, Transfer as a v1 type, Cashflows on CAT_CASH, open-ended Type vocabulary in v1
 
 **Net Worth**:
-The sum across Accounts of Balance × Category Sign for a **calendar month**. Each Account contributes its latest Balance dated in that month; if it has no Balance that month, it contributes **£0** (no carry-forward — missing means stopped tracking or exited). The headline figure is the latest month that has any Balances. A final £0 Balance on exit is preferred so closure is explicit.
+The sum across Accounts of Balance × Category Sign for a **calendar month**. Each Account contributes its latest Balance dated in that month; if it has no Balance that month, it contributes **£0** (no carry-forward — missing means stopped tracking or exited). The headline figure is the latest month that has any Balances. A final £0 Balance on exit is preferred so closure is explicit. The total is the same whether breakdowns are shown **Net** (Paired Accounts as one Net position) or **Gross** (every Account separately); only the breakdown changes.
 _Avoid_: equity (unqualified), wealth (vague), portfolio value (investable-only), carrying forward last known Balance, mixing different months into one total without a month grain
 
 ### Return
@@ -65,7 +65,11 @@ _Avoid_: every Account has a return, performance Account, treating cash as inves
 
 **Paired Accounts**:
 How a financed asset is modelled: one Asset Account plus one Liability Account sharing a **Pair ID** (e.g. car + car loan; later property + mortgage). Net equity in that asset is implied by the pair, not stored as a third Account. Unpaired Accounts leave Pair ID empty.
-_Avoid_: FinancedAsset as a v1 noun, single combined position, liability-only when the asset is also tracked, inferring pairs from Category alone
+_Avoid_: FinancedAsset as a v1 noun, a stored combined Account in the Workbook, liability-only when the asset is also tracked, inferring pairs from Category alone
+
+**Net position**:
+The display of a Paired Accounts set as one item: its contribution is the sum of Balance × Sign across its legs, its Class is the asset leg’s Class, and its name is the asset Account’s name. Derived in the lab; never stored in the Workbook or Snapshot. Unpaired Accounts are single-leg positions. Shown by default, with a **Gross** view that lists every Account separately. See [ADR 0012](../adr/0012-wmw-paired-accounts-shown-as-one-position.md).
+_Avoid_: FinancedAsset as a v1 noun, equity (unqualified), storing the net as a third Account
 
 **Pair ID**:
 Stable Workbook key on an Account that links it to its counterpart in a financed pair (e.g. `PAIR_TAYCAN`). Same value on both legs; empty means unpaired.

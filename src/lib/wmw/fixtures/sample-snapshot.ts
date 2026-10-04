@@ -54,7 +54,7 @@ export const SAMPLE_ACCOUNTS: WmwSnapshot['accounts'] = [
   },
   {
     accountId: 'CAR_PORSCHE',
-    accountName: 'Porsche Taycan',
+    accountName: 'Porsche Taycan 4S',
     platform: 'Private',
     categoryId: 'CAT_VEHICLE',
     currency: 'GBP',
@@ -62,7 +62,7 @@ export const SAMPLE_ACCOUNTS: WmwSnapshot['accounts'] = [
   },
   {
     accountId: 'LOAN_MOTONOVO',
-    accountName: 'Motonovo',
+    accountName: 'Motonovo Finance',
     platform: 'Motonovo',
     categoryId: 'CAT_LOAN',
     currency: 'GBP',

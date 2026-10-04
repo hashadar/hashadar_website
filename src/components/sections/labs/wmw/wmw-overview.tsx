@@ -12,6 +12,7 @@ import {
 } from '@/components/sections/labs/wmw/wmw-dense-table';
 import { WmwKpiStrip } from '@/components/sections/labs/wmw/wmw-kpi-strip';
 import { WmwNetWorthChart } from '@/components/sections/labs/wmw/wmw-net-worth-chart';
+import { WmwPairSubline } from '@/components/sections/labs/wmw/wmw-pair-subline';
 import { wmw } from '@/data';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import type { WmwFacade } from '@/lib/wmw/facade';
@@ -23,11 +24,16 @@ import {
 } from '@/lib/wmw/format';
 import {
   buildWmwOverviewView,
+  type WmwOverviewBasis,
   type WmwOverviewView,
 } from '@/lib/wmw/overview-view';
+import { summarisePositionLegs } from '@/lib/wmw/positions';
 import type { CalendarMonth } from '@/lib/wmw/types';
 import { getDefaultWmw } from '@/lib/wmw-default';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+
+const BASIS_OPTIONS: WmwOverviewBasis[] = ['net', 'gross'];
 
 function accountHref(accountId: string): string {
   return `/labs/wmw/accounts/${encodeURIComponent(accountId)}`;
@@ -54,6 +60,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     null,
   );
   const [accountQuery, setAccountQuery] = useState('');
+  const [basis, setBasis] = useState<WmwOverviewBasis>('net');
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [defaultClient, setDefaultClient] = useState<WmwFacade | null>(null);
@@ -86,6 +93,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
         const next = buildWmwOverviewView(snapshot, {
           selectedMonth,
           accountQuery,
+          basis,
         });
         setView(next);
         if (!selectedMonth && next.selectedMonth) {
@@ -99,7 +107,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     return () => {
       cancelled = true;
     };
-  }, [client, selectedMonth, accountQuery]);
+  }, [client, selectedMonth, accountQuery, basis]);
 
   async function handleRefresh() {
     if (!client || refreshing) return;
@@ -107,9 +115,13 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
     setRefreshError(null);
     try {
       const { snapshot } = await client.refresh();
+      // Follow the headline month when the user was already on the latest one.
+      const wasOnLatest =
+        !selectedMonth || selectedMonth === view?.headline?.month;
       const next = buildWmwOverviewView(snapshot, {
-        selectedMonth,
+        selectedMonth: wasOnLatest ? null : selectedMonth,
         accountQuery,
+        basis,
       });
       setView(next);
       if (next.selectedMonth) setSelectedMonth(next.selectedMonth);
@@ -127,6 +139,7 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
             buildWmwOverviewView(lastGood, {
               selectedMonth,
               accountQuery,
+              basis,
             }),
           );
           setLoadState('ready');
@@ -171,6 +184,35 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
           </Text>
         </div>
         <div className="flex flex-wrap items-end gap-2">
+          {view ? (
+            <div
+              role="group"
+              aria-label={copy.basisAriaLabel}
+              className="inline-flex w-fit rounded-md border border-[var(--border)] p-0.5"
+            >
+              {BASIS_OPTIONS.map((option) => {
+                const active = basis === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setBasis(option)}
+                    className={cn(
+                      'rounded-[5px] px-2.5 py-1 font-body text-xs transition-colors',
+                      active
+                        ? 'bg-[color-mix(in_oklab,var(--primary)_12%,transparent)] font-medium text-[var(--primary)]'
+                        : 'text-[var(--mono-500)] hover:text-[var(--foreground)]',
+                    )}
+                  >
+                    {option === 'net'
+                      ? copy.basisNetLabel
+                      : copy.basisGrossLabel}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
           {view && monthOptions.length > 0 ? (
             <label className="flex flex-col gap-0.5 font-body text-xs text-[var(--mono-500)]">
               {copy.monthSlicerLabel}
@@ -377,6 +419,11 @@ export function WmwOverview({ wmwClient }: WmwOverviewProps = {}) {
                       >
                         {row.accountName}
                       </Link>
+                      {row.pairLegs.length > 0 ? (
+                        <WmwPairSubline
+                          {...summarisePositionLegs(row.pairLegs)}
+                        />
+                      ) : null}
                     </WmwDenseCell>
                     <WmwDenseCell>{row.class}</WmwDenseCell>
                     <WmwDenseCell mono align="right">
