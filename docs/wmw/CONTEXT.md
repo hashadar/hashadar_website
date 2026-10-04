@@ -29,7 +29,7 @@ Classification of an Account: whether it is an Asset or Liability, its Class for
 _Avoid_: tag, type alone (Type is only one field of Category), account group (vague)
 
 **Class**:
-Human grouping within Categories (e.g. Cash & Savings, Retirement, Cryptocurrency, Cars). Used for Net Worth breakdowns, not as the MWR grain.
+Human grouping within Categories (e.g. Cash & Savings, Retirement, Cryptocurrency, Cars). Used for Net Worth breakdowns, not as the MWR grain. On the Net basis a Net position takes its asset Account’s Class.
 _Avoid_: Category (the parent concept), asset class as a synonym without the Category record
 
 **Sign**:
@@ -40,14 +40,14 @@ _Avoid_: weight, direction (vague)
 
 **Balance**:
 A dated observation of an Account’s value in currency, with optional **Units** (e.g. crypto quantity) and **Mileage** (vehicle). Currency Balance drives Net Worth and MWR; Units and Mileage are first-class history on Account detail (quantity/mileage trends and sanity checks), not inputs to MWR.
-_Avoid_: valuation (synonym only), position (vague), transaction, treating Units as the MWR basis
+_Avoid_: valuation (synonym only), position (unqualified; see Net position), transaction, treating Units as the MWR basis
 
 **Cashflow**:
 A dated external money movement on an Account, used as an input to Money-Weighted Return — not a day-to-day spending ledger. v1 `Transaction_Type` values are only **Contribution**, **Withdrawal**, and **Loan Repayment**; subtypes (personal, employer, tax relief) stay in Description. Cash & Savings Accounts do not carry Cashflows; funding an Investable Account from cash is recorded only on the investable leg. Transfer is not a v1 Cashflow type. Unknown Types are excluded from MWR.
 _Avoid_: transaction (unqualified), expense, budget line, Transfer as a v1 type, Cashflows on CAT_CASH, open-ended Type vocabulary in v1
 
 **Net Worth**:
-The sum across Accounts of Balance × Category Sign for a **calendar month**. Each Account contributes its latest Balance dated in that month; if it has no Balance that month, it contributes **£0** (no carry-forward — missing means stopped tracking or exited). The headline figure is the latest month that has any Balances. A final £0 Balance on exit is preferred so closure is explicit.
+The sum across Accounts of Balance × Category Sign for a **calendar month**. Each Account contributes its latest Balance dated in that month; if it has no Balance that month, it contributes **£0** (no carry-forward — missing means stopped tracking or exited). The headline figure is the latest month that has any Balances. A final £0 Balance on exit is preferred so closure is explicit. The Overview breaks Net Worth down on a **Net** basis (default: Paired Accounts combined into one Net position) or a **Gross** basis (one row per Account); the total, KPIs, and history are the same on both.
 _Avoid_: equity (unqualified), wealth (vague), portfolio value (investable-only), carrying forward last known Balance, mixing different months into one total without a month grain
 
 ### Return
@@ -64,8 +64,12 @@ _Avoid_: every Account has a return, performance Account, treating cash as inves
 ### Financed assets
 
 **Paired Accounts**:
-How a financed asset is modelled: one Asset Account plus one Liability Account sharing a **Pair ID** (e.g. car + car loan; later property + mortgage). Net equity in that asset is implied by the pair, not stored as a third Account. Unpaired Accounts leave Pair ID empty.
-_Avoid_: FinancedAsset as a v1 noun, single combined position, liability-only when the asset is also tracked, inferring pairs from Category alone
+How a financed asset is modelled: one Asset Account plus one Liability Account sharing a **Pair ID** (e.g. car + car loan; later property + mortgage). Each Account keeps its own Balances and Cashflows; net equity is implied by the pair, not stored as a third Account. Unpaired Accounts leave Pair ID empty.
+_Avoid_: FinancedAsset as a v1 noun, a stored combined Account in the Workbook, liability-only when the asset is also tracked, inferring pairs from Category alone
+
+**Net position**:
+The display of Paired Accounts as one item. Its contribution is the sum of Balance × Sign across every Account in the pair (more than one liability is summed, not last-wins); a leg with no Balance that month counts as £0. Name and Class come from the asset Account, so the net sits in the asset's Class (e.g. Cars). Negative equity is shown as a negative figure with a label. One detail page and one sidebar entry cover the whole position, including each leg's own history and Cashflows. Net is the default Overview basis; Gross shows each Account on its own. Derived at read time, never stored, and Net Worth is unaffected ([ADR 0012](../adr/0012-wmw-paired-accounts-shown-as-one-position.md)).
+_Avoid_: FinancedAsset, equity Account, netting inside the Workbook, a separate Class for financed positions
 
 **Pair ID**:
 Stable Workbook key on an Account that links it to its counterpart in a financed pair (e.g. `PAIR_TAYCAN`). Same value on both legs; empty means unpaired.
