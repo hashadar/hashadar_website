@@ -5,6 +5,12 @@
 import { computeNetWorth } from '@/lib/wmw/net-worth';
 import { computePairEquity } from '@/lib/wmw/paired-accounts';
 import type { PairEquity } from '@/lib/wmw/paired-accounts';
+import {
+  buildPositionDefs,
+  classRowsFromPositions,
+  computePositions,
+  type WmwPosition,
+} from '@/lib/wmw/positions';
 import type {
   AccountNetWorthRow,
   ClassNetWorthRow,
@@ -36,9 +42,18 @@ export type WmwDashboardClassRow = ClassNetWorthRow & {
   momDelta: number | null;
 };
 
+/** Net combines Paired Accounts into one position; Gross lists each Account. */
+export type WmwOverviewBasis = 'net' | 'gross';
+
 export type WmwDashboardAccountRow = AccountNetWorthRow & {
   pctOfNetWorth: number | null;
   momDelta: number | null;
+  /** Set on a net-basis row that combines Paired Accounts. */
+  netPosition: {
+    pairId: string | null;
+    accountIds: string[];
+    negativeEquity: boolean;
+  } | null;
 };
 
 export type WmwClassHistoryPoint = {
@@ -57,6 +72,7 @@ export type WmwOverviewView = {
   history: Array<{ month: string; total: number }>;
   classHistory: WmwClassHistoryPoint[];
   months: CalendarMonth[];
+  basis: WmwOverviewBasis;
   kpis: WmwOverviewKpis | null;
   classRows: WmwDashboardClassRow[];
   accountRows: WmwDashboardAccountRow[];
@@ -69,6 +85,8 @@ export type BuildWmwOverviewViewOptions = {
   selectedMonth?: CalendarMonth | null;
   /** Case-insensitive Account name / id filter. */
   accountQuery?: string;
+  /** Defaults to net. */
+  basis?: WmwOverviewBasis;
 };
 
 function pctOf(part: number, whole: number): number | null {
@@ -145,55 +163,137 @@ function buildKpis(
 }
 
 function enrichClassRows(
-  display: NetWorthMonth,
-  prior: NetWorthMonth | null,
+  rows: ClassNetWorthRow[],
+  priorRows: ClassNetWorthRow[] | null,
+  total: number,
 ): WmwDashboardClassRow[] {
   const priorByClass = new Map(
-    (prior?.byClass ?? []).map((row) => [row.class, row.contribution]),
+    (priorRows ?? []).map((row) => [row.class, row.contribution]),
   );
-  return [...display.byClass]
+  return [...rows]
     .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
     .map((row) => ({
       ...row,
-      pctOfNetWorth: pctOf(row.contribution, display.total),
-      momDelta: prior
+      pctOfNetWorth: pctOf(row.contribution, total),
+      momDelta: priorRows
         ? row.contribution - (priorByClass.get(row.class) ?? 0)
         : null,
     }));
 }
 
-function enrichAccountRows(
+function finishAccountRows(
+  rows: Array<{
+    row: AccountNetWorthRow;
+    netPosition: WmwDashboardAccountRow['netPosition'];
+    searchText: string;
+  }>,
+  priorContribution: Map<string, number>,
+  hasPrior: boolean,
+  total: number,
+  accountQuery: string,
+): WmwDashboardAccountRow[] {
+  const query = accountQuery.trim().toLowerCase();
+  return rows
+    .filter(({ searchText }) => !query || searchText.includes(query))
+    .sort(
+      (a, b) =>
+        Math.abs(b.row.contribution) - Math.abs(a.row.contribution),
+    )
+    .map(({ row, netPosition }) => ({
+      ...row,
+      pctOfNetWorth: pctOf(row.contribution, total),
+      momDelta: hasPrior
+        ? row.contribution - (priorContribution.get(row.accountId) ?? 0)
+        : null,
+      netPosition,
+    }));
+}
+
+function enrichGrossAccountRows(
   display: NetWorthMonth,
   prior: NetWorthMonth | null,
   accountQuery: string,
 ): WmwDashboardAccountRow[] {
-  const priorByAccount = new Map(
-    (prior?.byAccount ?? []).map((row) => [row.accountId, row.contribution]),
+  return finishAccountRows(
+    display.byAccount.map((row) => ({
+      row,
+      netPosition: null,
+      searchText: [row.accountName, row.accountId, row.class]
+        .join('\n')
+        .toLowerCase(),
+    })),
+    new Map((prior?.byAccount ?? []).map((r) => [r.accountId, r.contribution])),
+    prior !== null,
+    display.total,
+    accountQuery,
   );
-  const query = accountQuery.trim().toLowerCase();
-  return [...display.byAccount]
-    .filter((row) => {
-      if (!query) return true;
-      return (
-        row.accountName.toLowerCase().includes(query) ||
-        row.accountId.toLowerCase().includes(query) ||
-        row.class.toLowerCase().includes(query)
-      );
-    })
-    .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
-    .map((row) => ({
-      ...row,
-      pctOfNetWorth: pctOf(row.contribution, display.total),
-      momDelta: prior
-        ? row.contribution - (priorByAccount.get(row.accountId) ?? 0)
+}
+
+function positionRow(position: WmwPosition): AccountNetWorthRow {
+  if (!position.isNet) {
+    const leg = position.legs[0]!;
+    return {
+      accountId: leg.accountId,
+      accountName: leg.accountName,
+      categoryId: leg.categoryId,
+      class: leg.class,
+      balance: leg.balance,
+      sign: leg.sign,
+      contribution: leg.contribution,
+    };
+  }
+  return {
+    accountId: position.primaryAccountId,
+    accountName: position.name,
+    categoryId: position.categoryId,
+    class: position.class,
+    balance: position.contribution,
+    sign: 1,
+    contribution: position.contribution,
+  };
+}
+
+/** Rows keyed by the position's primary Account ID so MoM matches month to month. */
+function enrichNetAccountRows(
+  positions: WmwPosition[],
+  priorPositions: WmwPosition[] | null,
+  total: number,
+  accountQuery: string,
+): WmwDashboardAccountRow[] {
+  return finishAccountRows(
+    positions.map((position) => ({
+      row: positionRow(position),
+      netPosition: position.isNet
+        ? {
+            pairId: position.pairId,
+            accountIds: position.accountIds,
+            negativeEquity: position.negativeEquity,
+          }
         : null,
-    }));
+      searchText: [
+        position.legs.map((leg) => leg.accountName),
+        position.accountIds,
+        position.class,
+        position.pairId ?? '',
+      ]
+        .flat()
+        .join('\n')
+        .toLowerCase(),
+    })),
+    new Map(
+      (priorPositions ?? []).map((p) => [p.primaryAccountId, p.contribution]),
+    ),
+    priorPositions !== null,
+    total,
+    accountQuery,
+  );
 }
 
 export function buildWmwOverviewView(
   snapshot: WmwSnapshot,
   options: BuildWmwOverviewViewOptions = {},
 ): WmwOverviewView {
+  const basis = options.basis ?? 'net';
   const netWorth = computeNetWorth(snapshot);
   const accountNames = new Map(
     snapshot.accounts.map((a) => [a.accountId, a.accountName]),
@@ -203,12 +303,47 @@ export function buildWmwOverviewView(
     ? previousMonth(netWorth.months, displayMonth.month)
     : null;
   const pairs = computePairEquity(snapshot, displayMonth?.month);
-  const classRows = displayMonth
-    ? enrichClassRows(displayMonth, prior)
-    : [];
-  const accountRows = displayMonth
-    ? enrichAccountRows(displayMonth, prior, options.accountQuery ?? '')
-    : [];
+  const defs = basis === 'net' ? buildPositionDefs(snapshot) : [];
+  const accountQuery = options.accountQuery ?? '';
+
+  let classRows: WmwDashboardClassRow[] = [];
+  let accountRows: WmwDashboardAccountRow[] = [];
+  let classHistory: WmwClassHistoryPoint[];
+
+  if (basis === 'net') {
+    classHistory = netWorth.months.map((m) => ({
+      month: m.month,
+      byClass: classRowsFromPositions(computePositions(defs, m)),
+    }));
+    if (displayMonth) {
+      const positions = computePositions(defs, displayMonth);
+      const priorPositions = prior ? computePositions(defs, prior) : null;
+      classRows = enrichClassRows(
+        classRowsFromPositions(positions),
+        priorPositions ? classRowsFromPositions(priorPositions) : null,
+        displayMonth.total,
+      );
+      accountRows = enrichNetAccountRows(
+        positions,
+        priorPositions,
+        displayMonth.total,
+        accountQuery,
+      );
+    }
+  } else {
+    classHistory = netWorth.months.map((m) => ({
+      month: m.month,
+      byClass: m.byClass,
+    }));
+    if (displayMonth) {
+      classRows = enrichClassRows(
+        displayMonth.byClass,
+        prior ? prior.byClass : null,
+        displayMonth.total,
+      );
+      accountRows = enrichGrossAccountRows(displayMonth, prior, accountQuery);
+    }
+  }
 
   return {
     asOf: snapshot.asOf,
@@ -221,11 +356,9 @@ export function buildWmwOverviewView(
       month: m.month,
       total: m.total,
     })),
-    classHistory: netWorth.months.map((m) => ({
-      month: m.month,
-      byClass: m.byClass,
-    })),
+    classHistory,
     months: netWorth.months.map((m) => m.month),
+    basis,
     kpis: displayMonth ? buildKpis(displayMonth, prior) : null,
     classRows,
     accountRows,

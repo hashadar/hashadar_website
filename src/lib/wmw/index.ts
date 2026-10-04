@@ -140,6 +140,7 @@ export {
   WMW_BROKERAGE_CATEGORY_ID,
   WMW_CASH_CATEGORY_ID,
   type BuildWmwOverviewViewOptions,
+  type WmwOverviewBasis,
   type WmwClassHistoryPoint,
   type WmwDashboardAccountRow,
   type WmwDashboardClassRow,
@@ -157,8 +158,23 @@ export {
 export {
   isAccountActiveInSnapshot,
   partitionAccountsByActivity,
+  partitionPositionsByActivity,
   type WmwAccountActivityGroups,
+  type WmwNavPosition,
+  type WmwPositionActivityGroups,
 } from '@/lib/wmw/account-activity';
+
+export {
+  buildPositionDefs,
+  classRowsFromPositions,
+  computePositionHistory,
+  computePositions,
+  findPositionDef,
+  type PositionLegRole,
+  type WmwPosition,
+  type WmwPositionDef,
+  type WmwPositionLeg,
+} from '@/lib/wmw/positions';
 
 export {
   formatAnnualisedRate,

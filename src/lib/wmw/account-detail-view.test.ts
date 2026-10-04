@@ -165,4 +165,97 @@ describe('buildWmwAccountDetailView', () => {
     expect(view.unitsHistory).toBeNull();
     expect(view.mileageHistory).toBeNull();
   });
+
+  describe('Paired Accounts', () => {
+    const loanCashflows = [
+      {
+        date: '2026-02-15',
+        accountId: 'LOAN_MOTONOVO',
+        amount: -350,
+        transactionType: 'Loan Repayment',
+        description: 'Monthly',
+      },
+      {
+        date: '2026-03-15',
+        accountId: 'LOAN_MOTONOVO',
+        amount: -350,
+        transactionType: 'Loan Repayment',
+        description: 'Monthly',
+      },
+    ];
+
+    it('resolves the loan ID to the same combined view as the car', () => {
+      const snapshot = buildSampleSnapshot({ cashflows: loanCashflows });
+      const fromCar = buildWmwAccountDetailView(snapshot, 'CAR_PORSCHE');
+      const fromLoan = buildWmwAccountDetailView(snapshot, 'LOAN_MOTONOVO');
+
+      expect(fromCar).toEqual(fromLoan);
+      expect(fromCar.status).toBe('ready');
+      if (fromCar.status !== 'ready') return;
+      expect(fromCar.account.accountId).toBe('CAR_PORSCHE');
+      expect(fromCar.latestBalance).toBe(77_000);
+      expect(fromCar.mileageHistory?.map((p) => p.value)).toEqual([400, 400]);
+    });
+
+    it('summarises net equity and keeps every leg detail', () => {
+      const view = buildWmwAccountDetailView(
+        buildSampleSnapshot({ cashflows: loanCashflows }),
+        'LOAN_MOTONOVO',
+      );
+      expect(view.status).toBe('ready');
+      if (view.status !== 'ready') return;
+
+      const position = view.position!;
+      expect(position.name).toBe('Porsche Taycan');
+      expect(position.pairId).toBe('PAIR_TAYCAN');
+      expect(position.netEquity).toBe(30_000);
+      expect(position.netMomDelta).toBe(0);
+      expect(position.negativeEquity).toBe(false);
+      expect(position.latestMonth).toBe('2026-03');
+      expect(position.netHistory.map((p) => p.month)).toEqual([
+        '2026-01',
+        '2026-02',
+        '2026-03',
+      ]);
+      expect(position.legs.map((l) => [l.accountId, l.contribution])).toEqual([
+        ['CAR_PORSCHE', 77_000],
+        ['LOAN_MOTONOVO', -47_000],
+      ]);
+
+      const [car, loan] = position.legDetails;
+      expect(car?.role).toBe('asset');
+      expect(loan?.role).toBe('liability');
+      expect(loan?.latestBalance).toBe(47_000);
+      expect(loan?.balanceHistory.map((p) => p.balance)).toEqual([
+        50_000, 48_000, 47_000,
+      ]);
+      expect(loan?.cashflowSummary).toMatchObject({
+        count: 2,
+        loanRepaymentTotal: 700,
+      });
+    });
+
+    it('reports negative equity on the summary', () => {
+      const view = buildWmwAccountDetailView(
+        buildSampleSnapshot({
+          balances: [
+            { date: '2026-03-31', accountId: 'CAR_PORSCHE', balance: 40_000, units: null, mileage: null },
+            { date: '2026-03-31', accountId: 'LOAN_MOTONOVO', balance: 47_000, units: null, mileage: null },
+          ],
+        }),
+        'CAR_PORSCHE',
+      );
+      expect(view.status).toBe('ready');
+      if (view.status !== 'ready') return;
+      expect(view.position?.netEquity).toBe(-7_000);
+      expect(view.position?.negativeEquity).toBe(true);
+    });
+
+    it('leaves unpaired Accounts without a position', () => {
+      const view = buildWmwAccountDetailView(buildSampleSnapshot(), 'IBKR_ISA');
+      expect(view.status).toBe('ready');
+      if (view.status !== 'ready') return;
+      expect(view.position).toBeNull();
+    });
+  });
 });

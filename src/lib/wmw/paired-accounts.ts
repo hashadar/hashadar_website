@@ -68,7 +68,7 @@ function legFromMonth(
   };
 }
 
-function isAssetCategory(category: WmwCategory): boolean {
+export function isAssetCategory(category: WmwCategory): boolean {
   if (category.type === 'Asset') return true;
   if (category.type === 'Liability') return false;
   return category.sign >= 0;
