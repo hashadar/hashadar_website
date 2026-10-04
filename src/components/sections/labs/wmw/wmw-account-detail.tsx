@@ -4,13 +4,20 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Heading, Text } from '@/components/ui';
 import { momDeltaClassName } from '@/components/sections/labs/wmw/wmw-dense-table';
+import {
+  formatSignedGbp,
+  formatSignedRate,
+  WmwAccountDetailHeader,
+  WmwAccountMetadata,
+  WmwCashflowSummary,
+} from '@/components/sections/labs/wmw/wmw-account-detail-parts';
+import { WmwPairDetail } from '@/components/sections/labs/wmw/wmw-pair-detail';
 import { WmwSeriesChart } from '@/components/sections/labs/wmw/wmw-series-chart';
 import { wmw } from '@/data';
 import type { WmwFacade } from '@/lib/wmw/facade';
 import type { MwrUnavailableReason } from '@/lib/wmw/mwr';
 import {
   formatAnnualisedRate,
-  formatAsOf,
   formatGbp,
   formatIsoDate,
   formatMileage,
@@ -33,20 +40,6 @@ type LoadState = 'loading' | 'ready' | 'error';
 type SeriesView = 'balance' | 'performance';
 
 const SERIES_VIEWS: SeriesView[] = ['balance', 'performance'];
-
-function formatSignedGbp(amount: number): string {
-  const formatted = formatGbp(Math.abs(amount), true);
-  if (amount > 0) return `+${formatted}`;
-  if (amount < 0) return `−${formatted}`;
-  return formatted;
-}
-
-function formatSignedRate(rate: number): string {
-  const formatted = formatAnnualisedRate(Math.abs(rate));
-  if (rate > 0) return `+${formatted}`;
-  if (rate < 0) return `−${formatted}`;
-  return formatted;
-}
 
 export function WmwAccountDetail({
   accountId,
@@ -116,6 +109,10 @@ export function WmwAccountDetail({
     );
   }
 
+  if (view.pair) {
+    return <WmwPairDetail view={view} pair={view.pair} />;
+  }
+
   const periodLabel = (value: 'YTD' | '1Y' | 'Max') => {
     if (value === 'YTD') return wmw.overview.periodYtd;
     if (value === '1Y') return wmw.overview.period1y;
@@ -125,49 +122,14 @@ export function WmwAccountDetail({
   const mwrReasonLabel = (reason: MwrUnavailableReason) =>
     wmw.overview.mwrReasons[reason] ?? wmw.overview.mwrUnavailableLabel;
 
-  const meta = [
-    { label: copy.fieldPlatform, value: view.account.platform },
-    {
-      label: copy.fieldCategory,
-      value: view.category?.categoryId ?? view.account.categoryId,
-    },
-    {
-      label: copy.fieldClass,
-      value: view.category?.class ?? copy.classUnknownLabel,
-    },
-    {
-      label: copy.fieldType,
-      value: view.category?.type ?? copy.typeUnknownLabel,
-    },
-    {
-      label: copy.fieldPair,
-      value: view.account.pairId ?? copy.pairNoneLabel,
-      mono: Boolean(view.account.pairId),
-    },
-  ];
-
-  const summary = view.cashflowSummary;
   const momClass = momDeltaClassName(view.balanceMomDelta);
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-0.5">
-          <Heading size="sm" as="h2">
-            {view.account.accountName}
-          </Heading>
-          <Text variant="muted" className="text-sm">
-            {wmw.overview.asOfLabel}:{' '}
-            <span className="tabular-nums">{formatAsOf(view.asOf)}</span>
-          </Text>
-        </div>
-        <Link
-          href="/labs/wmw"
-          className="inline-flex font-body text-sm text-[var(--foreground)] underline underline-offset-4"
-        >
-          {copy.backToOverviewLabel}
-        </Link>
-      </div>
+      <WmwAccountDetailHeader
+        name={view.account.accountName}
+        asOf={view.asOf}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
         <div className="min-w-0 space-y-4">
@@ -339,78 +301,17 @@ export function WmwAccountDetail({
             <Heading size="sm" as="h3">
               {copy.metadataHeading}
             </Heading>
-            <dl className="space-y-2">
-              {meta.map((item) => (
-                <div key={item.label} className="min-w-0">
-                  <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
-                    {item.label}
-                  </dt>
-                  <dd
-                    className={
-                      item.mono
-                        ? 'mt-0.5 truncate font-mono text-sm tabular-nums text-[var(--foreground)]'
-                        : 'mt-0.5 truncate font-body text-sm text-[var(--foreground)]'
-                    }
-                  >
-                    {item.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <WmwAccountMetadata
+              account={view.account}
+              category={view.category}
+            />
           </section>
 
           <section className="space-y-2">
             <Heading size="sm" as="h3">
               {copy.cashflowsHeading}
             </Heading>
-            {summary.count === 0 ? (
-              <Text variant="muted" className="text-sm">
-                {copy.cashflowsEmptyLabel}
-              </Text>
-            ) : (
-              <dl className="space-y-2">
-                <div>
-                  <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
-                    {copy.cashflowsCountLabel}
-                  </dt>
-                  <dd className="mt-0.5 font-mono text-sm tabular-nums text-[var(--foreground)]">
-                    {summary.count}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
-                    {copy.cashflowsNetLabel}
-                  </dt>
-                  <dd className="mt-0.5 font-mono text-sm tabular-nums text-[var(--foreground)]">
-                    {formatGbp(summary.netAmount, true)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
-                    {copy.cashflowsContributionsLabel}
-                  </dt>
-                  <dd className="mt-0.5 font-mono text-sm tabular-nums text-[var(--foreground)]">
-                    {formatGbp(summary.contributionTotal, true)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
-                    {copy.cashflowsWithdrawalsLabel}
-                  </dt>
-                  <dd className="mt-0.5 font-mono text-sm tabular-nums text-[var(--foreground)]">
-                    {formatGbp(summary.withdrawalTotal, true)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-body text-[0.65rem] uppercase tracking-[0.08em] text-[var(--mono-500)]">
-                    {copy.cashflowsLastLabel}
-                  </dt>
-                  <dd className="mt-0.5 font-mono text-sm tabular-nums text-[var(--foreground)]">
-                    {summary.lastDate ? formatIsoDate(summary.lastDate) : '—'}
-                  </dd>
-                </div>
-              </dl>
-            )}
+            <WmwCashflowSummary summary={view.cashflowSummary} />
           </section>
         </aside>
       </div>

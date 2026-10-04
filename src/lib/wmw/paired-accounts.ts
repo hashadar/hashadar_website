@@ -3,7 +3,11 @@
  * Equity = asset leg Balance − liability leg Balance (legs via Category Type / Sign).
  */
 
-import { computeNetWorth, type NetWorthMonth } from '@/lib/wmw/net-worth';
+import {
+  computeNetWorth,
+  type NetWorthMonth,
+  type NetWorthResult,
+} from '@/lib/wmw/net-worth';
 import type {
   CalendarMonth,
   WmwAccount,
@@ -68,7 +72,7 @@ function legFromMonth(
   };
 }
 
-function isAssetCategory(category: WmwCategory): boolean {
+export function isAssetCategory(category: WmwCategory): boolean {
   if (category.type === 'Asset') return true;
   if (category.type === 'Liability') return false;
   return category.sign >= 0;
@@ -81,8 +85,9 @@ function isAssetCategory(category: WmwCategory): boolean {
 export function computePairEquity(
   snapshot: WmwSnapshot,
   month?: CalendarMonth,
+  precomputed?: NetWorthResult,
 ): PairEquity[] {
-  const netWorth = computeNetWorth(snapshot);
+  const netWorth = precomputed ?? computeNetWorth(snapshot);
   const targetMonth =
     month ??
     netWorth.headline?.month ??

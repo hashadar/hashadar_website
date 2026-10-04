@@ -54,23 +54,101 @@ describe('WmwAccountDetail', () => {
     ).toHaveAttribute('href', '/labs/wmw');
   });
 
-  it('renders Balance and Mileage without Performance for the vehicle Account', async () => {
-    const client = createClient();
+  it('renders one combined page for the paired car and loan', async () => {
+    const client = createClient(
+      buildSampleSnapshot({
+        cashflows: [
+          {
+            date: '2026-02-28',
+            accountId: 'LOAN_MOTONOVO',
+            amount: 2_000,
+            transactionType: 'Loan Repayment',
+            description: 'Monthly',
+          },
+        ],
+      }),
+    );
     render(
       <WmwAccountDetail accountId="CAR_PORSCHE" wmwClient={client} />,
     );
 
     expect(
-      await screen.findByRole('heading', { name: 'Porsche Taycan' }),
+      await screen.findByRole('heading', {
+        level: 2,
+        name: 'Porsche Taycan 4S',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(wmw.accountDetail.pairEquityLabel)).toBeInTheDocument();
+    expect(screen.getByText('£30,000.00')).toBeInTheDocument();
+    expect(
+      screen.getByText('Asset £77,000 less liability £47,000'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: wmw.accountDetail.pairEquityChartAriaLabel,
+      }),
+    ).toBeInTheDocument();
+
+    // Car value, Mileage, and loan Balance history
+    expect(
+      screen.getByRole('img', {
+        name: `${wmw.accountDetail.balanceChartAriaLabel}: Porsche Taycan 4S`,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: `${wmw.accountDetail.balanceChartAriaLabel}: Motonovo Finance`,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: `${wmw.accountDetail.mileageChartAriaLabel}: Porsche Taycan 4S`,
+      }),
+    ).toBeInTheDocument();
+
+    // Both Accounts' metadata and the loan's Loan Repayment Cashflows
+    expect(screen.getByText('Private')).toBeInTheDocument();
+    expect(screen.getByText('Cars')).toBeInTheDocument();
+    expect(screen.getByText('Loans')).toBeInTheDocument();
+    expect(
+      screen.getByText(wmw.accountDetail.cashflowsRepaymentsLabel),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(wmw.accountDetail.mwrHeading),
+    ).not.toBeInTheDocument();
+  });
+
+  it('resolves the loan Account ID to the same combined page', async () => {
+    const client = createClient();
+    render(
+      <WmwAccountDetail accountId="LOAN_MOTONOVO" wmwClient={client} />,
+    );
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 2,
+        name: 'Porsche Taycan 4S',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', {
+        name: wmw.accountDetail.notFoundHeading,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders Balance without Performance for an unpaired non-investable Account', async () => {
+    const client = createClient();
+    render(<WmwAccountDetail accountId="CASH_HSBC" wmwClient={client} />);
+
+    expect(
+      await screen.findByRole('heading', { name: 'HSBC Current' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', {
         name: wmw.accountDetail.metadataHeading,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Private')).toBeInTheDocument();
-    expect(screen.getByText('Cars')).toBeInTheDocument();
-    expect(screen.getByText('PAIR_TAYCAN')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', {
         name: wmw.accountDetail.seriesViewBalanceLabel,
@@ -86,16 +164,6 @@ describe('WmwAccountDetail', () => {
         name: wmw.accountDetail.seriesViewPerformanceLabel,
       }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', {
-        name: wmw.accountDetail.mileageHeading,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('img', {
-        name: wmw.accountDetail.mileageChartAriaLabel,
-      }),
-    ).toBeInTheDocument();
     expect(
       screen.getByText(wmw.accountDetail.cashflowsEmptyLabel),
     ).toBeInTheDocument();

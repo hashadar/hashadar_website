@@ -5,6 +5,12 @@
 import { computeNetWorth } from '@/lib/wmw/net-worth';
 import { computePairEquity } from '@/lib/wmw/paired-accounts';
 import type { PairEquity } from '@/lib/wmw/paired-accounts';
+import {
+  groupMonthIntoPositions,
+  isCombinedPosition,
+  positionClassRows,
+  type WmwPositionLeg,
+} from '@/lib/wmw/positions';
 import type {
   AccountNetWorthRow,
   ClassNetWorthRow,
@@ -16,6 +22,9 @@ import type { CalendarMonth, WmwSnapshot } from '@/lib/wmw/types';
 export const WMW_BROKERAGE_CATEGORY_ID = 'CAT_BROKERAGE';
 export const WMW_CASH_CATEGORY_ID = 'CAT_CASH';
 export const WMW_PENSION_CATEGORY_ID = 'CAT_PENSION';
+
+/** Net groups Paired Accounts into one position; Gross lists every Account. */
+export type WmwOverviewBasis = 'net' | 'gross';
 
 export type WmwKpiMetric = {
   total: number;
@@ -39,6 +48,8 @@ export type WmwDashboardClassRow = ClassNetWorthRow & {
 export type WmwDashboardAccountRow = AccountNetWorthRow & {
   pctOfNetWorth: number | null;
   momDelta: number | null;
+  /** Legs behind a combined Net position; empty for single Accounts. */
+  pairLegs: WmwPositionLeg[];
 };
 
 export type WmwClassHistoryPoint = {
@@ -49,6 +60,7 @@ export type WmwClassHistoryPoint = {
 export type WmwOverviewView = {
   asOf: string;
   warnings: WmwSnapshot['warnings'];
+  basis: WmwOverviewBasis;
   netWorth: NetWorthResult;
   headline: NetWorthMonth | null;
   /** Month driving Class / Account / pair tables (slicer). */
@@ -67,8 +79,17 @@ export type WmwOverviewView = {
 export type BuildWmwOverviewViewOptions = {
   /** Defaults to headline month when omitted / unknown. */
   selectedMonth?: CalendarMonth | null;
-  /** Case-insensitive Account name / id filter. */
+  /** Case-insensitive Account name / id filter (any leg of a Net position). */
   accountQuery?: string;
+  /** Defaults to `net`. KPIs and totals are identical in both bases. */
+  basis?: WmwOverviewBasis;
+};
+
+type BasisRow = AccountNetWorthRow & { pairLegs: WmwPositionLeg[] };
+
+type BasisMonth = {
+  rows: BasisRow[];
+  classes: ClassNetWorthRow[];
 };
 
 function pctOf(part: number, whole: number): number | null {
@@ -144,46 +165,80 @@ function buildKpis(
   };
 }
 
+/** Rows and Class totals for a month on the chosen basis. */
+function basisMonth(
+  snapshot: WmwSnapshot,
+  month: NetWorthMonth,
+  basis: WmwOverviewBasis,
+): BasisMonth {
+  if (basis === 'gross') {
+    return {
+      rows: month.byAccount.map((row) => ({ ...row, pairLegs: [] })),
+      classes: month.byClass,
+    };
+  }
+  const positions = groupMonthIntoPositions(snapshot, month);
+  return {
+    rows: positions.map((position) => ({
+      accountId: position.accountId,
+      accountName: position.accountName,
+      categoryId: position.categoryId,
+      class: position.class,
+      balance: position.balance,
+      sign: position.sign,
+      contribution: position.contribution,
+      pairLegs: isCombinedPosition(position) ? position.legs : [],
+    })),
+    classes: positionClassRows(positions),
+  };
+}
+
 function enrichClassRows(
-  display: NetWorthMonth,
-  prior: NetWorthMonth | null,
+  display: BasisMonth,
+  total: number,
+  prior: BasisMonth | null,
 ): WmwDashboardClassRow[] {
   const priorByClass = new Map(
-    (prior?.byClass ?? []).map((row) => [row.class, row.contribution]),
+    (prior?.classes ?? []).map((row) => [row.class, row.contribution]),
   );
-  return [...display.byClass]
+  return [...display.classes]
     .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
     .map((row) => ({
       ...row,
-      pctOfNetWorth: pctOf(row.contribution, display.total),
+      pctOfNetWorth: pctOf(row.contribution, total),
       momDelta: prior
         ? row.contribution - (priorByClass.get(row.class) ?? 0)
         : null,
     }));
 }
 
+function matchesQuery(row: BasisRow, query: string): boolean {
+  const names = [row, ...row.pairLegs];
+  return (
+    names.some(
+      (item) =>
+        item.accountName.toLowerCase().includes(query) ||
+        item.accountId.toLowerCase().includes(query),
+    ) || row.class.toLowerCase().includes(query)
+  );
+}
+
 function enrichAccountRows(
-  display: NetWorthMonth,
-  prior: NetWorthMonth | null,
+  display: BasisMonth,
+  total: number,
+  prior: BasisMonth | null,
   accountQuery: string,
 ): WmwDashboardAccountRow[] {
   const priorByAccount = new Map(
-    (prior?.byAccount ?? []).map((row) => [row.accountId, row.contribution]),
+    (prior?.rows ?? []).map((row) => [row.accountId, row.contribution]),
   );
   const query = accountQuery.trim().toLowerCase();
-  return [...display.byAccount]
-    .filter((row) => {
-      if (!query) return true;
-      return (
-        row.accountName.toLowerCase().includes(query) ||
-        row.accountId.toLowerCase().includes(query) ||
-        row.class.toLowerCase().includes(query)
-      );
-    })
+  return display.rows
+    .filter((row) => !query || matchesQuery(row, query))
     .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
     .map((row) => ({
       ...row,
-      pctOfNetWorth: pctOf(row.contribution, display.total),
+      pctOfNetWorth: pctOf(row.contribution, total),
       momDelta: prior
         ? row.contribution - (priorByAccount.get(row.accountId) ?? 0)
         : null,
@@ -194,6 +249,7 @@ export function buildWmwOverviewView(
   snapshot: WmwSnapshot,
   options: BuildWmwOverviewViewOptions = {},
 ): WmwOverviewView {
+  const basis = options.basis ?? 'net';
   const netWorth = computeNetWorth(snapshot);
   const accountNames = new Map(
     snapshot.accounts.map((a) => [a.accountId, a.accountName]),
@@ -202,17 +258,30 @@ export function buildWmwOverviewView(
   const prior = displayMonth
     ? previousMonth(netWorth.months, displayMonth.month)
     : null;
-  const pairs = computePairEquity(snapshot, displayMonth?.month);
-  const classRows = displayMonth
-    ? enrichClassRows(displayMonth, prior)
-    : [];
-  const accountRows = displayMonth
-    ? enrichAccountRows(displayMonth, prior, options.accountQuery ?? '')
-    : [];
+  const pairs = computePairEquity(snapshot, displayMonth?.month, netWorth);
+
+  const displayBasis = displayMonth
+    ? basisMonth(snapshot, displayMonth, basis)
+    : null;
+  const priorBasis = prior ? basisMonth(snapshot, prior, basis) : null;
+  const classRows =
+    displayMonth && displayBasis
+      ? enrichClassRows(displayBasis, displayMonth.total, priorBasis)
+      : [];
+  const accountRows =
+    displayMonth && displayBasis
+      ? enrichAccountRows(
+          displayBasis,
+          displayMonth.total,
+          priorBasis,
+          options.accountQuery ?? '',
+        )
+      : [];
 
   return {
     asOf: snapshot.asOf,
     warnings: snapshot.warnings,
+    basis,
     netWorth,
     headline: netWorth.headline,
     selectedMonth: displayMonth?.month ?? null,
@@ -223,7 +292,7 @@ export function buildWmwOverviewView(
     })),
     classHistory: netWorth.months.map((m) => ({
       month: m.month,
-      byClass: m.byClass,
+      byClass: basisMonth(snapshot, m, basis).classes,
     })),
     months: netWorth.months.map((m) => m.month),
     kpis: displayMonth ? buildKpis(displayMonth, prior) : null,
