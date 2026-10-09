@@ -44,8 +44,8 @@
     "unified": "^11.0.4"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "^1.24.0",
-    "@aws-amplify/backend-cli": "^1.9.0",
+    "@aws-amplify/backend": "^1.25.1",
+    "@aws-amplify/backend-cli": "^1.10.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
