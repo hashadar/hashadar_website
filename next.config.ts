@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // Extra hostnames allowed to reach `next dev` (e.g. a phone on the LAN); dev only.
+  allowedDevOrigins: (process.env.DEV_ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((host) => host.trim())
+    .filter(Boolean),
   async headers() {
     // Court Board is a public-write Lab (ADR 0013): its pages are never indexed,
     // and the Organiser link is a bearer token that must not leak via Referer or caches.

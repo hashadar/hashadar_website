@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: `${courtBoard.heading} - ${site.metadata.author}`,
   description: courtBoard.description,
   robots: { index: false, follow: false },
+  // Phones turn bare numbers into tel: links before React hydrates, which breaks
+  // hydration of the phone numbers shown on these pages.
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
 export default function CourtBoardLayout({

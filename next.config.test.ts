@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import nextConfig from './next.config';
 
 describe('next.config image optimisation', () => {
@@ -13,6 +13,20 @@ describe('next.config image optimisation', () => {
         expect.objectContaining({ hostname: '**.cloudfront.net' }),
       ]),
     );
+  });
+});
+
+describe('next.config dev origins', () => {
+  it('allows nothing extra unless DEV_ALLOWED_ORIGINS is set', () => {
+    expect(nextConfig.allowedDevOrigins).toEqual([]);
+  });
+
+  it('reads a comma-separated list of hostnames from DEV_ALLOWED_ORIGINS', async () => {
+    vi.stubEnv('DEV_ALLOWED_ORIGINS', ' 192.168.1.32 ,phone.local,, ');
+    vi.resetModules();
+    const { default: config } = await import('./next.config');
+    expect(config.allowedDevOrigins).toEqual(['192.168.1.32', 'phone.local']);
+    vi.unstubAllEnvs();
   });
 });
 
