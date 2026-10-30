@@ -475,3 +475,32 @@ export function assertValidCareerProfile(data: unknown): void {
     },
   );
 }
+
+export function assertValidCourtBoardPage(data: unknown): void {
+  const page = requireRecord(data, 'courtBoard');
+  requireString(page, 'heading', 'courtBoard');
+  requireString(page, 'description', 'courtBoard');
+  const lab = requireRecord(page.lab, 'courtBoard.lab');
+  for (const key of [
+    'eyebrow',
+    'lede',
+    'intro',
+    'howItWorksHeading',
+    'noLinkNote',
+    'demoHeading',
+    'demoNote',
+  ]) {
+    requireString(lab, key, 'courtBoard.lab');
+  }
+  requireArray(lab.howItWorks, 'courtBoard.lab.howItWorks');
+  const tiers = requireRecord(page.tiers, 'courtBoard.tiers');
+  for (const key of ['employee', 'alumni', 'external']) {
+    requireString(tiers, key, 'courtBoard.tiers');
+  }
+  const errors = requireRecord(page.errors, 'courtBoard.errors');
+  requireString(errors, 'generic', 'courtBoard.errors');
+  requireRecord(errors.byCode, 'courtBoard.errors.byCode');
+  requireRecord(errors.byField, 'courtBoard.errors.byField');
+  requireRecord(page.player, 'courtBoard.player');
+  requireRecord(page.organiser, 'courtBoard.organiser');
+}

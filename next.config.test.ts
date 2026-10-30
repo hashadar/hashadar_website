@@ -23,3 +23,26 @@ describe('next.config R3F / three', () => {
     );
   });
 });
+
+describe('next.config Court Board headers', () => {
+  it('keeps every Court Board route out of search indexes', async () => {
+    const rules = (await nextConfig.headers?.()) ?? [];
+    const all = rules.find((rule) => rule.source === '/labs/court-board/:path*');
+    expect(all?.headers).toEqual(
+      expect.arrayContaining([{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]),
+    );
+  });
+
+  it('stops the Organiser link leaking through Referer or caches', async () => {
+    const rules = (await nextConfig.headers?.()) ?? [];
+    for (const source of ['/labs/court-board/o', '/labs/court-board/o/:path*']) {
+      const rule = rules.find((r) => r.source === source);
+      expect(rule?.headers).toEqual(
+        expect.arrayContaining([
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'Cache-Control', value: 'no-store' },
+        ]),
+      );
+    }
+  });
+});

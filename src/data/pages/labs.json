@@ -18,6 +18,13 @@
       "description": "Balances, class mix, and account returns from a live workbook.",
       "href": "/labs/wmw",
       "ctaLabel": "Open What's My Worth"
+    },
+    {
+      "title": "Court Board",
+      "lede": "Club session signups",
+      "description": "One link per club session: take a place, see a live rule-ordered list, cancel from any device.",
+      "href": "/labs/court-board",
+      "ctaLabel": "Open Court Board"
     }
   ]
 }

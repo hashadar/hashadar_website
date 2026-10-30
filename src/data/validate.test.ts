@@ -13,6 +13,7 @@ import {
   assertValidPortfolioPage,
   assertValidSite,
   assertValidWmwPage,
+  assertValidCourtBoardPage,
   validateDataFile,
 } from '@/data/validate';
 import homeData from '@/data/pages/home.json';
@@ -22,6 +23,7 @@ import portfolioData from '@/data/pages/portfolio.json';
 import labsData from '@/data/pages/labs.json';
 import jobOsData from '@/data/pages/job-os.json';
 import wmwData from '@/data/pages/wmw.json';
+import courtBoardData from '@/data/pages/court-board.json';
 import loginData from '@/data/pages/login.json';
 import adminData from '@/data/pages/admin.json';
 import footerData from '@/data/common/footer.json';
@@ -82,6 +84,9 @@ describe('validateDataFile', () => {
     ).not.toThrow();
     expect(() =>
       validateDataFile('pages/wmw.json', wmwData, assertValidWmwPage),
+    ).not.toThrow();
+    expect(() =>
+      validateDataFile('pages/court-board.json', courtBoardData, assertValidCourtBoardPage),
     ).not.toThrow();
     expect(() =>
       validateDataFile('pages/login.json', loginData, assertValidLoginPage),
