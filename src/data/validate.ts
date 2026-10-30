@@ -408,6 +408,29 @@ export function assertValidAdminPage(data: unknown): void {
   requireRecord(page.posts, 'admin.posts');
   requireRecord(page.photos, 'admin.photos');
   requireRecord(page.homePhoto, 'admin.homePhoto');
+  const courtBoard = requireRecord(page.courtBoard, 'admin.courtBoard');
+  for (const key of [
+    'heading',
+    'description',
+    'nameLabel',
+    'venueLabel',
+    'startLabel',
+    'endLabel',
+    'createLabel',
+    'creatingLabel',
+    'linkHeading',
+    'linkWarning',
+    'copyLabel',
+    'copiedLabel',
+    'copyFailedLabel',
+    'dismissLabel',
+  ]) {
+    requireString(courtBoard, key, 'admin.courtBoard');
+  }
+  const errors = requireRecord(courtBoard.errors, 'admin.courtBoard.errors');
+  for (const key of ['invalid', 'unauthorised', 'unavailable']) {
+    requireString(errors, key, 'admin.courtBoard.errors');
+  }
 }
 
 export function assertValidNavigation(data: unknown): void {
@@ -474,4 +497,60 @@ export function assertValidCareerProfile(data: unknown): void {
       requireString(cert, 'issued', `careerProfile.certifications.items[${index}]`);
     },
   );
+}
+
+function assertLegalSection(value: unknown, context: string): void {
+  const section = requireRecord(value, context);
+  requireString(section, 'heading', context);
+  requireArray(section.paragraphs, `${context}.paragraphs`);
+  if (section.items !== undefined) requireArray(section.items, `${context}.items`);
+}
+
+export function assertValidCourtBoardPage(data: unknown): void {
+  const page = requireRecord(data, 'courtBoard');
+  requireString(page, 'heading', 'courtBoard');
+  requireString(page, 'description', 'courtBoard');
+  const lab = requireRecord(page.lab, 'courtBoard.lab');
+  for (const key of [
+    'eyebrow',
+    'lede',
+    'intro',
+    'howItWorksHeading',
+    'noLinkNote',
+    'demoHeading',
+    'demoNote',
+  ]) {
+    requireString(lab, key, 'courtBoard.lab');
+  }
+  requireArray(lab.howItWorks, 'courtBoard.lab.howItWorks');
+  const tiers = requireRecord(page.tiers, 'courtBoard.tiers');
+  for (const key of ['employee', 'alumni', 'external']) {
+    requireString(tiers, key, 'courtBoard.tiers');
+  }
+  const errors = requireRecord(page.errors, 'courtBoard.errors');
+  requireString(errors, 'generic', 'courtBoard.errors');
+  requireRecord(errors.byCode, 'courtBoard.errors.byCode');
+  requireRecord(errors.byField, 'courtBoard.errors.byField');
+  const rules = requireRecord(page.rules, 'courtBoard.rules');
+  for (const key of ['linkLabel', 'seeRulesLink', 'heading', 'lede', 'privacyLinkLabel']) {
+    requireString(rules, key, 'courtBoard.rules');
+  }
+  for (const key of ['tiers', 'release', 'topUp', 'guests', 'cancelling', 'privateHolds', 'fees']) {
+    assertLegalSection(rules[key], `courtBoard.rules.${key}`);
+  }
+  requireRecord(rules.holds, 'courtBoard.rules.holds');
+  requireRecord(rules.units, 'courtBoard.rules.units');
+  const privacy = requireRecord(page.privacy, 'courtBoard.privacy');
+  for (const key of ['linkLabel', 'heading', 'lastUpdated', 'lede']) {
+    requireString(privacy, key, 'courtBoard.privacy');
+  }
+  const contact = requireRecord(privacy.contact, 'courtBoard.privacy.contact');
+  for (const key of ['heading', 'lead', 'linkLabel', 'trail']) {
+    requireString(contact, key, 'courtBoard.privacy.contact');
+  }
+  requireArray(privacy.sections, 'courtBoard.privacy.sections').forEach((section, index) =>
+    assertLegalSection(section, `courtBoard.privacy.sections[${index}]`),
+  );
+  requireRecord(page.player, 'courtBoard.player');
+  requireRecord(page.organiser, 'courtBoard.organiser');
 }

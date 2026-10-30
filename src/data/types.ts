@@ -645,6 +645,27 @@ export interface AdminPageData {
     clearedLabel: string;
     errorLabel: string;
   };
+  courtBoard: {
+    heading: string;
+    description: string;
+    nameLabel: string;
+    venueLabel: string;
+    startLabel: string;
+    endLabel: string;
+    createLabel: string;
+    creatingLabel: string;
+    linkHeading: string;
+    linkWarning: string;
+    copyLabel: string;
+    copiedLabel: string;
+    copyFailedLabel: string;
+    dismissLabel: string;
+    errors: {
+      invalid: string;
+      unauthorised: string;
+      unavailable: string;
+    };
+  };
 }
 
 // Common/shared types
@@ -711,3 +732,338 @@ export interface BlogPost {
   content: string;
 }
 
+
+// Court Board (public Lab; docs/court-board/CONTEXT.md)
+
+export type CourtBoardTierLabels = Record<'employee' | 'alumni' | 'external', string>;
+
+/** Player-facing copy: Session page, signup form, Manage my place. */
+export interface CourtBoardPlayerCopy {
+  session: {
+    placesTaken: string;
+    progressLabel: string;
+    cancelledNotice: string;
+    closedNotice: string;
+    startedNotice: string;
+    beforeRelease: string;
+    afterRelease: string;
+    afterCutoff: string;
+    topUpNote: string;
+    playingHeading: string;
+    playingEmpty: string;
+    waitlistHeading: string;
+    waitlistBandHeading: string;
+    guestLabel: string;
+    manageToggle: string;
+    signupClosedNote: string;
+  };
+  signup: {
+    heading: string;
+    nameLabel: string;
+    phoneLabel: string;
+    phoneHelp: string;
+    phoneValid: string;
+    pinLabel: string;
+    pinHelp: string;
+    tierLegend: string;
+    tierHelp: string;
+    guestsHeading: string;
+    guestsHelpLimited: string;
+    guestsHelpUnlimited: string;
+    guestNameLabel: string;
+    guestTierLabel: string;
+    removeGuest: string;
+    addGuest: string;
+    submit: string;
+    submitting: string;
+    successMain: string;
+    successWaitlist: string;
+    pinSetNote: string;
+    manageHint: string;
+    another: string;
+    legalBefore: string;
+    legalRules: string;
+    legalMiddle: string;
+    legalPrivacy: string;
+    legalAfter: string;
+  };
+  manage: {
+    heading: string;
+    intro: string;
+    phoneLabel: string;
+    pinLabel: string;
+    pinHelp: string;
+    open: string;
+    opening: string;
+    forgotten: string;
+    newPinSet: string;
+    noPlace: string;
+    statusPlaying: string;
+    statusWaitlist: string;
+    youLabel: string;
+    guestLabel: string;
+    holdNotice: string;
+    edit: string;
+    save: string;
+    discard: string;
+    nameLabel: string;
+    saved: string;
+    addGuestsHeading: string;
+    guestsRemaining: string;
+    guestsUnlimited: string;
+    guestsFull: string;
+    addGuests: string;
+    guestsAdded: string;
+    cancelPlace: string;
+    cancelGuest: string;
+    cancelHostNote: string;
+    freeBeforeCutoff: string;
+    freeGrace: string;
+    freeWaitlist: string;
+    freeGuest: string;
+    penalty: string;
+    weekUnit: { one: string; other: string };
+    confirmCancel: string;
+    confirmCancelPenalty: string;
+    keepPlace: string;
+    cancelled: string;
+    cancelledPenalty: string;
+    hide: string;
+    closedNote: string;
+  };
+}
+
+/** Organiser-facing copy: register, Sessions, holds, PIN resets, link. */
+export interface CourtBoardOrganiserCopy {
+  eyebrow: string;
+  invalidHeading: string;
+  invalidBody: string;
+  tabsAriaLabel: string;
+  tabs: { current: string; holds: string; newSession: string };
+  sessionPicker: {
+    label: string;
+    empty: string;
+    open: string;
+    cancelled: string;
+    registerClosed: string;
+  };
+  current: {
+    empty: string;
+    createFirst: string;
+    /** `{taken}`, `{capacity}`, `{waiting}` */
+    status: string;
+    cancelledNote: string;
+    copyList: string;
+    copySignup: string;
+    copied: string;
+    copyFailed: string;
+    /** `{date}` */
+    copyNext: string;
+    cancelSession: string;
+    cancelSessionTitle: string;
+    cancelSessionBody: string;
+    cancelSessionConfirm: string;
+  };
+  register: {
+    heading: string;
+    playingHeading: string;
+    waitlistHeading: string;
+    empty: string;
+    /** `{host}` */
+    guestOf: string;
+    /** `{digits}` */
+    phoneEnding: string;
+    /** `{date}` */
+    holdUntil: string;
+    hereShort: string;
+    /** `{name}` */
+    hereLabel: string;
+    /** `{name}` */
+    tierLabel: string;
+    remove: string;
+    /** `{name}` */
+    removeLabel: string;
+    /** `{name}` */
+    removeTitle: string;
+    removeBody: string;
+    removeConfirm: string;
+    closeRegister: string;
+    closeNotStarted: string;
+    closedNote: string;
+    cancelledNote: string;
+    closeTitle: string;
+    /** `{attended}`, `{noShows}` */
+    closeSummary: string;
+    closeNoHolds: string;
+    closeHoldsHeading: string;
+    /** `{name}`, `{reason}`, `{weeks}`, `{date}` */
+    closeHoldLine: string;
+    closeConfirm: string;
+    /** `{count}` */
+    closeDone: string;
+  };
+  /** Keyed by Penalty reason. */
+  reasons: Record<string, string>;
+  holds: {
+    heading: string;
+    empty: string;
+    /** `{name}`, `{digits}` */
+    player: string;
+    weeksOne: string;
+    /** `{count}` */
+    weeksMany: string;
+    /** `{date}` */
+    until: string;
+    clear: string;
+    /** `{name}` */
+    clearLabel: string;
+    shorten: string;
+    /** `{name}` */
+    shortenLabel: string;
+    shortenDate: string;
+    shortenSave: string;
+    shortenCancel: string;
+    resetHeading: string;
+    resetBody: string;
+    resetPlayerLabel: string;
+    resetPlaceholder: string;
+    forgetHeading: string;
+    forgetBody: string;
+    forgetPlayerLabel: string;
+    forgetPlaceholder: string;
+    forgetButton: string;
+    /** `{name}` */
+    forgetTitle: string;
+    forgetWarning: string;
+    forgetConfirm: string;
+    /** `{name}` */
+    forgetDone: string;
+    resetNoPin: string;
+    resetButton: string;
+    resetNoPlayers: string;
+    /** `{name}` */
+    resetTitle: string;
+    resetConfirm: string;
+    /** `{name}` */
+    resetDone: string;
+  };
+  newSession: {
+    heading: string;
+    intro: string;
+    copiedNote: string;
+    fields: {
+      localDate: string;
+      startTime: string;
+      endTime: string;
+      venue: string;
+      capacity: string;
+    };
+    submit: string;
+    submitting: string;
+  };
+  link: {
+    heading: string;
+    body: string;
+    rotate: string;
+    rotateTitle: string;
+    rotateBody: string;
+    rotateConfirm: string;
+    newHeading: string;
+    newWarning: string;
+    copyNew: string;
+    dismiss: string;
+  };
+  dialog: { cancel: string; working: string };
+}
+
+export interface CourtBoardLegalSection {
+  heading: string;
+  paragraphs: string[];
+  items?: string[];
+}
+
+export interface CourtBoardPluralUnit {
+  one: string;
+  other: string;
+}
+
+/** The public Club rules page; numbers are interpolated from the Club's settings. */
+export interface CourtBoardRulesCopy {
+  linkLabel: string;
+  seeRulesLink: string;
+  heading: string;
+  lede: string;
+  backToSession: string;
+  units: {
+    week: CourtBoardPluralUnit;
+    guest: CourtBoardPluralUnit;
+    hour: CourtBoardPluralUnit;
+    minute: CourtBoardPluralUnit;
+  };
+  cutoffDays: CourtBoardPluralUnit;
+  tiers: CourtBoardLegalSection;
+  release: CourtBoardLegalSection;
+  topUp: CourtBoardLegalSection;
+  guests: CourtBoardLegalSection;
+  cancelling: CourtBoardLegalSection;
+  holds: {
+    heading: string;
+    intro: string;
+    itemLateCancel: string;
+    itemNoShowHost: string;
+    itemNoShowHostAndGuest: string;
+    itemNoShowGuest: string;
+    itemGuestLateCancel: string;
+    lengthNote: string;
+    organiserNote: string;
+  };
+  privateHolds: CourtBoardLegalSection;
+  fees: CourtBoardLegalSection;
+  privacyBefore: string;
+  privacyLinkLabel: string;
+  privacyAfter: string;
+}
+
+/** The Court Board privacy notice (a draft for the committee to confirm). */
+export interface CourtBoardPrivacyCopy {
+  linkLabel: string;
+  heading: string;
+  lastUpdatedLabel: string;
+  lastUpdated: string;
+  lede: string;
+  contact: {
+    heading: string;
+    paragraphs: string[];
+    lead: string;
+    linkLabel: string;
+    trail: string;
+  };
+  sections: CourtBoardLegalSection[];
+}
+
+export interface CourtBoardPageData {
+  heading: string;
+  description: string;
+  lab: {
+    eyebrow: string;
+    lede: string;
+    intro: string;
+    howItWorksHeading: string;
+    howItWorks: string[];
+    noLinkNote: string;
+    demoHeading: string;
+    demoNote: string;
+  };
+  tiers: CourtBoardTierLabels;
+  errors: {
+    generic: string;
+    /** Keyed by the service's `ErrorCode`; `{minutes}` is replaced where present. */
+    byCode: Record<string, string>;
+    /** Keyed by the form field named in an `invalid-input` failure. */
+    byField: Record<string, string>;
+  };
+  rules: CourtBoardRulesCopy;
+  privacy: CourtBoardPrivacyCopy;
+  player: CourtBoardPlayerCopy;
+  organiser: CourtBoardOrganiserCopy;
+}

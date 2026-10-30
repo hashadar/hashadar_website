@@ -7,6 +7,7 @@ import {
   RequireSiteAuth,
 } from '@/components/auth/require-site-auth';
 import { Button, Container, Heading, Section, Text } from '@/components/ui';
+import { CourtBoardClubsPanel } from '@/components/sections/admin/court-board-clubs-panel';
 import { admin } from '@/data';
 import {
   createDefaultSiteContentStorage,
@@ -214,6 +215,7 @@ function AdminWorkspace() {
               )
             }
           />
+          <CourtBoardClubsPanel />
         </div>
 
         <p className="mt-12 font-body text-sm text-[var(--foreground)]/70">
