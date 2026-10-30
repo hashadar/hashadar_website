@@ -1,6 +1,7 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { auth } from './auth/resource.js';
+import { createCourtBoardResources } from './court-board/resource.js';
 import { data } from './data/resource.js';
 import { analyseFit } from './functions/analyse-fit/resource.js';
 import {
@@ -38,3 +39,15 @@ backend.analyseFit.resources.lambda.addToRolePolicy(
     ],
   }),
 );
+
+// Court Board: public-write Lab with its own DynamoDB table, outside the Job OS
+// `a.schema`. SSR reaches it through a customer-managed policy attached once to
+// the Amplify SSR Compute role by hand (docs/court-board/infra.md).
+const courtBoardStack = backend.createStack('CourtBoard');
+const courtBoard = createCourtBoardResources(courtBoardStack);
+backend.addOutput({
+  custom: {
+    courtBoardTableName: courtBoard.table.tableName,
+    courtBoardPolicyArn: courtBoard.policy.managedPolicyArn,
+  },
+});

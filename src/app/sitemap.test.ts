@@ -124,3 +124,10 @@ describe('sitemap', () => {
     }
   });
 });
+
+describe('Court Board and the sitemap', () => {
+  it('lists no Court Board URL: Session and Organiser links are capability URLs', async () => {
+    const entries = await buildSitemap();
+    expect(entries.map((entry) => entry.url).filter((url) => url.includes('court-board'))).toEqual([]);
+  });
+});

@@ -57,5 +57,26 @@
     "savedLabel": "Home Photo saved.",
     "clearedLabel": "Home Photo cleared.",
     "errorLabel": "Unable to save Home Photo. Check you are signed in and try again."
+  },
+  "courtBoard": {
+    "heading": "Court Board clubs",
+    "description": "Create a Club and get its Organiser link for the committee. Day-to-day running happens through that link, not here.",
+    "nameLabel": "Club name",
+    "venueLabel": "Venue",
+    "startLabel": "Session starts",
+    "endLabel": "Session ends",
+    "createLabel": "Create Club",
+    "creatingLabel": "Creating…",
+    "linkHeading": "Organiser link",
+    "linkWarning": "Copy this now and send it to the committee privately. It is shown once and cannot be recovered. If it is lost, an Organiser can rotate it from their page, otherwise create a new Club.",
+    "copyLabel": "Copy link",
+    "copiedLabel": "Copied.",
+    "copyFailedLabel": "Could not copy. Select the link and copy it by hand.",
+    "dismissLabel": "Done, hide link",
+    "errors": {
+      "invalid": "Check the details: a name and venue are needed, and the session must end after it starts.",
+      "unauthorised": "You are not signed in as the Site Admin. Sign in again and retry.",
+      "unavailable": "Could not create the Club. Court Board storage may not be set up yet (see docs/court-board/infra.md)."
+    }
   }
 }

@@ -8,6 +8,27 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // Extra hostnames allowed to reach `next dev` (e.g. a phone on the LAN); dev only.
+  allowedDevOrigins: (process.env.DEV_ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((host) => host.trim())
+    .filter(Boolean),
+  async headers() {
+    // Court Board is a public-write Lab (ADR 0013): its pages are never indexed,
+    // and the Organiser link is a bearer token that must not leak via Referer or caches.
+    const privateOrganiserPage = [
+      { key: 'Referrer-Policy', value: 'no-referrer' },
+      { key: 'Cache-Control', value: 'no-store' },
+    ];
+    return [
+      {
+        source: '/labs/court-board/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      { source: '/labs/court-board/o', headers: privateOrganiserPage },
+      { source: '/labs/court-board/o/:path*', headers: privateOrganiserPage },
+    ];
+  },
   async redirects() {
     return [
       {
