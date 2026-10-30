@@ -9,7 +9,7 @@ Court Board runs on trust: Players say who they are and what Tier they are, and 
 ### People
 
 **Player**:
-A person who takes a place at a Session. Identified by phone number (stored only as a keyed hash), protected by a PIN, and shown by display name. Has no account.
+A person who takes a place at a Session. Identified by phone number in any country, normalised to international E.164 form (stored only as a keyed hash), protected by a PIN, and shown by display name. Has no account.
 _Avoid_: user, member, Site Admin, attendee (use Attended for the fact)
 
 **PIN**:
