@@ -39,8 +39,8 @@ export interface SeatRow {
   name: string;
   /** Guest seats: the Host's name, for "<Host>'s guest: <name>". */
   hostName: string | null;
-  /** A Penalised Host: shown as "On hold until …". */
-  holdUntil: string | null;
+  // Deliberately no hold/Penalty field: who is on hold is seen only by the
+  // Organiser and by that Player themselves, never on the public page.
 }
 
 export interface WaitlistView {

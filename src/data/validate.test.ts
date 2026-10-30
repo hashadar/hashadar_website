@@ -112,3 +112,22 @@ describe('validateDataFile', () => {
     ).not.toThrow();
   });
 });
+
+describe('assertValidCourtBoardPage legal copy', () => {
+  it('requires the rules and privacy copy', () => {
+    const withoutRules: Record<string, unknown> = { ...courtBoardData };
+    delete withoutRules.rules;
+    const withoutPrivacy: Record<string, unknown> = { ...courtBoardData };
+    delete withoutPrivacy.privacy;
+    expect(() => assertValidCourtBoardPage(withoutRules)).toThrow(/courtBoard\.rules/);
+    expect(() => assertValidCourtBoardPage(withoutPrivacy)).toThrow(/courtBoard\.privacy/);
+  });
+
+  it('rejects a privacy section without paragraphs', () => {
+    const broken = {
+      ...courtBoardData,
+      privacy: { ...courtBoardData.privacy, sections: [{ heading: 'Oops' }] },
+    };
+    expect(() => assertValidCourtBoardPage(broken)).toThrow(/paragraphs/);
+  });
+});

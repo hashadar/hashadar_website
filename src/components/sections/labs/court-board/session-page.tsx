@@ -1,17 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import { Container, Heading, Section, Text } from '@/components/ui';
 import { courtBoard } from '@/data';
-import {
-  formatInstantDate,
-  formatLocalDate,
-  formatLocalTime,
-} from '@/lib/court-board/format';
+import { formatLocalDate, formatLocalTime } from '@/lib/court-board/format';
 import type { SeatRow, SessionView } from '@/lib/court-board/views';
 import { cn } from '@/lib/utils';
 import { AutoRefresh } from './auto-refresh';
+import { PRIVACY_PATH, rulesPath } from './court-board-links';
 import { fillTemplate } from './fill-template';
 import { ManagePlace } from './manage-place';
 import { statusSentences } from './session-status';
@@ -30,11 +28,6 @@ function SeatList({ rows }: { rows: SeatRow[] }) {
             {row.kind === 'guest' && row.hostName
               ? fillTemplate(copy.guestLabel, { host: row.hostName, name: row.name })
               : row.name}
-            {row.holdUntil ? (
-              <span className="ml-2 text-xs text-[var(--mono-500)]">
-                {fillTemplate(copy.onHold, { date: formatInstantDate(row.holdUntil) })}
-              </span>
-            ) : null}
           </span>
         </li>
       ))}
@@ -175,6 +168,24 @@ export function SessionPage({ view }: SessionPageProps) {
             />
           </div>
         </section>
+
+        <nav
+          aria-label={courtBoard.rules.linkLabel}
+          className="flex flex-wrap gap-x-6 gap-y-1 border-t border-[var(--border)] pt-4 font-body text-sm"
+        >
+          <Link
+            href={rulesPath(session.id)}
+            className="inline-flex min-h-11 items-center underline underline-offset-2"
+          >
+            {courtBoard.rules.linkLabel}
+          </Link>
+          <Link
+            href={PRIVACY_PATH}
+            className="inline-flex min-h-11 items-center underline underline-offset-2"
+          >
+            {courtBoard.privacy.linkLabel}
+          </Link>
+        </nav>
       </Container>
     </Section>
   );

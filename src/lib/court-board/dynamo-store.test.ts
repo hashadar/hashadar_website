@@ -528,3 +528,35 @@ describe('keys', () => {
     expect(keys.hostLock('s', 'p')).toEqual({ pk: 'SESSION#s', sk: 'HOST#p' });
   });
 });
+
+describe('Players: expiry and erasure', () => {
+  const player = {
+    clubId: 'club-1',
+    phoneKey: 'pk-alex',
+    displayName: 'Alex',
+    tier: 'employee' as const,
+    phoneLast3: '456',
+    pinHash: 'h',
+    pinSalt: 's',
+    updatedAt: new Date('2026-11-01T10:00:00Z'),
+  };
+
+  it('expires a Player record 365 days after they last took a place', async () => {
+    const { store, commands } = setup();
+    await store.putPlayer(player);
+    const item = commands[0].input.Item as Record<string, unknown>;
+    expect(item.ttl).toBe(new Date('2027-11-01T10:00:00Z').getTime() / 1000);
+  });
+
+  it('deletes a Player and a Penalty by key', async () => {
+    const { store, commands } = setup();
+    await store.deletePlayer('club-1', 'pk-alex');
+    await store.deletePenalty('club-1', { phoneKey: 'pk-alex', sessionId: 'sess-1', reason: 'late-cancel' });
+    expect(commands.map((c) => c.name)).toEqual(['DeleteCommand', 'DeleteCommand']);
+    expect(commands[0].input.Key).toEqual({ pk: 'CLUB#club-1', sk: 'PLAYER#pk-alex' });
+    expect(commands[1].input.Key).toEqual({
+      pk: 'CLUB#club-1',
+      sk: 'PENALTY#pk-alex#sess-1#late-cancel',
+    });
+  });
+});

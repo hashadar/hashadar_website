@@ -44,7 +44,7 @@ export function row(
   name: string,
   extra: Partial<SeatRow> = {},
 ): SeatRow {
-  return { id, kind: 'host', name, hostName: null, holdUntil: null, ...extra };
+  return { id, kind: 'host', name, hostName: null, ...extra };
 }
 
 export function mySeat(

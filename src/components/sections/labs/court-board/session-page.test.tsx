@@ -56,7 +56,7 @@ describe('SessionPage lists', () => {
     taken: 3,
     playing: [
       row('a', 'Alex'),
-      row('b', 'Bo', { holdUntil: '2026-11-28T00:00:00.000Z' }),
+      row('b', 'Bo'),
       row('g', 'Gina', { kind: 'guest', hostName: 'Alex' }),
     ],
     waitlists: [
@@ -66,13 +66,13 @@ describe('SessionPage lists', () => {
     ],
   });
 
-  it('numbers the players by name, labels guests, and shows holds', () => {
+  it('numbers the players by name, labels guests, and never shows who is on hold', () => {
     render(<SessionPage view={view} />);
     const playing = screen.getByRole('region', { name: 'Playing · 3' });
     const items = within(playing).getAllByRole('listitem');
     expect(items[0]).toHaveTextContent('1.Alex');
     expect(items[1]).toHaveTextContent('2.Bo');
-    expect(items[1]).toHaveTextContent('On hold until Sat 28 Nov');
+    expect(playing).not.toHaveTextContent(/on hold/i);
     expect(items[2]).toHaveTextContent("3.Alex's guest: Gina");
   });
 

@@ -13,6 +13,7 @@ import {
   clearPenalty,
   closeRegister,
   createSession,
+  forgetPlayer,
   previewCloseRegister,
   removeSeat,
   resetPin,
@@ -82,6 +83,12 @@ export async function closeRegisterAction(
 
 export async function resetPinAction(input: unknown): Promise<Outcome> {
   return asOrganiser((deps, club) => resetPin(deps, club, input));
+}
+
+export async function forgetPlayerAction(
+  input: unknown,
+): Promise<Outcome<{ seatsAnonymised: number }>> {
+  return asOrganiser((deps, club) => forgetPlayer(deps, club, input));
 }
 
 export async function clearPenaltyAction(input: unknown): Promise<Outcome> {

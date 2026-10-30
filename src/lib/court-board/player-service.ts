@@ -75,7 +75,7 @@ export async function getSessionView(
   const { club, session, ctx } = loaded;
   const now = deps.now();
   const order = computeOrder(ctx, now);
-  const row = (seat: Seat) => seatRow(ctx, seat, now);
+  const row = (seat: Seat) => seatRow(ctx, seat);
 
   return {
     clubName: club.name,

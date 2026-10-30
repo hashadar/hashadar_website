@@ -733,7 +733,6 @@ export interface CourtBoardPlayerCopy {
     waitlistHeading: string;
     waitlistBandHeading: string;
     guestLabel: string;
-    onHold: string;
     manageToggle: string;
     signupClosedNote: string;
   };
@@ -761,6 +760,11 @@ export interface CourtBoardPlayerCopy {
     pinSetNote: string;
     manageHint: string;
     another: string;
+    legalBefore: string;
+    legalRules: string;
+    legalMiddle: string;
+    legalPrivacy: string;
+    legalAfter: string;
   };
   manage: {
     heading: string;
@@ -902,6 +906,17 @@ export interface CourtBoardOrganiserCopy {
     resetBody: string;
     resetPlayerLabel: string;
     resetPlaceholder: string;
+    forgetHeading: string;
+    forgetBody: string;
+    forgetPlayerLabel: string;
+    forgetPlaceholder: string;
+    forgetButton: string;
+    /** `{name}` */
+    forgetTitle: string;
+    forgetWarning: string;
+    forgetConfirm: string;
+    /** `{name}` */
+    forgetDone: string;
     resetNoPin: string;
     resetButton: string;
     resetNoPlayers: string;
@@ -940,6 +955,71 @@ export interface CourtBoardOrganiserCopy {
   dialog: { cancel: string; working: string };
 }
 
+export interface CourtBoardLegalSection {
+  heading: string;
+  paragraphs: string[];
+  items?: string[];
+}
+
+export interface CourtBoardPluralUnit {
+  one: string;
+  other: string;
+}
+
+/** The public Club rules page; numbers are interpolated from the Club's settings. */
+export interface CourtBoardRulesCopy {
+  linkLabel: string;
+  seeRulesLink: string;
+  heading: string;
+  lede: string;
+  backToSession: string;
+  units: {
+    week: CourtBoardPluralUnit;
+    guest: CourtBoardPluralUnit;
+    hour: CourtBoardPluralUnit;
+    minute: CourtBoardPluralUnit;
+  };
+  cutoffDays: CourtBoardPluralUnit;
+  tiers: CourtBoardLegalSection;
+  release: CourtBoardLegalSection;
+  topUp: CourtBoardLegalSection;
+  guests: CourtBoardLegalSection;
+  cancelling: CourtBoardLegalSection;
+  holds: {
+    heading: string;
+    intro: string;
+    itemLateCancel: string;
+    itemNoShowHost: string;
+    itemNoShowHostAndGuest: string;
+    itemNoShowGuest: string;
+    itemGuestLateCancel: string;
+    lengthNote: string;
+    organiserNote: string;
+  };
+  privateHolds: CourtBoardLegalSection;
+  fees: CourtBoardLegalSection;
+  privacyBefore: string;
+  privacyLinkLabel: string;
+  privacyAfter: string;
+}
+
+/** The Court Board privacy notice (a draft for the committee to confirm). */
+export interface CourtBoardPrivacyCopy {
+  linkLabel: string;
+  heading: string;
+  lastUpdatedLabel: string;
+  lastUpdated: string;
+  lede: string;
+  contact: {
+    heading: string;
+    paragraphs: string[];
+    lead: string;
+    linkLabel: string;
+    trail: string;
+  };
+  sections: CourtBoardLegalSection[];
+}
+
 export interface CourtBoardPageData {
   heading: string;
   description: string;
@@ -961,6 +1041,8 @@ export interface CourtBoardPageData {
     /** Keyed by the form field named in an `invalid-input` failure. */
     byField: Record<string, string>;
   };
+  rules: CourtBoardRulesCopy;
+  privacy: CourtBoardPrivacyCopy;
   player: CourtBoardPlayerCopy;
   organiser: CourtBoardOrganiserCopy;
 }

@@ -99,22 +99,24 @@ export function isOpenForChanges(session: ClubSession): boolean {
   return session.status === 'open' && session.registerClosedAt === null;
 }
 
-export function seatRow(ctx: SessionContext, seat: Seat, now: Date): SeatRow {
+export function seatRow(ctx: SessionContext, seat: Seat): SeatRow {
   const host =
     seat.kind === 'guest'
       ? ctx.seats.find((s) => s.id === seat.hostSeatId)
       : undefined;
-  const holdEnd =
-    seat.kind === 'host' && seat.phoneKey
-      ? holdEndsAt(ctx.penalties, seat.phoneKey, sessionStartsAt(ctx.session), now)
-      : null;
   return {
     id: seat.id,
     kind: seat.kind,
     name: seat.name,
     hostName: host?.name ?? null,
-    holdUntil: holdEnd ? holdEnd.toISOString() : null,
   };
+}
+
+/** When a Host seat's Player is on hold until, for the Organiser's eyes only. */
+export function holdUntilOf(ctx: SessionContext, seat: Seat, now: Date): string | null {
+  if (seat.kind !== 'host' || !seat.phoneKey) return null;
+  const end = holdEndsAt(ctx.penalties, seat.phoneKey, sessionStartsAt(ctx.session), now);
+  return end ? end.toISOString() : null;
 }
 
 export function placeOf(

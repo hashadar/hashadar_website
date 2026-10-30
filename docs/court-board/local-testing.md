@@ -23,8 +23,8 @@ The demo Session has 8 places: six Employees plus Sam (with an Alumni guest) fil
 3. Sign up as someone new on the Session page. Try a second signup with the same number (refused), `0044…` and `+44…` forms of the same number (same Player), a trivial PIN such as `123456` (refused), and three guests before Top-up (refused).
 4. **An hour before the Cutoff**: in *Manage my place* as Sam, cancelling is free.
 5. **An hour after the Cutoff**: cancelling a Main-list Seat now says it puts you on hold for 3 weeks. Cancel a *Waitlist* Seat instead and it stays free. After a Main-list cancellation, the next person up gets a 2-hour Grace period (shown in their own *Manage my place*).
-6. **Half an hour into the Session**, as Organiser: tick *Here*, leave some unticked, press **Close register**, read the preview, confirm. The *On hold* tab now lists the Penalties; create a **New session** by copying this one and see the hold apply (as "On hold until…") when those Players sign up.
-7. Try **Reset a PIN**, **Clear** / **Shorten** a hold, **Remove** a Seat (never a Penalty), **Copy list for WhatsApp**, **Rotate organiser link** (the old link stops working).
+6. **Half an hour into the Session**, as Organiser: tick *Here*, leave some unticked, press **Close register**, read the preview, confirm. The *On hold* tab now lists the Penalties; create a **New session** by copying this one. A held Player who signs up lands in the External band, but the public Session page never says who is on hold: only the Organiser (On hold tab) and that Player (in *Manage my place*) can see it.
+7. Try **Reset a PIN**, **Forget a Player** (removes their record, holds and names from recent sessions), **Clear** / **Shorten** a hold, **Remove** a Seat (never a Penalty), **Copy list for WhatsApp**, **Rotate organiser link** (the old link stops working).
 8. Wrong PINs: five wrong guesses from this browser lock it out of that number for 15 minutes. The clock presets move that along too.
 
 ## Tests

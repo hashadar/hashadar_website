@@ -22,6 +22,8 @@ export interface SeatCardProps {
     patch: { name: string; tier: Tier },
   ) => Promise<Failure | null>;
   onCancel: (seatId: string) => Promise<Failure | null>;
+  /** Link to the Club rules, shown beside what cancelling would cost. */
+  rulesHref?: string;
 }
 
 type Mode = 'view' | 'edit' | 'confirm-cancel';
@@ -36,6 +38,7 @@ export function SeatCard({
   busy,
   onSave,
   onCancel,
+  rulesHref,
 }: SeatCardProps) {
   const copy = courtBoard.player.manage;
   const id = useId();
@@ -168,6 +171,13 @@ export function SeatCard({
           >
             {consequenceText(seat.consequence)}
           </p>
+          {rulesHref ? (
+            <p className="font-body text-xs">
+              <a href={rulesHref} className="underline underline-offset-2">
+                {courtBoard.rules.seeRulesLink}
+              </a>
+            </p>
+          ) : null}
           {isHost && hasGuests ? (
             <p className="font-body text-xs text-[var(--mono-500)]">
               {copy.cancelHostNote}

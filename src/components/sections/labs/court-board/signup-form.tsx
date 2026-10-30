@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import { useId, useRef, useState } from 'react';
 import { Heading, Text } from '@/components/ui';
 import { courtBoard } from '@/data';
 import { signUpAction } from '@/lib/court-board/player-actions';
 import type { Tier } from '@/lib/court-board/types';
 import type { Failure, SessionView, SignUpResult } from '@/lib/court-board/views';
+import { PRIVACY_PATH, rulesPath } from './court-board-links';
 import { describeFailure } from './error-message';
 import { fillTemplate } from './fill-template';
 import { GuestFields, toGuestPayload, type GuestDraft } from './guest-fields';
@@ -232,6 +234,18 @@ export function SignupForm({ view, onSignedUp }: SignupFormProps) {
       >
         {pending ? copy.submitting : copy.submit}
       </button>
+
+      <p className="font-body text-xs text-[var(--mono-500)]">
+        {copy.legalBefore}
+        <Link href={rulesPath(view.session.id)} className="underline underline-offset-2">
+          {copy.legalRules}
+        </Link>
+        {copy.legalMiddle}
+        <Link href={PRIVACY_PATH} className="underline underline-offset-2">
+          {copy.legalPrivacy}
+        </Link>
+        {copy.legalAfter}
+      </p>
     </form>
   );
 }

@@ -50,6 +50,185 @@
       "endsOn": "Pick a date before the hold currently ends."
     }
   },
+  "rules": {
+    "linkLabel": "Club rules",
+    "seeRulesLink": "See the club rules",
+    "heading": "Club rules",
+    "lede": "How {club} runs its sessions at {venue}. These numbers come straight from the system, so they are the rules the list really follows.",
+    "backToSession": "Back to the session",
+    "units": {
+      "week": {
+        "one": "week",
+        "other": "weeks"
+      },
+      "guest": {
+        "one": "guest",
+        "other": "guests"
+      },
+      "hour": {
+        "one": "hour",
+        "other": "hours"
+      },
+      "minute": {
+        "one": "minute",
+        "other": "minutes"
+      }
+    },
+    "cutoffDays": {
+      "one": "the day before",
+      "other": "{count} days before"
+    },
+    "tiers": {
+      "heading": "Priority",
+      "paragraphs": [
+        "When you take a place you say which Tier you are: Employee, Alumni or External. This is taken on trust, and an organiser can correct it if it is wrong.",
+        "Places go to Employees first, then Alumni, then External. Before Release only Employees can be on the playing list; everyone else joins a waitlist for their Tier."
+      ]
+    },
+    "release": {
+      "heading": "Release",
+      "paragraphs": [
+        "On {weekday} at {time} (Release) the waitlists merge. Open places go to Employees, then Alumni, then External, each in the order they signed up.",
+        "Anyone who signs up after Release joins the end of the list, in the order they sign up, whatever their Tier."
+      ]
+    },
+    "topUp": {
+      "heading": "Top-up",
+      "paragraphs": [
+        "From {weekday} at {time} (Top-up) you can add more than {limit} to fill any places that are left. It only lifts the guest limit; the order of the list does not change."
+      ]
+    },
+    "guests": {
+      "heading": "Guests",
+      "paragraphs": [
+        "A guest is always added to your own booking, with a name and a Tier of Alumni or External. Until Top-up you can bring up to {limit}.",
+        "A guest never ranks ahead of the person who brought them: if you are waiting, so are they. If you cancel your place, your guests are cancelled too."
+      ]
+    },
+    "cancelling": {
+      "heading": "Cancelling",
+      "paragraphs": [
+        "You can cancel for free until the same time of day as the session starts, {cutoffDays} (the cutoff).",
+        "If you are moved up from a waitlist after the cutoff, you get {grace} to change your mind and cancel for free.",
+        "Leaving a waitlist is always free, at any time."
+      ]
+    },
+    "holds": {
+      "heading": "Being on hold",
+      "intro": "If you cancel a place on the playing list after the cutoff (and outside any grace period), or you do not turn up, you are put on hold. While you are on hold your places sit in the External band, so you wait behind everyone else.",
+      "itemLateCancel": "Cancelling a place on the playing list after the cutoff: {weeks}.",
+      "itemNoShowHost": "Not turning up: {weeks}.",
+      "itemNoShowHostAndGuest": "You and a guest of yours both not turning up: {weeks}.",
+      "itemNoShowGuest": "You turn up but a guest of yours does not: {weeks}.",
+      "itemGuestLateCancel": "Cancelling only a guest's place after the cutoff: {weeks}.",
+      "lengthNote": "A hold runs for that many calendar weeks from the session date. Holds never add up: if you have more than one, the one that ends last applies.",
+      "organiserNote": "An organiser can clear or shorten a hold, or remove someone from a session without putting them on hold. If an organiser cancels a session, nobody is put on hold."
+    },
+    "privateHolds": {
+      "heading": "Holds are private",
+      "paragraphs": [
+        "Only you and the organisers can see who is on hold. It is never shown on the session page. Other people may notice that you sit lower down the list, but not why."
+      ]
+    },
+    "fees": {
+      "heading": "Money",
+      "paragraphs": [
+        "Court Board does not handle fees or payments. Your committee arranges those separately."
+      ]
+    },
+    "privacyBefore": "How your details are used is explained in the ",
+    "privacyLinkLabel": "privacy notice",
+    "privacyAfter": "."
+  },
+  "privacy": {
+    "linkLabel": "Privacy",
+    "heading": "Privacy notice",
+    "lastUpdatedLabel": "Last updated",
+    "lastUpdated": "30 October 2026",
+    "lede": "Court Board runs club sessions. This explains what it keeps about you, why, who can see it and how to have it removed.",
+    "contact": {
+      "heading": "Who is responsible",
+      "paragraphs": [
+        "Court Board is run by Hasha Dar, who is responsible for the data it holds. Each club's committee runs its own sessions and sets its own rules."
+      ],
+      "lead": "To ask a question or make a request about your data, ",
+      "linkLabel": "message Hasha Dar on LinkedIn",
+      "trail": ". An organiser can also remove you from a club's list."
+    },
+    "sections": [
+      {
+        "heading": "What is collected",
+        "paragraphs": [
+          "Court Board keeps only what it needs to run the list:"
+        ],
+        "items": [
+          "Your name, as you type it.",
+          "Your mobile number, kept only as a scrambled code (a keyed hash) that cannot be read back as a number. The full number exists only for the moment you type it, to work out that code. The last three digits are also kept, and only organisers can see them, so they can tell two people with the same name apart.",
+          "Your Tier (Employee, Alumni or External), so it can be filled in next time.",
+          "Your PIN, kept only as a hash.",
+          "The places you take, the guests you bring, whether an organiser marked you as attending, and any hold.",
+          "A scrambled form of your network address, used only to limit wrong PIN guesses and spam."
+        ]
+      },
+      {
+        "heading": "Why it is used",
+        "paragraphs": [
+          "To run each session's list and apply the club's rules fairly. The legal basis is legitimate interests (running the club fairly), not consent."
+        ]
+      },
+      {
+        "heading": "Who sees what",
+        "paragraphs": [],
+        "items": [
+          "Your name is visible to anyone with the session link.",
+          "Organisers can also see the last three digits of your number, whether you attended, and any hold.",
+          "Holds are never shown publicly: only you and the organisers can see them.",
+          "Your full number and your PIN are never stored in readable form, so nobody can look them up, including the person who runs the site."
+        ]
+      },
+      {
+        "heading": "Who handles the data",
+        "paragraphs": [
+          "The data is stored with Amazon Web Services in the London region (eu-west-2). There is no advertising and no analytics, and the data is never sold."
+        ]
+      },
+      {
+        "heading": "Cookies",
+        "paragraphs": [
+          "Players do not get any cookies. Organisers get one cookie that keeps them signed in. It is strictly necessary and does not need consent."
+        ]
+      },
+      {
+        "heading": "How long it is kept",
+        "paragraphs": [],
+        "items": [
+          "Places you took: deleted 8 weeks after the session.",
+          "Your remembered name, Tier and PIN: deleted 12 months after you last took a place.",
+          "Holds: deleted when they end.",
+          "Wrong-PIN and spam-limit records: within a couple of days."
+        ]
+      },
+      {
+        "heading": "Your rights",
+        "paragraphs": [
+          "You can ask to see the data held about you, correct it, have it deleted, or object to how it is used. Ask using the LinkedIn contact above, or ask an organiser, who can remove you from the club.",
+          "If you are unhappy, you can complain to the Information Commissioner's Office at ico.org.uk."
+        ]
+      },
+      {
+        "heading": "Automatic decisions",
+        "paragraphs": [
+          "The order of each list and any hold follow the club's published rules automatically. An organiser can correct a Tier, or clear or shorten a hold."
+        ]
+      },
+      {
+        "heading": "Children",
+        "paragraphs": [
+          "Court Board is not designed for children."
+        ]
+      }
+    ]
+  },
   "player": {
     "session": {
       "placesTaken": "{taken} of {capacity} places taken",
@@ -66,7 +245,6 @@
       "waitlistHeading": "Waitlist · {count}",
       "waitlistBandHeading": "{band} waitlist · {count}",
       "guestLabel": "{host}'s guest: {name}",
-      "onHold": "On hold until {date}",
       "manageToggle": "Manage my place",
       "signupClosedNote": "Signups are closed for this session."
     },
@@ -93,7 +271,12 @@
       "successWaitlist": "You're on the waitlist, number {position}.",
       "pinSetNote": "Your PIN is set. Use it with your number to change or cancel from any device.",
       "manageHint": "Need to change or cancel? Your place is open under Manage my place below.",
-      "another": "Sign up someone else"
+      "another": "Sign up someone else",
+      "legalBefore": "By taking a place you agree to the ",
+      "legalRules": "club rules",
+      "legalMiddle": " and confirm you have read the ",
+      "legalPrivacy": "privacy notice",
+      "legalAfter": "."
     },
     "manage": {
       "heading": "Manage my place",
@@ -130,7 +313,10 @@
       "freeWaitlist": "Leaving the waitlist is always free.",
       "freeGuest": "Removing a guest is free.",
       "penalty": "Cancelling now puts you on hold for {weeks} {weekUnit} (until {date}).",
-      "weekUnit": { "one": "week", "other": "weeks" },
+      "weekUnit": {
+        "one": "week",
+        "other": "weeks"
+      },
       "confirmCancel": "Confirm cancellation",
       "confirmCancelPenalty": "Cancel anyway",
       "keepPlace": "Keep my place",
@@ -225,6 +411,15 @@
       "resetBody": "The Player chooses a new PIN the next time they take a place or open Manage my place.",
       "resetPlayerLabel": "Player",
       "resetPlaceholder": "Choose a Player",
+      "forgetHeading": "Forget a Player",
+      "forgetBody": "If someone asks to be deleted, this removes their remembered details, their holds, and their name from recent sessions. Their open places are cancelled without a hold.",
+      "forgetPlayerLabel": "Player to forget",
+      "forgetPlaceholder": "Choose a Player to forget",
+      "forgetButton": "Forget Player",
+      "forgetTitle": "Forget {name}?",
+      "forgetWarning": "This cannot be undone. They can sign up again later as a new Player.",
+      "forgetConfirm": "Forget Player",
+      "forgetDone": "{name} has been forgotten.",
       "resetNoPin": "no PIN set",
       "resetButton": "Reset PIN",
       "resetNoPlayers": "No Players yet.",

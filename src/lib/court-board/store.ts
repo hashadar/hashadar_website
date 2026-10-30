@@ -124,6 +124,8 @@ export interface CourtBoardStore {
   getPlayer(clubId: string, phoneKey: string): Promise<Player | null>;
   putPlayer(player: Player): Promise<void>;
   listPlayers(clubId: string): Promise<Player[]>;
+  /** Erase a Player's record (a request to be forgotten). No-op if absent. */
+  deletePlayer(clubId: string, phoneKey: string): Promise<void>;
 
   // Sessions
   getSession(sessionId: string): Promise<ClubSession | null>;
@@ -177,6 +179,8 @@ export interface CourtBoardStore {
     key: PenaltyKey,
     patch: Partial<Pick<Penalty, 'endsAt' | 'clearedAt'>>,
   ): Promise<void>;
+  /** Erase a Penalty record. No-op if absent. */
+  deletePenalty(clubId: string, key: PenaltyKey): Promise<void>;
 
   // Abuse limits (short TTL)
   getThrottle(key: string): Promise<ThrottleRecord | null>;

@@ -5,6 +5,9 @@ import {
   clearPenalty,
   closeRegister,
   createSession,
+  forgetPlayer,
+  FORGOTTEN_GUEST_NAME,
+  FORGOTTEN_NAME,
   getOrganiserOverview,
   previewCloseRegister,
   removeSeat,
@@ -295,5 +298,71 @@ describe('holds', () => {
       place: { pinWasSet: true },
     });
     expect(await resetPin(h.deps(), club, { phoneKey: 'nobody' })).toMatchObject({ error: 'not-found' });
+  });
+});
+
+describe('forgetPlayer', () => {
+  async function playerWithHistory() {
+    const { h, club } = await withClub();
+    await signUp(h.deps(), signUpInput({ name: 'Alex', guests: [{ name: 'Guy', tier: 'external' }] }));
+    await signUp(h.deps('b'), signUpInput({ phone: PHONE_B, name: 'Bo' }));
+    const players = await h.store.listPlayers(club.id);
+    const alexKey = players.find((p) => p.displayName === 'Alex')!.phoneKey;
+    return { h, club, alexKey };
+  }
+
+  it('removes the record, cancels open places without a hold, and blanks names', async () => {
+    const { h, club, alexKey } = await playerWithHistory();
+    h.at(T.afterCutoff); // a Player cancelling now would be held; being forgotten never is
+    expect(await forgetPlayer(h.deps(), club, { phoneKey: alexKey })).toEqual({
+      ok: true,
+      seatsAnonymised: 2,
+    });
+
+    expect(await h.store.getPlayer(club.id, alexKey)).toBeNull();
+    expect(await h.store.listPenalties(club.id)).toEqual([]);
+    const seats = await h.store.listSeats(SESSION_ID);
+    const forgotten = seats.filter(
+      (s) => s.name === FORGOTTEN_NAME || s.name === FORGOTTEN_GUEST_NAME,
+    );
+    expect(forgotten.map((s) => s.name).sort()).toEqual(
+      [FORGOTTEN_GUEST_NAME, FORGOTTEN_NAME].sort(),
+    );
+    expect(forgotten.every((s) => s.cancelledAt)).toBe(true);
+    expect(JSON.stringify(seats)).not.toMatch(/Alex|Guy/);
+    // Other Players are untouched.
+    expect(seats.find((s) => s.name === 'Bo')?.cancelledAt).toBeNull();
+    expect((await getSessionView(h.deps(), SESSION_ID))?.playing.map((r) => r.name)).toEqual(['Bo']);
+  });
+
+  it('also deletes their holds', async () => {
+    const { h, club, alexKey } = await playerWithHistory();
+    const [alexSeat] = await h.store.listSeats(SESSION_ID);
+    h.at(T.afterCutoff);
+    await cancelMySeat(h.deps(), { ...credentials(), seatId: alexSeat.id });
+    expect(await h.store.listPenalties(club.id)).toHaveLength(1);
+    await forgetPlayer(h.deps(), club, { phoneKey: alexKey });
+    expect(await h.store.listPenalties(club.id)).toEqual([]);
+  });
+
+  it('lets the number sign up again afterwards as a brand-new Player', async () => {
+    const { h, club, alexKey } = await playerWithHistory();
+    await forgetPlayer(h.deps(), club, { phoneKey: alexKey });
+    expect(await signUp(h.deps(), signUpInput({ name: 'Alexandra' }))).toMatchObject({
+      ok: true,
+      pinWasSet: true,
+    });
+  });
+
+  it('is not found for an unknown Player or another Club\'s Player', async () => {
+    const { h, club, alexKey } = await playerWithHistory();
+    expect(await forgetPlayer(h.deps(), club, { phoneKey: 'nobody' })).toMatchObject({
+      error: 'not-found',
+    });
+    const other = { ...club, id: 'club-2' };
+    await h.store.createClub(other, 'hash-2');
+    expect(await forgetPlayer(h.deps(), other, { phoneKey: alexKey })).toMatchObject({
+      error: 'not-found',
+    });
   });
 });

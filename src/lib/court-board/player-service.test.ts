@@ -304,7 +304,7 @@ describe('cancelling', () => {
     expect(await h.store.listPenalties(h.club.id)).toEqual([]);
   });
 
-  it('puts a Player on hold for 3 weeks after the Cutoff, and the hold shows publicly', async () => {
+  it('puts a Player on hold for 3 weeks after the Cutoff, and only they and the Organiser can see it', async () => {
     const h = await setup();
     await signUp(h.deps(), signUpInput());
     h.at(T.afterCutoff);
@@ -323,7 +323,14 @@ describe('cancelling', () => {
     h.at('2026-11-12T13:00:00Z');
     const view = await getSessionView(h.deps(), 'nextWEEK1234');
     expect(view?.playing.map((r) => r.name)).toEqual(['Bo', 'Alex']);
-    expect(view?.playing[1].holdUntil).toBe('2026-11-28T00:00:00.000Z');
+    // The public page shows the effect (External band) but never who is on hold.
+    expect(JSON.stringify(view)).not.toMatch(/hold|2026-11-28/i);
+    // The Player sees it in Manage my place.
+    const mine = await getMyPlace(h.deps(), credentials({ sessionId: 'nextWEEK1234' }));
+    expect(mine.ok && mine.place.holdUntil).toBe('2026-11-28T00:00:00.000Z');
+    // Another Player does not learn it from the Player-facing view of their own place.
+    const other = await getMyPlace(h.deps('b'), credentials({ sessionId: 'nextWEEK1234', phone: PHONE_B }));
+    expect(other.ok && other.place.holdUntil).toBeNull();
   });
 
   it('is always free on a Waitlist', async () => {

@@ -9,6 +9,7 @@ import {
 import { formatInstantDate, londonDateOf } from '@/lib/court-board/format';
 import {
   clearPenaltyAction,
+  forgetPlayerAction,
   resetPinAction,
   shortenPenaltyAction,
 } from '@/lib/court-board/organiser-actions';
@@ -215,6 +216,94 @@ function ResetPin({ players }: { players: PlayerRow[] }) {
   );
 }
 
+function ForgetPlayer({ players }: { players: PlayerRow[] }) {
+  const selectId = useId();
+  const { busy, error, run, reset } = useOrganiserAction();
+  const [chosen, setChosen] = useState('');
+  const [confirming, setConfirming] = useState<PlayerRow | null>(null);
+  const [done, setDone] = useState<string | null>(null);
+
+  const player = players.find((p) => p.phoneKey === chosen) ?? null;
+
+  const confirm = async () => {
+    if (!confirming) return;
+    const result = await run(() => forgetPlayerAction({ phoneKey: confirming.phoneKey }));
+    if (result) {
+      setDone(fill(copy.holds.forgetDone, { name: confirming.displayName }));
+      setConfirming(null);
+      setChosen('');
+    }
+  };
+
+  return (
+    <section aria-labelledby="forget-player-heading" className="mt-10">
+      <Heading as="h3" size="sm" id="forget-player-heading">
+        {copy.holds.forgetHeading}
+      </Heading>
+      <Text variant="muted" size="sm" className="mt-2 max-w-[34rem]">
+        {copy.holds.forgetBody}
+      </Text>
+
+      {players.length > 0 ? (
+        <div className="mt-3 flex flex-wrap items-end gap-2">
+          <div>
+            <label htmlFor={selectId} className="block font-body text-xs text-[var(--mono-500)]">
+              {copy.holds.forgetPlayerLabel}
+            </label>
+            <select
+              id={selectId}
+              value={chosen}
+              onChange={(event) => {
+                setChosen(event.target.value);
+                setDone(null);
+              }}
+              className="mt-1 min-h-11 min-w-56 border border-[var(--border)] bg-[var(--background)] px-2 font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+            >
+              <option value="">{copy.holds.forgetPlaceholder}</option>
+              {players.map((p) => (
+                <option key={p.phoneKey} value={p.phoneKey}>
+                  {fill(copy.holds.player, { name: p.displayName, digits: p.phoneLast3 })}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="button"
+            disabled={!player || busy}
+            className={smallButton}
+            onClick={() => {
+              reset();
+              setConfirming(player);
+            }}
+          >
+            {copy.holds.forgetButton}
+          </button>
+        </div>
+      ) : null}
+
+      {done ? (
+        <p role="status" className="mt-2 font-body text-sm text-[var(--primary)]">
+          {done}
+        </p>
+      ) : null}
+
+      {confirming ? (
+        <OrganiserDialog
+          title={fill(copy.holds.forgetTitle, { name: confirming.displayName })}
+          confirmLabel={copy.holds.forgetConfirm}
+          busy={busy}
+          error={error}
+          onClose={() => setConfirming(null)}
+          onConfirm={confirm}
+        >
+          <p>{copy.holds.forgetBody}</p>
+          <p className="mt-2 font-semibold">{copy.holds.forgetWarning}</p>
+        </OrganiserDialog>
+      ) : null}
+    </section>
+  );
+}
+
 export function OrganiserHoldsPanel({ overview }: { overview: OrganiserOverview }) {
   const today = londonDateOf(overview.now);
   return (
@@ -238,6 +327,7 @@ export function OrganiserHoldsPanel({ overview }: { overview: OrganiserOverview 
         </ul>
       )}
       <ResetPin players={overview.players} />
+      <ForgetPlayer players={overview.players} />
     </div>
   );
 }

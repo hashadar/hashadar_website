@@ -4,6 +4,7 @@ import { registerClosePenalties } from './penalties';
 import { computeOrder } from './order';
 import {
   fail,
+  holdUntilOf,
   loadSession,
   loadWithSession,
   newSessionId,
@@ -117,7 +118,7 @@ async function sessionDetail(
 
   const toRow = (seat: Seat): OrganiserSeatRow => {
     const place = placeOf(order, seat.id);
-    const row = seatRow(ctx, seat, now);
+    const row = seatRow(ctx, seat);
     return {
       id: seat.id,
       kind: seat.kind,
@@ -130,7 +131,7 @@ async function sessionDetail(
         seat.kind === 'host' && seat.phoneKey
           ? (players.get(seat.phoneKey)?.phoneLast3 ?? null)
           : null,
-      holdUntil: row.holdUntil,
+      holdUntil: holdUntilOf(ctx, seat, now),
     };
   };
 
@@ -144,8 +145,8 @@ async function sessionDetail(
     waiting: waiting.length,
     listText: buildWhatsappList({
       session: summarise(session),
-      playing: order.main.map((s) => seatRow(ctx, s, now)),
-      waiting: waiting.map((s) => seatRow(ctx, s, now)),
+      playing: order.main.map((s) => seatRow(ctx, s)),
+      waiting: waiting.map((s) => seatRow(ctx, s)),
       signupUrl: `${origin}${signupPath}`,
     }),
     signupPath,
@@ -393,6 +394,50 @@ export async function resetPin(
     new Date(nowMs + 3_600_000),
   );
   return { ok: true };
+}
+
+/** Shown in place of a forgotten Player's name on Seats that have not yet expired. */
+export const FORGOTTEN_NAME = 'Removed player';
+export const FORGOTTEN_GUEST_NAME = 'Removed guest';
+
+/**
+ * Erase a Player on request: their record (remembered name, Tier, PIN), their
+ * holds, and their name from every Seat that has not yet expired. Open Seats are
+ * cancelled without a Penalty. The hash on an old Seat is left to expire with
+ * the Seat (8 weeks after its Session) and identifies no one without the pepper.
+ */
+export async function forgetPlayer(
+  deps: ServiceDeps,
+  club: Club,
+  raw: unknown,
+): Promise<Outcome<{ seatsAnonymised: number }>> {
+  const key = asRecord(raw).phoneKey;
+  if (typeof key !== 'string') return fail('not-found');
+  const player = await deps.store.getPlayer(club.id, key);
+  if (!player) return fail('not-found');
+
+  const now = deps.now();
+  let seatsAnonymised = 0;
+  for (const session of await deps.store.listSessions(club.id)) {
+    const seats = await deps.store.listSeats(session.id);
+    for (const host of seats.filter((s) => s.kind === 'host' && s.phoneKey === key)) {
+      if (!host.cancelledAt) {
+        // Cancelling a Host seat cancels its Guest seats at the same instant.
+        await deps.store.cancelSeat(session, host.id, now, 'organiser');
+      }
+      await deps.store.updateSeat(session, host.id, { name: FORGOTTEN_NAME });
+      seatsAnonymised++;
+      for (const guest of seats.filter((s) => s.kind === 'guest' && s.hostSeatId === host.id)) {
+        await deps.store.updateSeat(session, guest.id, { name: FORGOTTEN_GUEST_NAME });
+        seatsAnonymised++;
+      }
+    }
+  }
+  for (const penalty of await deps.store.listPenalties(club.id)) {
+    if (penalty.phoneKey === key) await deps.store.deletePenalty(club.id, penalty);
+  }
+  await deps.store.deletePlayer(club.id, key);
+  return { ok: true, seatsAnonymised };
 }
 
 function penaltyKeyFrom(raw: Record<string, unknown>) {

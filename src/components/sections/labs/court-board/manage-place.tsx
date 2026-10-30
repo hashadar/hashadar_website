@@ -13,6 +13,7 @@ import {
 import type { Tier } from '@/lib/court-board/types';
 import type { Failure, MyPlaceView, SessionView } from '@/lib/court-board/views';
 import { weeksPhrase } from './consequence';
+import { rulesPath } from './court-board-links';
 import { describeFailure } from './error-message';
 import { fillTemplate } from './fill-template';
 import { GuestFields, toGuestPayload, type GuestDraft } from './guest-fields';
@@ -287,6 +288,7 @@ export function ManagePlace({ view, initialCredentials, onChanged }: ManagePlace
                   busy={pending}
                   onSave={save}
                   onCancel={cancel}
+                  rulesHref={rulesPath(view.session.id)}
                 />
               ))}
             </ul>

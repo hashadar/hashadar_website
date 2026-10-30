@@ -26,6 +26,7 @@
  */
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
+  DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
@@ -64,9 +65,12 @@ import type {
 export const GSI1 = 'GSI1';
 /** Seats expire this long after their Session starts. */
 export const SEAT_RETENTION_WEEKS = 8;
+/** A Player's remembered details expire this long after they last took a place. */
+export const PLAYER_RETENTION_DAYS = 365;
 
 const MAX_TRANSACT_ITEMS = 100;
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * DAY_MS;
 
 type Item = Record<string, unknown>;
 type TransactItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number];
@@ -189,6 +193,9 @@ export function playerToItem(player: Player): Item {
     pinHash: player.pinHash,
     pinSalt: player.pinSalt,
     updatedAt: iso(player.updatedAt),
+    ttl: epochSeconds(
+      new Date(player.updatedAt.getTime() + PLAYER_RETENTION_DAYS * DAY_MS),
+    ),
   };
 }
 
@@ -420,6 +427,12 @@ export function createDynamoCourtBoardStore(
 
     async putPlayer(player) {
       await put(playerToItem(player));
+    },
+
+    async deletePlayer(clubId, phoneKey) {
+      await client.send(
+        new DeleteCommand({ TableName: tableName, Key: keys.player(clubId, phoneKey) }),
+      );
     },
 
     async listPlayers(clubId) {
@@ -690,6 +703,12 @@ export function createDynamoCourtBoardStore(
 
     async putPenalty(clubId, penalty) {
       await put(penaltyToItem(clubId, penalty));
+    },
+
+    async deletePenalty(clubId, key) {
+      await client.send(
+        new DeleteCommand({ TableName: tableName, Key: keys.penalty(clubId, key) }),
+      );
     },
 
     async updatePenalty(clubId, key, patch) {

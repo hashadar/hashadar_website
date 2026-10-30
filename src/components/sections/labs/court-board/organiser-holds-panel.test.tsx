@@ -7,6 +7,7 @@ const actions = vi.hoisted(() => ({
   clearPenaltyAction: vi.fn(),
   shortenPenaltyAction: vi.fn(),
   resetPinAction: vi.fn(),
+  forgetPlayerAction: vi.fn(),
 }));
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 vi.mock('@/lib/court-board/organiser-actions', () => actions);
@@ -137,6 +138,19 @@ describe('Reset a PIN', () => {
     expect(await within(screen.getByRole('dialog')).findByRole('alert')).toHaveTextContent(
       "We couldn't find that.",
     );
+  });
+
+  it('forgets a Player only after a confirmation that says it cannot be undone', async () => {
+    const user = userEvent.setup();
+    render(<OrganiserHoldsPanel overview={overview()} />);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Player to forget' }), 'pk-bo');
+    await user.click(screen.getByRole('button', { name: 'Forget Player' }));
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveTextContent(/cannot be undone/i);
+    expect(actions.forgetPlayerAction).not.toHaveBeenCalled();
+    await user.click(within(dialog).getByRole('button', { name: 'Forget Player' }));
+    expect(actions.forgetPlayerAction).toHaveBeenCalledWith({ phoneKey: 'pk-bo' });
+    expect(await screen.findByRole('status')).toHaveTextContent('Bo has been forgotten.');
   });
 
   it('says so when there are no Players', () => {

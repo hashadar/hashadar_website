@@ -70,6 +70,9 @@ export function createMemoryCourtBoardStore(): CourtBoardStore {
     async putPlayer(player) {
       players.set(playerKey(player.clubId, player.phoneKey), structuredClone(player));
     },
+    async deletePlayer(clubId, phoneKey) {
+      players.delete(playerKey(clubId, phoneKey));
+    },
     async listPlayers(clubId) {
       return [...players.values()]
         .filter((p) => p.clubId === clubId)
@@ -155,6 +158,9 @@ export function createMemoryCourtBoardStore(): CourtBoardStore {
     },
     async putPenalty(clubId, penalty) {
       penalties.set(penaltyId(clubId, penalty), structuredClone(penalty));
+    },
+    async deletePenalty(clubId, key) {
+      penalties.delete(`${clubId}|${penaltyKeyOf(key)}`);
     },
     async updatePenalty(clubId, key, patch) {
       const id = `${clubId}|${penaltyKeyOf(key)}`;

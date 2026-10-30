@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { Container, Heading, Section, Text } from '@/components/ui';
+import { PRIVACY_PATH } from '@/components/sections/labs/court-board/court-board-links';
 import { CourtBoardDevPanel } from '@/components/sections/labs/court-board/court-board-dev-panel';
 import { courtBoard } from '@/data';
 import type { DevInfo } from '@/lib/court-board/server-queries';
@@ -44,6 +46,12 @@ export function CourtBoardLanding({ devInfo }: CourtBoardLandingProps) {
         <Text variant="muted" size="sm" className="mt-8">
           {lab.noLinkNote}
         </Text>
+        <Link
+          href={PRIVACY_PATH}
+          className="mt-2 inline-flex min-h-11 items-center font-body text-sm underline underline-offset-2"
+        >
+          {courtBoard.privacy.heading}
+        </Link>
 
         {devInfo ? <CourtBoardDevPanel info={devInfo} /> : null}
       </Container>

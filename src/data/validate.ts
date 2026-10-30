@@ -476,6 +476,13 @@ export function assertValidCareerProfile(data: unknown): void {
   );
 }
 
+function assertLegalSection(value: unknown, context: string): void {
+  const section = requireRecord(value, context);
+  requireString(section, 'heading', context);
+  requireArray(section.paragraphs, `${context}.paragraphs`);
+  if (section.items !== undefined) requireArray(section.items, `${context}.items`);
+}
+
 export function assertValidCourtBoardPage(data: unknown): void {
   const page = requireRecord(data, 'courtBoard');
   requireString(page, 'heading', 'courtBoard');
@@ -501,6 +508,26 @@ export function assertValidCourtBoardPage(data: unknown): void {
   requireString(errors, 'generic', 'courtBoard.errors');
   requireRecord(errors.byCode, 'courtBoard.errors.byCode');
   requireRecord(errors.byField, 'courtBoard.errors.byField');
+  const rules = requireRecord(page.rules, 'courtBoard.rules');
+  for (const key of ['linkLabel', 'seeRulesLink', 'heading', 'lede', 'privacyLinkLabel']) {
+    requireString(rules, key, 'courtBoard.rules');
+  }
+  for (const key of ['tiers', 'release', 'topUp', 'guests', 'cancelling', 'privateHolds', 'fees']) {
+    assertLegalSection(rules[key], `courtBoard.rules.${key}`);
+  }
+  requireRecord(rules.holds, 'courtBoard.rules.holds');
+  requireRecord(rules.units, 'courtBoard.rules.units');
+  const privacy = requireRecord(page.privacy, 'courtBoard.privacy');
+  for (const key of ['linkLabel', 'heading', 'lastUpdated', 'lede']) {
+    requireString(privacy, key, 'courtBoard.privacy');
+  }
+  const contact = requireRecord(privacy.contact, 'courtBoard.privacy.contact');
+  for (const key of ['heading', 'lead', 'linkLabel', 'trail']) {
+    requireString(contact, key, 'courtBoard.privacy.contact');
+  }
+  requireArray(privacy.sections, 'courtBoard.privacy.sections').forEach((section, index) =>
+    assertLegalSection(section, `courtBoard.privacy.sections[${index}]`),
+  );
   requireRecord(page.player, 'courtBoard.player');
   requireRecord(page.organiser, 'courtBoard.organiser');
 }
