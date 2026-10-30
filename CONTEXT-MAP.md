@@ -5,6 +5,7 @@
 - [Job OS](./CONTEXT.md) — private job-hunting operating system (Employer → Opportunity → Application)
 - [Site](./docs/site/CONTEXT.md) — public site content, Admin, and site-wide sign-in
 - [WMW](./docs/wmw/CONTEXT.md) — private net-worth lab (What’s My Worth): Accounts, Balances, Cashflows, MWR
+- [Court Board](./docs/court-board/CONTEXT.md) — public club-session signup lab: Sessions, Seats, Order, Release, Penalties (no Sign-in, self-declared Tier; see ADR 0013)
 
 ## Relationships
 
@@ -15,3 +16,5 @@
 - **Job OS → Site**: Job OS does not publish to the public blog/portfolio.
 - **WMW ↛ Site Content**: WMW does not publish to the public blog/portfolio.
 - **Job OS ↛ WMW**: No shared domain; both only share Site Admin identity.
+- **Site → Court Board**: Site Admin may create a Club; Players and Organisers use capability links, not Sign-in. Court Board is the only Lab with public writes.
+- **Court Board ↛ Job OS / WMW / Site Content**: No shared domain or data.
