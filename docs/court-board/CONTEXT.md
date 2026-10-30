@@ -9,8 +9,12 @@ Court Board runs on trust: Players say who they are and what Tier they are, and 
 ### People
 
 **Player**:
-A person who takes a place at a Session. Identified by phone number (stored only as a keyed hash) and shown by display name. Has no account and no password.
+A person who takes a place at a Session. Identified by phone number (stored only as a keyed hash), protected by a PIN, and shown by display name. Has no account.
 _Avoid_: user, member, Site Admin, attendee (use Attended for the fact)
+
+**PIN**:
+A 6-digit number a Player chooses the first time their phone number takes a Seat. Phone number + PIN is what lets a Player take further Seats, cancel, or change their name or Tier, from any device. Only an Organiser can reset it.
+_Avoid_: password, passcode, login, device token
 
 **Organiser**:
 A committee member who runs a Club. Holds the Organiser link; is not a Site Admin and does not use Sign-in.
