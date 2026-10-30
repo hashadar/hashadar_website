@@ -112,6 +112,9 @@ export type CourtBoardSsrConfigValues = {
   appId: string;
   region: string;
   tableName: string | null;
+  /** Cognito user pool id and app client id (public config) for Site Admin token checks. */
+  userPoolId: string | null;
+  userPoolClientId: string | null;
 };
 
 export type WriteCourtBoardSsrConfigResult = {
@@ -144,6 +147,32 @@ export function readCourtBoardTableNameFromOutputs(
   }
 }
 
+/** `auth.user_pool_id` and `auth.user_pool_client_id` from Amplify outputs; null when absent. */
+export function readUserPoolFromOutputs(outputsPath = AMPLIFY_OUTPUTS_PATH): {
+  userPoolId: string | null;
+  userPoolClientId: string | null;
+} {
+  const none = { userPoolId: null, userPoolClientId: null };
+  if (!existsSync(outputsPath)) return none;
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(outputsPath, 'utf8'));
+    const auth =
+      parsed && typeof parsed === 'object'
+        ? (parsed as { auth?: unknown }).auth
+        : undefined;
+    if (!auth || typeof auth !== 'object') return none;
+    const { user_pool_id: id, user_pool_client_id: clientId } = auth as {
+      user_pool_id?: unknown;
+      user_pool_client_id?: unknown;
+    };
+    const clean = (value: unknown) =>
+      typeof value === 'string' && value.trim() ? value.trim() : null;
+    return { userPoolId: clean(id), userPoolClientId: clean(clientId) };
+  } catch {
+    return none;
+  }
+}
+
 /** Table name: `COURT_BOARD_TABLE` env override, else Amplify outputs, else null. */
 export function resolveCourtBoardSsrConfigValues(
   env: Record<string, string | undefined> = process.env,
@@ -153,7 +182,7 @@ export function resolveCourtBoardSsrConfigValues(
   const tableName =
     env.COURT_BOARD_TABLE?.trim() ||
     readCourtBoardTableNameFromOutputs(outputsPath);
-  return { appId, region, tableName };
+  return { appId, region, tableName, ...readUserPoolFromOutputs(outputsPath) };
 }
 
 export function buildCourtBoardSsrConfigModuleSource(
@@ -173,12 +202,17 @@ export type CourtBoardSsrConfig = {
   region: string;
   /** Court Board DynamoDB table name; null runs the in-memory dev store. */
   tableName: string | null;
+  /** Cognito user pool (public ids) used to verify the Site Admin's token; null disables Admin actions. */
+  userPoolId: string | null;
+  userPoolClientId: string | null;
 };
 
 export const courtBoardSsrConfig: CourtBoardSsrConfig = {
   appId: ${JSON.stringify(values.appId)},
   region: ${JSON.stringify(values.region)},
   tableName: ${JSON.stringify(values.tableName)},
+  userPoolId: ${JSON.stringify(values.userPoolId)},
+  userPoolClientId: ${JSON.stringify(values.userPoolClientId)},
 };
 `;
 }

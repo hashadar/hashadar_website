@@ -57,13 +57,21 @@ Amplify Console → Hosting → Secrets → add `courtboard.pepper` with that va
 
 ## Create the Club
 
-Run by the Site Admin with AWS credentials for this account:
+Only the Site Admin creates Clubs. Do it from **Admin** (`/admin`, "Court Board clubs"): enter the name, venue and session times, and the page shows the Organiser link **once**. Copy it and give it to the committee privately. The server stores only the SHA-256 of the token, so the link cannot be shown again; if it is lost, an Organiser who still has access rotates it from the Organiser page, otherwise create a new Club.
+
+The create action is a public Server Action endpoint, so it does not trust the page: the browser sends the Site Admin's Cognito ID token and the server verifies it (signature, issuer, audience, expiry) with `aws-jwt-verify` against the user pool in `amplify_outputs.json`. The pool allows admin-created users only, so a valid token is the Site Admin's. If the pool is not configured the action refuses everyone. The pool ids are written into `court-board-ssr-config.ts` at build time by `write-amplify-ssr-env.ts`; the SSR Compute role needs the Court Board policy (above) to write the table.
+
+Local `next dev` has no Cognito, so Admin cannot create Clubs there; the demo Club is seeded instead.
+
+### Fallback: script
+
+If Admin is unavailable, run this with AWS credentials for this account:
 
 ```bash
 npx tsx scripts/court-board-create-club.ts --name "Lunchtime Badminton" --venue "Sports hall" --start 09:00 --end 11:00
 ```
 
-The table name comes from `--table`, `COURT_BOARD_TABLE`, or `amplify_outputs.json`. The script stores only the SHA-256 of the Organiser token and prints the Organiser link **once**. It cannot be shown again; if it is lost, an Organiser who still has access rotates it from the Organiser page, otherwise create a new Club. Give the link to the committee privately.
+The table name comes from `--table`, `COURT_BOARD_TABLE`, or `amplify_outputs.json`. It prints the Organiser link once, like Admin.
 
 ## SSR config
 

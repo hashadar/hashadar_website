@@ -6,6 +6,7 @@ import {
   buildCourtBoardSsrConfigModuleSource,
   buildWmwSsrConfigModuleSource,
   readCourtBoardTableNameFromOutputs,
+  readUserPoolFromOutputs,
   resolveCourtBoardSsrConfigValues,
   resolveWmwSsrConfigValues,
   writeCourtBoardSsrConfigFile,
@@ -97,6 +98,8 @@ describe('Court Board SSR config', () => {
       appId: 'app-example',
       region: 'eu-west-2',
       tableName: 'FromEnv',
+      userPoolId: null,
+      userPoolClientId: null,
     });
     expect(resolveCourtBoardSsrConfigValues({}, file).tableName).toBe(
       'FromOutputs',
@@ -108,11 +111,34 @@ describe('Court Board SSR config', () => {
       appId: 'app-example',
       region: 'eu-west-2',
       tableName: 'Table"Name',
+      userPoolId: 'eu-west-2_Pool',
+      userPoolClientId: 'client-id',
     });
+    expect(source).toContain('userPoolId: "eu-west-2_Pool"');
     expect(source).toContain("import 'server-only'");
     expect(source).toContain('appId: "app-example"');
     expect(source).toContain('tableName: "Table\\"Name"');
     expect(source).not.toMatch(/pepper:/i);
+  });
+
+  it('reads the Cognito user pool ids from auth outputs', () => {
+    const file = outputs(
+      JSON.stringify({
+        auth: { user_pool_id: ' eu-west-2_Pool ', user_pool_client_id: 'client' },
+      }),
+    );
+    expect(readUserPoolFromOutputs(file)).toEqual({
+      userPoolId: 'eu-west-2_Pool',
+      userPoolClientId: 'client',
+    });
+    expect(readUserPoolFromOutputs(outputs('{"auth":{}}'))).toEqual({
+      userPoolId: null,
+      userPoolClientId: null,
+    });
+    expect(readUserPoolFromOutputs(path.join(dir, 'missing.json'))).toEqual({
+      userPoolId: null,
+      userPoolClientId: null,
+    });
   });
 
   it('writes null when no table is configured', () => {

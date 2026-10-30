@@ -9,15 +9,15 @@
  * Organiser page if it is lost. See docs/court-board/infra.md.
  */
 import { readFileSync } from 'node:fs';
-import { randomBytes } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { createDynamoCourtBoardStore } from '../src/lib/court-board/dynamo-store';
 import {
-  generateOrganiserToken,
-  hashOrganiserToken,
-} from '../src/lib/court-board/organiser-token';
-import { DEFAULT_CLUB_RULES } from '../src/lib/court-board/rules';
-import type { Club, CourtBoardStore } from '../src/lib/court-board/store';
+  buildClub,
+  createClubWithToken,
+  generateClubId,
+  organiserTokenPath,
+} from '../src/lib/court-board/club-admin';
+import { createDynamoCourtBoardStore } from '../src/lib/court-board/dynamo-store';
+import type { CourtBoardStore } from '../src/lib/court-board/store';
 import { readCourtBoardTableNameFromOutputs } from './write-amplify-ssr-env';
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -78,25 +78,10 @@ export function parseCreateClubArgs(argv: string[]): CreateClubArgs {
   };
 }
 
-/** 12-character URL-safe id. */
-export function generateClubId(): string {
-  return randomBytes(9).toString('base64url');
-}
-
-export function buildClub(args: CreateClubArgs, id: string, now: Date): Club {
-  return {
-    id,
-    name: args.name,
-    venue: args.venue,
-    startTime: args.start,
-    endTime: args.end,
-    rules: DEFAULT_CLUB_RULES,
-    createdAt: now,
-  };
-}
+export { buildClub, generateClubId };
 
 export function organiserLink(origin: string, token: string): string {
-  return `${origin.replace(/\/+$/, '')}/labs/court-board/o/${token}`;
+  return `${origin.replace(/\/+$/, '')}${organiserTokenPath(token)}`;
 }
 
 export type CreateClubDeps = {
@@ -112,10 +97,7 @@ export async function createClub(
   args: CreateClubArgs,
   deps: CreateClubDeps,
 ): Promise<{ clubId: string; link: string }> {
-  const clubId = (deps.newClubId ?? generateClubId)();
-  const token = (deps.newToken ?? generateOrganiserToken)();
-  const club = buildClub(args, clubId, (deps.now ?? (() => new Date()))());
-  await deps.store.createClub(club, hashOrganiserToken(token));
+  const { clubId, token } = await createClubWithToken(args, deps);
   return { clubId, link: organiserLink(deps.origin, token) };
 }
 

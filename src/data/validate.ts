@@ -408,6 +408,29 @@ export function assertValidAdminPage(data: unknown): void {
   requireRecord(page.posts, 'admin.posts');
   requireRecord(page.photos, 'admin.photos');
   requireRecord(page.homePhoto, 'admin.homePhoto');
+  const courtBoard = requireRecord(page.courtBoard, 'admin.courtBoard');
+  for (const key of [
+    'heading',
+    'description',
+    'nameLabel',
+    'venueLabel',
+    'startLabel',
+    'endLabel',
+    'createLabel',
+    'creatingLabel',
+    'linkHeading',
+    'linkWarning',
+    'copyLabel',
+    'copiedLabel',
+    'copyFailedLabel',
+    'dismissLabel',
+  ]) {
+    requireString(courtBoard, key, 'admin.courtBoard');
+  }
+  const errors = requireRecord(courtBoard.errors, 'admin.courtBoard.errors');
+  for (const key of ['invalid', 'unauthorised', 'unavailable']) {
+    requireString(errors, key, 'admin.courtBoard.errors');
+  }
 }
 
 export function assertValidNavigation(data: unknown): void {

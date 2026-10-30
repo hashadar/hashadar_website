@@ -645,6 +645,27 @@ export interface AdminPageData {
     clearedLabel: string;
     errorLabel: string;
   };
+  courtBoard: {
+    heading: string;
+    description: string;
+    nameLabel: string;
+    venueLabel: string;
+    startLabel: string;
+    endLabel: string;
+    createLabel: string;
+    creatingLabel: string;
+    linkHeading: string;
+    linkWarning: string;
+    copyLabel: string;
+    copiedLabel: string;
+    copyFailedLabel: string;
+    dismissLabel: string;
+    errors: {
+      invalid: string;
+      unauthorised: string;
+      unavailable: string;
+    };
+  };
 }
 
 // Common/shared types

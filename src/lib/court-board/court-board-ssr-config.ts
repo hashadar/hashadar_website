@@ -14,6 +14,9 @@ export type CourtBoardSsrConfig = {
   region: string;
   /** Court Board DynamoDB table name; null runs the in-memory dev store. */
   tableName: string | null;
+  /** Cognito user pool (public ids) used to verify the Site Admin's token; null disables Admin actions. */
+  userPoolId: string | null;
+  userPoolClientId: string | null;
 };
 
 /**
@@ -24,4 +27,6 @@ export const courtBoardSsrConfig: CourtBoardSsrConfig = {
   appId: 'd3j7dgxx3prj17',
   region: 'eu-west-2',
   tableName: null,
+  userPoolId: null,
+  userPoolClientId: null,
 };
