@@ -78,7 +78,7 @@ describe('opening the view', () => {
   it('tells a Player their new PIN is set and shows a hold', async () => {
     renderOpen(makePlace({ pinWasSet: true, holdUntil: '2026-11-28T00:00:00.000Z' }));
     expect(await screen.findByText('Your new PIN is set.')).toBeInTheDocument();
-    expect(screen.getByText(/on hold until Sat 28 Nov/)).toBeInTheDocument();
+    expect(screen.getByText(/have a penalty until Sat 28 Nov/)).toBeInTheDocument();
   });
 
   it('says so when the number has no place in this session', async () => {
@@ -117,7 +117,7 @@ describe('cancelling states the consequence first', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Cancel my place' }));
     const panel = screen.getByRole('group', { name: 'Cancel my place' });
     expect(
-      within(panel).getByText('Cancelling now puts you on hold for 3 weeks (until Sat 28 Nov).'),
+      within(panel).getByText('Cancelling now gives you a penalty of 3 weeks (until Sat 28 Nov).'),
     ).toBeInTheDocument();
     const confirm = within(panel).getByRole('button', { name: 'Cancel anyway' });
     expect(confirm.className).toContain('bg-red-700');
@@ -143,7 +143,7 @@ describe('cancelling states the consequence first', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel anyway' }));
 
     await waitFor(() => expect(cancelSeatAction).toHaveBeenCalledWith({ ...base, seatId: 'h' }));
-    expect(await screen.findByText("Cancelled. You're on hold for 3 weeks (until Sat 28 Nov).")).toBeInTheDocument();
+    expect(await screen.findByText("Cancelled. You have a penalty of 3 weeks (until Sat 28 Nov).")).toBeInTheDocument();
     expect(onChanged).toHaveBeenCalled();
     expect(screen.getByText("You don't have a place in this session.")).toBeInTheDocument();
   });

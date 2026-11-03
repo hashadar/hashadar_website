@@ -66,13 +66,13 @@ describe('SessionPage lists', () => {
     ],
   });
 
-  it('numbers the players by name, labels guests, and never shows who is on hold', () => {
+  it('numbers the players by name, labels guests, and never shows who has a penalty', () => {
     render(<SessionPage view={view} />);
     const playing = screen.getByRole('region', { name: 'Playing · 3' });
     const items = within(playing).getAllByRole('listitem');
     expect(items[0]).toHaveTextContent('1.Alex');
     expect(items[1]).toHaveTextContent('2.Bo');
-    expect(playing).not.toHaveTextContent(/on hold/i);
+    expect(playing).not.toHaveTextContent(/penalty/i);
     expect(items[2]).toHaveTextContent("3.Alex's guest: Gina");
   });
 

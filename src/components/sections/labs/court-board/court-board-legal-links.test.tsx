@@ -76,7 +76,7 @@ describe('the rules link beside what cancelling costs', () => {
     );
     await userEvent.click(await screen.findByRole('button', { name: 'Cancel my place' }));
     const panel = screen.getByRole('group', { name: 'Cancel my place' });
-    expect(within(panel).getByText(/puts you on hold for 3 weeks/)).toBeInTheDocument();
+    expect(within(panel).getByText(/gives you a penalty of 3 weeks/)).toBeInTheDocument();
     expect(within(panel).getByRole('link', { name: 'See the club rules' })).toHaveAttribute(
       'href',
       RULES,

@@ -551,7 +551,7 @@ export function assertValidCourtBoardPage(data: unknown): void {
   for (const key of ['linkLabel', 'seeRulesLink', 'heading', 'lede', 'privacyLinkLabel']) {
     requireString(rules, key, 'courtBoard.rules');
   }
-  for (const key of ['tiers', 'release', 'topUp', 'guests', 'cancelling', 'privateHolds', 'fees']) {
+  for (const key of ['tiers', 'release', 'topUp', 'guests', 'cancelling', 'fees']) {
     assertLegalSection(rules[key], `courtBoard.rules.${key}`);
   }
   requireRecord(rules.holds, 'courtBoard.rules.holds');

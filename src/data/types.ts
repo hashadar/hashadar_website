@@ -1034,7 +1034,6 @@ export interface CourtBoardRulesCopy {
     lengthNote: string;
     organiserNote: string;
   };
-  privateHolds: CourtBoardLegalSection;
   fees: CourtBoardLegalSection;
   privacyBefore: string;
   privacyLinkLabel: string;

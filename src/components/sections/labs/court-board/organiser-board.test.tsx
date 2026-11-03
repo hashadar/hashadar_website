@@ -76,15 +76,15 @@ describe('header, picker and tabs', () => {
     render(<OrganiserBoard overview={overview({ holds: [hold] })} />);
 
     const tabs = screen.getAllByRole('tab');
-    expect(tabs.map((t) => t.textContent)).toEqual(['Current session', 'On hold (1)', 'New session']);
+    expect(tabs.map((t) => t.textContent)).toEqual(['Current session', 'Penalties (1)', 'New session']);
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tabpanel', { name: 'Current session' })).toBeVisible();
-    expect(screen.queryByRole('tabpanel', { name: /On hold/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tabpanel', { name: /Penalties/ })).not.toBeInTheDocument();
 
     await user.click(tabs[1]);
     expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
     expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
-    expect(screen.getByRole('tabpanel', { name: /On hold/ })).toBeVisible();
+    expect(screen.getByRole('tabpanel', { name: /Penalties/ })).toBeVisible();
     expect(screen.queryByRole('tabpanel', { name: 'Current session' })).not.toBeInTheDocument();
   });
 
@@ -247,7 +247,7 @@ describe('cancelling a Session', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel session' }));
     const dialog = screen.getByRole('dialog', { name: 'Cancel this session?' });
     expect(actions.cancelSessionAction).not.toHaveBeenCalled();
-    expect(within(dialog).getByText(/Nobody will be put on hold/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/Nobody will get a penalty/)).toBeInTheDocument();
 
     await user.click(within(dialog).getByRole('button', { name: 'Cancel session' }));
 
