@@ -30,9 +30,9 @@ describe('CourtBoardRules with the default rules', () => {
     expect(screen.getByText('Leaving a waitlist is always free, at any time.')).toBeInTheDocument();
   });
 
-  it('lists each hold length and the rule that holds do not add up', () => {
+  it('lists each penalty length and the rule that penalties do not add up', () => {
     renderRules();
-    const holds = screen.getByRole('heading', { name: 'Being on hold' }).closest('section')!;
+    const holds = screen.getByRole('heading', { name: 'Penalties' }).closest('section')!;
     const items = within(holds).getAllByRole('listitem').map((li) => li.textContent);
     expect(items).toEqual([
       'Cancelling a place on the playing list after the cutoff: 3 weeks.',
@@ -40,16 +40,14 @@ describe('CourtBoardRules with the default rules', () => {
       'You and a guest of yours both not turning up: 6 weeks.',
       'You turn up but a guest of yours does not: 2 weeks.',
     ]);
-    expect(within(holds).getByText(/Holds never add up/)).toBeInTheDocument();
+    expect(within(holds).getByText(/Penalties never add up/)).toBeInTheDocument();
     expect(within(holds).getByText(/External band/)).toBeInTheDocument();
-    expect(within(holds).getByText(/clear or shorten a hold/)).toBeInTheDocument();
+    expect(within(holds).getByText(/clear or shorten a penalty/)).toBeInTheDocument();
   });
 
-  it('says holds are private and fees are outside the tool', () => {
+  it('says fees are outside the tool, with no section about who can see penalties', () => {
     renderRules();
-    const priv = screen.getByRole('heading', { name: 'Holds are private' }).closest('section')!;
-    expect(priv).toHaveTextContent('Only you and the organisers can see who is on hold');
-    expect(priv).toHaveTextContent('never shown on the session page');
+    expect(screen.queryByRole('heading', { name: /private/i })).not.toBeInTheDocument();
     expect(screen.getByText(/does not handle fees or payments/)).toBeInTheDocument();
   });
 
@@ -89,7 +87,7 @@ describe('CourtBoardRules for a Club with different settings', () => {
     expect(screen.getByText(/From Sunday at 18:05 \(Top-up\) you can add more than 1 guest to fill/)).toBeInTheDocument();
     expect(screen.getByText(/2 days before \(the cutoff\)/)).toBeInTheDocument();
     expect(screen.getByText(/you get 45 minutes to change your mind/)).toBeInTheDocument();
-    const holds = screen.getByRole('heading', { name: 'Being on hold' }).closest('section')!;
+    const holds = screen.getByRole('heading', { name: 'Penalties' }).closest('section')!;
     expect(within(holds).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
       'Cancelling a place on the playing list after the cutoff: 1 week.',
       'Not turning up: 2 weeks.',

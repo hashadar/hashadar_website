@@ -428,8 +428,24 @@ export function assertValidAdminPage(data: unknown): void {
     requireString(courtBoard, key, 'admin.courtBoard');
   }
   const errors = requireRecord(courtBoard.errors, 'admin.courtBoard.errors');
-  for (const key of ['invalid', 'unauthorised', 'unavailable']) {
+  for (const key of ['invalid', 'unauthorised', 'not-found', 'unavailable']) {
     requireString(errors, key, 'admin.courtBoard.errors');
+  }
+  const replace = requireRecord(courtBoard.replace, 'admin.courtBoard.replace');
+  for (const key of [
+    'heading',
+    'description',
+    'signupLinkLabel',
+    'confirmLabel',
+    'replaceLabel',
+    'replacingLabel',
+    'linkHeading',
+  ]) {
+    requireString(replace, key, 'admin.courtBoard.replace');
+  }
+  const replaceErrors = requireRecord(replace.errors, 'admin.courtBoard.replace.errors');
+  for (const key of ['invalid', 'not-found', 'unauthorised', 'unavailable']) {
+    requireString(replaceErrors, key, 'admin.courtBoard.replace.errors');
   }
 }
 
@@ -535,7 +551,7 @@ export function assertValidCourtBoardPage(data: unknown): void {
   for (const key of ['linkLabel', 'seeRulesLink', 'heading', 'lede', 'privacyLinkLabel']) {
     requireString(rules, key, 'courtBoard.rules');
   }
-  for (const key of ['tiers', 'release', 'topUp', 'guests', 'cancelling', 'privateHolds', 'fees']) {
+  for (const key of ['tiers', 'release', 'topUp', 'guests', 'cancelling', 'fees']) {
     assertLegalSection(rules[key], `courtBoard.rules.${key}`);
   }
   requireRecord(rules.holds, 'courtBoard.rules.holds');

@@ -663,7 +663,24 @@ export interface AdminPageData {
     errors: {
       invalid: string;
       unauthorised: string;
+      'not-found': string;
       unavailable: string;
+    };
+    replace: {
+      heading: string;
+      description: string;
+      signupLinkLabel: string;
+      confirmLabel: string;
+      replaceLabel: string;
+      replacingLabel: string;
+      /** `{club}` is replaced with the Club name. */
+      linkHeading: string;
+      errors: {
+        invalid: string;
+        'not-found': string;
+        unauthorised: string;
+        unavailable: string;
+      };
     };
   };
 }
@@ -1017,7 +1034,6 @@ export interface CourtBoardRulesCopy {
     lengthNote: string;
     organiserNote: string;
   };
-  privateHolds: CourtBoardLegalSection;
   fees: CourtBoardLegalSection;
   privacyBefore: string;
   privacyLinkLabel: string;

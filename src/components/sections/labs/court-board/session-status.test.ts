@@ -60,13 +60,13 @@ describe('consequenceText', () => {
     expect(consequenceText({ kind: 'free-guest-seat' })).toBe('Removing a guest is free.');
     expect(
       consequenceText({ kind: 'penalty', weeks: 3, endsAt: '2026-11-28T00:00:00.000Z' }),
-    ).toBe('Cancelling now puts you on hold for 3 weeks (until Sat 28 Nov).');
+    ).toBe('Cancelling now gives you a penalty of 3 weeks (until Sat 28 Nov).');
   });
 
   it('uses the singular for one week', () => {
     expect(
       consequenceText({ kind: 'penalty', weeks: 1, endsAt: '2026-11-14T00:00:00.000Z' }),
-    ).toContain('for 1 week (until');
+    ).toContain('of 1 week (until');
   });
 });
 

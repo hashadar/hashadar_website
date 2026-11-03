@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createClubAsAdmin, type AdminServiceDeps } from './admin-service';
+import {
+  createClubAsAdmin,
+  replaceOrganiserLinkAsAdmin,
+  sessionIdFromSignupLink,
+  type AdminServiceDeps,
+} from './admin-service';
 import { createMemoryCourtBoardStore } from './memory-store';
 import { hashOrganiserToken } from './organiser-token';
 
@@ -73,5 +78,79 @@ describe('createClubAsAdmin', () => {
       ok: false,
       error: 'unavailable',
     });
+  });
+});
+
+describe('sessionIdFromSignupLink', () => {
+  it('reads a full Signup link, a path, or a bare id', () => {
+    expect(
+      sessionIdFromSignupLink('https://www.hashadar.com/labs/court-board/s/abcdefghijkl'),
+    ).toBe('abcdefghijkl');
+    expect(sessionIdFromSignupLink(' /labs/court-board/s/abc-ef_hijkl/rules ')).toBe(
+      'abc-ef_hijkl',
+    );
+    expect(sessionIdFromSignupLink('abcdefghijkl')).toBe('abcdefghijkl');
+  });
+
+  it('rejects anything else', () => {
+    expect(sessionIdFromSignupLink('https://www.hashadar.com/labs/court-board/o')).toBeNull();
+    expect(sessionIdFromSignupLink('/labs/court-board/s/short')).toBeNull();
+    expect(sessionIdFromSignupLink(42)).toBeNull();
+  });
+});
+
+describe('replaceOrganiserLinkAsAdmin', () => {
+  async function withSession(admin: boolean) {
+    const { store, deps } = setup(admin);
+    const created = await createClubAsAdmin({ ...deps, isSiteAdmin: async () => true }, 'id', input);
+    if (!created.ok) throw new Error('setup failed');
+    const oldToken = created.organiserPath.replace('/labs/court-board/o/', '');
+    await store.createSession({
+      id: 'abcdefghijkl',
+      clubId: created.clubId,
+      localDate: '2026-11-07',
+      startTime: '09:00',
+      endTime: '11:00',
+      venue: 'Sports hall',
+      capacity: 25,
+      status: 'open',
+      registerClosedAt: null,
+    });
+    return { store, deps, clubId: created.clubId, oldToken };
+  }
+
+  it('issues a new link for the Club behind a Signup link and kills the old one', async () => {
+    const { store, deps, clubId, oldToken } = await withSession(true);
+    const result = await replaceOrganiserLinkAsAdmin(deps, 'id.token', {
+      signupLink: 'https://www.hashadar.com/labs/court-board/s/abcdefghijkl',
+    });
+
+    expect(result).toMatchObject({ ok: true, clubName: 'Lunchtime Badminton' });
+    if (!result.ok) return;
+    const newToken = result.organiserPath.replace('/labs/court-board/o/', '');
+    expect(newToken).not.toBe(oldToken);
+    expect(await store.getClubIdByOrganiserTokenHash(hashOrganiserToken(newToken))).toBe(clubId);
+    expect(await store.getClubIdByOrganiserTokenHash(hashOrganiserToken(oldToken))).toBeNull();
+  });
+
+  it('does nothing for anyone but the Site Admin', async () => {
+    const { deps } = await withSession(false);
+    await expect(
+      replaceOrganiserLinkAsAdmin(deps, 'forged', { signupLink: 'abcdefghijkl' }),
+    ).resolves.toEqual({ ok: false, error: 'unauthorised' });
+  });
+
+  it('rejects input that is not a Signup link', async () => {
+    const { deps } = await withSession(true);
+    await expect(
+      replaceOrganiserLinkAsAdmin(deps, 'id', { signupLink: 'not a link' }),
+    ).resolves.toEqual({ ok: false, error: 'invalid' });
+  });
+
+  it('reports an unknown Session', async () => {
+    const { deps } = await withSession(true);
+    await expect(
+      replaceOrganiserLinkAsAdmin(deps, 'id', { signupLink: 'zzzzzzzzzzzz' }),
+    ).resolves.toEqual({ ok: false, error: 'not-found' });
   });
 });

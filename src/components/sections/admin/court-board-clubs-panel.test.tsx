@@ -2,10 +2,16 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { admin } from '@/data';
-import type { CreateClubResult } from '@/lib/court-board/admin-service';
+import type {
+  CreateClubResult,
+  ReplaceOrganiserLinkResult,
+} from '@/lib/court-board/admin-service';
 import { CourtBoardClubsPanel } from './court-board-clubs-panel';
 
-vi.mock('@/lib/court-board/admin-actions', () => ({ createClubAction: vi.fn() }));
+vi.mock('@/lib/court-board/admin-actions', () => ({
+  createClubAction: vi.fn(),
+  replaceOrganiserLinkAction: vi.fn(),
+}));
 
 const copy = admin.courtBoard;
 
@@ -94,5 +100,58 @@ describe('CourtBoardClubsPanel', () => {
     await waitFor(() =>
       expect(screen.getByRole('alert').textContent).toBe(copy.errors.unavailable),
     );
+  });
+
+  it('replaces an Organiser link from a Signup link, only once confirmed', async () => {
+    const user = userEvent.setup();
+    const replace = admin.courtBoard.replace;
+    const replaceLink = vi.fn<
+      (token: unknown, input: unknown) => Promise<ReplaceOrganiserLinkResult>
+    >(async () => ({
+      ok: true,
+      clubName: 'Lunchtime Badminton',
+      organiserPath: '/labs/court-board/o/new-token',
+    }));
+    render(
+      <CourtBoardClubsPanel
+        createClub={vi.fn()}
+        replaceLink={replaceLink}
+        getToken={async () => 'id.jwt'}
+      />,
+    );
+
+    const signup = 'https://www.hashadar.com/labs/court-board/s/abcdefghijkl';
+    await user.type(screen.getByLabelText(replace.signupLinkLabel), signup);
+    const button = screen.getByRole('button', { name: replace.replaceLabel });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+
+    await user.click(screen.getByLabelText(replace.confirmLabel));
+    await user.click(button);
+
+    expect(replaceLink).toHaveBeenCalledWith('id.jwt', { signupLink: signup });
+    const heading = replace.linkHeading.replace('{club}', 'Lunchtime Badminton');
+    const link = await screen.findByRole('textbox', { name: heading });
+    expect((link as HTMLInputElement).value).toBe(
+      `${window.location.origin}/labs/court-board/o/new-token`,
+    );
+  });
+
+  it('explains when no Club matches the Signup link', async () => {
+    const user = userEvent.setup();
+    const replace = admin.courtBoard.replace;
+    const replaceLink = vi.fn(async () => ({ ok: false, error: 'not-found' }) as const);
+    render(
+      <CourtBoardClubsPanel
+        createClub={vi.fn()}
+        replaceLink={replaceLink}
+        getToken={async () => 'id.jwt'}
+      />,
+    );
+
+    await user.type(screen.getByLabelText(replace.signupLinkLabel), 'abcdefghijkl');
+    await user.click(screen.getByLabelText(replace.confirmLabel));
+    await user.click(screen.getByRole('button', { name: replace.replaceLabel }));
+
+    expect((await screen.findByRole('alert')).textContent).toBe(replace.errors['not-found']);
   });
 });

@@ -49,7 +49,7 @@ describe('register rows', () => {
       rows: [seatRow({ id: 's', name: 'Held', holdUntil: '2026-11-28T00:00:00.000Z' })],
     });
     render(<OrganiserRegister detail={detail} now={STARTED} />);
-    expect(screen.getByText('On hold until Sat 28 Nov')).toBeInTheDocument();
+    expect(screen.getByText('Penalty until Sat 28 Nov')).toBeInTheDocument();
   });
 
   it('gives only Main-list Seats a Here checkbox', () => {
@@ -182,16 +182,16 @@ describe('closing the register', () => {
     expect(actions.closeRegisterAction).not.toHaveBeenCalled();
     expect(within(dialog).getByText('1 here, 2 not here.')).toBeInTheDocument();
     expect(
-      within(dialog).getByText('Alex: no-show, on hold for 4 weeks until Sat 5 Dec'),
+      within(dialog).getByText('Alex: no-show, penalty of 4 weeks until Sat 5 Dec'),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByText('Bo: guest no-show, on hold for 2 weeks until Sat 21 Nov'),
+      within(dialog).getByText('Bo: guest no-show, penalty of 2 weeks until Sat 21 Nov'),
     ).toBeInTheDocument();
 
     await user.click(within(dialog).getByRole('button', { name: 'Close register' }));
 
     expect(actions.closeRegisterAction).toHaveBeenCalledWith({ sessionId: SESSION_ID });
-    expect(await screen.findByText('Register closed. 2 put on hold.')).toBeInTheDocument();
+    expect(await screen.findByText('Register closed. 2 given a penalty.')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(router.refresh).toHaveBeenCalled();
   });
@@ -206,7 +206,7 @@ describe('closing the register', () => {
 
     await user.click(screen.getByRole('button', { name: 'Close register' }));
     const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText('Nobody will be put on hold.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Nobody will get a penalty.')).toBeInTheDocument();
 
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

@@ -35,14 +35,14 @@ describe('holds', () => {
 
   it('says so when nobody is on hold', () => {
     render(<OrganiserHoldsPanel overview={overview()} />);
-    expect(screen.getByText('Nobody is on hold.')).toBeInTheDocument();
+    expect(screen.getByText('Nobody has a penalty.')).toBeInTheDocument();
   });
 
   it('clears a hold', async () => {
     const user = userEvent.setup();
     render(<OrganiserHoldsPanel overview={overview({ holds: [hold] })} />);
 
-    await user.click(screen.getByRole('button', { name: 'Clear hold for Alex' }));
+    await user.click(screen.getByRole('button', { name: 'Clear penalty for Alex' }));
 
     expect(actions.clearPenaltyAction).toHaveBeenCalledWith(identity);
     expect(router.refresh).toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe('holds', () => {
     const user = userEvent.setup();
     render(<OrganiserHoldsPanel overview={overview({ holds: [hold] })} />);
 
-    await user.click(screen.getByRole('button', { name: 'Shorten hold for Alex' }));
+    await user.click(screen.getByRole('button', { name: 'Shorten penalty for Alex' }));
     const date = screen.getByLabelText('New end date');
     expect(date).toHaveAttribute('max', '2026-11-27');
     expect(date).toHaveAttribute('min', '2026-11-07');
@@ -73,12 +73,12 @@ describe('holds', () => {
     });
     const user = userEvent.setup();
     render(<OrganiserHoldsPanel overview={overview({ holds: [hold] })} />);
-    await user.click(screen.getByRole('button', { name: 'Shorten hold for Alex' }));
+    await user.click(screen.getByRole('button', { name: 'Shorten penalty for Alex' }));
     fireEvent.change(screen.getByLabelText('New end date'), { target: { value: '2026-11-14' } });
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Pick a date before the hold currently ends.',
+      'Pick a date before the penalty currently ends.',
     );
     expect(screen.getByLabelText('New end date')).toBeInTheDocument();
   });
@@ -86,7 +86,7 @@ describe('holds', () => {
   it('cannot save a shortened hold without a date', async () => {
     const user = userEvent.setup();
     render(<OrganiserHoldsPanel overview={overview({ holds: [hold] })} />);
-    await user.click(screen.getByRole('button', { name: 'Shorten hold for Alex' }));
+    await user.click(screen.getByRole('button', { name: 'Shorten penalty for Alex' }));
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 });

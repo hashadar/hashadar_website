@@ -373,7 +373,7 @@ export function createDynamoCourtBoardStore(
         {
           Put: {
             TableName: tableName,
-            Item: clubToItem(club),
+            Item: { ...clubToItem(club), organiserTokenHash },
             ConditionExpression: 'attribute_not_exists(pk)',
           },
         },
@@ -389,7 +389,14 @@ export function createDynamoCourtBoardStore(
 
     async getClubIdByOrganiserTokenHash(tokenHash) {
       const item = await get(keys.organiserToken(tokenHash));
-      return item?.clubId ? String(item.clubId) : null;
+      if (!item?.clubId) return null;
+      const clubId = String(item.clubId);
+      // The Club names its one current token. Clubs created before that field
+      // existed have none, so any token item of theirs still counts.
+      const club = await get(keys.club(clubId));
+      const current = club?.organiserTokenHash;
+      if (typeof current === 'string' && current !== tokenHash) return null;
+      return clubId;
     },
 
     async rotateOrganiserToken(clubId, oldHash, newHash) {
@@ -410,10 +417,48 @@ export function createDynamoCourtBoardStore(
               ConditionExpression: 'attribute_not_exists(pk)',
             },
           },
+          {
+            Update: {
+              TableName: tableName,
+              Key: keys.club(clubId),
+              UpdateExpression: 'SET organiserTokenHash = :newHash',
+              ConditionExpression:
+                'attribute_exists(pk) AND (attribute_not_exists(organiserTokenHash) OR organiserTokenHash = :oldHash)',
+              ExpressionAttributeValues: { ':newHash': newHash, ':oldHash': oldHash },
+            },
+          },
         ]);
       } catch (err) {
         if (isTransactionConditionFailure(err)) {
           throw new Error('Organiser link not found');
+        }
+        throw err;
+      }
+    },
+
+    async replaceOrganiserToken(clubId, newHash) {
+      try {
+        await transact([
+          {
+            Put: {
+              TableName: tableName,
+              Item: { ...keys.organiserToken(newHash), clubId },
+              ConditionExpression: 'attribute_not_exists(pk)',
+            },
+          },
+          {
+            Update: {
+              TableName: tableName,
+              Key: keys.club(clubId),
+              UpdateExpression: 'SET organiserTokenHash = :newHash',
+              ConditionExpression: 'attribute_exists(pk)',
+              ExpressionAttributeValues: { ':newHash': newHash },
+            },
+          },
+        ]);
+      } catch (err) {
+        if (isTransactionConditionFailure(err)) {
+          throw new Error('Club not found');
         }
         throw err;
       }

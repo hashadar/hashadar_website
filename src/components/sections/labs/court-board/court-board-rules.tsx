@@ -114,7 +114,6 @@ export function CourtBoardRules({ view, sessionId }: CourtBoardRulesProps) {
           </Text>
         </section>
 
-        <RuleSection section={copy.privateHolds} values={{}} />
         <RuleSection section={copy.fees} values={{}} />
 
         <footer className="space-y-3 border-t border-[var(--border)] pt-6">

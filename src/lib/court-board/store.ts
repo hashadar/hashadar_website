@@ -119,6 +119,11 @@ export interface CourtBoardStore {
     oldHash: string,
     newHash: string,
   ): Promise<void>;
+  /**
+   * Site Admin recovery: make `newHash` the Club's only valid Organiser token
+   * without knowing the current one. Every earlier link stops working.
+   */
+  replaceOrganiserToken(clubId: string, newHash: string): Promise<void>;
 
   // Players
   getPlayer(clubId: string, phoneKey: string): Promise<Player | null>;
