@@ -8,21 +8,29 @@
 
 import {
   createClubAsAdmin,
+  replaceOrganiserLinkAsAdmin,
+  type AdminServiceDeps,
   type CreateClubResult,
+  type ReplaceOrganiserLinkResult,
 } from '@/lib/court-board/admin-service';
 import { isSiteAdmin } from '@/lib/court-board/site-admin';
 import { getCourtBoardRuntime } from '@/lib/court-board/store-provider';
+
+const deps: AdminServiceDeps = {
+  isSiteAdmin,
+  getStore: async () => (await getCourtBoardRuntime()).store,
+};
 
 export async function createClubAction(
   idToken: unknown,
   input: unknown,
 ): Promise<CreateClubResult> {
-  return createClubAsAdmin(
-    {
-      isSiteAdmin,
-      getStore: async () => (await getCourtBoardRuntime()).store,
-    },
-    idToken,
-    input,
-  );
+  return createClubAsAdmin(deps, idToken, input);
+}
+
+export async function replaceOrganiserLinkAction(
+  idToken: unknown,
+  input: unknown,
+): Promise<ReplaceOrganiserLinkResult> {
+  return replaceOrganiserLinkAsAdmin(deps, idToken, input);
 }

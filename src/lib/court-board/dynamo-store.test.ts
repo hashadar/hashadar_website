@@ -166,6 +166,57 @@ describe('Clubs and Organiser links', () => {
     });
   });
 
+  it('records the current token hash on the Club when creating it', async () => {
+    const { store, commands } = setup();
+    await store.createClub(club, 'hash-1');
+    expect(transactItems(commands[0])[0].Put.Item).toMatchObject({
+      organiserTokenHash: 'hash-1',
+    });
+  });
+
+  it('refuses a token the Club no longer names as current', async () => {
+    const { store } = setup((c) =>
+      (c.input.Key as { pk: string }).pk.startsWith('ORGTOKEN#')
+        ? { Item: { clubId: 'club-1' } }
+        : { Item: { pk: 'CLUB#club-1', organiserTokenHash: 'newer' } },
+    );
+    await expect(store.getClubIdByOrganiserTokenHash('older')).resolves.toBeNull();
+    await expect(store.getClubIdByOrganiserTokenHash('newer')).resolves.toBe('club-1');
+  });
+
+  it('moves the Club to the new hash when rotating, only from the old one', async () => {
+    const { store, commands } = setup();
+    await store.rotateOrganiserToken('club-1', 'old', 'new');
+    const update = transactItems(commands[0])[2].Update;
+    expect(update).toMatchObject({
+      Key: { pk: 'CLUB#club-1', sk: 'META' },
+      UpdateExpression: 'SET organiserTokenHash = :newHash',
+      ExpressionAttributeValues: { ':newHash': 'new', ':oldHash': 'old' },
+    });
+    expect(update.ConditionExpression).toContain('organiserTokenHash = :oldHash');
+  });
+
+  it('replaces the token without knowing the old one (Site Admin recovery)', async () => {
+    const { store, commands } = setup();
+    await store.replaceOrganiserToken('club-1', 'fresh');
+    const [add, update] = transactItems(commands[0]);
+    expect(add.Put).toMatchObject({
+      Item: { pk: 'ORGTOKEN#fresh', sk: 'META', clubId: 'club-1' },
+      ConditionExpression: 'attribute_not_exists(pk)',
+    });
+    expect(update.Update).toMatchObject({
+      Key: { pk: 'CLUB#club-1', sk: 'META' },
+      UpdateExpression: 'SET organiserTokenHash = :newHash',
+      ConditionExpression: 'attribute_exists(pk)',
+      ExpressionAttributeValues: { ':newHash': 'fresh' },
+    });
+  });
+
+  it('refuses to replace the token of an unknown Club', async () => {
+    const { store } = setup(() => transactionCancelled('None', 'ConditionalCheckFailed'));
+    await expect(store.replaceOrganiserToken('nope', 'fresh')).rejects.toThrow(/not found/);
+  });
+
   it('refuses to rotate an unknown link', async () => {
     const { store } = setup(() => transactionCancelled('ConditionalCheckFailed', 'None'));
     await expect(store.rotateOrganiserToken('club-1', 'old', 'new')).rejects.toThrow(

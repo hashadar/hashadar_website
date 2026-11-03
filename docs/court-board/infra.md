@@ -57,7 +57,13 @@ Amplify Console → Hosting → Secrets → add `courtboard.pepper` with that va
 
 ## Create the Club
 
-Only the Site Admin creates Clubs. Do it from **Admin** (`/admin`, "Court Board clubs"): enter the name, venue and session times, and the page shows the Organiser link **once**. Copy it and give it to the committee privately. The server stores only the SHA-256 of the token, so the link cannot be shown again; if it is lost, an Organiser who still has access rotates it from the Organiser page, otherwise create a new Club.
+Only the Site Admin creates Clubs. Do it from **Admin** (`/admin`, "Court Board clubs"): enter the name, venue and session times, and the page shows the Organiser link **once**. Copy it and give it to the committee privately. The server stores only the SHA-256 of the token, so the link cannot be shown again; if it is lost, an Organiser who still has access rotates it from the Organiser page.
+
+### Replacing a lost Organiser link
+
+If no Organiser has the link any more, the Site Admin replaces it from **Admin** ("Replace an Organiser link"): paste the Signup link of any Session in the Club and confirm. Clubs cannot be listed (there is no Scan), so a Session's Signup link is how Admin finds the Club; a Club with no Sessions yet is simplest to recreate.
+
+The Club item records its current token hash (`organiserTokenHash`). A token is valid only if its `ORGTOKEN#` item exists **and** it matches that field, so replacing it switches off every earlier link, including Organisers' remembered cookies. Old `ORGTOKEN#` items are left behind but no longer work. Clubs created before this field existed have none until their first rotation or replacement, and until then any of their token items still counts.
 
 The create action is a public Server Action endpoint, so it does not trust the page: the browser sends the Site Admin's Cognito ID token and the server verifies it (signature, issuer, audience, expiry) with `aws-jwt-verify` against the user pool in `amplify_outputs.json`. The pool allows admin-created users only, so a valid token is the Site Admin's. If the pool is not configured the action refuses everyone. The pool ids are written into `court-board-ssr-config.ts` at build time by `write-amplify-ssr-env.ts`; the SSR Compute role needs the Court Board policy (above) to write the table.
 
