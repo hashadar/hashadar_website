@@ -62,6 +62,13 @@ export function createMemoryCourtBoardStore(): CourtBoardStore {
       tokens.delete(oldHash);
       tokens.set(newHash, clubId);
     },
+    async replaceOrganiserToken(clubId, newHash) {
+      if (!clubs.has(clubId)) throw new Error('Club not found');
+      for (const [hash, owner] of tokens) {
+        if (owner === clubId) tokens.delete(hash);
+      }
+      tokens.set(newHash, clubId);
+    },
 
     async getPlayer(clubId, phoneKey) {
       const player = players.get(playerKey(clubId, phoneKey));
@@ -169,10 +176,12 @@ export function createMemoryCourtBoardStore(): CourtBoardStore {
       penalties.set(id, { ...penalty, ...structuredClone(patch) });
     },
 
+    // Like DynamoDB TTL, expiry here is housekeeping, not a rule: the throttle
+    // and counter logic carry their own windows. Comparing against the real
+    // clock (not the injected one) made tests depend on today's date.
     async getThrottle(key) {
       const entry = throttles.get(key);
-      if (!entry || entry.expiresAt.getTime() <= Date.now()) return null;
-      return { ...entry.record };
+      return entry ? { ...entry.record } : null;
     },
     async putThrottle(key, record, expiresAt) {
       throttles.set(key, { record: { ...record }, expiresAt });
@@ -180,7 +189,7 @@ export function createMemoryCourtBoardStore(): CourtBoardStore {
     async incrementCounter(key, windowId, expiresAt) {
       const id = `${key}|${windowId}`;
       const entry = counters.get(id);
-      const count = entry && entry.expiresAt.getTime() > Date.now() ? entry.count + 1 : 1;
+      const count = entry ? entry.count + 1 : 1;
       counters.set(id, { count, expiresAt });
       return count;
     },
