@@ -32,8 +32,8 @@ describe('createClubAsAdmin', () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    const token = result.organiserPath.replace('/labs/court-board/o/', '');
-    expect(result.organiserPath).toBe(`/labs/court-board/o/${token}`);
+    const token = result.organiserPath.replace('/labs/court-board/o#', '');
+    expect(result.organiserPath).toBe(`/labs/court-board/o#${token}`);
     expect(await store.getClubIdByOrganiserTokenHash(hashOrganiserToken(token))).toBe(
       result.clubId,
     );
@@ -104,7 +104,7 @@ describe('replaceOrganiserLinkAsAdmin', () => {
     const { store, deps } = setup(admin);
     const created = await createClubAsAdmin({ ...deps, isSiteAdmin: async () => true }, 'id', input);
     if (!created.ok) throw new Error('setup failed');
-    const oldToken = created.organiserPath.replace('/labs/court-board/o/', '');
+    const oldToken = created.organiserPath.replace('/labs/court-board/o#', '');
     await store.createSession({
       id: 'abcdefghijkl',
       clubId: created.clubId,
@@ -127,7 +127,7 @@ describe('replaceOrganiserLinkAsAdmin', () => {
 
     expect(result).toMatchObject({ ok: true, clubName: 'Lunchtime Badminton' });
     if (!result.ok) return;
-    const newToken = result.organiserPath.replace('/labs/court-board/o/', '');
+    const newToken = result.organiserPath.replace('/labs/court-board/o#', '');
     expect(newToken).not.toBe(oldToken);
     expect(await store.getClubIdByOrganiserTokenHash(hashOrganiserToken(newToken))).toBe(clubId);
     expect(await store.getClubIdByOrganiserTokenHash(hashOrganiserToken(oldToken))).toBeNull();

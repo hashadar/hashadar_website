@@ -6,6 +6,7 @@ import {
   DEV_SESSION_ID,
 } from './dev-seed';
 import { authenticateOrganiser, getOrganiserOverview } from './organiser-service';
+import { organiserTokenPath } from './club-admin';
 import { getSessionView } from './player-service';
 import {
   getOrganiserToken,
@@ -72,7 +73,7 @@ export async function getDevInfo(): Promise<DevInfo | null> {
     : [];
 
   return {
-    organiserTokenPath: `/labs/court-board/o/${DEV_ORGANISER_TOKEN}`,
+    organiserTokenPath: organiserTokenPath(DEV_ORGANISER_TOKEN),
     sessionPath: `/labs/court-board/s/${DEV_SESSION_ID}`,
     player: DEV_PLAYER,
     nowIso: currentNow().toISOString(),
