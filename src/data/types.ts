@@ -768,6 +768,8 @@ export interface CourtBoardPlayerCopy {
     topUpNote: string;
     playingHeading: string;
     playingEmpty: string;
+    committeeHeading: string;
+    committeeNote: string;
     waitlistHeading: string;
     waitlistBandHeading: string;
     guestLabel: string;
@@ -981,6 +983,15 @@ export interface CourtBoardOrganiserCopy {
     };
     submit: string;
     submitting: string;
+  };
+  committee: {
+    heading: string;
+    body: string;
+    label: string;
+    help: string;
+    empty: string;
+    save: string;
+    saved: string;
   };
   link: {
     heading: string;

@@ -90,7 +90,7 @@ export const players: PlayerRow[] = [
 
 /** A Session that has already started (now is 9:30 on the day). */
 export const overview = (over: Partial<OrganiserOverview> = {}): OrganiserOverview => ({
-  club: { name: 'Test Badminton Club', venue: 'Sports Hall' },
+  club: { name: 'Test Badminton Club', venue: 'Sports Hall', committee: ['Victoria Sze', 'Kelvin Li'] },
   now: '2026-11-07T09:30:00.000Z',
   sessions: [sessionSummary()],
   selected: sessionDetail(),

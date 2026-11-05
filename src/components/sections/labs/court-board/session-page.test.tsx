@@ -137,3 +137,19 @@ describe('SessionPage Manage my place', () => {
     ).toBeVisible();
   });
 });
+
+describe('SessionPage committee', () => {
+  it('lists the committee so players know who to ask', () => {
+    render(<SessionPage view={makeView()} />);
+    const section = screen.getByRole('heading', { name: 'Committee' }).closest('section')!;
+    expect(within(section).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'Victoria Sze',
+      'Kelvin Li',
+    ]);
+  });
+
+  it('hides the section when no names are set', () => {
+    render(<SessionPage view={makeView({ committee: [] })} />);
+    expect(screen.queryByRole('heading', { name: 'Committee' })).not.toBeInTheDocument();
+  });
+});

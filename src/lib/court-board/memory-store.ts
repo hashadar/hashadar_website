@@ -62,6 +62,11 @@ export function createMemoryCourtBoardStore(): CourtBoardStore {
       tokens.delete(oldHash);
       tokens.set(newHash, clubId);
     },
+    async setClubCommittee(clubId, committee) {
+      const club = clubs.get(clubId);
+      if (!club) throw new Error('Club not found');
+      club.committee = [...committee];
+    },
     async replaceOrganiserToken(clubId, newHash) {
       if (!clubs.has(clubId)) throw new Error('Club not found');
       for (const [hash, owner] of tokens) {

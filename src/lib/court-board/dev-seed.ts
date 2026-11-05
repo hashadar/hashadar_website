@@ -39,6 +39,7 @@ export async function seedDemoClub(
     startTime: '09:00',
     endTime: '11:00',
     rules: { ...DEFAULT_CLUB_RULES, capacity: 8 },
+    committee: ['Sam Organiser'],
     createdAt: now,
   };
   await store.createClub(club, hashOrganiserToken(DEV_ORGANISER_TOKEN));

@@ -8,6 +8,7 @@ import { courtBoard } from '@/data';
 import { formatLocalDate, formatLocalTime } from '@/lib/court-board/format';
 import type { NewSessionDefaults, OrganiserOverview } from '@/lib/court-board/views';
 import { OrganiserHoldsPanel } from '@/components/sections/labs/court-board/organiser-holds-panel';
+import { OrganiserCommitteeSection } from '@/components/sections/labs/court-board/organiser-committee-section';
 import { OrganiserLinkSection } from '@/components/sections/labs/court-board/organiser-link-section';
 import { OrganiserNewSessionForm } from '@/components/sections/labs/court-board/organiser-new-session-form';
 import { OrganiserSessionPanel } from '@/components/sections/labs/court-board/organiser-session-panel';
@@ -174,6 +175,7 @@ export function OrganiserBoard({ overview }: OrganiserBoardProps) {
           />
         </div>
 
+        <OrganiserCommitteeSection committee={overview.club.committee} />
         <OrganiserLinkSection />
       </Container>
     </Section>
