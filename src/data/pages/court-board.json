@@ -138,7 +138,7 @@
     "linkLabel": "Privacy",
     "heading": "Privacy notice",
     "lastUpdatedLabel": "Last updated",
-    "lastUpdated": "3 November 2026",
+    "lastUpdated": "5 November 2026",
     "lede": "Court Board runs club sessions. This explains what it keeps about you, why, who can see it and how to have it removed.",
     "contact": {
       "heading": "Who is responsible",
@@ -183,7 +183,8 @@
       {
         "heading": "Who handles the data",
         "paragraphs": [
-          "The data is stored with Amazon Web Services in the London region (eu-west-2). There is no advertising and no analytics, and the data is never sold."
+          "The data is stored with Amazon Web Services in the London region (eu-west-2). There is no advertising and no analytics, and the data is never sold.",
+          "Like most websites, the hosting provider (AWS) keeps standard web server logs for security and troubleshooting. These record your network (IP) address, the page you asked for, the time and your browser type. They never include your phone number, your PIN or anything you type into a form."
         ]
       },
       {
@@ -200,7 +201,8 @@
           "Your remembered name, Tier and PIN: deleted 12 months after you last took a place.",
           "Penalties: deleted when the penalty period ends.",
           "Wrong-PIN and spam-limit records: kept for 24 hours, then deleted automatically within a few days.",
-          "Backups: the database keeps rolling backups for up to 35 days, so deleted data can remain in a backup for up to 35 days before it is gone for good."
+          "Backups: the database keeps rolling backups for up to 35 days, so deleted data can remain in a backup for up to 35 days before it is gone for good.",
+          "Hosting logs: kept by AWS for a limited period for security and troubleshooting, then deleted automatically."
         ]
       },
       {
@@ -328,6 +330,7 @@
     "eyebrow": "Organiser · keep this link private",
     "invalidHeading": "This organiser link is not valid",
     "invalidBody": "It may have been replaced. Ask the person who runs the club for the current link.",
+    "opening": "Opening the organiser page…",
     "tabsAriaLabel": "Organiser sections",
     "tabs": {
       "current": "Current session",

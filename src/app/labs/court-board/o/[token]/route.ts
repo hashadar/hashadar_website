@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import {
   ORGANISER_COOKIE,
-  ORGANISER_COOKIE_PATH,
+  organiserCookieOptions,
 } from '@/lib/court-board/request-context';
 import { isValidOrganiserToken } from '@/lib/court-board/server-queries';
 
 const ORGANISER_PAGE = '/labs/court-board/o';
-const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
 /**
+ * Older-format links (`/o/<token>`). New links carry the token after `#`
+ * instead (see `organiserTokenPath`), because a token in the path is written
+ * to the hosting provider's access logs. Kept so links already shared work.
+ *
  * Exchange an Organiser link's token for a cookie, then redirect so the token
  * leaves the address bar (and history). A wrong or replaced token gets the same
  * redirect with no cookie; the page then explains nothing beyond "not valid".
@@ -32,13 +35,7 @@ export async function GET(
   });
 
   if (await isValidOrganiserToken(token)) {
-    response.cookies.set(ORGANISER_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: ORGANISER_COOKIE_PATH,
-      maxAge: ONE_YEAR_SECONDS,
-    });
+    response.cookies.set(ORGANISER_COOKIE, token, organiserCookieOptions());
   }
 
   return response;

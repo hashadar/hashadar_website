@@ -859,6 +859,8 @@ export interface CourtBoardOrganiserCopy {
   eyebrow: string;
   invalidHeading: string;
   invalidBody: string;
+  /** Shown while an Organiser link's token is being exchanged. */
+  opening: string;
   tabsAriaLabel: string;
   tabs: { current: string; holds: string; newSession: string };
   sessionPicker: {
