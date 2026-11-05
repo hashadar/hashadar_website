@@ -46,7 +46,7 @@ describe('opening the view', () => {
     });
     render(<ManagePlace view={makeView()} initialCredentials={null} onChanged={vi.fn()} />);
     await userEvent.type(screen.getByLabelText('Mobile number'), '07400123456');
-    await userEvent.type(screen.getByLabelText('PIN'), '482916');
+    await userEvent.type(screen.getByLabelText('6-digit PIN'), '482916');
     await userEvent.click(screen.getByRole('button', { name: 'Show my place' }));
 
     await waitFor(() =>
@@ -261,7 +261,7 @@ describe('credentials stay in memory', () => {
     expect(setItem).not.toHaveBeenCalled();
     expect(localStorage.length).toBe(0);
     expect(sessionStorage.length).toBe(0);
-    expect(screen.getByLabelText('PIN')).toHaveValue('');
+    expect(screen.getByLabelText('6-digit PIN')).toHaveValue('');
     expect(window.location.href).not.toContain('482916');
     cookieSet.mockRestore();
     setItem.mockRestore();

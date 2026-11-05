@@ -228,7 +228,12 @@ export function ManagePlace({ view, initialCredentials, onChanged }: ManagePlace
               disabled={pending}
               value={pin}
               aria-describedby={`${id}-pin-help`}
-              onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 6))}
+              title={copy.pinFormat}
+              onInvalid={(event) => event.currentTarget.setCustomValidity(copy.pinFormat)}
+              onChange={(event) => {
+                event.currentTarget.setCustomValidity('');
+                setPin(event.target.value.replace(/\D/g, '').slice(0, 6));
+              }}
               className={`${inputClass} max-w-[10rem] tracking-[0.3em]`}
             />
             <p id={`${id}-pin-help`} className="mt-1 font-body text-xs text-[var(--mono-500)]">

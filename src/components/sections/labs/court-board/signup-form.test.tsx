@@ -18,7 +18,7 @@ afterEach(cleanup);
 async function fillIn({ guests = 0 }: { guests?: number } = {}) {
   await userEvent.type(screen.getByLabelText('Name'), 'Alex');
   await userEvent.type(screen.getByLabelText('Mobile number'), '07400123456');
-  await userEvent.type(screen.getByLabelText('PIN'), '482916');
+  await userEvent.type(screen.getByLabelText('6-digit PIN'), '482916');
   await userEvent.click(screen.getByLabelText('Employee'));
   for (let i = 1; i <= guests; i++) {
     await userEvent.click(screen.getByRole('button', { name: '+ Add another guest' }));
@@ -33,10 +33,35 @@ describe('SignupForm', () => {
   it('shows the helper copy from the brief', () => {
     render(<SignupForm view={makeView()} onSignedUp={vi.fn()} />);
     expect(
-      screen.getByText("First time? Choose one. You'll use it to cancel from any device."),
+      screen.getByText(/First time here\? Make up any 6 digits \(not 123456 or 111111\)/),
     ).toBeInTheDocument();
     expect(screen.getByText('On trust. Remembered next time.')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'I am' })).toBeInTheDocument();
+  });
+
+  it('says what a valid PIN is when the browser rejects it', async () => {
+    render(<SignupForm view={makeView()} onSignedUp={vi.fn()} />);
+    const pin = screen.getByLabelText('6-digit PIN') as HTMLInputElement;
+    await userEvent.type(pin, '123');
+    fireEvent.invalid(pin);
+    expect(pin.validationMessage).toBe('Enter exactly 6 digits.');
+    await userEvent.type(pin, '456');
+    expect(pin.validationMessage).not.toBe('Enter exactly 6 digits.');
+  });
+
+  it('shows the externals fee note only when the Player or a guest is External', async () => {
+    const note = 'Please message Victoria to pay the £5 externals fee.';
+    render(<SignupForm view={makeView()} onSignedUp={vi.fn()} />);
+    expect(screen.queryByText(note)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText('External'));
+    expect(screen.getByText(note)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText('Employee'));
+    expect(screen.queryByText(note)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: '+ Add another guest' }));
+    expect(screen.getByText(note)).toBeInTheDocument();
   });
 
   it('submits exactly the payload the server expects, honeypot included', async () => {

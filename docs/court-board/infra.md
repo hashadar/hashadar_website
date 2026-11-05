@@ -103,4 +103,4 @@ Your shell needs credentials with access to the sandbox table; the managed polic
 
 ## Status of the DynamoDB store
 
-`src/lib/court-board/dynamo-store.ts` has unit tests against a recording fake client only: they pin down keys, conditional expressions and error mapping. It has **not** been exercised against a real DynamoDB table. Run through a full Session in `npx ampx sandbox` (sign-ups, a double tap, guests, cancel, close register, rotate link) before the first real Session.
+`src/lib/court-board/dynamo-store.ts` has unit tests against a recording fake client that pin down keys, conditional expressions and error mapping. It has also been exercised end to end on production by the Site Admin (November 2026). Repeat a full Session run (sign-ups, a double tap, guests, cancel, close register, rotate link) after any change to the store or table layout.

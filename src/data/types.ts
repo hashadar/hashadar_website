@@ -782,8 +782,11 @@ export interface CourtBoardPlayerCopy {
     phoneValid: string;
     pinLabel: string;
     pinHelp: string;
+    pinFormat: string;
     tierLegend: string;
     tierHelp: string;
+    /** Shown when the Player or any guest is External. */
+    externalFeeNote: string;
     guestsHeading: string;
     guestsHelpLimited: string;
     guestsHelpUnlimited: string;
@@ -810,6 +813,7 @@ export interface CourtBoardPlayerCopy {
     phoneLabel: string;
     pinLabel: string;
     pinHelp: string;
+    pinFormat: string;
     open: string;
     opening: string;
     forgotten: string;
