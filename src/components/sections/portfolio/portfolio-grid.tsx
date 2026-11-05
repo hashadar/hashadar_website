@@ -11,7 +11,7 @@ import { PageIntro } from "@/components/sections/shared/page-intro";
 import { portfolio } from "@/data";
 import type { PhotoItem } from "@/data/types";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export type PortfolioGridProps = {
   images: PhotoItem[];
@@ -43,15 +43,6 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
     );
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      images.forEach((image) => {
-        const img = new window.Image();
-        img.src = image.src;
-      });
-    }
-  }, [images]);
-
   return (
     <>
       <PageIntro
@@ -72,7 +63,9 @@ export function PortfolioGrid({ images }: PortfolioGridProps) {
             return (
               <MotionReveal
                 key={`${image.src}-${index}`}
-                variant="fade-up"
+                // Above-the-fold stills render immediately: a fade-up starts at
+                // opacity 0 until hydration, which delays LCP.
+                variant={index < 3 ? "none" : "fade-up"}
                 distance="sm"
                 className={cn(isLead && "col-span-2 min-[900px]:row-span-2")}
               >
