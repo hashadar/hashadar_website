@@ -104,7 +104,7 @@ _Avoid_: strike, ban, naughty list (as the model name), points
 
 ## Out of scope
 
-- **Fees and payments.** No amounts, Paid marks or payment links; committee members arrange money individually. The signup form shows one fixed note (from page copy) when the Player or a guest is External, telling them who to pay; nothing is recorded.
+- **Fees and payments.** No amounts, Paid marks or payment links; committee members arrange money individually. The signup form shows one fixed note (from page copy) when the Player or a guest is External, pointing them to the committee; nothing is recorded.
 - **Tier verification.** No roster, SMS codes or email checks; trust plus Organiser correction.
 
 ## Relationships

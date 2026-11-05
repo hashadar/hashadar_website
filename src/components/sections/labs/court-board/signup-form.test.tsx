@@ -50,7 +50,7 @@ describe('SignupForm', () => {
   });
 
   it('shows the externals fee note only when the Player or a guest is External', async () => {
-    const note = 'Please message Victoria to pay the £5 externals fee.';
+    const note = 'A fee is required for external attendees. Please contact Victoria Sze, Kelvin Li or any committee member for further information.';
     render(<SignupForm view={makeView()} onSignedUp={vi.fn()} />);
     expect(screen.queryByText(note)).not.toBeInTheDocument();
 

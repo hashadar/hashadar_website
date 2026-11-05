@@ -254,7 +254,7 @@
       "pinFormat": "Enter exactly 6 digits.",
       "tierLegend": "I am",
       "tierHelp": "On trust. Remembered next time.",
-      "externalFeeNote": "Please message Victoria to pay the £5 externals fee.",
+      "externalFeeNote": "A fee is required for external attendees. Please contact Victoria Sze, Kelvin Li or any committee member for further information.",
       "guestsHeading": "Guests",
       "guestsHelpLimited": "Up to {limit} guests until {topUp}.",
       "guestsHelpUnlimited": "Bring as many guests as you like.",
