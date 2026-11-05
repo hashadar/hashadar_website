@@ -49,6 +49,8 @@ export function SignupForm({ view, onSignedUp }: SignupFormProps) {
   const inFlight = useRef(false);
 
   const pending = status.kind === 'pending';
+  const showFeeNote =
+    tier === 'external' || guests.some((guest) => guest.tier === 'external');
   const failure = status.kind === 'error' ? status.failure : null;
   const fieldIsInvalid = (field: string) =>
     failure?.error === 'invalid-input' && failure.field === field;
@@ -176,7 +178,12 @@ export function SignupForm({ view, onSignedUp }: SignupFormProps) {
           value={pin}
           aria-describedby={`${id}-pin-help`}
           aria-invalid={fieldIsInvalid('pin') || failure?.error === 'trivial-pin' || undefined}
-          onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 6))}
+          title={copy.pinFormat}
+          onInvalid={(event) => event.currentTarget.setCustomValidity(copy.pinFormat)}
+          onChange={(event) => {
+            event.currentTarget.setCustomValidity('');
+            setPin(event.target.value.replace(/\D/g, '').slice(0, 6));
+          }}
           className={`${inputClass} max-w-[10rem] tracking-[0.3em]`}
         />
         <p id={`${id}-pin-help`} className="mt-1 font-body text-xs text-[var(--mono-500)]">
@@ -193,6 +200,12 @@ export function SignupForm({ view, onSignedUp }: SignupFormProps) {
         disabled={pending}
         invalid={fieldIsInvalid('tier')}
       />
+
+      {showFeeNote ? (
+        <p role="note" className="border-l-4 border-[var(--primary)] pl-3 font-body text-sm">
+          {copy.externalFeeNote}
+        </p>
+      ) : null}
 
       <fieldset className="space-y-2" disabled={pending}>
         <legend className="font-body text-sm font-medium">{copy.guestsHeading}</legend>
