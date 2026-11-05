@@ -79,6 +79,7 @@ export async function getSessionView(
 
   return {
     clubName: club.name,
+    committee: club.committee,
     session: summarise(session),
     times: timesOf(ctx),
     now: now.toISOString(),

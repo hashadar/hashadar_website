@@ -69,6 +69,8 @@ export interface SessionSummary {
 
 export interface SessionView {
   clubName: string;
+  /** Committee names the Organisers chose to show; may be empty. */
+  committee: string[];
   session: SessionSummary;
   times: SessionTimes;
   now: string;
@@ -193,7 +195,7 @@ export interface OrganiserSessionDetail {
 }
 
 export interface OrganiserOverview {
-  club: { name: string; venue: string };
+  club: { name: string; venue: string; committee: string[] };
   now: string;
   sessions: SessionSummary[];
   selected: OrganiserSessionDetail | null;

@@ -169,6 +169,22 @@ export function SessionPage({ view }: SessionPageProps) {
           </div>
         </section>
 
+        {view.committee.length > 0 ? (
+          <section aria-labelledby={`${manageId}-committee`} className="space-y-2">
+            <Heading as="h2" size="sm" id={`${manageId}-committee`}>
+              {copy.committeeHeading}
+            </Heading>
+            <ul className="flex flex-wrap gap-x-4 gap-y-1 font-body text-base">
+              {view.committee.map((name) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+            <Text size="sm" variant="muted">
+              {copy.committeeNote}
+            </Text>
+          </section>
+        ) : null}
+
         <nav
           aria-label={courtBoard.rules.linkLabel}
           className="flex flex-wrap gap-x-6 gap-y-1 border-t border-[var(--border)] pt-4 font-body text-sm"

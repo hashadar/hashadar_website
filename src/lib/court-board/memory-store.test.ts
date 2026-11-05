@@ -152,6 +152,7 @@ describe('Sessions, clubs and counters', () => {
       startTime: '09:00',
       endTime: '11:00',
       rules: {} as never,
+      committee: [],
       createdAt: new Date(),
     };
     await store.createClub(club, 'old');

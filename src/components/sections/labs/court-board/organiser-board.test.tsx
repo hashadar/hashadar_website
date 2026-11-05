@@ -15,6 +15,7 @@ const actions = vi.hoisted(() => ({
   clearPenaltyAction: vi.fn(),
   shortenPenaltyAction: vi.fn(),
   resetPinAction: vi.fn(),
+  setCommitteeAction: vi.fn(),
 }));
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 vi.mock('@/lib/court-board/organiser-actions', () => actions);
@@ -306,5 +307,41 @@ describe('rotating the Organiser link', () => {
 
     expect(await screen.findByText('Your organiser link is no longer valid.')).toBeInTheDocument();
     expect(screen.queryByText(/brand-new-token/)).not.toBeInTheDocument();
+  });
+});
+
+describe('committee', () => {
+  it('saves the names one per line and shows what the server kept', async () => {
+    const { user } = setupUser();
+    actions.setCommitteeAction.mockResolvedValue({
+      ok: true,
+      committee: ['Victoria Sze', 'Kelvin Li', 'Ana'],
+    });
+    render(<OrganiserBoard overview={overview()} />);
+
+    const box = screen.getByLabelText('Committee names, one per line') as HTMLTextAreaElement;
+    expect(box.value).toBe('Victoria Sze\nKelvin Li');
+    await user.type(box, '\n\nAna  ');
+    await user.click(screen.getByRole('button', { name: 'Save names' }));
+
+    expect(actions.setCommitteeAction).toHaveBeenCalledWith({
+      names: ['Victoria Sze', 'Kelvin Li', '', 'Ana  '],
+    });
+    expect(await screen.findByText('Saved.')).toBeInTheDocument();
+    expect(box.value).toBe('Victoria Sze\nKelvin Li\nAna');
+  });
+
+  it('explains a refused list', async () => {
+    const { user } = setupUser();
+    actions.setCommitteeAction.mockResolvedValue({
+      ok: false,
+      error: 'invalid-input',
+      field: 'committee',
+    });
+    render(<OrganiserBoard overview={overview()} />);
+    await user.click(screen.getByRole('button', { name: 'Save names' }));
+    expect(
+      await screen.findByText('Use up to 12 names of up to 40 characters each.'),
+    ).toBeInTheDocument();
   });
 });

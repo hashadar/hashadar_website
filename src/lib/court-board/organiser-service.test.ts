@@ -13,6 +13,7 @@ import {
   removeSeat,
   resetPin,
   rotateOrganiserLink,
+  setCommittee,
   setAttended,
   setSeatTier,
   shortenPenalty,
@@ -364,5 +365,34 @@ describe('forgetPlayer', () => {
     expect(await forgetPlayer(h.deps(), other, { phoneKey: alexKey })).toMatchObject({
       error: 'not-found',
     });
+  });
+});
+
+describe('setCommittee', () => {
+  it('cleans, de-duplicates and stores the names, and shows them on the Signup page', async () => {
+    const { h, club } = await withClub();
+    const result = await setCommittee(h.deps(), club, {
+      names: ['  Victoria  Sze ', '', 'Kelvin Li', 'kelvin li'],
+    });
+    expect(result).toEqual({ ok: true, committee: ['Victoria Sze', 'Kelvin Li'] });
+    expect((await h.store.getClub(club.id))?.committee).toEqual(['Victoria Sze', 'Kelvin Li']);
+  });
+
+  it('refuses a name that is too long, or too many names', async () => {
+    const { h, club } = await withClub();
+    expect(await setCommittee(h.deps(), club, { names: ['x'.repeat(41)] })).toEqual({
+      ok: false,
+      error: 'invalid-input',
+      field: 'committee',
+    });
+    const many = Array.from({ length: 13 }, (_, i) => `Name ${i}`);
+    expect(await setCommittee(h.deps(), club, { names: many })).toMatchObject({ ok: false });
+    expect(await setCommittee(h.deps(), club, { names: 'Victoria' })).toMatchObject({ ok: false });
+  });
+
+  it('clears the list', async () => {
+    const { h, club } = await withClub();
+    await setCommittee(h.deps(), club, { names: ['Victoria Sze'] });
+    expect(await setCommittee(h.deps(), club, { names: [] })).toEqual({ ok: true, committee: [] });
   });
 });

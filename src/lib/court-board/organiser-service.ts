@@ -25,6 +25,7 @@ import {
   parseCapacity,
   parseGuestTier,
   parseTier,
+  parseCommittee,
   cleanName,
 } from './validation';
 import type {
@@ -198,7 +199,7 @@ export async function getOrganiserOverview(
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   return {
-    club: { name: club.name, venue: club.venue },
+    club: { name: club.name, venue: club.venue, committee: club.committee },
     now: now.toISOString(),
     sessions: sessions.map(summarise),
     selected: loaded ? await sessionDetail(deps, loaded, options.origin) : null,
@@ -490,6 +491,20 @@ export async function shortenPenalty(
   }
   await deps.store.updatePenalty(club.id, key, { endsAt });
   return { ok: true };
+}
+
+// ---------------------------------------------------------------- Committee
+
+/** Replace the committee names shown on every Signup page. */
+export async function setCommittee(
+  deps: ServiceDeps,
+  club: Club,
+  raw: unknown,
+): Promise<Outcome<{ committee: string[] }>> {
+  const committee = parseCommittee(asRecord(raw).names);
+  if (!committee) return fail('invalid-input', { field: 'committee' });
+  await deps.store.setClubCommittee(club.id, committee);
+  return { ok: true, committee };
 }
 
 // ------------------------------------------------------------ Organiser link
