@@ -31,6 +31,8 @@ export interface Club {
   startTime: string;
   endTime: string;
   rules: ClubRules;
+  /** Committee names shown on every Signup page, in the Organisers' order. */
+  committee: string[];
   createdAt: Date;
 }
 
@@ -124,6 +126,8 @@ export interface CourtBoardStore {
    * without knowing the current one. Every earlier link stops working.
    */
   replaceOrganiserToken(clubId: string, newHash: string): Promise<void>;
+  /** Replace the Club's committee list. Throws if the Club does not exist. */
+  setClubCommittee(clubId: string, committee: string[]): Promise<void>;
 
   // Players
   getPlayer(clubId: string, phoneKey: string): Promise<Player | null>;

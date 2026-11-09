@@ -69,6 +69,7 @@ export function buildClub(input: ClubInput, id: string, now: Date): Club {
     startTime: input.start,
     endTime: input.end,
     rules: DEFAULT_CLUB_RULES,
+    committee: [],
     createdAt: now,
   };
 }

@@ -19,6 +19,7 @@ import {
   resetPin,
   rotateOrganiserLink,
   setAttended,
+  setCommittee,
   setSeatTier,
   shortenPenalty,
 } from './organiser-service';
@@ -103,6 +104,12 @@ export async function shortenPenaltyAction(input: unknown): Promise<Outcome> {
  * Replace the Organiser link. The browser's cookie moves to the new token so
  * this Organiser stays signed in; the new link is returned once to be shared.
  */
+export async function setCommitteeAction(
+  input: unknown,
+): Promise<Outcome<{ committee: string[] }>> {
+  return asOrganiser((deps, club) => setCommittee(deps, club, input));
+}
+
 export async function rotateLinkAction(): Promise<Outcome<{ link: string }>> {
   return asOrganiser(async (deps, club, token) => {
     const result = await rotateOrganiserLink(deps, club, token);

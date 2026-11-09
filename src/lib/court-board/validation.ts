@@ -19,6 +19,30 @@ export function cleanName(input: unknown): string | null {
   return name;
 }
 
+export const COMMITTEE_MAX = 12;
+
+/**
+ * The committee list an Organiser saves: each name cleaned like a display
+ * name, blanks dropped, duplicates (ignoring case) removed, order kept. Null if
+ * any name is too long or there are more than COMMITTEE_MAX.
+ */
+export function parseCommittee(input: unknown): string[] | null {
+  if (!Array.isArray(input)) return null;
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of input) {
+    if (typeof raw !== 'string') return null;
+    if (raw.trim() === '') continue;
+    const name = cleanName(raw);
+    if (!name) return null;
+    const key = name.toLocaleLowerCase('en-GB');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    names.push(name);
+  }
+  return names.length > COMMITTEE_MAX ? null : names;
+}
+
 export function parseTier(input: unknown): Tier | null {
   return TIER_ORDER.find((tier) => tier === input) ?? null;
 }

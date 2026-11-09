@@ -71,6 +71,7 @@ describe('helpers', () => {
       startTime: '09:00',
       endTime: '11:00',
       rules: DEFAULT_CLUB_RULES,
+      committee: [],
       createdAt: now,
     });
   });

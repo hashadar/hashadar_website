@@ -166,6 +166,7 @@ export function clubToItem(club: Club): Item {
     startTime: club.startTime,
     endTime: club.endTime,
     rules: club.rules,
+    committee: club.committee,
     createdAt: iso(club.createdAt),
   };
 }
@@ -178,6 +179,8 @@ export function itemToClub(item: Item): Club {
     startTime: String(item.startTime),
     endTime: String(item.endTime),
     rules: item.rules as ClubRules,
+    // Clubs created before the committee list existed have none.
+    committee: Array.isArray(item.committee) ? item.committee.map(String) : [],
     createdAt: date(item.createdAt),
   };
 }
@@ -431,6 +434,25 @@ export function createDynamoCourtBoardStore(
       } catch (err) {
         if (isTransactionConditionFailure(err)) {
           throw new Error('Organiser link not found');
+        }
+        throw err;
+      }
+    },
+
+    async setClubCommittee(clubId, committee) {
+      try {
+        await client.send(
+          new UpdateCommand({
+            TableName: tableName,
+            Key: keys.club(clubId),
+            UpdateExpression: 'SET committee = :committee',
+            ConditionExpression: 'attribute_exists(pk)',
+            ExpressionAttributeValues: { ':committee': committee },
+          }),
+        );
+      } catch (err) {
+        if ((err as { name?: string }).name === 'ConditionalCheckFailedException') {
+          throw new Error('Club not found');
         }
         throw err;
       }

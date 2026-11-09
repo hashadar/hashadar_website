@@ -47,6 +47,7 @@
       "endTime": "The end time must be after the start.",
       "venue": "Enter a venue.",
       "capacity": "Capacity must be a whole number from 1 to 200.",
+      "committee": "Use up to 12 names of up to 40 characters each.",
       "endsOn": "Pick a date before the penalty currently ends."
     }
   },
@@ -175,6 +176,7 @@
         "paragraphs": [],
         "items": [
           "Your name is visible to anyone with the session link.",
+          "Committee members' names, if the organisers add them, are shown on every session page so players know who to ask.",
           "Organisers can also see the last three digits of your number, whether you attended, and any penalty.",
           "Penalties are never shown publicly: only you and the organisers can see them.",
           "Your full number and your PIN are never stored in readable form, so nobody can look them up, including the person who runs the site."
@@ -237,6 +239,8 @@
       "topUpNote": "From {topUp} you can add more than {limit} guests.",
       "playingHeading": "Playing · {count}",
       "playingEmpty": "Nobody yet. Be the first to take a place.",
+      "committeeHeading": "Committee",
+      "committeeNote": "Questions about the session, fees or your place? Ask any of them.",
       "waitlistHeading": "Waitlist · {count}",
       "waitlistBandHeading": "{band} waitlist · {count}",
       "guestLabel": "{host}'s guest: {name}",
@@ -438,6 +442,15 @@
       },
       "submit": "Create session",
       "submitting": "Creating…"
+    },
+    "committee": {
+      "heading": "Committee",
+      "body": "These names are shown on every signup page so players know who to ask. Anyone with the signup link can see them.",
+      "label": "Committee names, one per line",
+      "help": "Up to 12 names, 40 characters each. Leave empty to hide the section.",
+      "empty": "No names yet, so signup pages do not show a committee section.",
+      "save": "Save names",
+      "saved": "Saved."
     },
     "link": {
       "heading": "Organiser link",
