@@ -48,6 +48,11 @@
   "certifications": {
     "items": [
       {
+        "name": "SnowPro Core Certification",
+        "issuer": "Snowflake",
+        "issued": "Issued Nov 2026"
+      },
+      {
         "name": "Bloomberg Finance Fundamentals",
         "issuer": "Bloomberg",
         "issued": "Issued Jun 2026"

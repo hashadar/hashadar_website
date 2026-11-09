@@ -139,6 +139,7 @@ describe('getAboutCareerViews', () => {
     });
     expect(views.earlier.map((fact) => fact.name)).toEqual(['ALTEN Ltd', 'UCL']);
     expect(views.certifications.map((item) => item.name)).toEqual([
+      'SnowPro Core Certification',
       'Bloomberg Finance Fundamentals',
       'AWS Certified Cloud Practitioner',
       'Databricks Certified Data Analyst Associate',
