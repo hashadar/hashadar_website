@@ -74,8 +74,13 @@ export function buildClub(input: ClubInput, id: string, now: Date): Club {
   };
 }
 
+/**
+ * The Organiser link. The token sits after `#`, which browsers never send to
+ * the server, so it stays out of access logs; the page hands it over in a POST
+ * body instead (see OrganiserLinkOpener). `/o/<token>` links still work.
+ */
 export function organiserTokenPath(token: string): string {
-  return `/labs/court-board/o/${token}`;
+  return `/labs/court-board/o#${token}`;
 }
 
 export type CreateClubDeps = {

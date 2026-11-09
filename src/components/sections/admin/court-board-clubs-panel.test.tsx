@@ -33,7 +33,7 @@ describe('CourtBoardClubsPanel', () => {
     >(async () => ({
       ok: true,
       clubId: 'club1',
-      organiserPath: '/labs/court-board/o/secret-token',
+      organiserPath: '/labs/court-board/o#secret-token',
     }));
     render(<CourtBoardClubsPanel createClub={createClub} getToken={async () => 'id.jwt'} />);
 
@@ -47,7 +47,7 @@ describe('CourtBoardClubsPanel', () => {
     });
     const link = await screen.findByRole('textbox', { name: copy.linkHeading });
     expect((link as HTMLInputElement).value).toBe(
-      `${window.location.origin}/labs/court-board/o/secret-token`,
+      `${window.location.origin}/labs/court-board/o#secret-token`,
     );
     expect(screen.getByText(copy.linkWarning)).toBeTruthy();
 
@@ -110,7 +110,7 @@ describe('CourtBoardClubsPanel', () => {
     >(async () => ({
       ok: true,
       clubName: 'Lunchtime Badminton',
-      organiserPath: '/labs/court-board/o/new-token',
+      organiserPath: '/labs/court-board/o#new-token',
     }));
     render(
       <CourtBoardClubsPanel
@@ -132,7 +132,7 @@ describe('CourtBoardClubsPanel', () => {
     const heading = replace.linkHeading.replace('{club}', 'Lunchtime Badminton');
     const link = await screen.findByRole('textbox', { name: heading });
     expect((link as HTMLInputElement).value).toBe(
-      `${window.location.origin}/labs/court-board/o/new-token`,
+      `${window.location.origin}/labs/court-board/o#new-token`,
     );
   });
 

@@ -273,7 +273,7 @@ describe('cancelling a Session', () => {
 
 describe('rotating the Organiser link', () => {
   it('shows the new link once, with a warning, and not again', async () => {
-    actions.rotateLinkAction.mockResolvedValue({ ok: true, link: '/labs/court-board/o/brand-new-token' });
+    actions.rotateLinkAction.mockResolvedValue({ ok: true, link: '/labs/court-board/o#brand-new-token' });
     const { user, writeText } = setupUser();
     render(<OrganiserBoard overview={overview()} />);
 
@@ -282,7 +282,7 @@ describe('rotating the Organiser link', () => {
     expect(actions.rotateLinkAction).not.toHaveBeenCalled();
     await user.click(within(dialog).getByRole('button', { name: 'Rotate link' }));
 
-    const link = `${window.location.origin}/labs/court-board/o/brand-new-token`;
+    const link = `${window.location.origin}/labs/court-board/o#brand-new-token`;
     expect(await screen.findByText(link)).toBeInTheDocument();
     expect(screen.getByText(/old link has stopped working/)).toBeInTheDocument();
     expect(router.refresh).toHaveBeenCalled();

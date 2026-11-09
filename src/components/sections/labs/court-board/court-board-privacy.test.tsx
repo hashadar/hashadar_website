@@ -9,7 +9,7 @@ describe('CourtBoardPrivacy', () => {
   it('has one top heading, a last-updated date and short section headings', () => {
     const { container } = render(<CourtBoardPrivacy />);
     expect(screen.getByRole('heading', { level: 1, name: 'Privacy notice' })).toBeInTheDocument();
-    expect(screen.getByText('Last updated: 3 November 2026')).toBeInTheDocument();
+    expect(screen.getByText('Last updated: 5 November 2026')).toBeInTheDocument();
     for (const heading of [
       'Who is responsible',
       'What is collected',
@@ -45,6 +45,7 @@ describe('CourtBoardPrivacy', () => {
       'Penalties: deleted when the penalty period ends.',
       'Wrong-PIN and spam-limit records: kept for 24 hours, then deleted automatically within a few days.',
       'Backups: the database keeps rolling backups for up to 35 days, so deleted data can remain in a backup for up to 35 days before it is gone for good.',
+      'Hosting logs: kept by AWS for a limited period for security and troubleshooting, then deleted automatically.',
     ]);
   });
 
@@ -67,5 +68,12 @@ describe('CourtBoardPrivacy', () => {
     expect(text).toContain('deleted, or object');
     expect(text).toContain("Information Commissioner's Office at ico.org.uk");
     expect(text).toContain('not designed for children');
+  });
+
+  it('explains the hosting logs and what they never contain', () => {
+    render(<CourtBoardPrivacy />);
+    const who = screen.getByRole('heading', { name: 'Who handles the data' }).closest('section')!;
+    expect(who).toHaveTextContent('These record your network (IP) address');
+    expect(who).toHaveTextContent('never include your phone number, your PIN');
   });
 });

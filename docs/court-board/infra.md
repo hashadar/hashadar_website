@@ -59,6 +59,10 @@ Amplify Console → Hosting → Secrets → add `courtboard.pepper` with that va
 
 Only the Site Admin creates Clubs. Do it from **Admin** (`/admin`, "Court Board clubs"): enter the name, venue and session times, and the page shows the Organiser link **once**. Copy it and give it to the committee privately. The server stores only the SHA-256 of the token, so the link cannot be shown again; if it is lost, an Organiser who still has access rotates it from the Organiser page.
 
+### Organiser link format and access logs
+
+Organiser links look like `/labs/court-board/o#<token>`. Amplify Hosting's access logs record the path and query of every request (plus IP address and user agent, but not cookies or request bodies), so a token in the path would be stored in plain text. Browsers never send the part after `#`; `OrganiserLinkOpener` reads it, removes it from the address bar and history, and posts it to `openOrganiserLinkAction`, which sets the cookie. The older `/o/<token>` route still works for links already shared, but logs the token each time it is used. Logs downloaded before this change contain tokens: rotate the link once after deploying so they are all dead.
+
 ### Replacing a lost Organiser link
 
 If no Organiser has the link any more, the Site Admin replaces it from **Admin** ("Replace an Organiser link"): paste the Signup link of any Session in the Club and confirm. Clubs cannot be listed (there is no Scan), so a Session's Signup link is how Admin finds the Club; a Club with no Sessions yet is simplest to recreate.

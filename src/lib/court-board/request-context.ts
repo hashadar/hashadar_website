@@ -9,6 +9,17 @@ import { getCourtBoardRuntime } from './store-provider';
 export const ORGANISER_COOKIE = 'cb_org';
 export const ORGANISER_COOKIE_PATH = '/labs/court-board/o';
 
+/** HttpOnly, SameSite=Strict, Secure in production, kept for a year. */
+export function organiserCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    path: ORGANISER_COOKIE_PATH,
+    maxAge: 60 * 60 * 24 * 365,
+  };
+}
+
 /**
  * The caller's address, for per-device lockouts and rate limits. The first
  * `X-Forwarded-For` entry can be spoofed, which only lets an attacker dodge the
