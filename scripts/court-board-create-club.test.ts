@@ -71,13 +71,14 @@ describe('helpers', () => {
       startTime: '09:00',
       endTime: '11:00',
       rules: DEFAULT_CLUB_RULES,
+      committee: [],
       createdAt: now,
     });
   });
 
   it('builds the Organiser link without a doubled slash', () => {
     expect(organiserLink('https://example.com/', 'tok')).toBe(
-      'https://example.com/labs/court-board/o/tok',
+      'https://example.com/labs/court-board/o#tok',
     );
   });
 
@@ -103,7 +104,7 @@ describe('createClub', () => {
 
     expect(result).toEqual({
       clubId: 'club-1',
-      link: 'https://example.com/labs/court-board/o/secret-token',
+      link: 'https://example.com/labs/court-board/o#secret-token',
     });
     expect(createClubInStore).toHaveBeenCalledTimes(1);
     const [club, storedHash] = createClubInStore.mock.calls[0];

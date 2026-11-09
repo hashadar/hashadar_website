@@ -47,9 +47,10 @@ export function CourtBoardDevPanel({ info }: { info: DevInfo }) {
           </Link>
         </li>
         <li>
-          <Link className="underline" href={info.organiserTokenPath}>
+          {/* A plain link: the token is after `#`, read on a fresh page load. */}
+          <a className="underline" href={info.organiserTokenPath}>
             Open as Organiser
-          </Link>
+          </a>
         </li>
         <li>
           Demo Player: {info.player.name}, {info.player.phone}, PIN {info.player.pin}

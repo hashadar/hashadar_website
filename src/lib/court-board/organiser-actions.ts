@@ -2,7 +2,7 @@
 
 /**
  * Organiser Server Actions. Authorised by the HttpOnly Organiser cookie (the
- * link's token, exchanged once at `/labs/court-board/o/[token]`), checked
+ * link's token, exchanged once by `openOrganiserLinkAction`), checked
  * against its stored SHA-256 on every call. This file may only export async
  * Server Actions.
  */
@@ -19,15 +19,17 @@ import {
   resetPin,
   rotateOrganiserLink,
   setAttended,
+  setCommittee,
   setSeatTier,
   shortenPenalty,
 } from './organiser-service';
 import {
   ORGANISER_COOKIE,
-  ORGANISER_COOKIE_PATH,
   getOrganiserToken,
   getServiceDeps,
+  organiserCookieOptions,
 } from './request-context';
+import { organiserTokenPath } from './club-admin';
 import { fail, type ServiceDeps } from './service-core';
 import type { Club } from './store';
 import type { Outcome, RegisterPreview } from './views';
@@ -103,17 +105,34 @@ export async function shortenPenaltyAction(input: unknown): Promise<Outcome> {
  * Replace the Organiser link. The browser's cookie moves to the new token so
  * this Organiser stays signed in; the new link is returned once to be shared.
  */
+export async function setCommitteeAction(
+  input: unknown,
+): Promise<Outcome<{ committee: string[] }>> {
+  return asOrganiser((deps, club) => setCommittee(deps, club, input));
+}
+
 export async function rotateLinkAction(): Promise<Outcome<{ link: string }>> {
   return asOrganiser(async (deps, club, token) => {
     const result = await rotateOrganiserLink(deps, club, token);
     if (!result.ok) return result;
-    (await cookies()).set(ORGANISER_COOKIE, result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: ORGANISER_COOKIE_PATH,
-      maxAge: 60 * 60 * 24 * 365,
-    });
-    return { ok: true, link: `/labs/court-board/o/${result.token}` };
+    (await cookies()).set(ORGANISER_COOKIE, result.token, organiserCookieOptions());
+    return { ok: true, link: organiserTokenPath(result.token) };
   });
+}
+
+/**
+ * Open an Organiser link: the page reads the token from the URL fragment and
+ * posts it here, so it never appears in a URL the server (or its access logs)
+ * sees. A valid token becomes this browser's Organiser cookie.
+ */
+export async function openOrganiserLinkAction(token: unknown): Promise<Outcome> {
+  try {
+    const club = await authenticateOrganiser(await getServiceDeps(), token);
+    if (!club || typeof token !== 'string') return fail('unauthorised');
+    (await cookies()).set(ORGANISER_COOKIE, token, organiserCookieOptions());
+    return { ok: true };
+  } catch (error) {
+    console.error('court-board organiser action failed', error);
+    return fail('rejected');
+  }
 }

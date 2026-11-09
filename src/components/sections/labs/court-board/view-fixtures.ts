@@ -12,6 +12,7 @@ import type {
 export function makeView(overrides: Partial<SessionView> = {}): SessionView {
   return {
     clubName: 'Test Badminton Club',
+    committee: ['Victoria Sze', 'Kelvin Li'],
     session: {
       id: 'abcDEF123456',
       localDate: '2026-11-07',

@@ -31,7 +31,7 @@ _Avoid_: status, role, `*` / `**`, roster, verified tier
 ### Sessions
 
 **Club**:
-A group that runs Sessions under one rule set: default Capacity, venue and start time; Release (Thu 12:00); Top-up (Fri 12:00); Cutoff (24 h before start); Grace period (2 h); Penalty lengths. All times are Europe/London wall-clock times.
+A group that runs Sessions under one rule set: default Capacity, venue and start time; Release (Thu 12:00); Top-up (Fri 12:00); Cutoff (24 h before start); Grace period (2 h); Penalty lengths. All times are Europe/London wall-clock times. Also holds an optional **Committee** list: names an Organiser sets, shown on every Signup page so Players know who to ask.
 _Avoid_: group chat, team, organisation
 
 **Session**:

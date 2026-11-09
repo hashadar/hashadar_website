@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  clubToItem,
   createDynamoCourtBoardStore,
+  itemToClub,
   itemToPenalty,
   itemToSeat,
   keys,
@@ -124,6 +126,7 @@ describe('Clubs and Organiser links', () => {
     startTime: '09:00',
     endTime: '11:00',
     rules: DEFAULT_CLUB_RULES,
+    committee: [],
     createdAt: new Date('2026-10-30T10:00:00Z'),
   };
 
@@ -215,6 +218,24 @@ describe('Clubs and Organiser links', () => {
   it('refuses to replace the token of an unknown Club', async () => {
     const { store } = setup(() => transactionCancelled('None', 'ConditionalCheckFailed'));
     await expect(store.replaceOrganiserToken('nope', 'fresh')).rejects.toThrow(/not found/);
+  });
+
+  it('stores the committee list on the Club, only if the Club exists', async () => {
+    const { store, commands } = setup();
+    await store.setClubCommittee('club-1', ['Victoria Sze']);
+    expect(commands[0].name).toBe('UpdateCommand');
+    expect(commands[0].input).toMatchObject({
+      Key: { pk: 'CLUB#club-1', sk: 'META' },
+      UpdateExpression: 'SET committee = :committee',
+      ConditionExpression: 'attribute_exists(pk)',
+      ExpressionAttributeValues: { ':committee': ['Victoria Sze'] },
+    });
+  });
+
+  it('reads an older Club without a committee as an empty list', () => {
+    const item = clubToItem(club);
+    delete item.committee;
+    expect(itemToClub(item).committee).toEqual([]);
   });
 
   it('refuses to rotate an unknown link', async () => {

@@ -768,6 +768,8 @@ export interface CourtBoardPlayerCopy {
     topUpNote: string;
     playingHeading: string;
     playingEmpty: string;
+    committeeHeading: string;
+    committeeNote: string;
     waitlistHeading: string;
     waitlistBandHeading: string;
     guestLabel: string;
@@ -859,6 +861,8 @@ export interface CourtBoardOrganiserCopy {
   eyebrow: string;
   invalidHeading: string;
   invalidBody: string;
+  /** Shown while an Organiser link's token is being exchanged. */
+  opening: string;
   tabsAriaLabel: string;
   tabs: { current: string; holds: string; newSession: string };
   sessionPicker: {
@@ -981,6 +985,15 @@ export interface CourtBoardOrganiserCopy {
     };
     submit: string;
     submitting: string;
+  };
+  committee: {
+    heading: string;
+    body: string;
+    label: string;
+    help: string;
+    empty: string;
+    save: string;
+    saved: string;
   };
   link: {
     heading: string;

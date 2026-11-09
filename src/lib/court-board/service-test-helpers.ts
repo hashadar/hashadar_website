@@ -46,6 +46,7 @@ export async function setup(
     startTime: '09:00',
     endTime: '11:00',
     rules: DEFAULT_CLUB_RULES,
+    committee: [],
     createdAt: new Date('2026-10-01T00:00:00Z'),
   };
   const session: ClubSession = {
