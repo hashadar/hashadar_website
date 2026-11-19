@@ -1,0 +1,9 @@
+{
+  "name": "cfa-assist",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1146.0",
+    "@aws-sdk/client-s3": "^3.1172.0"
+  }
+}

@@ -23,10 +23,12 @@ describe('LabsIndexSection', () => {
     const jobOs = labs.labs.find((lab) => lab.href === '/labs/job-os');
     const wmw = labs.labs.find((lab) => lab.href === '/labs/wmw');
     const courtBoard = labs.labs.find((lab) => lab.href === '/labs/court-board');
+    const cfaLab = labs.labs.find((lab) => lab.href === '/labs/cfa');
     expect(jobOs).toBeDefined();
     expect(wmw).toBeDefined();
     expect(courtBoard).toBeDefined();
-    expect(labs.labs).toHaveLength(3);
+    expect(cfaLab).toBeDefined();
+    expect(labs.labs).toHaveLength(4);
 
     expect(
       within(catalogue).getByRole('heading', { level: 2, name: jobOs!.title }),
@@ -41,6 +43,9 @@ describe('LabsIndexSection', () => {
       within(catalogue).getByRole('link', { name: new RegExp(courtBoard!.title) }),
     ).toHaveAttribute('href', '/labs/court-board');
     expect(within(catalogue).getByText(courtBoard!.lede)).toBeInTheDocument();
+    expect(
+      within(catalogue).getByRole('link', { name: new RegExp(cfaLab!.title) }),
+    ).toHaveAttribute('href', '/labs/cfa');
     expect(courtBoard!.lede).toBe('Club session signups');
     expect(within(catalogue).getByText(jobOs!.lede)).toBeInTheDocument();
     expect(within(catalogue).getByText(wmw!.lede)).toBeInTheDocument();

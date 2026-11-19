@@ -570,3 +570,133 @@ export function assertValidCourtBoardPage(data: unknown): void {
   requireRecord(page.player, 'courtBoard.player');
   requireRecord(page.organiser, 'courtBoard.organiser');
 }
+
+/**
+ * CFA Lab copy and syllabus only. The allow-list of top-level keys keeps
+ * question content out of the repo (docs/adr/0014-cfa-question-content-private-storage.md).
+ */
+const CFA_TOP_LEVEL_KEYS = new Set([
+  'heading',
+  'description',
+  'unauthenticatedHeading',
+  'unauthenticatedDescription',
+  'signInLabel',
+  'checkingSessionLabel',
+  'exam',
+  'weights',
+  'syllabus',
+  'shell',
+  'common',
+  'overview',
+  'capture',
+  'form',
+  'import',
+  'practice',
+  'runner',
+  'bank',
+  'questionDetail',
+]);
+
+const CFA_COPY_SECTIONS = [
+  'common',
+  'overview',
+  'capture',
+  'form',
+  'import',
+  'practice',
+  'runner',
+  'bank',
+  'questionDetail',
+];
+
+function assertStringLeaves(value: unknown, context: string): void {
+  const section = requireRecord(value, context);
+  for (const key of Object.keys(section)) {
+    requireString(section, key, context);
+  }
+}
+
+export function assertValidCfaPage(data: unknown): void {
+  const page = requireRecord(data, 'cfa');
+  for (const key of Object.keys(page)) {
+    if (!CFA_TOP_LEVEL_KEYS.has(key)) {
+      fail(`cfa: unexpected top-level key "${key}" (copy and syllabus only)`);
+    }
+  }
+  for (const key of [
+    'heading',
+    'description',
+    'unauthenticatedHeading',
+    'unauthenticatedDescription',
+    'signInLabel',
+    'checkingSessionLabel',
+  ]) {
+    requireString(page, key, 'cfa');
+  }
+
+  const exam = requireRecord(page.exam, 'cfa.exam');
+  const date = requireString(exam, 'date', 'cfa.exam');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) {
+    fail('cfa.exam: date must be YYYY-MM-DD');
+  }
+  requireString(exam, 'label', 'cfa.exam');
+  requireString(exam, 'placeholderNote', 'cfa.exam');
+  if (typeof exam.isPlaceholder !== 'boolean') {
+    fail('cfa.exam: isPlaceholder must be a boolean');
+  }
+
+  const weights = requireRecord(page.weights, 'cfa.weights');
+  if (typeof weights.year !== 'number') fail('cfa.weights: year must be a number');
+  requireString(weights, 'sourceLabel', 'cfa.weights');
+
+  const syllabus = requireRecord(page.syllabus, 'cfa.syllabus');
+  const moduleIds = new Set<string>();
+  const readingIds = new Set<string>();
+  const modules = requireArray(syllabus.modules, 'cfa.syllabus.modules');
+  if (modules.length === 0) fail('cfa.syllabus.modules: expected at least one module');
+  modules.forEach((value, index) => {
+    const context = `cfa.syllabus.modules[${index}]`;
+    const entry = requireRecord(value, context);
+    const id = requireString(entry, 'id', context);
+    if (moduleIds.has(id)) fail(`${context}: duplicate module id "${id}"`);
+    moduleIds.add(id);
+    requireString(entry, 'name', context);
+    const weight = requireRecord(entry.weight, `${context}.weight`);
+    if (
+      typeof weight.min !== 'number' ||
+      typeof weight.max !== 'number' ||
+      weight.min < 0 ||
+      weight.max < weight.min
+    ) {
+      fail(`${context}.weight: expected 0 <= min <= max`);
+    }
+    const readings = requireArray(entry.readings, `${context}.readings`);
+    if (readings.length === 0) fail(`${context}.readings: expected at least one reading`);
+    readings.forEach((readingValue, readingIndex) => {
+      const readingContext = `${context}.readings[${readingIndex}]`;
+      const reading = requireRecord(readingValue, readingContext);
+      const readingId = requireString(reading, 'id', readingContext);
+      if (readingIds.has(readingId)) {
+        fail(`${readingContext}: duplicate reading id "${readingId}"`);
+      }
+      readingIds.add(readingId);
+      requireString(reading, 'name', readingContext);
+    });
+  });
+
+  const shell = requireRecord(page.shell, 'cfa.shell');
+  requireString(shell, 'heading', 'cfa.shell');
+  requireString(shell, 'description', 'cfa.shell');
+  const nav = requireRecord(shell.nav, 'cfa.shell.nav');
+  requireString(nav, 'ariaLabel', 'cfa.shell.nav');
+  requireArray(nav.items, 'cfa.shell.nav.items').forEach((item, index) => {
+    const entry = requireRecord(item, `cfa.shell.nav.items[${index}]`);
+    requireString(entry, 'id', `cfa.shell.nav.items[${index}]`);
+    requireString(entry, 'label', `cfa.shell.nav.items[${index}]`);
+    requireString(entry, 'href', `cfa.shell.nav.items[${index}]`);
+  });
+
+  for (const section of CFA_COPY_SECTIONS) {
+    assertStringLeaves(page[section], `cfa.${section}`);
+  }
+}

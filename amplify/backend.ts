@@ -4,7 +4,9 @@ import { auth } from './auth/resource.js';
 import { createCourtBoardResources } from './court-board/resource.js';
 import { data } from './data/resource.js';
 import { analyseFit } from './functions/analyse-fit/resource.js';
+import { cfaAssist } from './functions/cfa-assist/resource.js';
 import {
+  cfaScreenshotsStorage,
   siteContentStorage,
   storage,
   wmwSnapshotsStorage,
@@ -16,7 +18,9 @@ const backend = defineBackend({
   storage,
   siteContentStorage,
   wmwSnapshotsStorage,
+  cfaScreenshotsStorage,
   analyseFit,
+  cfaAssist,
 });
 
 // Owner-only Cognito: disable self-sign-up (admin invite / AdminCreateUser only).
@@ -27,7 +31,8 @@ cfnUserPool.adminCreateUserConfig = {
 
 // Open-weight Bedrock models (e.g. Meta Llama) need invoke on foundation
 // models and inference profiles; no Marketplace subscription required.
-backend.analyseFit.resources.lambda.addToRolePolicy(
+// Job OS Fit Insight and the CFA Lab assist (vision extraction) share the grant.
+const bedrockInvoke = () =>
   new PolicyStatement({
     actions: [
       'bedrock:InvokeModel',
@@ -37,8 +42,9 @@ backend.analyseFit.resources.lambda.addToRolePolicy(
       'arn:aws:bedrock:*::foundation-model/*',
       'arn:aws:bedrock:*:*:inference-profile/*',
     ],
-  }),
-);
+  });
+backend.analyseFit.resources.lambda.addToRolePolicy(bedrockInvoke());
+backend.cfaAssist.resources.lambda.addToRolePolicy(bedrockInvoke());
 
 // Court Board: public-write Lab with its own DynamoDB table, outside the Job OS
 // `a.schema`. SSR reaches it through a customer-managed policy attached once to
