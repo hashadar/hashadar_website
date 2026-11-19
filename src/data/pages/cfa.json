@@ -1,0 +1,788 @@
+{
+  "heading": "CFA Level I",
+  "description": "Private practice bank for CFA Level I: capture questions from screenshots, practise by module, and review mistakes on a schedule.",
+  "unauthenticatedHeading": "Sign in to open CFA Level I",
+  "unauthenticatedDescription": "The CFA Lab is a private practice bank. Sign in with your invited account to continue.",
+  "signInLabel": "Owner sign in",
+  "checkingSessionLabel": "Checking session…",
+  "exam": {
+    "date": "2027-02-03",
+    "label": "February 2027",
+    "isPlaceholder": true,
+    "placeholderNote": "Placeholder date in the window — set your booked date in cfa.json."
+  },
+  "weights": {
+    "year": 2027,
+    "sourceLabel": "Exam weights: CFA Institute, 2027 Level I topic weights."
+  },
+  "syllabus": {
+    "modules": [
+      {
+        "id": "ethics",
+        "name": "Ethical and Professional Standards",
+        "weight": {
+          "min": 10,
+          "max": 15
+        },
+        "readings": [
+          {
+            "id": "ethics-ethics-and-trust-in-the-investment-profession",
+            "name": "Ethics and Trust in the Investment Profession"
+          },
+          {
+            "id": "ethics-code-of-ethics-and-standards-of-professional-conduct",
+            "name": "Code of Ethics and Standards of Professional Conduct"
+          },
+          {
+            "id": "ethics-guidance-for-standard-i-professionalism",
+            "name": "Guidance for Standard I: Professionalism"
+          },
+          {
+            "id": "ethics-guidance-for-standard-ii-integrity-of-capital-markets",
+            "name": "Guidance for Standard II: Integrity of Capital Markets"
+          },
+          {
+            "id": "ethics-guidance-for-standard-iii-duties-to-clients",
+            "name": "Guidance for Standard III: Duties to Clients"
+          },
+          {
+            "id": "ethics-guidance-for-standard-iv-duties-to-employers",
+            "name": "Guidance for Standard IV: Duties to Employers"
+          },
+          {
+            "id": "ethics-guidance-for-standard-v-investment-analysis-recommendations-and-actions",
+            "name": "Guidance for Standard V: Investment Analysis, Recommendations, and Actions"
+          },
+          {
+            "id": "ethics-guidance-for-standard-vi-conflicts-of-interest",
+            "name": "Guidance for Standard VI: Conflicts of Interest"
+          },
+          {
+            "id": "ethics-guidance-for-standard-vii-responsibilities-as-a-cfa-institute-member-or-cfa-candidate",
+            "name": "Guidance for Standard VII: Responsibilities as a CFA Institute Member or CFA Candidate"
+          },
+          {
+            "id": "ethics-application-of-the-code-and-standards-level-i",
+            "name": "Application of the Code and Standards: Level I"
+          }
+        ]
+      },
+      {
+        "id": "quant",
+        "name": "Quantitative Methods",
+        "weight": {
+          "min": 11,
+          "max": 14
+        },
+        "readings": [
+          {
+            "id": "quant-returns-of-financial-assets-and-instruments",
+            "name": "Returns of Financial Assets and Instruments"
+          },
+          {
+            "id": "quant-types-of-financial-returns",
+            "name": "Types of Financial Returns"
+          },
+          {
+            "id": "quant-benchmarking-returns",
+            "name": "Benchmarking Returns"
+          },
+          {
+            "id": "quant-the-time-value-of-money-in-finance",
+            "name": "The Time Value of Money in Finance"
+          },
+          {
+            "id": "quant-statistical-characteristics-of-asset-returns",
+            "name": "Statistical Characteristics of Asset Returns"
+          },
+          {
+            "id": "quant-statistical-distributions-for-financial-asset-prices-and-returns",
+            "name": "Statistical Distributions for Financial Asset Prices and Returns"
+          },
+          {
+            "id": "quant-estimation-and-hypothesis-testing",
+            "name": "Estimation and Hypothesis Testing"
+          },
+          {
+            "id": "quant-the-return-and-risk-of-a-financial-portfolio",
+            "name": "The Return and Risk of a Financial Portfolio"
+          },
+          {
+            "id": "quant-simulation-of-financial-asset-prices-and-returns",
+            "name": "Simulation of Financial Asset Prices and Returns"
+          },
+          {
+            "id": "quant-applications-of-simple-linear-regression-in-finance",
+            "name": "Applications of Simple Linear Regression in Finance"
+          },
+          {
+            "id": "quant-introduction-to-financial-data-science",
+            "name": "Introduction to Financial Data Science"
+          }
+        ]
+      },
+      {
+        "id": "economics",
+        "name": "Economics",
+        "weight": {
+          "min": 6,
+          "max": 9
+        },
+        "readings": [
+          {
+            "id": "economics-the-firm-and-market-structures",
+            "name": "The Firm and Market Structures"
+          },
+          {
+            "id": "economics-understanding-business-cycles",
+            "name": "Understanding Business Cycles"
+          },
+          {
+            "id": "economics-fiscal-policy",
+            "name": "Fiscal Policy"
+          },
+          {
+            "id": "economics-monetary-policy",
+            "name": "Monetary Policy"
+          },
+          {
+            "id": "economics-introduction-to-geopolitics",
+            "name": "Introduction to Geopolitics"
+          },
+          {
+            "id": "economics-international-trade",
+            "name": "International Trade"
+          },
+          {
+            "id": "economics-capital-flows-and-the-fx-market",
+            "name": "Capital Flows and the FX Market"
+          },
+          {
+            "id": "economics-exchange-rate-calculations",
+            "name": "Exchange Rate Calculations"
+          }
+        ]
+      },
+      {
+        "id": "fsa",
+        "name": "Financial Statement Analysis",
+        "weight": {
+          "min": 11,
+          "max": 14
+        },
+        "readings": [
+          {
+            "id": "fsa-introduction-to-financial-statement-analysis",
+            "name": "Introduction to Financial Statement Analysis"
+          },
+          {
+            "id": "fsa-analyzing-income-statements",
+            "name": "Analyzing Income Statements"
+          },
+          {
+            "id": "fsa-analyzing-balance-sheets",
+            "name": "Analyzing Balance Sheets"
+          },
+          {
+            "id": "fsa-analyzing-statements-of-cash-flows-i",
+            "name": "Analyzing Statements of Cash Flows I"
+          },
+          {
+            "id": "fsa-analyzing-statements-of-cash-flows-ii",
+            "name": "Analyzing Statements of Cash Flows II"
+          },
+          {
+            "id": "fsa-analysis-of-inventories",
+            "name": "Analysis of Inventories"
+          },
+          {
+            "id": "fsa-analysis-of-long-term-assets",
+            "name": "Analysis of Long-Term Assets"
+          },
+          {
+            "id": "fsa-topics-in-long-term-liabilities-and-equity",
+            "name": "Topics in Long-Term Liabilities and Equity"
+          },
+          {
+            "id": "fsa-analysis-of-income-taxes",
+            "name": "Analysis of Income Taxes"
+          },
+          {
+            "id": "fsa-financial-reporting-quality",
+            "name": "Financial Reporting Quality"
+          },
+          {
+            "id": "fsa-financial-analysis-techniques",
+            "name": "Financial Analysis Techniques"
+          },
+          {
+            "id": "fsa-introduction-to-financial-statement-modeling",
+            "name": "Introduction to Financial Statement Modeling"
+          }
+        ]
+      },
+      {
+        "id": "corporate-finance",
+        "name": "Corporate Finance",
+        "weight": {
+          "min": 6,
+          "max": 9
+        },
+        "readings": [
+          {
+            "id": "corporate-finance-organizational-forms-corporate-issuer-features-and-ownership",
+            "name": "Organizational Forms, Corporate Issuer Features, and Ownership"
+          },
+          {
+            "id": "corporate-finance-investors-and-other-stakeholders",
+            "name": "Investors and Other Stakeholders"
+          },
+          {
+            "id": "corporate-finance-corporate-governance-conflicts-mechanisms-risks-and-benefits",
+            "name": "Corporate Governance: Conflicts, Mechanisms, Risks, and Benefits"
+          },
+          {
+            "id": "corporate-finance-working-capital-and-liquidity",
+            "name": "Working Capital and Liquidity"
+          },
+          {
+            "id": "corporate-finance-capital-investments-and-capital-allocation",
+            "name": "Capital Investments and Capital Allocation"
+          },
+          {
+            "id": "corporate-finance-capital-structure",
+            "name": "Capital Structure"
+          },
+          {
+            "id": "corporate-finance-business-models",
+            "name": "Business Models"
+          }
+        ]
+      },
+      {
+        "id": "equities",
+        "name": "Equities",
+        "weight": {
+          "min": 11,
+          "max": 14
+        },
+        "readings": [
+          {
+            "id": "equities-equity-instrument-features",
+            "name": "Equity Instrument Features"
+          },
+          {
+            "id": "equities-equity-jurisdictions-classes-and-the-voting-process",
+            "name": "Equity Jurisdictions, Classes, and the Voting Process"
+          },
+          {
+            "id": "equities-equity-issuance-and-trading",
+            "name": "Equity Issuance and Trading"
+          },
+          {
+            "id": "equities-sources-of-equity-returns",
+            "name": "Sources of Equity Returns"
+          },
+          {
+            "id": "equities-introduction-to-equity-valuation",
+            "name": "Introduction to Equity Valuation"
+          },
+          {
+            "id": "equities-discounted-cash-flow-dcf-and-growth-models",
+            "name": "Discounted Cash Flow (DCF) and Growth Models"
+          },
+          {
+            "id": "equities-relative-value-equity-valuation-approaches",
+            "name": "Relative Value Equity Valuation Approaches"
+          },
+          {
+            "id": "equities-financial-statement-forecasting-in-equity-valuation",
+            "name": "Financial Statement Forecasting in Equity Valuation"
+          },
+          {
+            "id": "equities-industry-and-competitive-analysis",
+            "name": "Industry and Competitive Analysis"
+          },
+          {
+            "id": "equities-company-analysis-past-present-and-future",
+            "name": "Company Analysis: Past, Present, and Future"
+          },
+          {
+            "id": "equities-equity-analyst-research-reports",
+            "name": "Equity Analyst Research Reports"
+          },
+          {
+            "id": "equities-the-capital-asset-pricing-model-market-model-and-other-factor-based-equity-models",
+            "name": "The Capital Asset Pricing Model, Market Model, and Other Factor-Based Equity Models"
+          }
+        ]
+      },
+      {
+        "id": "fixed-income",
+        "name": "Fixed Income",
+        "weight": {
+          "min": 11,
+          "max": 14
+        },
+        "readings": [
+          {
+            "id": "fixed-income-fixed-income-instrument-features",
+            "name": "Fixed-Income Instrument Features"
+          },
+          {
+            "id": "fixed-income-fixed-income-cash-flows-and-types",
+            "name": "Fixed-Income Cash Flows and Types"
+          },
+          {
+            "id": "fixed-income-fixed-income-issuance-and-trading",
+            "name": "Fixed-Income Issuance and Trading"
+          },
+          {
+            "id": "fixed-income-fixed-income-markets-for-corporate-issuers",
+            "name": "Fixed-Income Markets for Corporate Issuers"
+          },
+          {
+            "id": "fixed-income-fixed-income-markets-for-government-issuers",
+            "name": "Fixed-Income Markets for Government Issuers"
+          },
+          {
+            "id": "fixed-income-fixed-income-bond-valuation-prices-and-yields",
+            "name": "Fixed-Income Bond Valuation: Prices and Yields"
+          },
+          {
+            "id": "fixed-income-yield-and-yield-spread-measures-for-fixed-rate-bonds",
+            "name": "Yield and Yield Spread Measures for Fixed-Rate Bonds"
+          },
+          {
+            "id": "fixed-income-yield-and-yield-spread-measures-for-floating-rate-instruments",
+            "name": "Yield and Yield Spread Measures for Floating-Rate Instruments"
+          },
+          {
+            "id": "fixed-income-the-term-structure-of-interest-rates-spot-par-and-forward-curves",
+            "name": "The Term Structure of Interest Rates: Spot, Par, and Forward Curves"
+          },
+          {
+            "id": "fixed-income-interest-rate-risk-and-return",
+            "name": "Interest Rate Risk and Return"
+          },
+          {
+            "id": "fixed-income-yield-based-bond-duration-measures-and-properties",
+            "name": "Yield-Based Bond Duration Measures and Properties"
+          },
+          {
+            "id": "fixed-income-yield-based-bond-convexity-and-portfolio-properties",
+            "name": "Yield-Based Bond Convexity and Portfolio Properties"
+          },
+          {
+            "id": "fixed-income-curve-based-and-empirical-fixed-income-risk-measures",
+            "name": "Curve-Based and Empirical Fixed-Income Risk Measures"
+          },
+          {
+            "id": "fixed-income-credit-risk",
+            "name": "Credit Risk"
+          },
+          {
+            "id": "fixed-income-credit-analysis-for-government-issuers",
+            "name": "Credit Analysis for Government Issuers"
+          },
+          {
+            "id": "fixed-income-credit-analysis-for-corporate-issuers",
+            "name": "Credit Analysis for Corporate Issuers"
+          },
+          {
+            "id": "fixed-income-fixed-income-securitization",
+            "name": "Fixed-Income Securitization"
+          },
+          {
+            "id": "fixed-income-asset-backed-security-abs-instrument-and-market-features",
+            "name": "Asset-Backed Security (ABS) Instrument and Market Features"
+          },
+          {
+            "id": "fixed-income-mortgage-backed-security-mbs-instrument-and-market-features",
+            "name": "Mortgage-Backed Security (MBS) Instrument and Market Features"
+          }
+        ]
+      },
+      {
+        "id": "derivatives",
+        "name": "Derivatives and Risk Management",
+        "weight": {
+          "min": 6,
+          "max": 9
+        },
+        "readings": [
+          {
+            "id": "derivatives-derivative-instrument-and-derivative-market-features",
+            "name": "Derivative Instrument and Derivative Market Features"
+          },
+          {
+            "id": "derivatives-forward-commitment-and-contingent-claim-features-and-instruments",
+            "name": "Forward Commitment and Contingent Claim Features and Instruments"
+          },
+          {
+            "id": "derivatives-derivative-benefits-risks-and-issuer-and-investor-uses",
+            "name": "Derivative Benefits, Risks, and Issuer and Investor Uses"
+          },
+          {
+            "id": "derivatives-arbitrage-replication-and-the-cost-of-carry-in-pricing-derivatives",
+            "name": "Arbitrage, Replication, and the Cost of Carry in Pricing Derivatives"
+          },
+          {
+            "id": "derivatives-pricing-and-valuation-of-forward-contracts-and-for-an-underlying-with-varying-maturities",
+            "name": "Pricing and Valuation of Forward Contracts and for an Underlying with Varying Maturities"
+          },
+          {
+            "id": "derivatives-pricing-and-valuation-of-futures-contracts",
+            "name": "Pricing and Valuation of Futures Contracts"
+          },
+          {
+            "id": "derivatives-pricing-and-valuation-of-interest-rate-and-other-swaps",
+            "name": "Pricing and Valuation of Interest Rate and Other Swaps"
+          },
+          {
+            "id": "derivatives-pricing-and-valuation-of-options",
+            "name": "Pricing and Valuation of Options"
+          },
+          {
+            "id": "derivatives-option-replication-using-put-call-parity",
+            "name": "Option Replication Using Put–Call Parity"
+          },
+          {
+            "id": "derivatives-valuing-a-derivative-using-a-one-period-binomial-model",
+            "name": "Valuing a Derivative Using a One-Period Binomial Model"
+          }
+        ]
+      },
+      {
+        "id": "alternatives",
+        "name": "Alternative Investments",
+        "weight": {
+          "min": 6,
+          "max": 9
+        },
+        "readings": [
+          {
+            "id": "alternatives-alternative-investment-features-methods-and-structures",
+            "name": "Alternative Investment Features, Methods, and Structures"
+          },
+          {
+            "id": "alternatives-alternative-investment-performance-and-returns",
+            "name": "Alternative Investment Performance and Returns"
+          },
+          {
+            "id": "alternatives-investments-in-private-capital-equity-and-debt",
+            "name": "Investments in Private Capital: Equity and Debt"
+          },
+          {
+            "id": "alternatives-real-estate-and-infrastructure",
+            "name": "Real Estate and Infrastructure"
+          },
+          {
+            "id": "alternatives-natural-resources",
+            "name": "Natural Resources"
+          },
+          {
+            "id": "alternatives-hedge-funds",
+            "name": "Hedge Funds"
+          },
+          {
+            "id": "alternatives-introduction-to-digital-assets",
+            "name": "Introduction to Digital Assets"
+          }
+        ]
+      },
+      {
+        "id": "portfolio",
+        "name": "Portfolio Construction",
+        "weight": {
+          "min": 8,
+          "max": 12
+        },
+        "readings": [
+          {
+            "id": "portfolio-portfolio-risk-and-return-part-i",
+            "name": "Portfolio Risk and Return: Part I"
+          },
+          {
+            "id": "portfolio-portfolio-risk-and-return-part-ii",
+            "name": "Portfolio Risk and Return: Part II"
+          },
+          {
+            "id": "portfolio-portfolio-management-an-overview",
+            "name": "Portfolio Management: An Overview"
+          },
+          {
+            "id": "portfolio-basics-of-portfolio-planning-and-construction",
+            "name": "Basics of Portfolio Planning and Construction"
+          },
+          {
+            "id": "portfolio-the-behavioral-biases-of-individuals",
+            "name": "The Behavioral Biases of Individuals"
+          },
+          {
+            "id": "portfolio-introduction-to-risk-management",
+            "name": "Introduction to Risk Management"
+          }
+        ]
+      }
+    ]
+  },
+  "shell": {
+    "heading": "CFA",
+    "description": "Level I practice",
+    "nav": {
+      "ariaLabel": "CFA navigation",
+      "items": [
+        {
+          "id": "overview",
+          "label": "Overview",
+          "href": "/labs/cfa"
+        },
+        {
+          "id": "practice",
+          "label": "Practice",
+          "href": "/labs/cfa/practice"
+        },
+        {
+          "id": "capture",
+          "label": "Capture",
+          "href": "/labs/cfa/capture"
+        },
+        {
+          "id": "questions",
+          "label": "Questions",
+          "href": "/labs/cfa/questions"
+        }
+      ]
+    }
+  },
+  "common": {
+    "loadingLabel": "Loading…",
+    "errorLabel": "Could not load your question bank.",
+    "retryLabel": "Try again",
+    "notConfiguredLabel": "Amplify is not configured in this build, so nothing can be loaded or saved.",
+    "aiDraftedBadge": "AI-drafted",
+    "flaggedBadge": "Flagged",
+    "cancelLabel": "Cancel",
+    "backToOverviewLabel": "Back to Overview",
+    "noReadingLabel": "Unknown reading"
+  },
+  "overview": {
+    "heading": "Overview",
+    "description": "Where you are against the exam weights.",
+    "daysToExamLabel": "days to exam",
+    "examTodayLabel": "Exam day",
+    "examPassedLabel": "Exam date passed",
+    "dueTodayLabel": "due today",
+    "dueStartLabel": "Start Mistakes deck",
+    "nothingDueLabel": "Nothing due",
+    "bankLabel": "in the bank",
+    "answeredLabel": "answered",
+    "accuracyLabel": "accuracy",
+    "recentHeading": "Just added",
+    "recentDescription": "{count} from your last capture session.",
+    "recentStartLabel": "Review what I just added",
+    "practiceCtaLabel": "Practise",
+    "captureCtaLabel": "Capture a question",
+    "modulesHeading": "By module",
+    "columnModule": "Module",
+    "columnWeight": "Exam weight",
+    "columnBank": "Bank",
+    "columnAttempts": "Attempts",
+    "columnAccuracy": "Accuracy",
+    "weakestHeading": "Weakest LOS",
+    "weakestDescription": "LOS with at least {min} attempts, lowest accuracy first.",
+    "weakestEmptyLabel": "Not enough attempts yet to call any LOS weak.",
+    "practiseLosLabel": "Practise",
+    "flaggedLabel": "{count} flagged",
+    "emptyHeading": "No questions yet",
+    "emptyDescription": "Capture a screenshot of a practice question from your study materials to start your bank."
+  },
+  "capture": {
+    "heading": "Capture",
+    "description": "Turn screenshots of a practice question into a Question. Several screenshots are treated as one question unless they clearly hold separate ones.",
+    "moduleLabel": "Module",
+    "readingLabel": "Reading",
+    "sourceLabel": "Source",
+    "sourcePlaceholder": "Where this question comes from",
+    "sourceHelp": "Remembered for your next capture.",
+    "addScreenshotsLabel": "Add screenshots",
+    "pasteHint": "Paste a screenshot here (Ctrl or ⌘ + V), drop files, or choose from your photos.",
+    "maxScreenshotsLabel": "Up to {max} screenshots per capture.",
+    "removeScreenshotLabel": "Remove screenshot {index}",
+    "screenshotAlt": "Screenshot {index}",
+    "extractLabel": "Extract question",
+    "uploadingLabel": "Uploading screenshots…",
+    "extractingLabel": "Reading the screenshots… this can take up to a minute.",
+    "extractErrorLabel": "Extraction failed.",
+    "retryExtractLabel": "Try again",
+    "manualEntryLabel": "Type it in instead",
+    "discardLabel": "Start over",
+    "importLinkLabel": "Paste JSON instead",
+    "multipleFoundLabel": "Found {count} questions in these screenshots.",
+    "questionOfLabel": "Question {index} of {count}",
+    "skipLabel": "Skip this one",
+    "savedLabel": "Saved. Ready for the next capture.",
+    "warningsLabel": "Check before saving"
+  },
+  "form": {
+    "stemLabel": "Question",
+    "stemHelp": "Markdown. Maths as $…$ or $$…$$; tables as Markdown tables.",
+    "optionLabel": "Option {letter}",
+    "answerLegend": "Correct answer",
+    "answerConfirmLabel": "I’ve checked the correct answer is {letter}",
+    "answerExtractedNote": "Read from the screenshot. Confirm it before saving.",
+    "answerMissingNote": "No answer was visible. Choose the correct one.",
+    "explanationLabel": "Explanation",
+    "explanationHelp": "Markdown and maths as above.",
+    "draftExplanationLabel": "Draft explanation",
+    "draftingLabel": "Drafting…",
+    "draftErrorLabel": "Could not draft an explanation.",
+    "draftNeedsAnswerLabel": "Confirm the answer first, so the explanation matches it.",
+    "aiDraftedToggleLabel": "AI-drafted (untick once you have checked it)",
+    "calculatorLabel": "Calculator keystrokes (optional)",
+    "calculatorPlaceholder": "e.g. N, I/Y, PMT, FV, CPT PV",
+    "losLabel": "LOS",
+    "losPlaceholder": "e.g. calculate and interpret …",
+    "losSuggestedNote": "Suggested by the model. Edit to match your curriculum.",
+    "previewHeading": "Preview",
+    "screenshotHeading": "Screenshot",
+    "openOriginalLabel": "Open original",
+    "saveLabel": "Save question",
+    "savingLabel": "Saving…",
+    "saveErrorLabel": "Could not save the question.",
+    "duplicateHeading": "Possible duplicate",
+    "duplicateDescription": "{percent} similar to a question already in your bank:",
+    "duplicateOpenLabel": "Open it",
+    "issueModule": "Choose a module.",
+    "issueReading": "Choose a reading.",
+    "issueStem": "Add the question text.",
+    "issueOptions": "Fill in all three options.",
+    "issueAnswer": "Choose the correct answer.",
+    "issueAnswerConfirmed": "Confirm the correct answer."
+  },
+  "import": {
+    "heading": "Paste JSON",
+    "description": "Bulk-add questions in the same schema Extraction uses. Items without a module or reading use the defaults below.",
+    "textareaLabel": "JSON",
+    "schemaHeading": "Schema",
+    "checkLabel": "Check JSON",
+    "readyLabel": "{count} ready to import",
+    "errorsHeading": "Not imported",
+    "errorItemLabel": "Item {index}: {message}",
+    "duplicatesLabel": "{count} look like near-duplicates of questions already in your bank.",
+    "confirmAnswersLabel": "I’ve checked the answers in this JSON",
+    "importLabel": "Import {count}",
+    "importingLabel": "Importing…",
+    "importedLabel": "Imported {count} questions.",
+    "importErrorLabel": "Some questions could not be imported."
+  },
+  "practice": {
+    "heading": "Practice",
+    "description": "Pick what to practise and how many.",
+    "modeLegend": "Mode",
+    "modePracticeLabel": "Practice",
+    "modePracticeHelp": "Feedback after each question.",
+    "modeTimedLabel": "Timed",
+    "modeTimedHelp": "Exam pace: {seconds} seconds per question on average. Results at the end.",
+    "scopeLegend": "Questions from",
+    "scopeMixedLabel": "Mixed, weighted by exam weight",
+    "scopeChosenLabel": "A module, reading or LOS",
+    "moduleLabel": "Module",
+    "readingLabel": "Reading",
+    "losLabel": "LOS",
+    "anyModuleLabel": "Any module",
+    "anyReadingLabel": "Any reading",
+    "anyLosLabel": "Any LOS",
+    "countLabel": "How many",
+    "availableLabel": "{count} available",
+    "startLabel": "Start",
+    "noQuestionsLabel": "No questions match. Capture some first.",
+    "mistakesHeading": "Mistakes deck",
+    "mistakesDescription": "Wrong answers come back after 1 day, then 3, 7, 14 and 30 days.",
+    "mistakesEmptyLabel": "Nothing due. Wrong answers will appear here when they are due.",
+    "recentHeading": "Just added",
+    "recentDescription": "Questions from your last capture session.",
+    "recentEmptyLabel": "No recent captures."
+  },
+  "runner": {
+    "progressLabel": "{index} of {count}",
+    "answerGroupLabel": "Answer options",
+    "correctLabel": "Correct",
+    "wrongLabel": "Not quite. The answer is {letter}.",
+    "explanationHeading": "Explanation",
+    "noExplanationLabel": "No explanation saved for this question.",
+    "calculatorHeading": "Calculator",
+    "nextLabel": "Next",
+    "previousLabel": "Previous",
+    "finishLabel": "Finish",
+    "flagLabel": "Flag",
+    "flagNoteLabel": "What looks wrong?",
+    "flagNotePlaceholder": "e.g. option B was cut off in the screenshot",
+    "flagSaveLabel": "Save flag",
+    "flagSavedLabel": "Flagged",
+    "timeLeftLabel": "Time left",
+    "submitLabel": "Submit",
+    "submitUnansweredLabel": "Submit with {count} unanswered?",
+    "timeUpLabel": "Time’s up. Your answers have been submitted.",
+    "summaryHeading": "Set complete",
+    "scoreLabel": "{correct} of {count} correct",
+    "averageTimeLabel": "{seconds}s average per question",
+    "reviewHeading": "Review",
+    "yourAnswerLabel": "Your answer",
+    "unansweredLabel": "Unanswered",
+    "answerLabel": "Answer",
+    "newSetLabel": "New set",
+    "openQuestionLabel": "Open question",
+    "saveErrorLabel": "Some answers could not be saved. Check your connection.",
+    "emptyLabel": "This set has no questions.",
+    "paletteLabel": "Questions in this set",
+    "questionLabel": "Question {index}"
+  },
+  "bank": {
+    "heading": "Questions",
+    "description": "Your question bank.",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Words in the question or LOS",
+    "moduleFilterLabel": "Module",
+    "allModulesLabel": "All modules",
+    "flaggedOnlyLabel": "Flagged only",
+    "countLabel": "{count} questions",
+    "emptyLabel": "No questions match.",
+    "importLinkLabel": "Paste JSON",
+    "deckBadgeLabel": "Deck box {box}"
+  },
+  "questionDetail": {
+    "heading": "Question",
+    "notFoundHeading": "Question not found",
+    "notFoundDescription": "It may have been deleted. Go back to the bank and choose another.",
+    "backLabel": "All questions",
+    "editLabel": "Edit",
+    "deleteLabel": "Delete",
+    "deleteConfirmLabel": "Delete this question? Its Mistakes deck state and flags are removed; past attempts stay in your history.",
+    "deleteConfirmButtonLabel": "Delete question",
+    "deletingLabel": "Deleting…",
+    "screenshotsHeading": "Screenshots",
+    "noScreenshotsLabel": "No screenshots (typed or imported).",
+    "openScreenshotLabel": "Open screenshot {index}",
+    "historyHeading": "History",
+    "historyEmptyLabel": "Not attempted yet.",
+    "historyRowLabel": "{date}: {result} ({mode}, {seconds}s)",
+    "historyCorrectLabel": "correct",
+    "historyWrongLabel": "wrong",
+    "flagsHeading": "Flags",
+    "flagsEmptyLabel": "No open flags.",
+    "resolveFlagLabel": "Resolve",
+    "reviewHeading": "Mistakes deck",
+    "reviewStateLabel": "Box {box} of 5, due {date}",
+    "notInDeckLabel": "Not in the Mistakes deck.",
+    "sourceLabel": "Source",
+    "createdLabel": "Added",
+    "answerLabel": "Answer",
+    "editHeading": "Edit question",
+    "modePracticeLabel": "practice",
+    "modeTimedLabel": "timed",
+    "modeMistakesLabel": "mistakes deck",
+    "modeRecentLabel": "just added"
+  }
+}

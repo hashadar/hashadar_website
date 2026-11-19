@@ -1,0 +1,76 @@
+/* CFA Lab question text, options and explanations (Markdown + KaTeX). */
+
+.cfa-content {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+
+.cfa-content > * + * {
+  margin-top: 0.75rem;
+}
+
+.cfa-content-inline > * + * {
+  margin-top: 0.25rem;
+}
+
+.cfa-content ul,
+.cfa-content ol {
+  padding-left: 1.25rem;
+}
+
+.cfa-content ul {
+  list-style: disc;
+}
+
+.cfa-content ol {
+  list-style: decimal;
+}
+
+.cfa-content strong {
+  font-weight: 600;
+}
+
+.cfa-content code {
+  font-size: 0.9em;
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+  background: var(--muted);
+}
+
+/* Exhibits: tables scroll sideways on a phone instead of squashing. */
+.cfa-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cfa-content th,
+.cfa-content td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.cfa-content th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+/* Display maths scrolls sideways rather than overflowing the page. */
+.cfa-content .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+  margin: 0.5rem 0;
+}
+
+.cfa-content .katex {
+  font-size: 1.05em;
+}

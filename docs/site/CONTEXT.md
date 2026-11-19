@@ -19,7 +19,7 @@ The Site Admin’s content workspace at `/admin` for Posts, portfolio Photos, an
 _Avoid_: Labs admin, CMS (as the product name), owner console, page-copy CMS (v1), Admin in the marketing header
 
 **Lab**:
-A standalone gated product under `/labs/...` that consumes Sign-in but has its own shell and data. Examples: Job OS; future labs.
+A standalone gated product under `/labs/...` that consumes Sign-in but has its own shell and data. Examples: Job OS, WMW, CFA; future labs.
 _Avoid_: treating Admin as a Lab, treating Labs as the auth hub, a Lab as public Proof
 
 **Labs index**:

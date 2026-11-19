@@ -1074,6 +1074,290 @@ export interface CourtBoardPrivacyCopy {
   sections: CourtBoardLegalSection[];
 }
 
+/** CFA Lab Module / Reading syllabus and copy (`src/data/pages/cfa.json`). */
+export interface CfaCopyCommon {
+  loadingLabel: string;
+  errorLabel: string;
+  retryLabel: string;
+  notConfiguredLabel: string;
+  aiDraftedBadge: string;
+  flaggedBadge: string;
+  cancelLabel: string;
+  backToOverviewLabel: string;
+  noReadingLabel: string;
+}
+
+export interface CfaCopyOverview {
+  heading: string;
+  description: string;
+  daysToExamLabel: string;
+  examTodayLabel: string;
+  examPassedLabel: string;
+  dueTodayLabel: string;
+  dueStartLabel: string;
+  nothingDueLabel: string;
+  bankLabel: string;
+  answeredLabel: string;
+  accuracyLabel: string;
+  recentHeading: string;
+  recentDescription: string;
+  recentStartLabel: string;
+  practiceCtaLabel: string;
+  captureCtaLabel: string;
+  modulesHeading: string;
+  columnModule: string;
+  columnWeight: string;
+  columnBank: string;
+  columnAttempts: string;
+  columnAccuracy: string;
+  weakestHeading: string;
+  weakestDescription: string;
+  weakestEmptyLabel: string;
+  practiseLosLabel: string;
+  flaggedLabel: string;
+  emptyHeading: string;
+  emptyDescription: string;
+}
+
+export interface CfaCopyCapture {
+  heading: string;
+  description: string;
+  moduleLabel: string;
+  readingLabel: string;
+  sourceLabel: string;
+  sourcePlaceholder: string;
+  sourceHelp: string;
+  addScreenshotsLabel: string;
+  pasteHint: string;
+  maxScreenshotsLabel: string;
+  removeScreenshotLabel: string;
+  screenshotAlt: string;
+  extractLabel: string;
+  uploadingLabel: string;
+  extractingLabel: string;
+  extractErrorLabel: string;
+  retryExtractLabel: string;
+  manualEntryLabel: string;
+  discardLabel: string;
+  importLinkLabel: string;
+  multipleFoundLabel: string;
+  questionOfLabel: string;
+  skipLabel: string;
+  savedLabel: string;
+  warningsLabel: string;
+}
+
+export interface CfaCopyForm {
+  stemLabel: string;
+  stemHelp: string;
+  optionLabel: string;
+  answerLegend: string;
+  answerConfirmLabel: string;
+  answerExtractedNote: string;
+  answerMissingNote: string;
+  explanationLabel: string;
+  explanationHelp: string;
+  draftExplanationLabel: string;
+  draftingLabel: string;
+  draftErrorLabel: string;
+  draftNeedsAnswerLabel: string;
+  aiDraftedToggleLabel: string;
+  calculatorLabel: string;
+  calculatorPlaceholder: string;
+  losLabel: string;
+  losPlaceholder: string;
+  losSuggestedNote: string;
+  previewHeading: string;
+  screenshotHeading: string;
+  openOriginalLabel: string;
+  saveLabel: string;
+  savingLabel: string;
+  saveErrorLabel: string;
+  duplicateHeading: string;
+  duplicateDescription: string;
+  duplicateOpenLabel: string;
+  issueModule: string;
+  issueReading: string;
+  issueStem: string;
+  issueOptions: string;
+  issueAnswer: string;
+  issueAnswerConfirmed: string;
+}
+
+export interface CfaCopyImport {
+  heading: string;
+  description: string;
+  textareaLabel: string;
+  schemaHeading: string;
+  checkLabel: string;
+  readyLabel: string;
+  errorsHeading: string;
+  errorItemLabel: string;
+  duplicatesLabel: string;
+  confirmAnswersLabel: string;
+  importLabel: string;
+  importingLabel: string;
+  importedLabel: string;
+  importErrorLabel: string;
+}
+
+export interface CfaCopyPractice {
+  heading: string;
+  description: string;
+  modeLegend: string;
+  modePracticeLabel: string;
+  modePracticeHelp: string;
+  modeTimedLabel: string;
+  modeTimedHelp: string;
+  scopeLegend: string;
+  scopeMixedLabel: string;
+  scopeChosenLabel: string;
+  moduleLabel: string;
+  readingLabel: string;
+  losLabel: string;
+  anyModuleLabel: string;
+  anyReadingLabel: string;
+  anyLosLabel: string;
+  countLabel: string;
+  availableLabel: string;
+  startLabel: string;
+  noQuestionsLabel: string;
+  mistakesHeading: string;
+  mistakesDescription: string;
+  mistakesEmptyLabel: string;
+  recentHeading: string;
+  recentDescription: string;
+  recentEmptyLabel: string;
+}
+
+export interface CfaCopyRunner {
+  progressLabel: string;
+  answerGroupLabel: string;
+  correctLabel: string;
+  wrongLabel: string;
+  explanationHeading: string;
+  noExplanationLabel: string;
+  calculatorHeading: string;
+  nextLabel: string;
+  previousLabel: string;
+  finishLabel: string;
+  flagLabel: string;
+  flagNoteLabel: string;
+  flagNotePlaceholder: string;
+  flagSaveLabel: string;
+  flagSavedLabel: string;
+  timeLeftLabel: string;
+  submitLabel: string;
+  submitUnansweredLabel: string;
+  timeUpLabel: string;
+  summaryHeading: string;
+  scoreLabel: string;
+  averageTimeLabel: string;
+  reviewHeading: string;
+  yourAnswerLabel: string;
+  unansweredLabel: string;
+  answerLabel: string;
+  newSetLabel: string;
+  openQuestionLabel: string;
+  saveErrorLabel: string;
+  emptyLabel: string;
+  paletteLabel: string;
+  questionLabel: string;
+}
+
+export interface CfaCopyBank {
+  heading: string;
+  description: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  moduleFilterLabel: string;
+  allModulesLabel: string;
+  flaggedOnlyLabel: string;
+  countLabel: string;
+  emptyLabel: string;
+  importLinkLabel: string;
+  deckBadgeLabel: string;
+}
+
+export interface CfaCopyQuestionDetail {
+  heading: string;
+  notFoundHeading: string;
+  notFoundDescription: string;
+  backLabel: string;
+  editLabel: string;
+  deleteLabel: string;
+  deleteConfirmLabel: string;
+  deleteConfirmButtonLabel: string;
+  deletingLabel: string;
+  screenshotsHeading: string;
+  noScreenshotsLabel: string;
+  openScreenshotLabel: string;
+  historyHeading: string;
+  historyEmptyLabel: string;
+  historyRowLabel: string;
+  historyCorrectLabel: string;
+  historyWrongLabel: string;
+  flagsHeading: string;
+  flagsEmptyLabel: string;
+  resolveFlagLabel: string;
+  reviewHeading: string;
+  reviewStateLabel: string;
+  notInDeckLabel: string;
+  sourceLabel: string;
+  createdLabel: string;
+  answerLabel: string;
+  editHeading: string;
+  modePracticeLabel: string;
+  modeTimedLabel: string;
+  modeMistakesLabel: string;
+  modeRecentLabel: string;
+}
+
+export interface CfaPageData {
+  heading: string;
+  description: string;
+  unauthenticatedHeading: string;
+  unauthenticatedDescription: string;
+  signInLabel: string;
+  checkingSessionLabel: string;
+  exam: {
+    /** ISO date (YYYY-MM-DD) of the exam. */
+    date: string;
+    label: string;
+    isPlaceholder: boolean;
+    placeholderNote: string;
+  };
+  weights: {
+    year: number;
+    sourceLabel: string;
+  };
+  syllabus: {
+    modules: Array<{
+      id: string;
+      name: string;
+      weight: { min: number; max: number };
+      readings: Array<{ id: string; name: string }>;
+    }>;
+  };
+  shell: {
+    heading: string;
+    description: string;
+    nav: {
+      ariaLabel: string;
+      items: Array<{ id: string; label: string; href: string }>;
+    };
+  };
+  common: CfaCopyCommon;
+  overview: CfaCopyOverview;
+  capture: CfaCopyCapture;
+  form: CfaCopyForm;
+  import: CfaCopyImport;
+  practice: CfaCopyPractice;
+  runner: CfaCopyRunner;
+  bank: CfaCopyBank;
+  questionDetail: CfaCopyQuestionDetail;
+}
+
 export interface CourtBoardPageData {
   heading: string;
   description: string;

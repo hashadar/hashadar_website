@@ -1,5 +1,6 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { analyseFit } from '../functions/analyse-fit/resource';
+import { cfaAssist } from '../functions/cfa-assist/resource';
 
 /**
  * Job OS hunting graph: Employer → Opportunity → Application, plus Decision Events.
@@ -157,6 +158,84 @@ const schema = a.schema({
     .returns(a.string())
     .authorization((allow) => [allow.authenticated()])
     .handler(a.handler.function(analyseFit)),
+
+  // --- CFA Lab (docs/cfa/CONTEXT.md). Question content is private to the
+  // signed-in Site Admin and never lives in the repo (ADR 0014). ---
+  CfaAnswer: a.enum(['A', 'B', 'C']),
+  CfaAttemptMode: a.enum(['practice', 'timed', 'mistakes', 'recent']),
+  CfaReviewResult: a.enum(['correct', 'wrong']),
+
+  CfaQuestion: a
+    .model({
+      module: a.string().required(),
+      reading: a.string().required(),
+      los: a.string(),
+      stem: a.string().required(),
+      // Exactly three options (A, B, C) — enforced in src/lib/cfa/question.ts.
+      options: a.string().array().required(),
+      answer: a.ref('CfaAnswer').required(),
+      explanation: a.string(),
+      explanationIsAiDrafted: a.boolean().default(false),
+      calculator: a.string(),
+      source: a.string(),
+      screenshotKeys: a.string().array(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
+
+  CfaAttempt: a
+    .model({
+      questionId: a.id().required(),
+      // Empty when a timed Set ended before the Question was answered.
+      chosen: a.ref('CfaAnswer'),
+      correct: a.boolean().required(),
+      secondsTaken: a.float().required(),
+      mode: a.ref('CfaAttemptMode').required(),
+      setId: a.string(),
+      answeredAt: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'delete']),
+    ]),
+
+  // Leitner state for the Mistakes deck: one row per Question that was ever wrong.
+  CfaReviewState: a
+    .model({
+      questionId: a.id().required(),
+      box: a.integer().required(),
+      dueAt: a.datetime().required(),
+      lastResult: a.ref('CfaReviewResult').required(),
+      lastAnsweredAt: a.datetime().required(),
+    })
+    .identifier(['questionId'])
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
+
+  CfaFlag: a
+    .model({
+      questionId: a.id().required(),
+      note: a.string().required(),
+      resolvedAt: a.datetime(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
+
+  // Starts an Extraction or draft explanation. Runs async (Event invocation) so
+  // long vision calls are not cut off by the resolver timeout; the Lab polls
+  // `assist/{jobId}.json` in the cfaScreenshots bucket for the result.
+  startCfaAssist: a
+    .mutation()
+    .arguments({
+      jobId: a.string().required(),
+      task: a.string().required(),
+      screenshotKeys: a.string().array(),
+      contextJson: a.string(),
+    })
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(cfaAssist).async()),
 });
 
 export type Schema = ClientSchema<typeof schema>;
