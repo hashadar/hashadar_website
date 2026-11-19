@@ -8,7 +8,7 @@
   "exam": {
     "date": "2027-02-22",
     "label": "February 2027",
-    "isPlaceholder": true,
+    "isPlaceholder": false,
     "placeholderNote": "Placeholder date in the window — set your booked date in cfa.json."
   },
   "weights": {
