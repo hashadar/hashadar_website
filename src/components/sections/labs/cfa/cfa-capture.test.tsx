@@ -26,11 +26,10 @@ afterEach(() => cleanup());
 const placeholderExtraction = parseExtractionOutput({
   questions: [
     {
-      stem: 'Placeholder widget question?',
+      stem: '1. Placeholder widget question?',
       options: { A: 'One', B: 'Two', C: 'Three' },
       answer: null,
       explanation: null,
-      suggestedLos: 'placeholder outcome',
       calculator: null,
     },
   ],
@@ -73,7 +72,8 @@ describe('CfaCapture', () => {
       module: secondModule.id,
       reading: secondModule.readings[0].id,
       answer: 'B',
-      los: 'placeholder outcome',
+      stem: 'Placeholder widget question?',
+      los: null,
       source: 'Placeholder set',
       screenshotKeys: [expect.stringMatching(/^screenshots\//)],
     });

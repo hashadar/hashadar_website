@@ -65,6 +65,12 @@ describe('question drafts', () => {
     ).toThrow(/answerConfirmed/);
   });
 
+  it('drops a question number typed in front of the stem and keeps LOS optional', () => {
+    const input = draftToInput({ ...ready, stem: '4) Placeholder stem?', los: ' ' }, testSyllabus);
+    expect(input.stem).toBe('Placeholder stem?');
+    expect(input.los).toBeNull();
+  });
+
   it('round-trips a saved Question as already confirmed', () => {
     const question = makeQuestion({ explanation: null, answer: 'B' });
     const draft = questionToDraft(question);

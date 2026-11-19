@@ -1165,8 +1165,8 @@ export interface CfaCopyForm {
   calculatorLabel: string;
   calculatorPlaceholder: string;
   losLabel: string;
+  losOptionalLabel: string;
   losPlaceholder: string;
-  losSuggestedNote: string;
   previewHeading: string;
   screenshotHeading: string;
   openOriginalLabel: string;

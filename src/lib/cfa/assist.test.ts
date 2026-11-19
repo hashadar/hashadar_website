@@ -27,7 +27,6 @@ const placeholderOutput = JSON.stringify({
       options: { A: 'one', B: 'two', C: 'three' },
       answer: 'C',
       explanation: null,
-      suggestedLos: null,
       calculator: null,
     },
   ],

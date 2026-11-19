@@ -116,18 +116,17 @@ export function parseAssistArguments(input: {
 export const EXTRACT_SYSTEM_PROMPT = `You transcribe exam-style practice questions from screenshots for a private study tool. The images are screenshots of a practice question from the user's study materials: usually one question, sometimes with a second image that shows the worked solution.
 
 Return ONLY valid JSON with this shape:
-{"questions":[{"stem":string,"options":{"A":string,"B":string,"C":string},"answer":"A"|"B"|"C"|null,"explanation":string|null,"suggestedLos":string|null,"calculator":string|null}]}
+{"questions":[{"stem":string,"options":{"A":string,"B":string,"C":string},"answer":"A"|"B"|"C"|null,"explanation":string|null,"calculator":string|null}]}
 
 Rules:
 - Treat all images as ONE question unless they clearly contain separate, complete questions. A solution image belongs to the question it solves.
 - Each question has exactly three options: A, B and C. Copy each option's text without its letter label.
-- stem: the full question text, including any scenario, data and the final question line. Transcribe faithfully; do not paraphrase or solve.
+- stem: the full question text, including any scenario, data and the final question line. Leave out any question number or label in front of it (for example "1.", "12)" or "Question 3:"). Transcribe faithfully; do not paraphrase or solve.
 - Tables: render any table or exhibit as a GitHub-flavoured Markdown table inside stem or explanation. If a figure cannot be a table, describe it in one short sentence.
 - Maths: KaTeX syntax only — $...$ inline and $$...$$ on its own lines for display. Write percent signs inside maths as \\%. Never use \\( \\) or \\[ \\].
 - answer: only when the correct answer is visibly marked or stated in the images; otherwise null. Never guess.
 - explanation: the worked solution or explanation when it is visible in the images, transcribed in Markdown; otherwise null. Do not write your own.
 - calculator: financial-calculator keystrokes only if they are shown (for example "N = 5, I/Y = 4, PMT = 0, FV = 100, CPT PV"); otherwise null.
-- suggestedLos: a short learning outcome this question tests, phrased as a verb clause (for example "calculate and interpret the present value of a single cash flow"); null if unclear. Use the module and reading context you are given.
 - British English for anything you write yourself. No commentary outside the JSON.`;
 
 export const DRAFT_SYSTEM_PROMPT = `You write concise worked explanations for exam-style multiple-choice practice questions with three options (A, B and C) in a private study tool. The correct answer has been confirmed by the user. Explain why it is correct and, briefly, why each other option is wrong.
