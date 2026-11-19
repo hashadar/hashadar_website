@@ -98,6 +98,7 @@ describe('sitemap', () => {
 
     expect(urls).not.toContain(`${site.metadata.siteUrl}/labs/job-os`);
     expect(urls).not.toContain(`${site.metadata.siteUrl}/labs/wmw`);
+    expect(urls.some((url) => url.includes('/labs/cfa'))).toBe(false);
     expect(
       urls.some((url) => url.includes('/labs/wmw/')),
     ).toBe(false);

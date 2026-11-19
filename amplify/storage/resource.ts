@@ -1,4 +1,5 @@
 import { defineStorage } from '@aws-amplify/backend';
+import { cfaAssist } from '../functions/cfa-assist/resource';
 
 /**
  * Optional freeform Body prose for Job OS entities.
@@ -59,6 +60,32 @@ export const wmwSnapshotsStorage = defineStorage({
   access: (allow) => ({
     'snapshots/*': [
       allow.authenticated.to(['read', 'write', 'delete']),
+    ],
+  }),
+});
+
+/**
+ * Private CFA Lab screenshots and assist results. Authenticated Site Admin
+ * only — question content and screenshots never live in the repo or in public
+ * Site Content (docs/adr/0014-cfa-question-content-private-storage.md).
+ *
+ * - `screenshots/{captureId}/*`: Capture images, kept for reference on each Question.
+ * - `assist/{jobId}.json`: Extraction / draft-explanation results written by the
+ *   `cfa-assist` function and read (then deleted) by the Lab.
+ *
+ * Amplify requires every defineStorage() call to live in this file
+ * (amplify/storage/resource.ts); subdirectory resources fail assembly.
+ */
+export const cfaScreenshotsStorage = defineStorage({
+  name: 'cfaScreenshots',
+  access: (allow) => ({
+    'screenshots/*': [
+      allow.authenticated.to(['read', 'write', 'delete']),
+      allow.resource(cfaAssist).to(['read']),
+    ],
+    'assist/*': [
+      allow.authenticated.to(['read', 'delete']),
+      allow.resource(cfaAssist).to(['write']),
     ],
   }),
 });

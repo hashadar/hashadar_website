@@ -25,6 +25,13 @@
       "description": "One link per club session: take a place, see a live rule-ordered list, cancel from any device.",
       "href": "/labs/court-board",
       "ctaLabel": "Open Court Board"
+    },
+    {
+      "title": "CFA Level I",
+      "lede": "Exam practice bank",
+      "description": "Turn practice-question screenshots into a private bank, practise by exam weight, and review mistakes on a schedule.",
+      "href": "/labs/cfa",
+      "ctaLabel": "Open CFA Level I"
     }
   ]
 }
