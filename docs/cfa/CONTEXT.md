@@ -15,8 +15,8 @@ A learning module within a Module, as titled in the curriculum for the exam year
 _Avoid_: chapter, lesson, learning module (as the model name), session
 
 **LOS**:
-The learning outcome a Question tests, as free text on the Question (suggested by Extraction, edited by the Site Admin). Grouped case- and spacing-insensitively within a Module for “weakest LOS”.
-_Avoid_: objective, outcome code, treating LOS as a fixed vocabulary in v1
+Optional: the learning outcome a Question tests, as free text the Site Admin types (Extraction does not suggest one). Grouped case- and spacing-insensitively within a Module for “weakest LOS”; Questions without an LOS are left out of it.
+_Avoid_: objective, outcome code, treating LOS as a fixed vocabulary or a required field
 
 **Exam weight**:
 The published percentage range for a Module (e.g. 11–14%). Mixed Sets use the midpoint.
@@ -25,7 +25,7 @@ _Avoid_: importance, priority
 ### Bank
 
 **Question**:
-One multiple-choice item with a stem, exactly three options (A, B, C), a confirmed answer, and optional explanation, calculator keystrokes and LOS. Stem, options and explanation are Markdown with KaTeX maths and Markdown tables. Keeps the Capture’s screenshots for reference. Editing never resets its history: Attempts and review state are keyed by Question id.
+One multiple-choice item with a stem, exactly three options (A, B, C), a confirmed answer, and optional explanation, calculator keystrokes and LOS. The stem never starts with the question’s number from the screenshot (`1.`, `Question 3:`); Extraction, Paste JSON and saving all drop it. Stem, options and explanation are Markdown with KaTeX maths and Markdown tables. Keeps the Capture’s screenshots for reference. Editing never resets its history: Attempts and review state are keyed by Question id.
 _Avoid_: item, card, problem, storing question text anywhere but Amplify Data
 
 **Capture**:
@@ -33,7 +33,7 @@ Turning one or more screenshots of a practice question from the Site Admin’s s
 _Avoid_: import (that is Paste JSON), scan, upload (only one step of a Capture)
 
 **Extraction**:
-The vision-model step of a Capture that reads the screenshots and returns structured JSON: stem, options A/B/C, the answer only if it is visible, the explanation only if it is visible, a suggested LOS, and calculator keystrokes only if shown. Runs in the `cfa-assist` function through Bedrock; the output is always reviewed before saving.
+The vision-model step of a Capture that reads the screenshots and returns structured JSON: stem, options A/B/C, the answer only if it is visible, the explanation only if it is visible, and calculator keystrokes only if shown. Runs in the `cfa-assist` function through Bedrock; the output is always reviewed before saving.
 _Avoid_: OCR (it does more), parsing, trusting an extracted answer without confirmation
 
 **Answer confirmation**:

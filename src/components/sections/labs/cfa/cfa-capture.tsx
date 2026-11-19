@@ -31,7 +31,6 @@ type PendingImage = { id: string; file: File; previewUrl: string };
 type ReviewItem = {
   draft: QuestionDraft;
   answerOrigin: 'extracted' | 'missing';
-  losSuggested: boolean;
 };
 
 type Phase =
@@ -166,13 +165,11 @@ function CaptureFlow() {
         warnings: result.warnings,
         items: result.questions.map((question) => ({
           answerOrigin: question.answer ? 'extracted' : 'missing',
-          losSuggested: Boolean(question.suggestedLos),
           draft: {
             ...baseDraft(keys),
             stem: question.stem,
             options: question.options,
             answer: question.answer,
-            los: question.suggestedLos ?? '',
             explanation: question.explanation ?? '',
             calculator: question.calculator ?? '',
           },
@@ -194,7 +191,7 @@ function CaptureFlow() {
         index: 0,
         savedCount: 0,
         warnings: [],
-        items: [{ draft: baseDraft(keys), answerOrigin: 'missing', losSuggested: false }],
+        items: [{ draft: baseDraft(keys), answerOrigin: 'missing' }],
       });
     } catch (error) {
       setPhase({
@@ -262,7 +259,6 @@ function CaptureFlow() {
           key={`${phase.index}-${item.draft.screenshotKeys.join(',')}`}
           initial={item.draft}
           answerOrigin={item.answerOrigin}
-          losSuggested={item.losSuggested}
           warnings={phase.warnings}
           localScreenshotUrls={localUrls}
           onSave={save}

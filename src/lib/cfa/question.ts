@@ -1,3 +1,4 @@
+import { stripQuestionNumber } from '@/lib/cfa/extraction';
 import { findReading } from '@/lib/cfa/syllabus';
 import {
   CFA_ANSWERS,
@@ -99,7 +100,7 @@ export function draftToInput(
     module: draft.module,
     reading: draft.reading,
     los: orNull(draft.los),
-    stem: draft.stem.trim(),
+    stem: stripQuestionNumber(draft.stem.trim()),
     options: [
       draft.options[0].trim(),
       draft.options[1].trim(),

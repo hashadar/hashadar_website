@@ -37,7 +37,6 @@ export type CfaQuestionFormProps = {
   answerOrigin: AnswerOrigin;
   /** Object URLs for screenshots still on this device, index-aligned with `screenshotKeys`. */
   localScreenshotUrls?: string[];
-  losSuggested?: boolean;
   warnings?: string[];
   /** Skip this Question when looking for near-duplicates (editing). */
   excludeQuestionId?: string;
@@ -61,7 +60,6 @@ export function CfaQuestionForm({
   initial,
   answerOrigin,
   localScreenshotUrls,
-  losSuggested = false,
   warnings = [],
   excludeQuestionId,
   saveLabel,
@@ -399,13 +397,12 @@ export function CfaQuestionForm({
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className={cfaLabelClassName}>
-              {copy.losLabel}
+              {copy.losOptionalLabel}
               <input
                 className={cfaFieldClassName}
                 value={draft.los}
                 placeholder={copy.losPlaceholder}
                 list={`${formId}-los`}
-                aria-describedby={losSuggested ? `${formId}-los-note` : undefined}
                 onChange={(event) => update({ los: event.target.value })}
               />
             </label>
@@ -414,11 +411,6 @@ export function CfaQuestionForm({
                 <option key={los} value={los} />
               ))}
             </datalist>
-            {losSuggested ? (
-              <p id={`${formId}-los-note`} className="mt-1 font-body text-xs text-[var(--mono-500)]">
-                {copy.losSuggestedNote}
-              </p>
-            ) : null}
           </div>
           <label className={cfaLabelClassName}>
             {copy.calculatorLabel}

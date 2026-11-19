@@ -9,14 +9,13 @@ import {
 
 /**
  * One Question as returned by Extraction (and accepted by Paste JSON):
- * {"questions":[{"stem","options":{"A","B","C"},"answer","explanation","suggestedLos","calculator"}]}
+ * {"questions":[{"stem","options":{"A","B","C"},"answer","explanation","calculator"}]}
  */
 export type ExtractedQuestion = {
   stem: string;
   options: CfaOptions;
   answer: CfaAnswer | null;
   explanation: string | null;
-  suggestedLos: string | null;
   calculator: string | null;
 };
 
@@ -60,6 +59,18 @@ export function normaliseMathDelimiters(text: string): string {
   return text
     .replace(/\\\[([\s\S]+?)\\\]/g, (_, body: string) => `$$${body.trim()}$$`)
     .replace(/\\\(([\s\S]+?)\\\)/g, (_, body: string) => `$${body.trim()}$`);
+}
+
+/**
+ * Drop a question number in front of the stem: `1.`, `12)`, `3:`, `Q4.`,
+ * `Question 5`, optionally in bold. Leaves `1.5 million…` and `Q3 sales…` alone.
+ */
+export function stripQuestionNumber(stem: string): string {
+  const stripped = stem.replace(
+    /^\s*(?:\*\*|__)?(?:question\s*\d{1,3}\s*[.):\-–]?|q\s*\d{1,3}\s*[.):]|\d{1,3}\s*[.):])(?:\*\*|__)?\s+/i,
+    '',
+  );
+  return stripped.trim() ? stripped : stem;
 }
 
 /** Drop a leading option label such as `A.`, `(B)`, `C)` or `A:`. */
@@ -156,11 +167,10 @@ export function parseExtractionOutput(raw: string | unknown): ExtractionResult {
       );
     }
     questions.push({
-      stem,
+      stem: stripQuestionNumber(stem),
       options: toThree(options),
       answer: normaliseAnswer(record.answer),
       explanation: cleanText(record.explanation),
-      suggestedLos: cleanText(record.suggestedLos ?? record.los),
       calculator: cleanText(record.calculator),
     });
   });
@@ -248,8 +258,8 @@ export function parseImportJson(
     items.push({
       module: resolvedModule.id,
       reading: reading.id,
-      los: cleanText(record.los ?? record.suggestedLos),
-      stem,
+      los: cleanText(record.los),
+      stem: stripQuestionNumber(stem),
       options: toThree(options),
       answer,
       explanation,

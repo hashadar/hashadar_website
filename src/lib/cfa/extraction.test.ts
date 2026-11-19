@@ -5,6 +5,7 @@ import {
   parseExtractionOutput,
   parseImportJson,
   stripOptionLabel,
+  stripQuestionNumber,
 } from '@/lib/cfa/extraction';
 import { testSyllabus } from '@/test/fixtures/cfa';
 
@@ -13,7 +14,7 @@ const placeholder = {
   options: { A: '10', B: '11', C: '12' },
   answer: 'B',
   explanation: 'Grow by $10\\%$: $$10 \\times 1.1 = 11$$',
-  suggestedLos: 'calculate a placeholder value',
+  los: 'calculate a placeholder value',
   calculator: null,
 };
 
@@ -29,7 +30,6 @@ describe('parseExtractionOutput', () => {
           options: ['10', '11', '12'],
           answer: 'B',
           explanation: placeholder.explanation,
-          suggestedLos: 'calculate a placeholder value',
           calculator: null,
         },
       ],
@@ -77,6 +77,37 @@ describe('parseExtractionOutput', () => {
       questions: [{ ...placeholder, stem: 'Solve \\( a+b \\) and \\[ c \\]' }],
     });
     expect(result.ok && result.questions[0].stem).toBe('Solve $a+b$ and $$c$$');
+  });
+});
+
+describe('stripQuestionNumber', () => {
+  it('drops a question number or label in front of the stem', () => {
+    expect(stripQuestionNumber('1. A placeholder widget costs')).toBe('A placeholder widget costs');
+    expect(stripQuestionNumber('12) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('3: Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Q4. Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Question 5: Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Question 6\nWhich option')).toBe('Which option');
+    expect(stripQuestionNumber('**7.** Which option')).toBe('Which option');
+  });
+
+  it('keeps stems that merely start with a number', () => {
+    expect(stripQuestionNumber('1.5 million placeholder shares')).toBe('1.5 million placeholder shares');
+    expect(stripQuestionNumber('Q3 placeholder sales rose')).toBe('Q3 placeholder sales rose');
+    expect(stripQuestionNumber('100 placeholder units')).toBe('100 placeholder units');
+    expect(stripQuestionNumber('1.')).toBe('1.');
+  });
+
+  it('applies to extracted and imported stems', () => {
+    const numbered = { ...placeholder, stem: '2. Placeholder stem?' };
+    const extracted = parseExtractionOutput({ questions: [numbered] });
+    expect(extracted.ok && extracted.questions[0].stem).toBe('Placeholder stem?');
+    const imported = parseImportJson(JSON.stringify([numbered]), testSyllabus, {
+      moduleId: 'alpha',
+      readingId: 'alpha-one',
+      source: null,
+    });
+    expect(imported.items[0].stem).toBe('Placeholder stem?');
   });
 });
 
