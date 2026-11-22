@@ -87,6 +87,82 @@ describe('CfaCapture', () => {
     });
   });
 
+  it('saves the parts of a multi-part question as one Question group', async () => {
+    const user = userEvent.setup();
+    const scenario = 'Placeholder Co. reports the gizmo exhibit below.\n\n| Year | Gizmos |\n|---|---|\n| 1 | 10 |';
+    const extract = vi.fn(async () =>
+      parseExtractionOutput({
+        questions: ['a', 'b', 'c'].map((part) => ({
+          stem: `1${part}. ${scenario}\n\nPlaceholder part ${part}?`,
+          options: { A: 'One', B: 'Two', C: 'Three' },
+          answer: 'A',
+          explanation: null,
+          calculator: null,
+          part,
+        })),
+      }),
+    );
+    const { lab, store, screenshots } = createTestLab({}, { extract });
+    renderWithLab(<CfaCapture />, lab);
+
+    const file = new File(['png'], 'shot.png', { type: 'image/png' });
+    await user.upload(
+      await screen.findByLabelText(cfa.capture.addScreenshotsLabel, { selector: 'input' }),
+      file,
+    );
+    await user.click(screen.getByRole('button', { name: cfa.capture.extractLabel }));
+
+    async function confirmAndSave() {
+      await user.click(await screen.findByRole('checkbox', { name: /correct answer is A/ }));
+      await user.click(screen.getByRole('button', { name: cfa.form.saveLabel }));
+    }
+
+    expect(await screen.findByText(/Part a of 3/)).toBeInTheDocument();
+    expect(screen.getByText(/Question 1 of 3/)).toBeInTheDocument();
+    await confirmAndSave();
+
+    // Skip part b; part c keeps its place after a.
+    expect(await screen.findByText(/Part b of 3/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: cfa.capture.skipLabel }));
+    expect(await screen.findByText(/Part c of 3/)).toBeInTheDocument();
+    // Part a shares the scenario but is not flagged as a near-duplicate.
+    expect(screen.queryByText(cfa.form.duplicateHeading)).not.toBeInTheDocument();
+    await confirmAndSave();
+
+    expect(await screen.findByText(cfa.capture.savedLabel)).toBeInTheDocument();
+    const saved = (await store.listQuestions()).sort((x, y) => (x.groupOrder ?? 0) - (y.groupOrder ?? 0));
+    expect(saved).toHaveLength(2);
+    expect(saved[0].groupId).toMatch(/^group-/);
+    expect(saved.map(({ groupId, groupOrder, groupPart }) => ({ groupId, groupOrder, groupPart }))).toEqual([
+      { groupId: saved[0].groupId, groupOrder: 0, groupPart: 'a' },
+      { groupId: saved[0].groupId, groupOrder: 2, groupPart: 'c' },
+    ]);
+    expect(saved[0].stem.startsWith('Placeholder Co.')).toBe(true);
+    expect(saved[0].screenshotKeys).toEqual(saved[1].screenshotKeys);
+    expect(screenshots.objects.size).toBe(1);
+  });
+
+  it('leaves a single extracted question out of any group', async () => {
+    const user = userEvent.setup();
+    const extract = vi.fn(async () => placeholderExtraction);
+    const { lab, store } = createTestLab({}, { extract });
+    renderWithLab(<CfaCapture />, lab);
+    await user.upload(
+      await screen.findByLabelText(cfa.capture.addScreenshotsLabel, { selector: 'input' }),
+      new File(['png'], 'shot.png', { type: 'image/png' }),
+    );
+    await user.click(screen.getByRole('button', { name: cfa.capture.extractLabel }));
+    await user.click(await screen.findByRole('radio', { name: /Two/ }));
+    await user.click(screen.getByRole('checkbox', { name: /correct answer is B/ }));
+    await user.click(screen.getByRole('button', { name: cfa.form.saveLabel }));
+    expect(await screen.findByText(cfa.capture.savedLabel)).toBeInTheDocument();
+    expect((await store.listQuestions())[0]).toMatchObject({
+      groupId: null,
+      groupOrder: null,
+      groupPart: null,
+    });
+  });
+
   it('adds a pasted screenshot', async () => {
     const { lab } = createTestLab();
     renderWithLab(<CfaCapture />, lab);

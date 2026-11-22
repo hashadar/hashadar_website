@@ -1,7 +1,6 @@
 import {
   BedrockRuntimeClient,
-  ConverseCommand,
-  type ContentBlock,
+  InvokeModelCommand,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   GetObjectCommand,
@@ -11,13 +10,17 @@ import {
 import type { Schema } from '../../data/resource';
 import {
   assistResultKey,
+  buildMessagesBody,
   buildUserPrompt,
   CFA_BUCKET_ENV,
   coerceJsonObject,
+  DEFAULT_CFA_MODEL_ID,
   imageFormatForKey,
+  isClaudeModelId,
+  messagesReplyText,
   parseAssistArguments,
   systemPromptFor,
-  temperatureFor,
+  type AssistImage,
   type AssistResultEnvelope,
 } from './assist-core';
 
@@ -26,17 +29,7 @@ const bedrock = new BedrockRuntimeClient({
 });
 const s3 = new S3Client({});
 
-function extractText(response: {
-  output?: { message?: { content?: Array<{ text?: string }> } };
-}): string {
-  const parts = response.output?.message?.content ?? [];
-  return parts
-    .map((part) => part.text ?? '')
-    .join('')
-    .trim();
-}
-
-async function readImage(bucket: string, key: string): Promise<ContentBlock> {
+async function readImage(bucket: string, key: string): Promise<AssistImage> {
   const format = imageFormatForKey(key);
   if (!format) {
     throw new Error('Unsupported screenshot format.');
@@ -46,7 +39,7 @@ async function readImage(bucket: string, key: string): Promise<ContentBlock> {
     throw new Error('Screenshot could not be read.');
   }
   const bytes = await object.Body.transformToByteArray();
-  return { image: { format, source: { bytes } } };
+  return { format, base64: Buffer.from(bytes).toString('base64') };
 }
 
 async function writeResult(bucket: string, envelope: AssistResultEnvelope) {
@@ -89,34 +82,35 @@ export const handler: Schema['startCfaAssist']['functionHandler'] = async (
   }
 
   const { jobId, task, screenshotKeys, context } = parsed.value;
-  const modelId =
-    process.env.BEDROCK_MODEL_ID ?? 'us.meta.llama4-maverick-17b-instruct-v1:0';
+  const modelId = process.env.BEDROCK_MODEL_ID?.trim() || DEFAULT_CFA_MODEL_ID;
 
   try {
+    if (!isClaudeModelId(modelId)) {
+      throw new Error(
+        `CFA_BEDROCK_MODEL_ID must be a Claude model on Bedrock; got ${modelId}.`,
+      );
+    }
     const images = await Promise.all(
       screenshotKeys.map((key) => readImage(bucket, key)),
     );
-    const temperature = temperatureFor(modelId);
+    // Claude Haiku 5.5 is served on bedrock-runtime through InvokeModel with
+    // Anthropic's Messages body (not the Converse API).
     const response = await bedrock.send(
-      new ConverseCommand({
+      new InvokeModelCommand({
         modelId,
-        system: [{ text: systemPromptFor(task) }],
-        messages: [
-          {
-            role: 'user',
-            content: [
-              ...images,
-              { text: buildUserPrompt(task, context, images.length) },
-            ],
-          },
-        ],
-        inferenceConfig: {
-          maxTokens: 4096,
-          ...(temperature === undefined ? {} : { temperature }),
-        },
+        contentType: 'application/json',
+        accept: 'application/json',
+        body: JSON.stringify(
+          buildMessagesBody({
+            system: systemPromptFor(task),
+            prompt: buildUserPrompt(task, context, images.length),
+            images,
+          }),
+        ),
       }),
     );
-    const output = coerceJsonObject(extractText(response));
+    const reply: unknown = JSON.parse(new TextDecoder().decode(response.body));
+    const output = coerceJsonObject(messagesReplyText(reply));
     await writeResult(bucket, {
       jobId,
       task,

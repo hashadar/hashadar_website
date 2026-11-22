@@ -18,6 +18,7 @@ import {
 } from '@/components/sections/labs/cfa/cfa-ui';
 import { cfa } from '@/data';
 import { fill } from '@/lib/cfa/format';
+import { partLetter } from '@/lib/cfa/groups';
 import { imageFilesFrom, MAX_SCREENSHOTS_PER_CAPTURE } from '@/lib/cfa/images';
 import { newCfaId, screenshotKey } from '@/lib/cfa/paths';
 import { prepareScreenshot } from '@/lib/cfa/prepare-screenshot';
@@ -158,12 +159,15 @@ function CaptureFlow() {
         setPhase({ kind: 'error', message: result.error });
         return;
       }
+      // Several questions from one Capture are parts of one Question group:
+      // skipped parts are not saved; the rest keep their extraction order.
+      const groupId = result.questions.length > 1 ? newCfaId('group') : null;
       setPhase({
         kind: 'review',
         index: 0,
         savedCount: 0,
         warnings: result.warnings,
-        items: result.questions.map((question) => ({
+        items: result.questions.map((question, index) => ({
           answerOrigin: question.answer ? 'extracted' : 'missing',
           draft: {
             ...baseDraft(keys),
@@ -172,6 +176,9 @@ function CaptureFlow() {
             answer: question.answer,
             explanation: question.explanation ?? '',
             calculator: question.calculator ?? '',
+            groupId,
+            groupOrder: groupId ? index : null,
+            groupPart: groupId ? (question.part ?? partLetter(index)) : null,
           },
         })),
       });
@@ -249,6 +256,9 @@ function CaptureFlow() {
             <p className={cfaMutedClassName}>
               {fill(copy.multipleFoundLabel, { count: phase.items.length })}{' '}
               {fill(copy.questionOfLabel, { index: phase.index + 1, count: phase.items.length })}
+              {item.draft.groupPart
+                ? ` · ${fill(copy.partOfLabel, { part: item.draft.groupPart, count: phase.items.length })}`
+                : null}
             </p>
             <button type="button" className={cfaSecondaryButtonClassName} onClick={() => advance(false)}>
               {copy.skipLabel}

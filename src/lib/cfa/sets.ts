@@ -1,3 +1,4 @@
+import { groupIndex, shuffleKeepingGroups, takeWithGroups } from '@/lib/cfa/groups';
 import { isDue } from '@/lib/cfa/leitner';
 import { shuffle, type Rng } from '@/lib/cfa/random';
 import { normaliseLosKey } from '@/lib/cfa/stats';
@@ -55,6 +56,10 @@ export type BuildSetInput = {
 /**
  * Questions for a Practice or Timed Set. Least-attempted Questions come first
  * so a big bank is covered evenly; order within the Set is shuffled.
+ *
+ * Question groups: a Set that includes any part of a group includes all of
+ * its parts, adjacent and in `groupOrder`. Each part counts as one Question,
+ * so the Set can exceed `count` by up to group size − 1.
  */
 export function buildPracticeSet(input: BuildSetInput): CfaQuestion[] {
   const rng = input.rng ?? Math.random;
@@ -71,10 +76,11 @@ export function buildPracticeSet(input: BuildSetInput): CfaQuestion[] {
   const pool = shuffle(filterByScope(input.questions, input.scope), rng).sort(
     (a, b) => (counts[a.id] ?? 0) - (counts[b.id] ?? 0),
   );
-  return shuffle(pool.slice(0, count), rng);
+  const picked = takeWithGroups(pool, count, groupIndex(input.questions));
+  return shuffleKeepingGroups(picked, rng);
 }
 
-/** Mistakes deck: due Questions, most overdue first. */
+/** Mistakes deck: due Questions, most overdue first. Per part: only due parts of a group are served. */
 export function mistakesDeck(
   questions: readonly CfaQuestion[],
   reviewStates: readonly CfaReviewState[],

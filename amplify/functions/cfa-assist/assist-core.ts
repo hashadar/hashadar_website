@@ -1,6 +1,6 @@
 /**
  * Pure helpers for the CFA assist Lambda: argument validation, prompts,
- * image format mapping, and JSON coercion. Kept free of AWS clients so Vitest
+ * image format mapping, the Bedrock request body and reply text, and JSON coercion. Kept free of AWS clients so Vitest
  * can cover them without live services.
  */
 
@@ -113,19 +113,20 @@ export function parseAssistArguments(input: {
   return { ok: true, value: { jobId, task, screenshotKeys, context } };
 }
 
-export const EXTRACT_SYSTEM_PROMPT = `You transcribe exam-style practice questions from screenshots for a private study tool. The images are screenshots of a practice question from the user's study materials: usually one question, sometimes with a second image that shows the worked solution.
+export const EXTRACT_SYSTEM_PROMPT = `You transcribe exam-style practice questions from screenshots for a private study tool. The images are screenshots of a practice question from the user's study materials: usually one question, sometimes with a second image that shows the worked solution, and sometimes one shared scenario or exhibit followed by several lettered parts (1a, 1b, 1c).
 
 Return ONLY valid JSON with this shape:
-{"questions":[{"stem":string,"options":{"A":string,"B":string,"C":string},"answer":"A"|"B"|"C"|null,"explanation":string|null,"calculator":string|null}]}
+{"questions":[{"stem":string,"options":{"A":string,"B":string,"C":string},"answer":"A"|"B"|"C"|null,"explanation":string|null,"calculator":string|null,"part":string|null}]}
 
 Rules:
-- Treat all images as ONE question unless they clearly contain separate, complete questions. A solution image belongs to the question it solves.
+- Treat all images as ONE question unless they clearly contain separate, complete questions or lettered parts. A solution image belongs to the question it solves.
+- Multi-part questions: when one shared scenario or exhibit is followed by lettered parts (for example 1a, 1b, 1c or (a), (b), (c)), each with its own A/B/C options, return every part as a separate question, in the order shown. Repeat the full shared scenario and every exhibit (as Markdown tables) at the top of each part's stem, then that part's own question line, so each part can be answered on its own. Set "part" to the part's letter in lower case (for example "a"). For a question without parts, set "part" to null.
 - Each question has exactly three options: A, B and C. Copy each option's text without its letter label.
-- stem: the full question text, including any scenario, data and the final question line. Leave out any question number or label in front of it (for example "1.", "12)" or "Question 3:"). Transcribe faithfully; do not paraphrase or solve.
+- stem: the full question text, including any scenario, data and the final question line. Leave out any question number or part label in front of it (for example "1.", "12)", "Question 3:", "1a.", "(b)" or "Part c:"). Transcribe faithfully; do not paraphrase or solve.
 - Tables: render any table or exhibit as a GitHub-flavoured Markdown table inside stem or explanation. If a figure cannot be a table, describe it in one short sentence.
 - Maths: KaTeX syntax only — $...$ inline and $$...$$ on its own lines for display. Write percent signs inside maths as \\%. Never use \\( \\) or \\[ \\].
 - answer: only when the correct answer is visibly marked or stated in the images; otherwise null. Never guess.
-- explanation: the worked solution or explanation when it is visible in the images, transcribed in Markdown; otherwise null. Do not write your own.
+- explanation: the worked solution or explanation when it is visible in the images, transcribed in Markdown; otherwise null. Do not write your own. For a multi-part question, give each part only its own explanation.
 - calculator: financial-calculator keystrokes only if they are shown (for example "N = 5, I/Y = 4, PMT = 0, FV = 100, CPT PV"); otherwise null.
 - British English for anything you write yourself. No commentary outside the JSON.`;
 
@@ -179,12 +180,91 @@ export function systemPromptFor(task: CfaAssistTask): string {
   return task === 'extract' ? EXTRACT_SYSTEM_PROMPT : DRAFT_SYSTEM_PROMPT;
 }
 
+/** Default model: Claude Haiku 5.5 on Amazon Bedrock (vision, structured JSON). */
+export const DEFAULT_CFA_MODEL_ID = 'anthropic.claude-haiku-5-5';
+
+/** `anthropic_version` for the Messages body sent through Bedrock InvokeModel. */
+export const BEDROCK_ANTHROPIC_VERSION = 'bedrock-2023-05-31';
+
 /**
- * Sampling parameters: Anthropic models on Bedrock reject `temperature` on
- * current releases, so only open-weight and Amazon models get a low temperature.
+ * Output cap. Claude Haiku 5.5 thinks by default and thinking counts towards
+ * `max_tokens`; multi-part questions repeat the shared scenario in every part.
  */
-export function temperatureFor(modelId: string): number | undefined {
-  return modelId.includes('anthropic.') ? undefined : 0;
+export const ASSIST_MAX_TOKENS = 16_000;
+
+/**
+ * The handler sends Anthropic's Messages body through Bedrock InvokeModel, so
+ * only Claude models on Bedrock work (`anthropic.…`, or an inference profile
+ * such as `us.anthropic.…` / `global.anthropic.…`).
+ */
+export function isClaudeModelId(modelId: string): boolean {
+  return /(^|[.:/])anthropic\.claude-/.test(modelId);
+}
+
+export type AssistImage = { format: ImageFormat; base64: string };
+
+/**
+ * InvokeModel body: Messages API shape with base64 image blocks first, then the
+ * text prompt. No sampling parameters: current Claude models reject them.
+ */
+export function buildMessagesBody(input: {
+  system: string;
+  prompt: string;
+  images: AssistImage[];
+}): Record<string, unknown> {
+  return {
+    anthropic_version: BEDROCK_ANTHROPIC_VERSION,
+    max_tokens: ASSIST_MAX_TOKENS,
+    system: input.system,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          ...input.images.map((image) => ({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: `image/${image.format}`,
+              data: image.base64,
+            },
+          })),
+          { type: 'text', text: input.prompt },
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * Text of a Messages reply. Reads `text` blocks by type (the reply can start
+ * with `thinking` blocks) and turns a refusal or a cut-off reply into an error.
+ */
+export function messagesReplyText(body: unknown): string {
+  const record =
+    body && typeof body === 'object' && !Array.isArray(body)
+      ? (body as Record<string, unknown>)
+      : null;
+  if (!record) throw new Error('The model reply could not be read.');
+  if (record.stop_reason === 'refusal') {
+    throw new Error('The model declined this request. Try again or type the question in.');
+  }
+  if (record.stop_reason === 'max_tokens') {
+    throw new Error('The model reply was cut off. Try fewer screenshots at once.');
+  }
+  const content = Array.isArray(record.content) ? record.content : [];
+  const text = content
+    .map((block) =>
+      block &&
+      typeof block === 'object' &&
+      (block as Record<string, unknown>).type === 'text' &&
+      typeof (block as Record<string, unknown>).text === 'string'
+        ? ((block as Record<string, unknown>).text as string)
+        : '',
+    )
+    .join('')
+    .trim();
+  if (!text) throw new Error('The model reply had no text.');
+  return text;
 }
 
 /** Strip code fences / surrounding prose and return a JSON object string. */
