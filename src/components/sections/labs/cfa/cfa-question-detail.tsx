@@ -18,7 +18,8 @@ import {
   cfaSecondaryButtonClassName,
 } from '@/components/sections/labs/cfa/cfa-ui';
 import { cfa } from '@/data';
-import { fill, formatDate, formatDateTime } from '@/lib/cfa/format';
+import { fill, formatDate, formatDateTime, stemPreview } from '@/lib/cfa/format';
+import { questionGroup } from '@/lib/cfa/groups';
 import { questionToDraft } from '@/lib/cfa/question';
 import { moduleName, readingName } from '@/lib/cfa/syllabus';
 import type { CfaAttemptMode, CfaQuestion, CfaQuestionInput } from '@/lib/cfa/types';
@@ -74,6 +75,10 @@ function DetailBody({ questionId }: { questionId: string }) {
   );
   const openFlags = bank.flags.filter((flag) => flag.questionId === questionId && !flag.resolvedAt);
   const deck = bank.reviewStates.find((state) => state.questionId === questionId) ?? null;
+  const parts = useMemo(
+    () => (question ? questionGroup(question, bank.questions) : []),
+    [bank.questions, question],
+  );
 
   if (!question) {
     return (
@@ -161,6 +166,7 @@ function DetailBody({ questionId }: { questionId: string }) {
       {confirmingDelete ? (
         <div className={cn(cfaCardClassName, 'space-y-3 border-red-300 dark:border-red-800')} role="alertdialog" aria-label={copy.deleteLabel}>
           <p className="font-body text-sm">{copy.deleteConfirmLabel}</p>
+          {parts.length > 1 ? <p className={cfaMutedClassName}>{copy.deleteGroupNote}</p> : null}
           {error ? <p className={cfaErrorClassName}>{error}</p> : null}
           <div className="flex gap-2">
             <button
@@ -182,6 +188,35 @@ function DetailBody({ questionId }: { questionId: string }) {
         <CfaQuestionStatic question={question} />
         <CfaExplanation question={question} />
       </article>
+
+      {parts.length > 1 ? (
+        <Section title={copy.partsHeading}>
+          <ol className="space-y-2">
+            {parts.map((part, index) => {
+              const label = fill(copy.partLabel, { part: part.groupPart ?? String(index + 1) });
+              const current = part.id === question.id;
+              return (
+                <li
+                  key={part.id}
+                  className={cn(cfaCardClassName, 'p-3', current && 'border-[var(--primary)]')}
+                  aria-current={current ? 'page' : undefined}
+                >
+                  <p className="font-body text-sm font-medium">
+                    {current ? (
+                      `${label} · ${copy.thisPartLabel}`
+                    ) : (
+                      <Link href={`/labs/cfa/questions/${part.id}`} className={cfaLinkClassName}>
+                        {label}
+                      </Link>
+                    )}
+                  </p>
+                  <p className={cfaMutedClassName}>{stemPreview(part.stem)}</p>
+                </li>
+              );
+            })}
+          </ol>
+        </Section>
+      ) : null}
 
       <dl className="grid gap-x-6 gap-y-2 font-body text-sm sm:grid-cols-[auto_minmax(0,1fr)]">
         <dt className="text-[var(--mono-500)]">{cfa.form.losLabel}</dt>

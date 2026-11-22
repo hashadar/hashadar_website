@@ -23,6 +23,10 @@ export type QuestionDraft = {
   calculator: string;
   source: string;
   screenshotKeys: string[];
+  /** Question group fields, carried through unchanged (not edited in the form). */
+  groupId: string | null;
+  groupOrder: number | null;
+  groupPart: string | null;
 };
 
 export type DraftIssue =
@@ -47,6 +51,9 @@ export function emptyDraft(partial: Partial<QuestionDraft> = {}): QuestionDraft 
     calculator: '',
     source: '',
     screenshotKeys: [],
+    groupId: null,
+    groupOrder: null,
+    groupPart: null,
     ...partial,
   };
 }
@@ -112,6 +119,9 @@ export function draftToInput(
     calculator: orNull(draft.calculator),
     source: orNull(draft.source),
     screenshotKeys: [...draft.screenshotKeys],
+    groupId: draft.groupId,
+    groupOrder: draft.groupId ? draft.groupOrder : null,
+    groupPart: draft.groupId ? draft.groupPart : null,
   };
 }
 
@@ -130,5 +140,8 @@ export function questionToDraft(question: CfaQuestionInput): QuestionDraft {
     calculator: question.calculator ?? '',
     source: question.source ?? '',
     screenshotKeys: [...question.screenshotKeys],
+    groupId: question.groupId,
+    groupOrder: question.groupOrder,
+    groupPart: question.groupPart,
   };
 }

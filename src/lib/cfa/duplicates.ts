@@ -51,15 +51,29 @@ export type DuplicateMatch = {
   similarity: number;
 };
 
+/**
+ * Near-duplicates of `stem` in the bank. Skips the Question being edited
+ * (`excludeId`) and its sibling parts (`excludeGroupId`), which share the
+ * scenario text by design.
+ */
 export function findNearDuplicates(
   stem: string,
   questions: readonly CfaQuestion[],
-  options: { threshold?: number; excludeId?: string | null; limit?: number } = {},
+  options: {
+    threshold?: number;
+    excludeId?: string | null;
+    excludeGroupId?: string | null;
+    limit?: number;
+  } = {},
 ): DuplicateMatch[] {
   const threshold = options.threshold ?? NEAR_DUPLICATE_THRESHOLD;
   if (!stem.trim()) return [];
   return questions
-    .filter((question) => question.id !== options.excludeId)
+    .filter(
+      (question) =>
+        question.id !== options.excludeId &&
+        !(options.excludeGroupId && question.groupId === options.excludeGroupId),
+    )
     .map((question) => ({
       question,
       similarity: stemSimilarity(stem, question.stem),

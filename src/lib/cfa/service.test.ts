@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createMemoryCfaScreenshotStorage } from '@/lib/cfa/screenshots';
 import { createCfaService } from '@/lib/cfa/service';
 import { createMemoryCfaStore } from '@/lib/cfa/store';
-import { makeQuestion, makeReviewState } from '@/test/fixtures/cfa';
+import { makeGroup, makeQuestion, makeReviewState } from '@/test/fixtures/cfa';
 
 function setup() {
   const question = makeQuestion({ screenshotKeys: ['screenshots/c-1/1.png'] });
@@ -90,6 +90,31 @@ describe('CfaService.deleteQuestion', () => {
     expect(after.attempts).toHaveLength(1);
     expect(screenshots.objects.size).toBe(0);
     expect(await store.getQuestion(question.id)).toBeNull();
+  });
+});
+
+describe('CfaService.deleteQuestion in a Question group', () => {
+  it('keeps the sibling parts, the group and the screenshots they still use', async () => {
+    const shared = ['screenshots/c-2/1.png', 'screenshots/c-2/2.png'];
+    const [a, b, c] = makeGroup(3, { screenshotKeys: shared });
+    const store = createMemoryCfaStore({ questions: [a, b, c] });
+    const screenshots = createMemoryCfaScreenshotStorage();
+    for (const key of shared) await screenshots.upload(key, new Blob(['x']), 'image/png');
+    const service = createCfaService({ store, screenshots });
+
+    await service.deleteQuestion(b, await service.loadBank());
+    const after = await service.loadBank();
+    expect(after.questions.map((q) => [q.id, q.groupId, q.groupOrder])).toEqual([
+      [a.id, a.groupId, 0],
+      [c.id, a.groupId, 2],
+    ]);
+    expect(screenshots.objects.size).toBe(2);
+
+    // The last part to go takes the screenshots with it.
+    await service.deleteQuestion(a, await service.loadBank());
+    expect(screenshots.objects.size).toBe(2);
+    await service.deleteQuestion(c, await service.loadBank());
+    expect(screenshots.objects.size).toBe(0);
   });
 });
 

@@ -40,6 +40,9 @@ export type AmplifyCfaQuestionRow = {
   calculator?: string | null;
   source?: string | null;
   screenshotKeys?: Array<string | null> | null;
+  groupId?: string | null;
+  groupOrder?: number | null;
+  groupPart?: string | null;
   createdAt: string;
   updatedAt?: string | null;
 };
@@ -138,6 +141,9 @@ export function mapQuestionRow(row: AmplifyCfaQuestionRow): CfaQuestion {
     screenshotKeys: (row.screenshotKeys ?? []).filter(
       (key): key is string => typeof key === 'string' && key.length > 0,
     ),
+    groupId: row.groupId || null,
+    groupOrder: typeof row.groupOrder === 'number' ? row.groupOrder : null,
+    groupPart: row.groupPart || null,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt ?? null,
   };

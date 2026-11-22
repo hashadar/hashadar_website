@@ -29,8 +29,14 @@ export type CfaService = {
   loadBank: () => Promise<CfaBank>;
   createQuestion: (input: CfaQuestionInput) => Promise<CfaQuestion>;
   updateQuestion: (id: string, input: CfaQuestionInput) => Promise<CfaQuestion>;
-  /** Removes the Question, its Leitner state, Flags and screenshots; Attempts stay. */
-  deleteQuestion: (question: CfaQuestion, bank: Pick<CfaBank, 'flags' | 'reviewStates'>) => Promise<void>;
+  /**
+   * Removes the Question, its Leitner state, Flags and the screenshots no other
+   * Question uses (sibling parts share theirs); Attempts and sibling parts stay.
+   */
+  deleteQuestion: (
+    question: CfaQuestion,
+    bank: Pick<CfaBank, 'questions' | 'flags' | 'reviewStates'>,
+  ) => Promise<void>;
   recordAttempt: (input: {
     result: SetResult;
     mode: CfaAttemptMode;
@@ -71,8 +77,13 @@ export function createCfaService(options: {
       for (const flag of bank.flags) {
         if (flag.questionId === question.id) cleanups.push(store.deleteFlag(flag.id));
       }
+      const keysInUse = new Set(
+        bank.questions
+          .filter((other) => other.id !== question.id)
+          .flatMap((other) => other.screenshotKeys),
+      );
       for (const key of question.screenshotKeys) {
-        cleanups.push(screenshots.remove(key));
+        if (!keysInUse.has(key)) cleanups.push(screenshots.remove(key));
       }
       await Promise.allSettled(cleanups);
     },

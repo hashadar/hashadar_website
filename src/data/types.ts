@@ -1142,6 +1142,7 @@ export interface CfaCopyCapture {
   importLinkLabel: string;
   multipleFoundLabel: string;
   questionOfLabel: string;
+  partOfLabel: string;
   skipLabel: string;
   savedLabel: string;
   warningsLabel: string;
@@ -1289,6 +1290,10 @@ export interface CfaCopyQuestionDetail {
   deleteConfirmLabel: string;
   deleteConfirmButtonLabel: string;
   deletingLabel: string;
+  deleteGroupNote: string;
+  partsHeading: string;
+  partLabel: string;
+  thisPartLabel: string;
   screenshotsHeading: string;
   noScreenshotsLabel: string;
   openScreenshotLabel: string;

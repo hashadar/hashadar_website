@@ -600,7 +600,7 @@
   },
   "capture": {
     "heading": "Capture",
-    "description": "Turn screenshots of a practice question into a Question. Several screenshots are treated as one question unless they clearly hold separate ones.",
+    "description": "Turn screenshots of a practice question into a Question. Several screenshots are treated as one question unless they clearly hold separate ones. Lettered parts (1a, 1b, 1c) become linked parts that are practised together.",
     "moduleLabel": "Module",
     "readingLabel": "Reading",
     "sourceLabel": "Source",
@@ -621,6 +621,7 @@
     "importLinkLabel": "Paste JSON instead",
     "multipleFoundLabel": "Found {count} questions in these screenshots.",
     "questionOfLabel": "Question {index} of {count}",
+    "partOfLabel": "Part {part} of {count}",
     "skipLabel": "Skip this one",
     "savedLabel": "Saved. Ready for the next capture.",
     "warningsLabel": "Check before saving"
@@ -762,6 +763,10 @@
     "deleteConfirmLabel": "Delete this question? Its Mistakes deck state and flags are removed; past attempts stay in your history.",
     "deleteConfirmButtonLabel": "Delete question",
     "deletingLabel": "Deleting…",
+    "deleteGroupNote": "The other parts of this question stay in your bank.",
+    "partsHeading": "Parts of this question",
+    "partLabel": "Part {part}",
+    "thisPartLabel": "This part",
     "screenshotsHeading": "Screenshots",
     "noScreenshotsLabel": "No screenshots (typed or imported).",
     "openScreenshotLabel": "Open screenshot {index}",

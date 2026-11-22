@@ -1,3 +1,4 @@
+import { groupIndex, shuffleKeepingGroups, takeWithGroups } from '@/lib/cfa/groups';
 import { shuffle, type Rng } from '@/lib/cfa/random';
 import { weightMidpoint } from '@/lib/cfa/syllabus';
 import type { CfaQuestion, CfaSyllabus } from '@/lib/cfa/types';
@@ -59,6 +60,11 @@ export function moduleWeights(syllabus: CfaSyllabus): Record<string, number> {
  * Pick a mixed Set weighted by exam weight. Within each Module, Questions
  * attempted least often come first (ties shuffled), then the whole Set is
  * shuffled so Modules interleave.
+ *
+ * Question groups: each part counts as one Question in the allocation, and
+ * taking any part takes the whole group (parts adjacent, in order). When a
+ * group overshoots a Module's share, the surplus comes off the next Modules,
+ * so the Set exceeds `total` by at most group size − 1.
  */
 export function pickWeightedSet(
   questions: readonly CfaQuestion[],
@@ -80,12 +86,22 @@ export function pickWeightedSet(
   );
   const allocation = allocateByWeight(available, moduleWeights(syllabus), total);
 
+  const groups = groupIndex(questions);
+  const taken = new Set<string>();
   const picked: CfaQuestion[] = [];
+  let surplus = 0;
   for (const [moduleId, count] of Object.entries(allocation)) {
+    const target = count - surplus;
+    if (target <= 0) {
+      surplus = -target;
+      continue;
+    }
     const pool = shuffle(byModule.get(moduleId) ?? [], rng).sort(
       (a, b) => (attemptCounts[a.id] ?? 0) - (attemptCounts[b.id] ?? 0),
     );
-    picked.push(...pool.slice(0, count));
+    const chosen = takeWithGroups(pool, target, groups, taken);
+    surplus = Math.max(0, chosen.length - target);
+    picked.push(...chosen);
   }
-  return shuffle(picked, rng);
+  return shuffleKeepingGroups(picked, rng);
 }

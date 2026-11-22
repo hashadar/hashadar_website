@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ASSIST_MAX_TOKENS,
   assistResultKey,
+  buildMessagesBody,
   buildUserPrompt,
   CFA_BUCKET_ENV,
   coerceJsonObject,
+  DEFAULT_CFA_MODEL_ID,
   imageFormatForKey,
+  isClaudeModelId,
   isValidScreenshotKey,
   MAX_ASSIST_IMAGES,
+  messagesReplyText,
   parseAssistArguments,
   systemPromptFor,
-  temperatureFor,
 } from './assist-core';
 
 const validKey = 'screenshots/capture-0001/1.png';
@@ -124,6 +128,13 @@ describe('prompts', () => {
     expect(prompt).toContain('Markdown table');
   });
 
+  it('splits lettered parts and repeats the shared scenario in each stem', () => {
+    const prompt = systemPromptFor('extract');
+    expect(prompt).toContain('"part":string|null');
+    expect(prompt).toContain('return every part as a separate question');
+    expect(prompt).toContain("Repeat the full shared scenario and every exhibit");
+  });
+
   it('includes module and reading context in the user prompt', () => {
     const text = buildUserPrompt(
       'extract',
@@ -146,10 +157,72 @@ describe('prompts', () => {
   });
 });
 
-describe('temperatureFor', () => {
-  it('omits temperature for Anthropic models only', () => {
-    expect(temperatureFor('us.meta.llama4-maverick-17b-instruct-v1:0')).toBe(0);
-    expect(temperatureFor('us.anthropic.example-model')).toBeUndefined();
+describe('Claude on Bedrock', () => {
+  it('defaults to Claude Haiku 5.5', () => {
+    expect(DEFAULT_CFA_MODEL_ID).toBe('anthropic.claude-haiku-5-5');
+  });
+
+  it('accepts Claude model ids and inference profiles only', () => {
+    expect(isClaudeModelId('anthropic.claude-haiku-5-5')).toBe(true);
+    expect(isClaudeModelId('us.anthropic.claude-haiku-5-5')).toBe(true);
+    expect(isClaudeModelId('global.anthropic.claude-haiku-5-5')).toBe(true);
+    expect(
+      isClaudeModelId(
+        'arn:aws:bedrock:us-east-1:111122223333:inference-profile/us.anthropic.claude-haiku-5-5',
+      ),
+    ).toBe(true);
+    expect(isClaudeModelId('us.meta.llama4-maverick-17b-instruct-v1:0')).toBe(false);
+  });
+
+  it('builds a Messages body with images before the prompt and no sampling parameters', () => {
+    const body = buildMessagesBody({
+      system: 'Placeholder system prompt',
+      prompt: 'Placeholder user prompt',
+      images: [
+        { format: 'png', base64: 'cG5n' },
+        { format: 'jpeg', base64: 'anBn' },
+      ],
+    });
+    expect(body).toEqual({
+      anthropic_version: 'bedrock-2023-05-31',
+      max_tokens: ASSIST_MAX_TOKENS,
+      system: 'Placeholder system prompt',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/png', data: 'cG5n' } },
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'anBn' } },
+            { type: 'text', text: 'Placeholder user prompt' },
+          ],
+        },
+      ],
+    });
+    expect(body).not.toHaveProperty('temperature');
+  });
+
+  it('reads text blocks by type and skips thinking blocks', () => {
+    expect(
+      messagesReplyText({
+        stop_reason: 'end_turn',
+        content: [
+          { type: 'thinking', thinking: '', signature: 'sig' },
+          { type: 'text', text: '{"questions":' },
+          { type: 'text', text: '[]}' },
+        ],
+      }),
+    ).toBe('{"questions":[]}');
+  });
+
+  it('turns a refusal, a cut-off reply or an empty reply into an error', () => {
+    expect(() => messagesReplyText({ stop_reason: 'refusal', content: [] })).toThrow(
+      /declined/,
+    );
+    expect(() =>
+      messagesReplyText({ stop_reason: 'max_tokens', content: [{ type: 'text', text: '{' }] }),
+    ).toThrow(/cut off/);
+    expect(() => messagesReplyText({ stop_reason: 'end_turn', content: [] })).toThrow();
+    expect(() => messagesReplyText(null)).toThrow();
   });
 });
 
