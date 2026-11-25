@@ -19,9 +19,9 @@ export const cfaAssist = defineFunction({
   timeoutSeconds: 300,
   memoryMB: 1024,
   environment: {
-    // Claude Haiku 5.5 (vision). Keep in step with DEFAULT_CFA_MODEL_ID in assist-core.ts.
+    // Claude Sonnet 4.6 (vision), EU inference profile. Keep in step with DEFAULT_CFA_MODEL_ID in assist-core.ts.
     BEDROCK_MODEL_ID:
-      process.env.CFA_BEDROCK_MODEL_ID?.trim() || 'anthropic.claude-haiku-5-5',
-    BEDROCK_REGION: process.env.CFA_BEDROCK_REGION?.trim() || 'us-east-1',
+      process.env.CFA_BEDROCK_MODEL_ID?.trim() || 'eu.anthropic.claude-sonnet-4-6',
+    BEDROCK_REGION: process.env.CFA_BEDROCK_REGION?.trim() || 'eu-west-2',
   },
 });

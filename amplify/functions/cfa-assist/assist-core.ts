@@ -180,15 +180,15 @@ export function systemPromptFor(task: CfaAssistTask): string {
   return task === 'extract' ? EXTRACT_SYSTEM_PROMPT : DRAFT_SYSTEM_PROMPT;
 }
 
-/** Default model: Claude Haiku 5.5 on Amazon Bedrock (vision, structured JSON). */
-export const DEFAULT_CFA_MODEL_ID = 'anthropic.claude-haiku-5-5';
+/** Default model: Claude Sonnet 4.6 on Amazon Bedrock (EU inference profile; vision, structured JSON). */
+export const DEFAULT_CFA_MODEL_ID = 'eu.anthropic.claude-sonnet-4-6';
 
 /** `anthropic_version` for the Messages body sent through Bedrock InvokeModel. */
 export const BEDROCK_ANTHROPIC_VERSION = 'bedrock-2023-05-31';
 
 /**
- * Output cap. Claude Haiku 5.5 thinks by default and thinking counts towards
- * `max_tokens`; multi-part questions repeat the shared scenario in every part.
+ * Output cap. Multi-part questions repeat the shared scenario in every part, and
+ * a model that thinks counts its thinking towards `max_tokens`.
  */
 export const ASSIST_MAX_TOKENS = 16_000;
 

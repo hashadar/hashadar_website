@@ -41,7 +41,7 @@ One Question in a Question group, labelled by its letter (“a”) and shown as 
 _Avoid_: sub-question, item
 
 **Extraction**:
-The vision-model step of a Capture that reads the screenshots and returns structured JSON: stem, options A/B/C, the answer only if it is visible, the explanation only if it is visible, calculator keystrokes only if shown, and the part label of each part of a multi-part question. Runs in the `cfa-assist` function on Claude Haiku 5.5 through Bedrock; the output is always reviewed before saving.
+The vision-model step of a Capture that reads the screenshots and returns structured JSON: stem, options A/B/C, the answer only if it is visible, the explanation only if it is visible, calculator keystrokes only if shown, and the part label of each part of a multi-part question. Runs in the `cfa-assist` function on Claude Sonnet 4.6 through Bedrock; the output is always reviewed before saving.
 _Avoid_: OCR (it does more), parsing, trusting an extracted answer without confirmation
 
 **Answer confirmation**:

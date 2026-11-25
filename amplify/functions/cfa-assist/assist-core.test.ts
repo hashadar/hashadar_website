@@ -158,8 +158,8 @@ describe('prompts', () => {
 });
 
 describe('Claude on Bedrock', () => {
-  it('defaults to Claude Haiku 5.5', () => {
-    expect(DEFAULT_CFA_MODEL_ID).toBe('anthropic.claude-haiku-5-5');
+  it('defaults to Claude Sonnet 4.6', () => {
+    expect(DEFAULT_CFA_MODEL_ID).toBe('eu.anthropic.claude-sonnet-4-6');
   });
 
   it('accepts Claude model ids and inference profiles only', () => {

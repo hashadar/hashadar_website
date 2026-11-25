@@ -30,7 +30,7 @@ cfnUserPool.adminCreateUserConfig = {
 };
 
 // Invoke on foundation models and inference profiles. Job OS Fit Insight
-// (Meta Llama) and the CFA Lab assist (Claude Haiku 5.5, vision extraction)
+// (Meta Llama) and the CFA Lab assist (Claude Sonnet 4.6, vision extraction)
 // share the grant.
 const bedrockInvoke = () =>
   new PolicyStatement({

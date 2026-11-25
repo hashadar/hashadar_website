@@ -23,7 +23,7 @@ The function gets the bucket name from the `CFA_SCREENSHOTS_BUCKET_NAME` env var
 
 ## Model
 
-Default: Claude Haiku 5.5, model id `anthropic.claude-haiku-5-5`, region `us-east-1`. Claude Haiku 5.5 is served on `bedrock-runtime` through `InvokeModel` (not the Converse API), so the function sends Anthropic's Messages body (`anthropic_version: bedrock-2023-05-31`) with the screenshots as base64 image blocks. It sends no `temperature` (current Claude models reject sampling parameters), reads the reply's `text` blocks by type (the model thinks by default, so a reply can start with `thinking` blocks), and turns a `refusal` or `max_tokens` stop into an error message. `max_tokens` is 16,000 because thinking counts towards it and multi-part questions repeat the shared scenario in every part.
+Default: Claude Sonnet 4.6, model id `eu.anthropic.claude-sonnet-4-6` (EU cross-region inference profile), region `eu-west-2`. Claude Sonnet 4.6 is served on `bedrock-runtime` through `InvokeModel` (not the Converse API), so the function sends Anthropic's Messages body (`anthropic_version: bedrock-2023-05-31`) with the screenshots as base64 image blocks. It sends no `temperature` (current Claude models reject sampling parameters), reads the reply's `text` blocks by type (a reply can start with `thinking` blocks on models that think by default), and turns a `refusal` or `max_tokens` stop into an error message. `max_tokens` is 16,000 because thinking, where a model does it, counts towards it and multi-part questions repeat the shared scenario in every part.
 
 Until November 2026 the default was Meta Llama 4 Maverick (`us.meta.llama4-maverick-17b-instruct-v1:0`) through Converse. Bedrock then marked it Legacy and refused calls from accounts that had not used it in 30 days.
 
@@ -31,14 +31,14 @@ Override at deploy time with Amplify env vars read while the backend synthesises
 
 | Variable | Default | Notes |
 |----------|---------|-------|
-| `CFA_BEDROCK_MODEL_ID` | `anthropic.claude-haiku-5-5` | A Claude model on Bedrock that accepts images: a base id (`anthropic.…`) or an inference profile (`us.anthropic.…`, `global.anthropic.…`). Any other model is refused with an error, because the function speaks the Messages body only. |
-| `CFA_BEDROCK_REGION` | `us-east-1` | Region of the Bedrock runtime client. |
+| `CFA_BEDROCK_MODEL_ID` | `eu.anthropic.claude-sonnet-4-6` | A Claude model on Bedrock that accepts images: a base id (`anthropic.…`) or an inference profile (`us.anthropic.…`, `global.anthropic.…`). Any other model is refused with an error, because the function speaks the Messages body only. |
+| `CFA_BEDROCK_REGION` | `eu-west-2` | Region of the Bedrock runtime client. |
 
 Changing only these env vars does **not** redeploy the backend: `scripts/amplify-backend-changed.ts` redeploys only when `amplify/` or backend packages change. Push any change under `amplify/` (or run `pipeline-deploy` by hand) after setting them.
 
 ## Deploy checklist
 
-1. **Bedrock model access (once per account).** In the Bedrock console in `us-east-1`, open the model catalogue, find *Claude Haiku 5.5* and run one prompt with an image in the playground, signed in as an administrator. If Bedrock asks for Anthropic use-case details or shows a *Model access* page, complete it there. The function's role only has `bedrock:InvokeModel`, so it cannot accept those terms itself. The IAM grant already covers `arn:aws:bedrock:*::foundation-model/*` and inference profiles.
+1. **Bedrock model access (once per account).** In the Bedrock console in `eu-west-2`, open the model catalogue, find *Claude Sonnet 4.6* and run one prompt with an image in the playground, signed in as an administrator. If Bedrock asks for Anthropic use-case details or shows a *Model access* page, complete it there. The function's role only has `bedrock:InvokeModel`, so it cannot accept those terms itself. The IAM grant already covers `arn:aws:bedrock:*::foundation-model/*` and inference profiles.
 2. **Sandbox (optional, to test before production).**
    1. `npm ci`
    2. With AWS credentials for the account: `npx ampx sandbox` (creates a personal backend and writes `amplify_outputs.json`).

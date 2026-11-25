@@ -93,7 +93,7 @@ export const handler: Schema['startCfaAssist']['functionHandler'] = async (
     const images = await Promise.all(
       screenshotKeys.map((key) => readImage(bucket, key)),
     );
-    // Claude Haiku 5.5 is served on bedrock-runtime through InvokeModel with
+    // Claude on Bedrock is served on bedrock-runtime through InvokeModel with
     // Anthropic's Messages body (not the Converse API).
     const response = await bedrock.send(
       new InvokeModelCommand({
