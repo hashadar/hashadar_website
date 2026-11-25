@@ -46,6 +46,20 @@ describe('Amplify CFA store', () => {
       los: null,
       explanationIsAiDrafted: false,
       screenshotKeys: ['screenshots/c/1.png'],
+      groupId: null,
+      groupOrder: null,
+      groupPart: null,
+    });
+  });
+
+  it('maps Question group fields', () => {
+    expect(
+      mapQuestionRow({ ...row, groupId: 'group-1', groupOrder: 2, groupPart: 'c' }),
+    ).toMatchObject({ groupId: 'group-1', groupOrder: 2, groupPart: 'c' });
+    expect(mapQuestionRow({ ...row, groupId: '', groupOrder: null, groupPart: '' })).toMatchObject({
+      groupId: null,
+      groupOrder: null,
+      groupPart: null,
     });
   });
 

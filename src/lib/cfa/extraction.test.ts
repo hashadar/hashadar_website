@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   normaliseAnswer,
   normaliseMathDelimiters,
+  normalisePart,
   parseExtractionOutput,
   parseImportJson,
   stripOptionLabel,
@@ -31,9 +32,29 @@ describe('parseExtractionOutput', () => {
           answer: 'B',
           explanation: placeholder.explanation,
           calculator: null,
+          part: null,
+          group: null,
         },
       ],
     });
+  });
+
+  it('reads the optional part and group of each part', () => {
+    const scenario = 'Placeholder Co. has the exhibit below.\n\n| Year | Units |\n|---|---|\n| 1 | 10 |';
+    const result = parseExtractionOutput({
+      questions: [
+        { ...placeholder, stem: `1a. ${scenario}\n\nWhat is the total?`, part: 'A' },
+        { ...placeholder, stem: `(b) ${scenario}\n\nWhat is the average?`, part: '1(b)', group: 7 },
+      ],
+    });
+    expect(result.ok && result.questions.map(({ part, group }) => ({ part, group }))).toEqual([
+      { part: 'a', group: null },
+      { part: 'b', group: '7' },
+    ]);
+    expect(result.ok && result.questions.map((question) => question.stem.slice(0, 15))).toEqual([
+      'Placeholder Co.',
+      'Placeholder Co.',
+    ]);
   });
 
   it('accepts a bare object or array, and code fences', () => {
@@ -91,11 +112,39 @@ describe('stripQuestionNumber', () => {
     expect(stripQuestionNumber('**7.** Which option')).toBe('Which option');
   });
 
+  it('drops sub-part labels', () => {
+    expect(stripQuestionNumber('1a. Which option')).toBe('Which option');
+    expect(stripQuestionNumber('1A) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('1(a) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('1 (b) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('(c) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('(c): Which option')).toBe('Which option');
+    expect(stripQuestionNumber('a) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Part a: Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Part (b) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Question 1(b): Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Question 1b. Which option')).toBe('Which option');
+    expect(stripQuestionNumber('Q2(c) Which option')).toBe('Which option');
+    expect(stripQuestionNumber('**1b.** Which option')).toBe('Which option');
+    expect(stripQuestionNumber('1. (a) Which option')).toBe('Which option');
+  });
+
   it('keeps stems that merely start with a number', () => {
     expect(stripQuestionNumber('1.5 million placeholder shares')).toBe('1.5 million placeholder shares');
     expect(stripQuestionNumber('Q3 placeholder sales rose')).toBe('Q3 placeholder sales rose');
     expect(stripQuestionNumber('100 placeholder units')).toBe('100 placeholder units');
     expect(stripQuestionNumber('1.')).toBe('1.');
+  });
+
+  it('keeps stems that merely start with a letter or a number', () => {
+    expect(stripQuestionNumber('A placeholder firm reports')).toBe('A placeholder firm reports');
+    expect(stripQuestionNumber('An analyst at a placeholder firm')).toBe('An analyst at a placeholder firm');
+    expect(stripQuestionNumber('Partial placeholder data')).toBe('Partial placeholder data');
+    expect(stripQuestionNumber('Part of a placeholder fund')).toBe('Part of a placeholder fund');
+    expect(stripQuestionNumber('3d placeholder printing')).toBe('3d placeholder printing');
+    expect(stripQuestionNumber('10x placeholder leverage')).toBe('10x placeholder leverage');
+    expect(stripQuestionNumber('1.5 million placeholder shares')).toBe('1.5 million placeholder shares');
+    expect(stripQuestionNumber('(c)')).toBe('(c)');
   });
 
   it('applies to extracted and imported stems', () => {
@@ -127,6 +176,19 @@ describe('small normalisers', () => {
     expect(stripOptionLabel('(b) Higher')).toBe('Higher');
     expect(stripOptionLabel('C) $x$')).toBe('$x$');
     expect(stripOptionLabel('Above par')).toBe('Above par');
+  });
+
+  it('reads part labels in common forms', () => {
+    expect(normalisePart('a')).toBe('a');
+    expect(normalisePart('(B)')).toBe('b');
+    expect(normalisePart('1b')).toBe('b');
+    expect(normalisePart('1 (c)')).toBe('c');
+    expect(normalisePart('Part d')).toBe('d');
+    expect(normalisePart('ii')).toBe('ii');
+    expect(normalisePart(2)).toBe('2');
+    expect(normalisePart('')).toBeNull();
+    expect(normalisePart(null)).toBeNull();
+    expect(normalisePart('a very long label')).toBeNull();
   });
 
   it('leaves dollar maths untouched', () => {
@@ -211,5 +273,49 @@ describe('parseImportJson', () => {
     expect(parseImportJson('{', testSyllabus, defaults).errors[0].message).toBe(
       'Not valid JSON.',
     );
+  });
+
+  it('links items that share a group, in paste order, labelled by part', () => {
+    let next = 0;
+    const result = parseImportJson(
+      JSON.stringify([
+        { ...placeholder, group: 'case-1', part: 'b' },
+        { ...placeholder, group: 'other' },
+        { ...placeholder },
+        { ...placeholder, group: 'case-1', part: '(c)' },
+        { ...placeholder, group: 2 },
+        { ...placeholder, group: 2 },
+      ]),
+      testSyllabus,
+      defaults,
+      { newGroupId: () => `group-${(next += 1)}` },
+    );
+    expect(result.errors).toEqual([]);
+    expect(
+      result.items.map(({ groupId, groupOrder, groupPart }) => ({ groupId, groupOrder, groupPart })),
+    ).toEqual([
+      { groupId: 'group-1', groupOrder: 0, groupPart: 'b' },
+      // A group with one item is a standalone Question.
+      { groupId: null, groupOrder: null, groupPart: null },
+      { groupId: null, groupOrder: null, groupPart: null },
+      { groupId: 'group-1', groupOrder: 1, groupPart: 'c' },
+      // Without a part, parts are lettered in order.
+      { groupId: 'group-2', groupOrder: 0, groupPart: 'a' },
+      { groupId: 'group-2', groupOrder: 1, groupPart: 'b' },
+    ]);
+  });
+
+  it('links only the valid items of a group', () => {
+    const result = parseImportJson(
+      JSON.stringify([
+        { ...placeholder, group: 'case', answer: null },
+        { ...placeholder, group: 'case' },
+      ]),
+      testSyllabus,
+      defaults,
+      { newGroupId: () => 'group-x' },
+    );
+    expect(result.errors.map((error) => error.index)).toEqual([1]);
+    expect(result.items[0]).toMatchObject({ groupId: null, groupOrder: null, groupPart: null });
   });
 });

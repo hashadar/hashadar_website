@@ -76,4 +76,15 @@ describe('question drafts', () => {
     const draft = questionToDraft(question);
     expect(draft).toMatchObject({ answer: 'B', answerConfirmed: true, explanation: '' });
   });
+
+  it('keeps a part in its Question group through an edit', () => {
+    const question = makeQuestion({ groupId: 'group-1', groupOrder: 1, groupPart: 'b' });
+    const input = draftToInput(questionToDraft(question), testSyllabus);
+    expect(input).toMatchObject({ groupId: 'group-1', groupOrder: 1, groupPart: 'b' });
+    expect(draftToInput(ready, testSyllabus)).toMatchObject({
+      groupId: null,
+      groupOrder: null,
+      groupPart: null,
+    });
+  });
 });

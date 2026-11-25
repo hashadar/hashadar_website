@@ -80,8 +80,12 @@ export function CfaQuestionForm({
   const selectedModule = findModule(syllabus, draft.module);
   const deferredStem = useDeferredValue(draft.stem);
   const duplicates = useMemo(
-    () => findNearDuplicates(deferredStem, bank.questions, { excludeId: excludeQuestionId }),
-    [bank.questions, deferredStem, excludeQuestionId],
+    () =>
+      findNearDuplicates(deferredStem, bank.questions, {
+        excludeId: excludeQuestionId,
+        excludeGroupId: draft.groupId,
+      }),
+    [bank.questions, deferredStem, excludeQuestionId, draft.groupId],
   );
   const losSuggestions = useMemo(() => {
     const values = new Set<string>();

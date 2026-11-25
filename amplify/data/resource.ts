@@ -179,6 +179,11 @@ const schema = a.schema({
       calculator: a.string(),
       source: a.string(),
       screenshotKeys: a.string().array(),
+      // Question group: parts of one multi-part question share groupId and
+      // are ordered by groupOrder; groupPart is the label shown ("a").
+      groupId: a.string(),
+      groupOrder: a.integer(),
+      groupPart: a.string(),
     })
     .authorization((allow) => [
       allow.authenticated().to(['read', 'create', 'update', 'delete']),

@@ -36,6 +36,15 @@ export type CfaQuestion = {
   calculator: string | null;
   source: string | null;
   screenshotKeys: string[];
+  /**
+   * Question group: the parts of one multi-part question (1a, 1b, 1c) share
+   * this id. Null for a standalone Question.
+   */
+  groupId: string | null;
+  /** Order of this part within its group (extraction or paste order). */
+  groupOrder: number | null;
+  /** Part label for display, e.g. "a". */
+  groupPart: string | null;
   createdAt: string;
   updatedAt: string | null;
 };

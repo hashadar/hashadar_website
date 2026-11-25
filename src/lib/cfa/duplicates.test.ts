@@ -4,7 +4,7 @@ import {
   normaliseStem,
   stemSimilarity,
 } from '@/lib/cfa/duplicates';
-import { makeQuestion } from '@/test/fixtures/cfa';
+import { makeGroup, makeQuestion } from '@/test/fixtures/cfa';
 
 const stem =
   'A placeholder widget pays 4.5% a year for five years. Given the table below, which value is closest to the widget price today?';
@@ -48,5 +48,17 @@ describe('findNearDuplicates', () => {
       findNearDuplicates(stem, [original], { excludeId: original.id }),
     ).toEqual([]);
     expect(findNearDuplicates('   ', [original])).toEqual([]);
+  });
+
+  it('ignores sibling parts that share the scenario', () => {
+    const [a, b] = makeGroup(2);
+    const loose = makeQuestion({ stem: b.stem });
+    expect(
+      findNearDuplicates(a.stem, [b, loose], { excludeGroupId: a.groupId }).map(
+        (match) => match.question.id,
+      ),
+    ).toEqual([loose.id]);
+    // Without the group, siblings would be flagged against each other.
+    expect(findNearDuplicates(a.stem, [b]).map((match) => match.question.id)).toEqual([b.id]);
   });
 });

@@ -29,9 +29,9 @@ cfnUserPool.adminCreateUserConfig = {
   allowAdminCreateUserOnly: true,
 };
 
-// Open-weight Bedrock models (e.g. Meta Llama) need invoke on foundation
-// models and inference profiles; no Marketplace subscription required.
-// Job OS Fit Insight and the CFA Lab assist (vision extraction) share the grant.
+// Invoke on foundation models and inference profiles. Job OS Fit Insight
+// (Meta Llama) and the CFA Lab assist (Claude Sonnet 4.6, vision extraction)
+// share the grant.
 const bedrockInvoke = () =>
   new PolicyStatement({
     actions: [

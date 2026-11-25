@@ -5,7 +5,7 @@ import {
   moduleWeights,
   pickWeightedSet,
 } from '@/lib/cfa/weighting';
-import { makeQuestion, testSyllabus } from '@/test/fixtures/cfa';
+import { makeGroup, makeQuestion, testSyllabus } from '@/test/fixtures/cfa';
 
 describe('allocateByWeight', () => {
   it('splits proportionally to weight', () => {
@@ -93,6 +93,30 @@ describe('pickWeightedSet', () => {
     expect(set.map((q) => q.id).sort()).toEqual(
       alpha.slice(8).map((q) => q.id).sort(),
     );
+  });
+});
+
+describe('pickWeightedSet with Question groups', () => {
+  it('takes whole groups but exceeds the total by at most group size − 1', () => {
+    const bank = [
+      ...makeGroup(3, { module: 'alpha' }),
+      ...makeGroup(3, { module: 'alpha' }),
+      ...makeGroup(3, { module: 'beta', reading: 'beta-one' }),
+      ...makeGroup(3, { module: 'gamma', reading: 'gamma-one' }),
+      ...Array.from({ length: 4 }, () => makeQuestion({ module: 'gamma', reading: 'gamma-one' })),
+    ];
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+      const set = pickWeightedSet(bank, testSyllabus, 7, { rng: seededRng(seed) });
+      expect(set.length).toBeGreaterThanOrEqual(7);
+      expect(set.length).toBeLessThanOrEqual(7 + 2);
+      const groupIds = new Set(set.map((q) => q.groupId).filter(Boolean));
+      for (const groupId of groupIds) {
+        const parts = set.filter((q) => q.groupId === groupId);
+        expect(parts).toHaveLength(3);
+        const start = set.indexOf(parts[0]);
+        expect(set.slice(start, start + 3).map((q) => q.groupOrder)).toEqual([0, 1, 2]);
+      }
+    }
   });
 });
 
